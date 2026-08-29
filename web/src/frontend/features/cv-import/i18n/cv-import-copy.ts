@@ -314,6 +314,8 @@ export const cvCopy = (locale: CvLocale) =>
           currentRole: "Công việc hiện tại",
           currentStudy: "Đang học",
           matchingSkill: "Một kỹ năng tương ứng đã có trong hồ sơ.",
+          replacementUnavailable:
+            "Chưa có mục nào trong Hồ sơ để thay thế. Bạn có thể thêm đề xuất này hoặc bỏ qua.",
           currentProfile: "Hồ sơ hiện tại",
           proposed: "Đề xuất",
           decisionFor: "Quyết định cho",
@@ -563,6 +565,8 @@ export const cvCopy = (locale: CvLocale) =>
           currentRole: "Current role",
           currentStudy: "Current study",
           matchingSkill: "A matching skill is already on the profile.",
+          replacementUnavailable:
+            "There are no Profile items to replace. Add this proposal or skip it.",
           currentProfile: "Current profile",
           proposed: "Proposed",
           decisionFor: "Decision for",

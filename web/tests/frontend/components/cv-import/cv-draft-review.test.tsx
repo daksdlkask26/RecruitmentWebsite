@@ -182,6 +182,74 @@ describe("CV draft review", () => {
     });
   });
 
+  it("hides replacement actions and explains the available choices when collection targets are empty", () => {
+    const firstImport = {
+      ...cvDraftReviewFixture,
+      currentProfile: {
+        ...cvDraftReviewFixture.currentProfile,
+        experiences: [],
+        education: [],
+        socialLinks: [],
+      },
+      reviewDecisions: {
+        ...cvDraftReviewFixture.reviewDecisions,
+        experiences: cvDraftReviewFixture.reviewDecisions.experiences.map(
+          (decision) => ({
+            ...decision,
+            action: "ADD" as const,
+            targetId: null,
+          }),
+        ),
+        education: cvDraftReviewFixture.reviewDecisions.education.map(
+          (decision) => ({
+            ...decision,
+            action: "ADD" as const,
+            targetId: null,
+          }),
+        ),
+        socialLinks: cvDraftReviewFixture.reviewDecisions.socialLinks.map(
+          (decision) => ({
+            ...decision,
+            action: "ADD" as const,
+            targetId: null,
+          }),
+        ),
+      },
+    };
+    render(<CvDraftReview initial={firstImport} csrfProof="csrf_test" />);
+
+    const experienceSection = screen
+      .getByRole("heading", { name: "Experience" })
+      .closest("section");
+    expect(experienceSection).not.toBeNull();
+    expect(
+      within(experienceSection as HTMLElement).queryByRole("radio", {
+        name: "Replace",
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(experienceSection as HTMLElement).getByText(
+        "There are no Profile items to replace. Add this proposal or skip it.",
+      ),
+    ).toBeVisible();
+  });
+
+  it("keeps replacement available when a collection has Profile targets", () => {
+    render(
+      <CvDraftReview initial={cvDraftReviewFixture} csrfProof="csrf_test" />,
+    );
+
+    const experienceSection = screen
+      .getByRole("heading", { name: "Experience" })
+      .closest("section");
+    expect(experienceSection).not.toBeNull();
+    expect(
+      within(experienceSection as HTMLElement).getByRole("radio", {
+        name: "Replace",
+      }),
+    ).toBeVisible();
+  });
+
   it("surfaces server field errors in a toast and highlights the matching input", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(
