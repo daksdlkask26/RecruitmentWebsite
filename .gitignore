@@ -90,3 +90,5 @@ web/tsconfig.tsbuildinfo
 # Local Google Drive backup credentials
 /SmartHireBackup/
 /backupwoker/
+
+/.codegraph/

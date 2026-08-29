@@ -53,6 +53,8 @@ function DecisionControls({
 }) {
   const locale = useWorkspaceLocale();
   const copy = cvCopy(locale).review;
+  const replaceAvailable = allowReplace && targets.length > 0;
+  const replaceUnavailable = allowReplace && !replaceAvailable;
   return (
     <fieldset className={styles.choices}>
       <legend className={styles.srOnly}>
@@ -65,7 +67,7 @@ function DecisionControls({
         {(
           [
             "ADD",
-            ...(allowReplace ? (["REPLACE"] as const) : []),
+            ...(replaceAvailable ? (["REPLACE"] as const) : []),
             "SKIP",
           ] as const
         ).map((candidate) => (
@@ -87,6 +89,11 @@ function DecisionControls({
           </label>
         ))}
       </div>
+      {replaceUnavailable ? (
+        <p className={styles.replacementUnavailable} role="note">
+          {copy.replacementUnavailable}
+        </p>
+      ) : null}
       {action === "REPLACE" ? (
         <label className={styles.target}>
           {copy.replaceCurrent}
