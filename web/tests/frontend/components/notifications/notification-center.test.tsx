@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NotificationCenter } from "@/frontend/features/notifications/components/notification-center";
+import { AppProviders } from "@/frontend/providers/app-providers";
 
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
@@ -53,7 +54,11 @@ describe("notification center", () => {
   });
 
   it("shows unread count, loads the panel, marks read, and navigates", async () => {
-    render(<NotificationCenter csrfProof="proof" locale="en" />);
+    render(
+      <AppProviders>
+        <NotificationCenter csrfProof="proof" locale="en" />
+      </AppProviders>,
+    );
     const bell = await screen.findByRole("button", {
       name: /notifications: 1 unread/i,
     });
@@ -71,8 +76,14 @@ describe("notification center", () => {
   });
 
   it("provides explicit severity and read labels instead of color only", async () => {
-    render(<NotificationCenter csrfProof="proof" locale="en" />);
-    fireEvent.click(await screen.findByRole("button", { name: /notifications/i }));
+    render(
+      <AppProviders>
+        <NotificationCenter csrfProof="proof" locale="en" />
+      </AppProviders>,
+    );
+    fireEvent.click(
+      await screen.findByRole("button", { name: /notifications/i }),
+    );
     expect(await screen.findByText("Important")).toBeInTheDocument();
     expect(screen.getByText("Unread")).toBeInTheDocument();
   });

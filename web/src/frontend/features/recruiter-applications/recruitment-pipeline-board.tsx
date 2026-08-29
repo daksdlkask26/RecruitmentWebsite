@@ -143,6 +143,7 @@ export function RecruitmentPipelineBoard({ jobId }: { jobId: string }) {
   const returnFocus = useRef<HTMLElement | null>(null);
   const assessmentReturnFocus = useRef<HTMLElement | null>(null);
   const previewCloseTimer = useRef<number | null>(null);
+  const previewVersion = useRef(0);
   const previewRef = useRef<HTMLElement | null>(null);
   const cards = useMemo(
     () =>
@@ -187,6 +188,7 @@ export function RecruitmentPipelineBoard({ jobId }: { jobId: string }) {
   }, [previewCard, previewPosition]);
 
   const cancelPreviewClose = () => {
+    previewVersion.current += 1;
     if (previewCloseTimer.current !== null) {
       window.clearTimeout(previewCloseTimer.current);
       previewCloseTimer.current = null;
@@ -199,6 +201,7 @@ export function RecruitmentPipelineBoard({ jobId }: { jobId: string }) {
     anchor: DOMRect,
   ) => {
     cancelPreviewClose();
+    const version = previewVersion.current;
     const popupWidth = 320;
     const viewportPadding = 16;
     const preferredLeft = anchor.right + 12;
@@ -206,14 +209,20 @@ export function RecruitmentPipelineBoard({ jobId }: { jobId: string }) {
       preferredLeft + popupWidth <= window.innerWidth - viewportPadding
         ? preferredLeft
         : Math.max(viewportPadding, anchor.left - popupWidth - 12);
-    setPreviewPosition({ top: anchor.top, left });
     if (pinned) {
+      setPreviewPosition({ top: anchor.top, left });
       setPreviewCard(card);
       setPreviewPinned(true);
       return;
     }
     if (previewPinned) return;
+    if (previewCard?.applicationId !== card.applicationId) {
+      setPreviewCard(null);
+      setPreviewPosition(null);
+    }
     previewCloseTimer.current = window.setTimeout(() => {
+      if (previewVersion.current !== version || previewPinned) return;
+      setPreviewPosition({ top: anchor.top, left });
       setPreviewCard(card);
       previewCloseTimer.current = null;
     }, 280);
@@ -222,7 +231,9 @@ export function RecruitmentPipelineBoard({ jobId }: { jobId: string }) {
   const schedulePreviewClose = () => {
     cancelPreviewClose();
     if (previewPinned) return;
+    const version = previewVersion.current;
     previewCloseTimer.current = window.setTimeout(() => {
+      if (previewVersion.current !== version) return;
       setPreviewCard(null);
       setPreviewPosition(null);
       previewCloseTimer.current = null;

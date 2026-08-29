@@ -3132,6 +3132,7 @@ model JobApplication {
   @@unique([candidateUserId, jobPostingId, applicationAttemptNumber])
   @@index([jobPostingId, stage, submittedAt])
   @@index([candidateUserId, submittedAt(sort: Desc)])
+  @@index([candidateUserId, lastStageChangedAt(sort: Desc), id(sort: Desc)])
   @@index([candidateUserId, aiAnalysisConsent])
   @@index([jobPostingId, submittedAt(sort: Desc), id(sort: Desc)])
   @@index([documentDeletedAt, documentDeletionDueAt])

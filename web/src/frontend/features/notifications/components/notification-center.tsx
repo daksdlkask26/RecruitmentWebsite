@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
-import { AppProviders } from "@/frontend/providers/app-providers";
 import {
   useNotificationMutations,
   useNotificationPages,
@@ -21,11 +20,7 @@ export function NotificationCenter(
     viewAllHref?: string;
   },
 ) {
-  return (
-    <AppProviders>
-      <NotificationCenterContent {...props} />
-    </AppProviders>
-  );
+  return <NotificationCenterContent {...props} />;
 }
 
 function NotificationCenterContent({
@@ -65,7 +60,8 @@ function NotificationCenterContent({
       }
     };
     window.addEventListener("pointerdown", closeOnOutsidePointer);
-    return () => window.removeEventListener("pointerdown", closeOnOutsidePointer);
+    return () =>
+      window.removeEventListener("pointerdown", closeOnOutsidePointer);
   }, [open]);
 
   async function openItem(item: NotificationItem) {

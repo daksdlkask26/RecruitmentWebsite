@@ -16,6 +16,7 @@ import {
   candidateApplicationListResponseSchema,
 } from "@/shared/contracts/candidate-applications";
 import { idempotencyKeySchema } from "@/shared/contracts/jobs/actions";
+import { withServerTiming } from "@/backend/observability/server-timing";
 
 const querySchema = z
   .object({
@@ -29,8 +30,10 @@ function errorResponse(error: unknown) {
 }
 
 export async function GET(request: Request) {
+  const startedAt = performance.now();
   try {
     const actor = await requireJobActor(request, { mutation: false });
+    const authenticatedAt = performance.now();
     const parsed = querySchema.safeParse(
       Object.fromEntries(new URL(request.url).searchParams.entries()),
     );
@@ -45,9 +48,18 @@ export async function GET(request: Request) {
       actor,
       parsed.data,
     );
-    return jobJson(candidateApplicationListResponseSchema.parse(result));
+    const response = jobJson(
+      candidateApplicationListResponseSchema.parse(result),
+    );
+    return withServerTiming(response, [
+      { name: "auth", durationMs: authenticatedAt - startedAt },
+      { name: "app", durationMs: performance.now() - authenticatedAt },
+      { name: "total", durationMs: performance.now() - startedAt },
+    ]);
   } catch (error) {
-    return errorResponse(error);
+    return withServerTiming(errorResponse(error), [
+      { name: "total", durationMs: performance.now() - startedAt },
+    ]);
   }
 }
 

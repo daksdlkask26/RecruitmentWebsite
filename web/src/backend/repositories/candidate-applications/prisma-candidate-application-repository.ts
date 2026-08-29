@@ -106,8 +106,34 @@ const trackerSelect = {
   },
 } satisfies Prisma.JobApplicationSelect;
 
+const summarySelect = {
+  id: true,
+  jobPostingId: true,
+  stage: true,
+  stageVersion: true,
+  submittedAt: true,
+  lastStageChangedAt: true,
+  withdrawalOutcome: true,
+  withdrawnAt: true,
+  jobSnapshot: true,
+  jobPosting: {
+    select: {
+      slug: true,
+      title: true,
+      location: true,
+      status: true,
+      removedAt: true,
+      company: { select: { displayName: true, logoUrl: true } },
+    },
+  },
+} satisfies Prisma.JobApplicationSelect;
+
 export type CandidateApplicationTrackerRow = Prisma.JobApplicationGetPayload<{
   select: typeof trackerSelect;
+}>;
+
+export type CandidateApplicationSummaryRow = Prisma.JobApplicationGetPayload<{
+  select: typeof summarySelect;
 }>;
 
 export class PrismaCandidateApplicationRepository {
@@ -127,7 +153,7 @@ export class PrismaCandidateApplicationRepository {
       cursor: cursor ? { id: cursor } : undefined,
       skip: cursor ? 1 : 0,
       take: limit + 1,
-      select: trackerSelect,
+      select: summarySelect,
     });
   }
 

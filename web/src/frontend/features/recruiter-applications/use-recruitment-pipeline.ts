@@ -25,7 +25,16 @@ type StageMoveOperation = Readonly<{ card: PipelineApplicationCard; targetStage:
 type LoadStageOptions = Readonly<{ background?: boolean }>;
 type PipelineLoadOptions = Readonly<{ preserve?: boolean }>;
 const emptyColumn = (): ColumnState => ({ page: null, loading: false, loadingMore: false, error: null });
-const pipelineRefreshIntervalMs = 2_000;
+const pipelineRefreshIntervalMs = 30_000;
+
+function countForStage(metadata: PipelineBoardMetadata, stage: PipelineBoardColumnStage) {
+  if (stage === "WITHDRAWN") return metadata.withdrawnCount ?? 0;
+  return metadata.stages.find((summary) => summary.stage === stage)?.count ?? 0;
+}
+
+function emptyStagePage(stage: PipelineBoardColumnStage, observedAt: string): PipelineBoardPage {
+  return { stage, items: [], nextCursor: null, hasMore: false, observedAt };
+}
 
 function pipelineMetadataChanged(current: PipelineBoardMetadata, next: PipelineBoardMetadata) {
   if (
@@ -126,8 +135,17 @@ export function useRecruitmentPipeline(jobId: string) {
       if (generation.current !== currentGeneration) return;
       metadataRef.current = next;
       setMetadata(next);
+      setColumns((current) => {
+        const updated = { ...current };
+        for (const stage of pipelineBoardColumnStages) {
+          if (countForStage(next, stage) === 0) {
+            updated[stage] = { page: emptyStagePage(stage, next.observedAt), loading: false, loadingMore: false, error: null };
+          }
+        }
+        return updated;
+      });
       await Promise.all(
-        pipelineBoardColumnStages.map((stage) =>
+        pipelineBoardColumnStages.filter((stage) => countForStage(next, stage) > 0).map((stage) =>
           loadStage(stage, undefined, { background: preserve }),
         ),
       );
@@ -219,7 +237,7 @@ export function useRecruitmentPipeline(jobId: string) {
       setAnnouncement(copy.movedSuccessfully(card.candidate.displayName));
       retryOperation.current = null;
       setCanRetryStageMove(false);
-      await Promise.all([loadStage(card.stage), loadStage(targetStage), load()]);
+      await load({ preserve: true });
       return true;
     } catch (cause) {
       setAnnouncement(copy.stageChangeFailed);

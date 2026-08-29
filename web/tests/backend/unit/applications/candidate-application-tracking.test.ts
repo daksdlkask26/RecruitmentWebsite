@@ -133,3 +133,55 @@ describe("candidate application withdrawal projection", () => {
     });
   });
 });
+
+describe("candidate application list projection", () => {
+  it("builds summaries from the lightweight list row", async () => {
+    const repository = {
+      list: vi.fn().mockResolvedValue([
+        {
+          id: "application-1",
+          jobPostingId: "job-1",
+          stage: "APPLIED",
+          stageVersion: 1,
+          submittedAt,
+          lastStageChangedAt: submittedAt,
+          withdrawalOutcome: null,
+          withdrawnAt: null,
+          jobSnapshot: {
+            title: "Software Engineer",
+            companyName: "Unity Trading Co.",
+            location: "Ho Chi Minh City",
+          },
+          jobPosting: {
+            slug: "software-engineer",
+            title: "Software Engineer",
+            location: "Ho Chi Minh City",
+            status: "ACTIVE",
+            removedAt: null,
+            company: { displayName: "Unity Trading Co.", logoUrl: null },
+          },
+        },
+      ]),
+    };
+
+    const result = await new CandidateApplicationTrackingService(
+      repository as never,
+    ).list({ userId: "candidate-1", sessionId: "session-1" });
+
+    expect(repository.list).toHaveBeenCalledWith("candidate-1", 24, undefined);
+    expect(result).toEqual({
+      applications: [
+        expect.objectContaining({
+          applicationId: "application-1",
+          jobTitle: "Software Engineer",
+          companyName: "Unity Trading Co.",
+          canonicalStage: "APPLIED",
+          publicStage: "APPLICATION_SUBMITTED",
+          publicOutcome: null,
+          jobAvailable: true,
+        }),
+      ],
+      nextCursor: null,
+    });
+  });
+});

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { prisma } from "@/backend/database/prisma";
 import type { Prisma } from "@/backend/generated/prisma/client";
 import {
@@ -37,7 +38,9 @@ function jsonValue(value: unknown): Prisma.InputJsonValue {
   return value as Prisma.InputJsonValue;
 }
 
-export async function readUserJobState(userId: string): Promise<UserJobState> {
+async function readUserJobStateFromDatabase(
+  userId: string,
+): Promise<UserJobState> {
   const [savedJobs, workspace] = await Promise.all([
     prisma.savedJob.findMany({
       where: { userId },
@@ -73,6 +76,8 @@ export async function readUserJobState(userId: string): Promise<UserJobState> {
       : [],
   });
 }
+
+export const readUserJobState = cache(readUserJobStateFromDatabase);
 
 export function projectUserJobState(state: UserJobState) {
   return {
@@ -119,7 +124,7 @@ export async function updateUserJobState(
       });
       break;
     case "hide": {
-      const current = await readUserJobState(userId);
+      const current = await readUserJobStateFromDatabase(userId);
       if (!current.hiddenJobIds.includes(mutation.jobId)) {
         await persistWorkspaceState(userId, {
           ...current,
@@ -129,7 +134,7 @@ export async function updateUserJobState(
       break;
     }
     case "unhide": {
-      const current = await readUserJobState(userId);
+      const current = await readUserJobStateFromDatabase(userId);
       await persistWorkspaceState(userId, {
         ...current,
         hiddenJobIds: current.hiddenJobIds.filter(
@@ -139,7 +144,7 @@ export async function updateUserJobState(
       break;
     }
     case "update-preferences": {
-      const current = await readUserJobState(userId);
+      const current = await readUserJobStateFromDatabase(userId);
       await persistWorkspaceState(userId, {
         ...current,
         jobPreferences: mutation.jobPreferences,
@@ -148,5 +153,5 @@ export async function updateUserJobState(
     }
   }
 
-  return readUserJobState(userId);
+  return readUserJobStateFromDatabase(userId);
 }

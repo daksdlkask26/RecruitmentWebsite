@@ -48,8 +48,8 @@ const page: PipelineStagePage = {
 
 const lockedStageCases: Array<[ApplicationStage, string]> = [
   ["HIRED", "Hired"],
-  ["OFFER_DECLINED", "Offer Declined"],
-  ["WAITLISTED", "Waitlisted"],
+  ["OFFER_DECLINED", "Offer declined"],
+  ["WAITLISTED", "Needs details"],
 ];
 
 describe("RecruitmentPipelineColumn footer", () => {
@@ -77,7 +77,7 @@ describe("RecruitmentPipelineColumn footer", () => {
     );
     expect(
       screen.getByRole("button", {
-        name: "Load more Applied applications",
+        name: "Load more New applications",
       }),
     ).toHaveClass("load-more-btn");
     expect(screen.getByRole("button", { name: "View full list" })).toHaveClass(
@@ -86,7 +86,7 @@ describe("RecruitmentPipelineColumn footer", () => {
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Load more Applied applications",
+        name: "Load more New applications",
       }),
     );
     expect(onLoadMore).toHaveBeenCalledWith("APPLIED");
@@ -105,7 +105,9 @@ describe("RecruitmentPipelineColumn footer", () => {
         showViewAll
       />,
     );
-    expect(screen.getByRole("button", { name: "Loading..." })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Loading applications…" }),
+    ).toBeDisabled();
   });
 
   it("renders Load more from explicit hasMore without a cursor", () => {
@@ -125,7 +127,7 @@ describe("RecruitmentPipelineColumn footer", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "Load more Applied applications",
+        name: "Load more New applications",
       }),
     ).toBeInTheDocument();
   });
@@ -226,8 +228,8 @@ describe("RecruitmentPipelineColumn withdrawn stage", () => {
       "true",
     );
     expect(
-      screen.getByLabelText("Withdrawn applications cannot be moved"),
-    ).toBeInTheDocument();
+      container.querySelector(".pipeline-column__header-tools .lock-icon"),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /sort withdrawn/i }),
     ).not.toBeInTheDocument();
@@ -236,7 +238,7 @@ describe("RecruitmentPipelineColumn withdrawn stage", () => {
 
 describe("RecruitmentPipelineColumn sort controls", () => {
   it.each(lockedStageCases)(
-    "renders the lock beside the title and sort control for %s",
+    "renders the sort control without a lock icon for %s",
     (stage, label) => {
       const stageKey = stage as ApplicationStage;
       const stageLabel = label as PipelineStageCount["label"];
@@ -270,7 +272,7 @@ describe("RecruitmentPipelineColumn sort controls", () => {
       expect(sortButton).toHaveClass("column-sort-btn");
       expect(
         container.querySelector(".pipeline-column__header-tools .lock-icon"),
-      ).toBeInTheDocument();
+      ).not.toBeInTheDocument();
       const menu = screen.getByRole("menu", {
         name: label + " sort options",
       });

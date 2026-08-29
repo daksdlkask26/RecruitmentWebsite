@@ -15,9 +15,11 @@ import {
 import { useEffect, useRef } from "react";
 import { NOTIFICATION_CHANGED_EVENT } from "./use-notification-context-read";
 
+const REFRESH_INTERVAL_MS = 30_000;
+
 const visibleInterval = () =>
   typeof document === "undefined" || document.visibilityState === "visible"
-    ? 4_000
+    ? REFRESH_INTERVAL_MS
     : false;
 
 async function readJson(response: Response) {
@@ -83,6 +85,7 @@ export function useNotificationUnreadCount() {
           }),
         ),
       ),
+    staleTime: REFRESH_INTERVAL_MS,
     refetchInterval: visibleInterval,
   });
   const previousUnreadCount = useRef<number | null>(null);
@@ -131,6 +134,7 @@ export function useNotificationPages(input: {
       );
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    staleTime: REFRESH_INTERVAL_MS,
     refetchInterval: visibleInterval,
   });
 }

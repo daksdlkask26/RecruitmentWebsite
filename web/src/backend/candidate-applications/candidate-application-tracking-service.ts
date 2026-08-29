@@ -26,6 +26,7 @@ import type { CandidateActor } from "@/backend/services/jobs/job-types";
 import { CandidateApplicationError } from "./candidate-application-errors";
 import {
   PrismaCandidateApplicationRepository,
+  type CandidateApplicationSummaryRow,
   type CandidateApplicationTrackerRow,
 } from "@/backend/repositories/candidate-applications/prisma-candidate-application-repository";
 
@@ -369,25 +370,40 @@ function tracker(row: CandidateApplicationTrackerRow): ApplicationTracker {
   });
 }
 
-function summary(
-  row: CandidateApplicationTrackerRow,
-): CandidateApplicationSummary {
-  const result = tracker(row);
+function summary(row: CandidateApplicationSummaryRow): CandidateApplicationSummary {
+  const canonicalStage = applicationStageSchema.parse(row.stage);
+  const publicOutcome =
+    row.withdrawalOutcome === "CANDIDATE_WITHDRAWN"
+      ? "WITHDRAWN"
+      : publicOutcomeForCanonicalStage(canonicalStage);
+  const publicStage =
+    row.withdrawalOutcome === "CANDIDATE_WITHDRAWN"
+      ? "OUTCOME"
+      : publicStageForCanonicalStage(canonicalStage);
+
   return candidateApplicationSummarySchema.parse({
-    applicationId: result.applicationId,
-    jobId: result.job.jobId,
-    jobSlug: result.job.slug,
-    jobTitle: result.job.title,
-    companyName: result.job.companyName,
-    companyLogoUrl: result.job.companyLogoUrl,
-    location: result.job.location,
-    publicStage: result.publicStage,
-    publicOutcome: result.publicOutcome,
-    canonicalStage: result.canonicalStage,
-    stageVersion: result.stageVersion,
-    submittedAt: result.submittedAt,
-    lastUpdatedAt: result.lastUpdatedAt,
-    jobAvailable: result.job.jobAvailable,
+    applicationId: row.id,
+    jobId: row.jobPostingId,
+    jobSlug: row.jobPosting.slug,
+    jobTitle: text(object(row.jobSnapshot).title) ?? row.jobPosting.title,
+    companyName:
+      text(object(row.jobSnapshot).companyName) ??
+      row.jobPosting.company.displayName,
+    companyLogoUrl: row.jobPosting.company.logoUrl,
+    location: text(object(row.jobSnapshot).location) ?? row.jobPosting.location,
+    publicStage,
+    publicOutcome,
+    canonicalStage,
+    stageVersion: row.stageVersion,
+    submittedAt: row.submittedAt.toISOString(),
+    lastUpdatedAt: new Date(
+      Math.max(
+        row.lastStageChangedAt.getTime(),
+        row.withdrawnAt?.getTime() ?? 0,
+      ),
+    ).toISOString(),
+    jobAvailable:
+      row.jobPosting.status === "ACTIVE" && row.jobPosting.removedAt === null,
   });
 }
 

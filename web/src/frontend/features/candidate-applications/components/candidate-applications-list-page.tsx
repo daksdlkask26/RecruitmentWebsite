@@ -31,6 +31,8 @@ import {
   type ApplicationListStatus,
 } from "./application-status-badge";
 
+const APPLICATION_REFRESH_INTERVAL_MS = 60_000;
+
 function formatDate(value: string, locale: "en" | "vi") {
   return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(
     new Date(value),
@@ -389,7 +391,7 @@ export function CandidateApplicationsListPage({
       timer = window.setTimeout(async () => {
         await refreshApplications();
         schedule();
-      }, 4_000);
+      }, APPLICATION_REFRESH_INTERVAL_MS);
     };
     const refreshNow = () => {
       if (!document.hidden) void refreshApplications();
