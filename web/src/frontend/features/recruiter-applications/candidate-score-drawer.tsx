@@ -88,6 +88,13 @@ export function CandidateScoreDrawer({
     void Promise.resolve(onApplicationOpened()).catch(() => undefined);
   }, [candidate.applicationId, onApplicationOpened]);
 
+  useEffect(() => {
+    setDetail(null);
+    setError(null);
+    setProfileReview(null);
+    setOpenDocument(null);
+  }, [candidate.applicationId]);
+
   const loadDetail = useCallback(
     async (signal?: AbortSignal) => {
       const response = await fetch(

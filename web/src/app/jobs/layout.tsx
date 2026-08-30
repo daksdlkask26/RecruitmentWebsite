@@ -9,6 +9,10 @@ import { JobBoardHeader } from "@/frontend/features/jobs/components/job-board-he
 import { JobInteractionProvider } from "@/frontend/features/jobs/components/job-interaction-provider";
 import { JobWorkspaceSearch } from "@/frontend/features/jobs/components/job-workspace-search";
 import { listCandidateVisibleJobSearchTaxonomy } from "@/backend/services/jobs/job-search-taxonomy";
+import {
+  projectUserJobState,
+  readUserJobState,
+} from "@/backend/services/jobs/user-job-state-store";
 
 export default async function JobsLayout({
   children,
@@ -20,6 +24,9 @@ export default async function JobsLayout({
   }));
 
   if (context) {
+    const initialUserJobState = projectUserJobState(
+      await readUserJobState(context.userId),
+    );
     return (
       <WorkspaceShell
         initialRecruiterStatus={context.initialRecruiterStatus}
@@ -29,7 +36,7 @@ export default async function JobsLayout({
         contentMode="job-board"
         initialWorkspaceMode="candidate"
       >
-        <JobInteractionProvider>
+        <JobInteractionProvider initialUserJobState={initialUserJobState}>
           <JobWorkspaceSearch taxonomy={taxonomy} />
           {children}
         </JobInteractionProvider>

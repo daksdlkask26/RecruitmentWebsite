@@ -7,7 +7,6 @@ import {
   Check,
   Inbox,
   List as ListIcon,
-  LockKeyhole,
   SlidersHorizontal,
 } from "lucide-react";
 import type {
@@ -152,12 +151,6 @@ export function RecruitmentPipelineColumn({
           </span>
         </div>
         <div className="column-head-tools pipeline-column__header-tools">
-          {locked ? (
-            <LockKeyhole
-              className="lock-icon pipeline-column__lock-icon"
-              aria-label={withdrawn ? copy.withdrawnLocked : copy.stageLocked}
-            />
-          ) : null}
           {canSort &&
           canonicalStage &&
           onToggleSortMenu &&

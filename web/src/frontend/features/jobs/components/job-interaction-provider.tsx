@@ -30,6 +30,10 @@ export type JobInteractionRecord = JobInteractionSeed & {
 };
 
 type FilterPreset = UserJobState["savedFilterPresets"][number];
+type UserJobStateView = Pick<
+  UserJobState,
+  "savedJobIds" | "hiddenJobIds" | "appliedJobIds"
+>;
 type UserJobStateMutation =
   | { action: "hide"; jobId: string }
   | { action: "unhide"; jobId: string };
@@ -82,8 +86,10 @@ async function readUserJobStateView() {
 
 export function JobInteractionProvider({
   children,
+  initialUserJobState,
 }: {
   children: React.ReactNode;
+  initialUserJobState?: UserJobStateView;
 }) {
   const locale = useWorkspaceLocale();
   const copy = useMemo(() => jobCopy(locale), [locale]);
@@ -97,7 +103,10 @@ export function JobInteractionProvider({
 
   useEffect(() => {
     let active = true;
-    void readUserJobStateView().then((view) => {
+    const state = initialUserJobState
+      ? Promise.resolve(initialUserJobState)
+      : readUserJobStateView();
+    void state.then((view) => {
       if (!active || !view) return;
       setRecords((current) => {
         const next = { ...current };
@@ -122,7 +131,7 @@ export function JobInteractionProvider({
     return () => {
       active = false;
     };
-  }, []);
+  }, [initialUserJobState]);
 
   const registerJob = useCallback((jobId: string, seed: JobInteractionSeed) => {
     setRecords((current) => {

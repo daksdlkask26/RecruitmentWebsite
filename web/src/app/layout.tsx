@@ -10,6 +10,7 @@ import "@fontsource/space-grotesk/700.css";
 import "@fontsource-variable/manrope/wght.css";
 import { serverEnvironment } from "@/backend/env/runtime";
 import { ThemeProvider } from "@/frontend/providers/theme-provider";
+import { AppProviders } from "@/frontend/providers/app-providers";
 import "./globals.css";
 import "@/frontend/components/ui/design-system.css";
 import { Toaster } from "sonner";
@@ -69,15 +70,17 @@ export default function RootLayout({
         />
       </head>
       <body suppressHydrationWarning>
-        <ThemeProvider>
-          {children}
-          <Toaster
-            className="app-toaster"
-            position="top-right"
-            richColors
-            toastOptions={{ className: "app-toast" }}
-          />
-        </ThemeProvider>
+        <AppProviders>
+          <ThemeProvider>
+            {children}
+            <Toaster
+              className="app-toaster"
+              position="top-right"
+              richColors
+              toastOptions={{ className: "app-toast" }}
+            />
+          </ThemeProvider>
+        </AppProviders>
       </body>
     </html>
   );

@@ -15,6 +15,7 @@ import {
   updateUserJobState,
   type UserJobStateMutation,
 } from "@/backend/services/jobs/user-job-state-store";
+import { withServerTiming } from "@/backend/observability/server-timing";
 
 const mutationSchema = z.discriminatedUnion("action", [
   z
@@ -50,15 +51,24 @@ const mutationSchema = z.discriminatedUnion("action", [
 ]);
 
 export async function GET(request: Request) {
+  const startedAt = performance.now();
   try {
     const actor = await requireJobActor(request, { mutation: false });
-    return jobJson(
+    const authenticatedAt = performance.now();
+    const response = jobJson(
       userJobStateViewSchema.parse(
         projectUserJobState(await readUserJobState(actor.userId)),
       ),
     );
+    return withServerTiming(response, [
+      { name: "auth", durationMs: authenticatedAt - startedAt },
+      { name: "app", durationMs: performance.now() - authenticatedAt },
+      { name: "total", durationMs: performance.now() - startedAt },
+    ]);
   } catch (error) {
-    return jobErrorResponse(error);
+    return withServerTiming(jobErrorResponse(error), [
+      { name: "total", durationMs: performance.now() - startedAt },
+    ]);
   }
 }
 
