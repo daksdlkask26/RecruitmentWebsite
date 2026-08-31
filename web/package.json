@@ -131,6 +131,7 @@
     "db:migrations:reconcile-names": "node scripts/reconcile-migration-names.mjs",
     "db:seed:jobs": "tsx scripts/seed-development-jobs.ts",
     "job-taxonomy:backfill": "node --conditions=react-server --import tsx scripts/backfill-job-taxonomy.ts",
+    "jobs:search:backfill": "node --conditions=react-server --import tsx scripts/backfill-job-search-normalization.ts",
     "db:deploy": "prisma migrate deploy",
     "db:migrate": "prisma migrate dev",
     "data:migrate:company": "node scripts/migrate-company-data.mjs",

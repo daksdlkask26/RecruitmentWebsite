@@ -535,11 +535,9 @@
   padding-bottom: var(--sh-space-16);
 }
 
-/* Feature roots occupy the shared rail. This prevents a page from appearing
- * to jump left/right when users navigate between Dashboard, Profile, and the
- * other Candidate workspace destinations. */
-.workspace-content
-  > :where(.candidate-dashboard-page, .candidate-profile-page) {
+/* Feature roots occupy the shared rail. Profile roots keep their own centred
+ * reading rail so every Profile route has the same side gutters. */
+.workspace-content > .candidate-dashboard-page {
   width: 100%;
   max-width: none;
   margin-inline: 0;
@@ -570,6 +568,67 @@
  */
 .workspace-content :where(h1, h2, h3, h4, h5, h6) {
   font-family: var(--sh-font-family);
+}
+
+/* Shared dropdown language for workspace forms. Native selects use the same
+ * control treatment as the Company search location picker, while custom
+ * listboxes below can share the same surface and interaction states. */
+.workspace-content select {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--sh-control-height);
+  padding: 0 var(--sh-space-3);
+  border: 1px solid var(--sh-color-border-subtle);
+  border-radius: var(--sh-radius-md);
+  color: var(--sh-color-text-primary);
+  background: var(--sh-color-surface-subtle);
+  font: inherit;
+  font-size: var(--sh-font-size-body-sm);
+  line-height: var(--sh-line-height-body-sm);
+  transition:
+    border-color var(--sh-motion-fast) ease,
+    background-color var(--sh-motion-fast) ease,
+    box-shadow var(--sh-motion-fast) ease;
+}
+
+.workspace-content select:hover {
+  border-color: var(--sh-color-border-default);
+  background: var(--sh-color-surface-tinted);
+}
+
+.workspace-content select:focus-visible {
+  border-color: var(--sh-color-border-focus);
+  outline: 2px solid var(--sh-color-border-focus);
+  outline-offset: 2px;
+  background: var(--sh-color-surface-card);
+  box-shadow: 0 0 0 4px var(--sh-color-focus-ring-bg);
+}
+
+.workspace-content [role="listbox"] {
+  border: 1px solid var(--sh-color-border-subtle);
+  border-radius: var(--sh-radius-md);
+  background: var(--sh-color-surface-card);
+  box-shadow: var(--sh-shadow-floating);
+}
+
+.workspace-content [role="option"] {
+  border: 1px solid transparent;
+  border-radius: var(--sh-radius-sm);
+  color: var(--sh-color-text-secondary);
+  background: transparent;
+  transition:
+    color var(--sh-motion-fast) ease,
+    background-color var(--sh-motion-fast) ease,
+    border-color var(--sh-motion-fast) ease;
+}
+
+.workspace-content [role="option"]:hover,
+.workspace-content [role="option"]:focus-visible,
+.workspace-content [role="option"][aria-selected="true"] {
+  border-color: var(--sh-color-brand-soft);
+  color: var(--sh-color-brand-primary);
+  background: var(--sh-color-brand-soft);
+  outline: none;
 }
 
 .dashboard-page,

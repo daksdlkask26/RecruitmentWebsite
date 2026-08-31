@@ -20,6 +20,9 @@ export type NormalizedJobSearch = {
    * unrestricted Find Jobs query string. */
   companyId?: string;
   normalizedQuery: string;
+  searchVariants?: import("@/backend/services/search/search-query-resolver").SearchQueryVariant[];
+  searchInterpretation?: import("@/backend/services/search/search-query-resolver").SearchInterpretation;
+  resolverVersion?: string;
   searchBy?: "TITLE" | "COMPANY" | "BOTH";
   normalizedLocation: string;
   normalizedDistricts?: string[];

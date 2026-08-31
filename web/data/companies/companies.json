@@ -8,7 +8,7 @@
     "industry": "Information Technology (IT)",
     "address": "Hai Chau District, Da Nang",
     "website": "https://example.com/compass-capital",
-    "description": "A verified SmartHire employer operating in Information Technology (IT), based in Da Nang.",
+    "description": "Verified employer · Information Technology (IT) · Da Nang.",
     "rating": {
       "score": 4.4,
       "reviewCount": 424
@@ -28,7 +28,7 @@
     "industry": "Information Technology (IT)",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/sky-partners",
-    "description": "A verified SmartHire employer operating in Information Technology (IT), based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Information Technology (IT) · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.8,
       "reviewCount": 483
@@ -48,7 +48,7 @@
     "industry": "Information Technology (IT)",
     "address": "Hong Bang District, Hai Phong",
     "website": "https://example.com/prime-digital",
-    "description": "A verified SmartHire employer operating in Information Technology (IT), based in Hai Phong.",
+    "description": "Verified employer · Information Technology (IT) · Hai Phong.",
     "rating": {
       "score": 4.4,
       "reviewCount": 358
@@ -68,7 +68,7 @@
     "industry": "Information Technology (IT)",
     "address": "Cai Rang District, Can Tho",
     "website": "https://example.com/alpha-international",
-    "description": "A verified SmartHire employer operating in Information Technology (IT), based in Can Tho.",
+    "description": "Verified employer · Information Technology (IT) · Can Tho.",
     "rating": {
       "score": 4.8,
       "reviewCount": 613
@@ -88,7 +88,7 @@
     "industry": "Information Technology (IT)",
     "address": "Cai Rang District, Can Tho",
     "website": "https://example.com/alpha-corp",
-    "description": "A verified SmartHire employer operating in Information Technology (IT), based in Can Tho.",
+    "description": "Verified employer · Information Technology (IT) · Can Tho.",
     "rating": {
       "score": 4.5,
       "reviewCount": 71
@@ -108,7 +108,7 @@
     "industry": "Information Technology (IT)",
     "address": "Thuan An City, Binh Duong",
     "website": "https://example.com/blue-ocean-holdings",
-    "description": "A verified SmartHire employer operating in Information Technology (IT), based in Binh Duong.",
+    "description": "Verified employer · Information Technology (IT) · Binh Duong.",
     "rating": {
       "score": 4,
       "reviewCount": 166
@@ -128,7 +128,7 @@
     "industry": "Marketing / PR / Advertising / Communications",
     "address": "Le Chan District, Hai Phong",
     "website": "https://example.com/blue-ocean-enterprises",
-    "description": "A verified SmartHire employer operating in Marketing / PR / Advertising / Communications, based in Hai Phong.",
+    "description": "Verified employer · Marketing / PR / Advertising / Communications · Hai Phong.",
     "rating": {
       "score": 4.3,
       "reviewCount": 407
@@ -148,7 +148,7 @@
     "industry": "Information Technology (IT)",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/apex-trading-co",
-    "description": "A verified SmartHire employer operating in Information Technology (IT), based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Information Technology (IT) · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 4,
       "reviewCount": 587
@@ -168,7 +168,7 @@
     "industry": "Marketing / PR / Advertising / Communications",
     "address": "Bac Ninh City, Bac Ninh",
     "website": "https://example.com/unity-trading-co",
-    "description": "A verified SmartHire employer operating in Marketing / PR / Advertising / Communications, based in Bac Ninh.",
+    "description": "Verified employer · Marketing / PR / Advertising / Communications · Bac Ninh.",
     "rating": {
       "score": 3.6,
       "reviewCount": 238
@@ -188,7 +188,7 @@
     "industry": "Marketing / PR / Advertising / Communications",
     "address": "Le Chan District, Hai Phong",
     "website": "https://example.com/bridge-vietnam",
-    "description": "A verified SmartHire employer operating in Marketing / PR / Advertising / Communications, based in Hai Phong.",
+    "description": "Verified employer · Marketing / PR / Advertising / Communications · Hai Phong.",
     "rating": {
       "score": 4.3,
       "reviewCount": 66
@@ -208,7 +208,7 @@
     "industry": "Sales & Business Development",
     "address": "Thu Dau Mot City, Binh Duong",
     "website": "https://example.com/willow-international",
-    "description": "A verified SmartHire employer operating in Sales & Business Development, based in Binh Duong.",
+    "description": "Verified employer · Sales & Business Development · Binh Duong.",
     "rating": {
       "score": 4.8,
       "reviewCount": 406
@@ -228,7 +228,7 @@
     "industry": "Sales & Business Development",
     "address": "Hong Bang District, Hai Phong",
     "website": "https://example.com/anchor-digital",
-    "description": "A verified SmartHire employer operating in Sales & Business Development, based in Hai Phong.",
+    "description": "Verified employer · Sales & Business Development · Hai Phong.",
     "rating": {
       "score": 4.3,
       "reviewCount": 609
@@ -248,7 +248,7 @@
     "industry": "Marketing / PR / Advertising / Communications",
     "address": "Ngo Quyen District, Hai Phong",
     "website": "https://example.com/vantage-capital",
-    "description": "A verified SmartHire employer operating in Marketing / PR / Advertising / Communications, based in Hai Phong.",
+    "description": "Verified employer · Marketing / PR / Advertising / Communications · Hai Phong.",
     "rating": {
       "score": 4.6,
       "reviewCount": 105
@@ -268,7 +268,7 @@
     "industry": "Marketing / PR / Advertising / Communications",
     "address": "Thu Dau Mot City, Binh Duong",
     "website": "https://example.com/unity-retail-group",
-    "description": "A verified SmartHire employer operating in Marketing / PR / Advertising / Communications, based in Binh Duong.",
+    "description": "Verified employer · Marketing / PR / Advertising / Communications · Binh Duong.",
     "rating": {
       "score": 4,
       "reviewCount": 92
@@ -288,7 +288,7 @@
     "industry": "Sales & Business Development",
     "address": "Thanh Xuan District, Hanoi",
     "website": "https://example.com/prime-solutions",
-    "description": "A verified SmartHire employer operating in Sales & Business Development, based in Hanoi.",
+    "description": "Verified employer · Sales & Business Development · Hanoi.",
     "rating": {
       "score": 3.7,
       "reviewCount": 488
@@ -308,7 +308,7 @@
     "industry": "Marketing / PR / Advertising / Communications",
     "address": "Long Thanh District, Dong Nai",
     "website": "https://example.com/green-valley-logistics",
-    "description": "A verified SmartHire employer operating in Marketing / PR / Advertising / Communications, based in Dong Nai.",
+    "description": "Verified employer · Marketing / PR / Advertising / Communications · Dong Nai.",
     "rating": {
       "score": 4.9,
       "reviewCount": 526
@@ -328,7 +328,7 @@
     "industry": "Sales & Business Development",
     "address": "Thu Dau Mot City, Binh Duong",
     "website": "https://example.com/pioneer-tech",
-    "description": "A verified SmartHire employer operating in Sales & Business Development, based in Binh Duong.",
+    "description": "Verified employer · Sales & Business Development · Binh Duong.",
     "rating": {
       "score": 4.5,
       "reviewCount": 22
@@ -348,7 +348,7 @@
     "industry": "Sales & Business Development",
     "address": "Cai Rang District, Can Tho",
     "website": "https://example.com/sky-consulting",
-    "description": "A verified SmartHire employer operating in Sales & Business Development, based in Can Tho.",
+    "description": "Verified employer · Sales & Business Development · Can Tho.",
     "rating": {
       "score": 4.2,
       "reviewCount": 448
@@ -368,7 +368,7 @@
     "industry": "Sales & Business Development",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/halo-consulting",
-    "description": "A verified SmartHire employer operating in Sales & Business Development, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Sales & Business Development · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 4.4,
       "reviewCount": 108
@@ -388,7 +388,7 @@
     "industry": "Sales & Business Development",
     "address": "Cai Rang District, Can Tho",
     "website": "https://example.com/north-star-international",
-    "description": "A verified SmartHire employer operating in Sales & Business Development, based in Can Tho.",
+    "description": "Verified employer · Sales & Business Development · Can Tho.",
     "rating": {
       "score": 3.5,
       "reviewCount": 220
@@ -408,7 +408,7 @@
     "industry": "Accounting / Auditing / Tax / Corporate Finance",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/trident-logistics",
-    "description": "A verified SmartHire employer operating in Accounting / Auditing / Tax / Corporate Finance, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Accounting / Auditing / Tax / Corporate Finance · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.5,
       "reviewCount": 333
@@ -428,7 +428,7 @@
     "industry": "Marketing / PR / Advertising / Communications",
     "address": "District 2 (Thu Duc), Ho Chi Minh City",
     "website": "https://example.com/crown-holdings",
-    "description": "A verified SmartHire employer operating in Marketing / PR / Advertising / Communications, based in Ho Chi Minh City.",
+    "description": "Verified employer · Marketing / PR / Advertising / Communications · Ho Chi Minh City.",
     "rating": {
       "score": 4.5,
       "reviewCount": 199
@@ -448,7 +448,7 @@
     "industry": "Accounting / Auditing / Tax / Corporate Finance",
     "address": "Binh Thanh District, Ho Chi Minh City",
     "website": "https://example.com/fusion-tech",
-    "description": "A verified SmartHire employer operating in Accounting / Auditing / Tax / Corporate Finance, based in Ho Chi Minh City.",
+    "description": "Verified employer · Accounting / Auditing / Tax / Corporate Finance · Ho Chi Minh City.",
     "rating": {
       "score": 4.5,
       "reviewCount": 626
@@ -468,7 +468,7 @@
     "industry": "Accounting / Auditing / Tax / Corporate Finance",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/phoenix-international",
-    "description": "A verified SmartHire employer operating in Accounting / Auditing / Tax / Corporate Finance, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Accounting / Auditing / Tax / Corporate Finance · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 4.6,
       "reviewCount": 591
@@ -488,7 +488,7 @@
     "industry": "Accounting / Auditing / Tax / Corporate Finance",
     "address": "Nam Tu Liem District, Hanoi",
     "website": "https://example.com/fusion-retail-group",
-    "description": "A verified SmartHire employer operating in Accounting / Auditing / Tax / Corporate Finance, based in Hanoi.",
+    "description": "Verified employer · Accounting / Auditing / Tax / Corporate Finance · Hanoi.",
     "rating": {
       "score": 3.6,
       "reviewCount": 286
@@ -508,7 +508,7 @@
     "industry": "Accounting / Auditing / Tax / Corporate Finance",
     "address": "Long Thanh District, Dong Nai",
     "website": "https://example.com/orion-manufacturing",
-    "description": "A verified SmartHire employer operating in Accounting / Auditing / Tax / Corporate Finance, based in Dong Nai.",
+    "description": "Verified employer · Accounting / Auditing / Tax / Corporate Finance · Dong Nai.",
     "rating": {
       "score": 4.6,
       "reviewCount": 125
@@ -528,7 +528,7 @@
     "industry": "Administration / Office / Executive Support / Legal",
     "address": "Bien Hoa City, Dong Nai",
     "website": "https://example.com/green-valley-media",
-    "description": "A verified SmartHire employer operating in Administration / Office / Executive Support / Legal, based in Dong Nai.",
+    "description": "Verified employer · Administration / Office / Executive Support / Legal · Dong Nai.",
     "rating": {
       "score": 4,
       "reviewCount": 583
@@ -548,7 +548,7 @@
     "industry": "Electrical / Electronics / M&E / Energy",
     "address": "Ha Dong District, Hanoi",
     "website": "https://example.com/golden-enterprises",
-    "description": "A verified SmartHire employer operating in Electrical / Electronics / M&E / Energy, based in Hanoi.",
+    "description": "Verified employer · Electrical / Electronics / M&E / Energy · Hanoi.",
     "rating": {
       "score": 4,
       "reviewCount": 345
@@ -568,7 +568,7 @@
     "industry": "Accounting / Auditing / Tax / Corporate Finance",
     "address": "District 10, Ho Chi Minh City",
     "website": "https://example.com/harbor-vietnam",
-    "description": "A verified SmartHire employer operating in Accounting / Auditing / Tax / Corporate Finance, based in Ho Chi Minh City.",
+    "description": "Verified employer · Accounting / Auditing / Tax / Corporate Finance · Ho Chi Minh City.",
     "rating": {
       "score": 4.5,
       "reviewCount": 499
@@ -588,7 +588,7 @@
     "industry": "Accounting / Auditing / Tax / Corporate Finance",
     "address": "Le Chan District, Hai Phong",
     "website": "https://example.com/halo-tech",
-    "description": "A verified SmartHire employer operating in Accounting / Auditing / Tax / Corporate Finance, based in Hai Phong.",
+    "description": "Verified employer · Accounting / Auditing / Tax / Corporate Finance · Hai Phong.",
     "rating": {
       "score": 4,
       "reviewCount": 303
@@ -608,7 +608,7 @@
     "industry": "Electrical / Electronics / M&E / Energy",
     "address": "Di An City, Binh Duong",
     "website": "https://example.com/unity-manufacturing",
-    "description": "A verified SmartHire employer operating in Electrical / Electronics / M&E / Energy, based in Binh Duong.",
+    "description": "Verified employer · Electrical / Electronics / M&E / Energy · Binh Duong.",
     "rating": {
       "score": 3.8,
       "reviewCount": 625
@@ -628,7 +628,7 @@
     "industry": "Administration / Office / Executive Support / Legal",
     "address": "Son Tra District, Da Nang",
     "website": "https://example.com/vantage-industries",
-    "description": "A verified SmartHire employer operating in Administration / Office / Executive Support / Legal, based in Da Nang.",
+    "description": "Verified employer · Administration / Office / Executive Support / Legal · Da Nang.",
     "rating": {
       "score": 4,
       "reviewCount": 268
@@ -648,7 +648,7 @@
     "industry": "Administration / Office / Executive Support / Legal",
     "address": "Le Chan District, Hai Phong",
     "website": "https://example.com/halo-global",
-    "description": "A verified SmartHire employer operating in Administration / Office / Executive Support / Legal, based in Hai Phong.",
+    "description": "Verified employer · Administration / Office / Executive Support / Legal · Hai Phong.",
     "rating": {
       "score": 3.9,
       "reviewCount": 481
@@ -668,7 +668,7 @@
     "industry": "Administration / Office / Executive Support / Legal",
     "address": "Thuan An City, Binh Duong",
     "website": "https://example.com/blue-ocean-media",
-    "description": "A verified SmartHire employer operating in Administration / Office / Executive Support / Legal, based in Binh Duong.",
+    "description": "Verified employer · Administration / Office / Executive Support / Legal · Binh Duong.",
     "rating": {
       "score": 4.1,
       "reviewCount": 632
@@ -688,7 +688,7 @@
     "industry": "General Labor & Drivers",
     "address": "Ngo Quyen District, Hai Phong",
     "website": "https://example.com/cascade-systems",
-    "description": "A verified SmartHire employer operating in General Labor & Drivers, based in Hai Phong.",
+    "description": "Verified employer · General Labor & Drivers · Hai Phong.",
     "rating": {
       "score": 4.2,
       "reviewCount": 284
@@ -708,7 +708,7 @@
     "industry": "Administration / Office / Executive Support / Legal",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/green-valley-corp",
-    "description": "A verified SmartHire employer operating in Administration / Office / Executive Support / Legal, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Administration / Office / Executive Support / Legal · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 3.8,
       "reviewCount": 154
@@ -728,7 +728,7 @@
     "industry": "Administration / Office / Executive Support / Legal",
     "address": "Thu Dau Mot City, Binh Duong",
     "website": "https://example.com/lotus-consulting",
-    "description": "A verified SmartHire employer operating in Administration / Office / Executive Support / Legal, based in Binh Duong.",
+    "description": "Verified employer · Administration / Office / Executive Support / Legal · Binh Duong.",
     "rating": {
       "score": 3.8,
       "reviewCount": 222
@@ -748,7 +748,7 @@
     "industry": "Administration / Office / Executive Support / Legal",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/halo-industries",
-    "description": "A verified SmartHire employer operating in Administration / Office / Executive Support / Legal, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Administration / Office / Executive Support / Legal · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 4.7,
       "reviewCount": 69
@@ -768,7 +768,7 @@
     "industry": "Finance / Banking / Securities",
     "address": "Thuan An City, Binh Duong",
     "website": "https://example.com/delta-retail-group",
-    "description": "A verified SmartHire employer operating in Finance / Banking / Securities, based in Binh Duong.",
+    "description": "Verified employer · Finance / Banking / Securities · Binh Duong.",
     "rating": {
       "score": 4.1,
       "reviewCount": 317
@@ -788,7 +788,7 @@
     "industry": "Human Resources (HR)",
     "address": "Bien Hoa City, Dong Nai",
     "website": "https://example.com/unity-logistics",
-    "description": "A verified SmartHire employer operating in Human Resources (HR), based in Dong Nai.",
+    "description": "Verified employer · Human Resources (HR) · Dong Nai.",
     "rating": {
       "score": 4.1,
       "reviewCount": 639
@@ -808,7 +808,7 @@
     "industry": "Electrical / Electronics / M&E / Energy",
     "address": "Hong Bang District, Hai Phong",
     "website": "https://example.com/vantage-holdings",
-    "description": "A verified SmartHire employer operating in Electrical / Electronics / M&E / Energy, based in Hai Phong.",
+    "description": "Verified employer · Electrical / Electronics / M&E / Energy · Hai Phong.",
     "rating": {
       "score": 4.3,
       "reviewCount": 504
@@ -828,7 +828,7 @@
     "industry": "General Labor & Drivers",
     "address": "District 7, Ho Chi Minh City",
     "website": "https://example.com/prime-enterprises",
-    "description": "A verified SmartHire employer operating in General Labor & Drivers, based in Ho Chi Minh City.",
+    "description": "Verified employer · General Labor & Drivers · Ho Chi Minh City.",
     "rating": {
       "score": 4.8,
       "reviewCount": 352
@@ -848,7 +848,7 @@
     "industry": "Electrical / Electronics / M&E / Energy",
     "address": "Long Thanh District, Dong Nai",
     "website": "https://example.com/river-tech",
-    "description": "A verified SmartHire employer operating in Electrical / Electronics / M&E / Energy, based in Dong Nai.",
+    "description": "Verified employer · Electrical / Electronics / M&E / Energy · Dong Nai.",
     "rating": {
       "score": 4.8,
       "reviewCount": 145
@@ -868,7 +868,7 @@
     "industry": "General Labor & Drivers",
     "address": "Thu Dau Mot City, Binh Duong",
     "website": "https://example.com/harbor-manufacturing",
-    "description": "A verified SmartHire employer operating in General Labor & Drivers, based in Binh Duong.",
+    "description": "Verified employer · General Labor & Drivers · Binh Duong.",
     "rating": {
       "score": 3.5,
       "reviewCount": 106
@@ -888,7 +888,7 @@
     "industry": "Human Resources (HR)",
     "address": "Cau Giay District, Hanoi",
     "website": "https://example.com/anchor-group",
-    "description": "A verified SmartHire employer operating in Human Resources (HR), based in Hanoi.",
+    "description": "Verified employer · Human Resources (HR) · Hanoi.",
     "rating": {
       "score": 3.8,
       "reviewCount": 387
@@ -908,7 +908,7 @@
     "industry": "Electrical / Electronics / M&E / Energy",
     "address": "Thanh Xuan District, Hanoi",
     "website": "https://example.com/vertex-international",
-    "description": "A verified SmartHire employer operating in Electrical / Electronics / M&E / Energy, based in Hanoi.",
+    "description": "Verified employer · Electrical / Electronics / M&E / Energy · Hanoi.",
     "rating": {
       "score": 4.8,
       "reviewCount": 68
@@ -928,7 +928,7 @@
     "industry": "Hospitality / Restaurant / Tourism",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/harbor-group",
-    "description": "A verified SmartHire employer operating in Hospitality / Restaurant / Tourism, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Hospitality / Restaurant / Tourism · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 4.7,
       "reviewCount": 520
@@ -948,7 +948,7 @@
     "industry": "Electrical / Electronics / M&E / Energy",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/unity-tech",
-    "description": "A verified SmartHire employer operating in Electrical / Electronics / M&E / Energy, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Electrical / Electronics / M&E / Energy · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 3.8,
       "reviewCount": 556
@@ -968,7 +968,7 @@
     "industry": "Healthcare / Medical / Pharmaceuticals",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/nova-enterprises",
-    "description": "A verified SmartHire employer operating in Healthcare / Medical / Pharmaceuticals, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Healthcare / Medical / Pharmaceuticals · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 4.7,
       "reviewCount": 344
@@ -988,7 +988,7 @@
     "industry": "Human Resources (HR)",
     "address": "Hong Bang District, Hai Phong",
     "website": "https://example.com/unity-media",
-    "description": "A verified SmartHire employer operating in Human Resources (HR), based in Hai Phong.",
+    "description": "Verified employer · Human Resources (HR) · Hai Phong.",
     "rating": {
       "score": 4.7,
       "reviewCount": 418
@@ -1008,7 +1008,7 @@
     "industry": "Hospitality / Restaurant / Tourism",
     "address": "Long Thanh District, Dong Nai",
     "website": "https://example.com/pacific-vietnam",
-    "description": "A verified SmartHire employer operating in Hospitality / Restaurant / Tourism, based in Dong Nai.",
+    "description": "Verified employer · Hospitality / Restaurant / Tourism · Dong Nai.",
     "rating": {
       "score": 4.8,
       "reviewCount": 616
@@ -1028,7 +1028,7 @@
     "industry": "Human Resources (HR)",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/orion-corp",
-    "description": "A verified SmartHire employer operating in Human Resources (HR), based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Human Resources (HR) · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.3,
       "reviewCount": 451
@@ -1048,7 +1048,7 @@
     "industry": "Finance / Banking / Securities",
     "address": "Hoan Kiem District, Hanoi",
     "website": "https://example.com/titan-logistics",
-    "description": "A verified SmartHire employer operating in Finance / Banking / Securities, based in Hanoi.",
+    "description": "Verified employer · Finance / Banking / Securities · Hanoi.",
     "rating": {
       "score": 4.2,
       "reviewCount": 167
@@ -1068,7 +1068,7 @@
     "industry": "Hospitality / Restaurant / Tourism",
     "address": "Ngo Quyen District, Hai Phong",
     "website": "https://example.com/jade-industries",
-    "description": "A verified SmartHire employer operating in Hospitality / Restaurant / Tourism, based in Hai Phong.",
+    "description": "Verified employer · Hospitality / Restaurant / Tourism · Hai Phong.",
     "rating": {
       "score": 3.5,
       "reviewCount": 212
@@ -1088,7 +1088,7 @@
     "industry": "Construction / Architecture / Interior Design",
     "address": "Son Tra District, Da Nang",
     "website": "https://example.com/crown-industries",
-    "description": "A verified SmartHire employer operating in Construction / Architecture / Interior Design, based in Da Nang.",
+    "description": "Verified employer · Construction / Architecture / Interior Design · Da Nang.",
     "rating": {
       "score": 4.2,
       "reviewCount": 105
@@ -1108,7 +1108,7 @@
     "industry": "Mechanical / Automotive / Automation",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/harbor-enterprises",
-    "description": "A verified SmartHire employer operating in Mechanical / Automotive / Automation, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Mechanical / Automotive / Automation · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.2,
       "reviewCount": 460
@@ -1128,7 +1128,7 @@
     "industry": "Construction / Architecture / Interior Design",
     "address": "Tu Son City, Bac Ninh",
     "website": "https://example.com/zenith-capital",
-    "description": "A verified SmartHire employer operating in Construction / Architecture / Interior Design, based in Bac Ninh.",
+    "description": "Verified employer · Construction / Architecture / Interior Design · Bac Ninh.",
     "rating": {
       "score": 4.2,
       "reviewCount": 414
@@ -1148,7 +1148,7 @@
     "industry": "Hospitality / Restaurant / Tourism",
     "address": "Cau Giay District, Hanoi",
     "website": "https://example.com/anchor-tech",
-    "description": "A verified SmartHire employer operating in Hospitality / Restaurant / Tourism, based in Hanoi.",
+    "description": "Verified employer · Hospitality / Restaurant / Tourism · Hanoi.",
     "rating": {
       "score": 4.9,
       "reviewCount": 484
@@ -1168,7 +1168,7 @@
     "industry": "Human Resources (HR)",
     "address": "Hong Bang District, Hai Phong",
     "website": "https://example.com/orion-group",
-    "description": "A verified SmartHire employer operating in Human Resources (HR), based in Hai Phong.",
+    "description": "Verified employer · Human Resources (HR) · Hai Phong.",
     "rating": {
       "score": 4.4,
       "reviewCount": 273
@@ -1188,7 +1188,7 @@
     "industry": "General Labor & Drivers",
     "address": "Le Chan District, Hai Phong",
     "website": "https://example.com/titan-capital",
-    "description": "A verified SmartHire employer operating in General Labor & Drivers, based in Hai Phong.",
+    "description": "Verified employer · General Labor & Drivers · Hai Phong.",
     "rating": {
       "score": 4.5,
       "reviewCount": 25
@@ -1208,7 +1208,7 @@
     "industry": "Design / Graphics / Creative Arts",
     "address": "Ha Dong District, Hanoi",
     "website": "https://example.com/emerald-corp",
-    "description": "A verified SmartHire employer operating in Design / Graphics / Creative Arts, based in Hanoi.",
+    "description": "Verified employer · Design / Graphics / Creative Arts · Hanoi.",
     "rating": {
       "score": 4.5,
       "reviewCount": 288
@@ -1228,7 +1228,7 @@
     "industry": "Real Estate",
     "address": "Bien Hoa City, Dong Nai",
     "website": "https://example.com/heritage-trading-co",
-    "description": "A verified SmartHire employer operating in Real Estate, based in Dong Nai.",
+    "description": "Verified employer · Real Estate · Dong Nai.",
     "rating": {
       "score": 3.7,
       "reviewCount": 242
@@ -1248,7 +1248,7 @@
     "industry": "Hospitality / Restaurant / Tourism",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/falcon-enterprises",
-    "description": "A verified SmartHire employer operating in Hospitality / Restaurant / Tourism, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Hospitality / Restaurant / Tourism · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 4.2,
       "reviewCount": 537
@@ -1268,7 +1268,7 @@
     "industry": "Hospitality / Restaurant / Tourism",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/harbor-trading-co",
-    "description": "A verified SmartHire employer operating in Hospitality / Restaurant / Tourism, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Hospitality / Restaurant / Tourism · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 3.9,
       "reviewCount": 573
@@ -1288,7 +1288,7 @@
     "industry": "Cosmetics / Spa / Beauty",
     "address": "Ninh Kieu District, Can Tho",
     "website": "https://example.com/grand-tech",
-    "description": "A verified SmartHire employer operating in Cosmetics / Spa / Beauty, based in Can Tho.",
+    "description": "Verified employer · Cosmetics / Spa / Beauty · Can Tho.",
     "rating": {
       "score": 4.8,
       "reviewCount": 575
@@ -1308,7 +1308,7 @@
     "industry": "Finance / Banking / Securities",
     "address": "Tu Son City, Bac Ninh",
     "website": "https://example.com/heritage-holdings",
-    "description": "A verified SmartHire employer operating in Finance / Banking / Securities, based in Bac Ninh.",
+    "description": "Verified employer · Finance / Banking / Securities · Bac Ninh.",
     "rating": {
       "score": 4,
       "reviewCount": 632
@@ -1328,7 +1328,7 @@
     "industry": "Healthcare / Medical / Pharmaceuticals",
     "address": "Thuan An City, Binh Duong",
     "website": "https://example.com/crown-group",
-    "description": "A verified SmartHire employer operating in Healthcare / Medical / Pharmaceuticals, based in Binh Duong.",
+    "description": "Verified employer · Healthcare / Medical / Pharmaceuticals · Binh Duong.",
     "rating": {
       "score": 4.7,
       "reviewCount": 316
@@ -1348,7 +1348,7 @@
     "industry": "Electrical / Electronics / M&E / Energy",
     "address": "District 7, Ho Chi Minh City",
     "website": "https://example.com/zenith-international",
-    "description": "A verified SmartHire employer operating in Electrical / Electronics / M&E / Energy, based in Ho Chi Minh City.",
+    "description": "Verified employer · Electrical / Electronics / M&E / Energy · Ho Chi Minh City.",
     "rating": {
       "score": 4,
       "reviewCount": 255
@@ -1368,7 +1368,7 @@
     "industry": "Mechanical / Automotive / Automation",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/pioneer-global",
-    "description": "A verified SmartHire employer operating in Mechanical / Automotive / Automation, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Mechanical / Automotive / Automation · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.8,
       "reviewCount": 173
@@ -1388,7 +1388,7 @@
     "industry": "Healthcare / Medical / Pharmaceuticals",
     "address": "Bien Hoa City, Dong Nai",
     "website": "https://example.com/blue-ocean-vietnam",
-    "description": "A verified SmartHire employer operating in Healthcare / Medical / Pharmaceuticals, based in Dong Nai.",
+    "description": "Verified employer · Healthcare / Medical / Pharmaceuticals · Dong Nai.",
     "rating": {
       "score": 4.2,
       "reviewCount": 56
@@ -1408,7 +1408,7 @@
     "industry": "Mechanical / Automotive / Automation",
     "address": "Hong Bang District, Hai Phong",
     "website": "https://example.com/orion-vietnam",
-    "description": "A verified SmartHire employer operating in Mechanical / Automotive / Automation, based in Hai Phong.",
+    "description": "Verified employer · Mechanical / Automotive / Automation · Hai Phong.",
     "rating": {
       "score": 3.9,
       "reviewCount": 494
@@ -1428,7 +1428,7 @@
     "industry": "Media / Journalism / Publishing",
     "address": "Tu Son City, Bac Ninh",
     "website": "https://example.com/vantage-trading-co",
-    "description": "A verified SmartHire employer operating in Media / Journalism / Publishing, based in Bac Ninh.",
+    "description": "Verified employer · Media / Journalism / Publishing · Bac Ninh.",
     "rating": {
       "score": 4.5,
       "reviewCount": 365
@@ -1448,7 +1448,7 @@
     "industry": "Healthcare / Medical / Pharmaceuticals",
     "address": "Dong Da District, Hanoi",
     "website": "https://example.com/vantage-solutions",
-    "description": "A verified SmartHire employer operating in Healthcare / Medical / Pharmaceuticals, based in Hanoi.",
+    "description": "Verified employer · Healthcare / Medical / Pharmaceuticals · Hanoi.",
     "rating": {
       "score": 3.8,
       "reviewCount": 488
@@ -1468,7 +1468,7 @@
     "industry": "Cosmetics / Spa / Beauty",
     "address": "Hoan Kiem District, Hanoi",
     "website": "https://example.com/compass-media",
-    "description": "A verified SmartHire employer operating in Cosmetics / Spa / Beauty, based in Hanoi.",
+    "description": "Verified employer · Cosmetics / Spa / Beauty · Hanoi.",
     "rating": {
       "score": 4.8,
       "reviewCount": 382
@@ -1488,7 +1488,7 @@
     "industry": "Healthcare / Medical / Pharmaceuticals",
     "address": "Cau Giay District, Hanoi",
     "website": "https://example.com/fusion-global",
-    "description": "A verified SmartHire employer operating in Healthcare / Medical / Pharmaceuticals, based in Hanoi.",
+    "description": "Verified employer · Healthcare / Medical / Pharmaceuticals · Hanoi.",
     "rating": {
       "score": 4.7,
       "reviewCount": 489
@@ -1508,7 +1508,7 @@
     "industry": "Human Resources (HR)",
     "address": "Cau Giay District, Hanoi",
     "website": "https://example.com/phoenix-consulting",
-    "description": "A verified SmartHire employer operating in Human Resources (HR), based in Hanoi.",
+    "description": "Verified employer · Human Resources (HR) · Hanoi.",
     "rating": {
       "score": 4.7,
       "reviewCount": 539
@@ -1528,7 +1528,7 @@
     "industry": "Construction / Architecture / Interior Design",
     "address": "Thu Dau Mot City, Binh Duong",
     "website": "https://example.com/quartz-capital",
-    "description": "A verified SmartHire employer operating in Construction / Architecture / Interior Design, based in Binh Duong.",
+    "description": "Verified employer · Construction / Architecture / Interior Design · Binh Duong.",
     "rating": {
       "score": 3.8,
       "reviewCount": 640
@@ -1548,7 +1548,7 @@
     "industry": "Finance / Banking / Securities",
     "address": "Long Thanh District, Dong Nai",
     "website": "https://example.com/summit-digital",
-    "description": "A verified SmartHire employer operating in Finance / Banking / Securities, based in Dong Nai.",
+    "description": "Verified employer · Finance / Banking / Securities · Dong Nai.",
     "rating": {
       "score": 4.7,
       "reviewCount": 422
@@ -1568,7 +1568,7 @@
     "industry": "Manufacturing / Assembly / Processing",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/unity-international",
-    "description": "A verified SmartHire employer operating in Manufacturing / Assembly / Processing, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Manufacturing / Assembly / Processing · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4,
       "reviewCount": 426
@@ -1588,7 +1588,7 @@
     "industry": "Media / Journalism / Publishing",
     "address": "Ha Dong District, Hanoi",
     "website": "https://example.com/vertex-manufacturing",
-    "description": "A verified SmartHire employer operating in Media / Journalism / Publishing, based in Hanoi.",
+    "description": "Verified employer · Media / Journalism / Publishing · Hanoi.",
     "rating": {
       "score": 4.5,
       "reviewCount": 131
@@ -1608,7 +1608,7 @@
     "industry": "Supply Chain / Logistics / Import-Export",
     "address": "Hong Bang District, Hai Phong",
     "website": "https://example.com/pacific-solutions",
-    "description": "A verified SmartHire employer operating in Supply Chain / Logistics / Import-Export, based in Hai Phong.",
+    "description": "Verified employer · Supply Chain / Logistics / Import-Export · Hai Phong.",
     "rating": {
       "score": 4.8,
       "reviewCount": 578
@@ -1628,7 +1628,7 @@
     "industry": "Supply Chain / Logistics / Import-Export",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/union-global",
-    "description": "A verified SmartHire employer operating in Supply Chain / Logistics / Import-Export, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Supply Chain / Logistics / Import-Export · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.2,
       "reviewCount": 273
@@ -1648,7 +1648,7 @@
     "industry": "Construction / Architecture / Interior Design",
     "address": "Bac Ninh City, Bac Ninh",
     "website": "https://example.com/quartz-digital",
-    "description": "A verified SmartHire employer operating in Construction / Architecture / Interior Design, based in Bac Ninh.",
+    "description": "Verified employer · Construction / Architecture / Interior Design · Bac Ninh.",
     "rating": {
       "score": 3.8,
       "reviewCount": 154
@@ -1668,7 +1668,7 @@
     "industry": "Supply Chain / Logistics / Import-Export",
     "address": "Go Vap District, Ho Chi Minh City",
     "website": "https://example.com/willow-manufacturing",
-    "description": "A verified SmartHire employer operating in Supply Chain / Logistics / Import-Export, based in Ho Chi Minh City.",
+    "description": "Verified employer · Supply Chain / Logistics / Import-Export · Ho Chi Minh City.",
     "rating": {
       "score": 3.8,
       "reviewCount": 602
@@ -1688,7 +1688,7 @@
     "industry": "Cosmetics / Spa / Beauty",
     "address": "Thuan An City, Binh Duong",
     "website": "https://example.com/pioneer-consulting",
-    "description": "A verified SmartHire employer operating in Cosmetics / Spa / Beauty, based in Binh Duong.",
+    "description": "Verified employer · Cosmetics / Spa / Beauty · Binh Duong.",
     "rating": {
       "score": 3.6,
       "reviewCount": 39
@@ -1708,7 +1708,7 @@
     "industry": "Construction / Architecture / Interior Design",
     "address": "Thuan An City, Binh Duong",
     "website": "https://example.com/pacific-trading-co",
-    "description": "A verified SmartHire employer operating in Construction / Architecture / Interior Design, based in Binh Duong.",
+    "description": "Verified employer · Construction / Architecture / Interior Design · Binh Duong.",
     "rating": {
       "score": 3.6,
       "reviewCount": 221
@@ -1728,7 +1728,7 @@
     "industry": "Design / Graphics / Creative Arts",
     "address": "Di An City, Binh Duong",
     "website": "https://example.com/harbor-media",
-    "description": "A verified SmartHire employer operating in Design / Graphics / Creative Arts, based in Binh Duong.",
+    "description": "Verified employer · Design / Graphics / Creative Arts · Binh Duong.",
     "rating": {
       "score": 4.1,
       "reviewCount": 553
@@ -1748,7 +1748,7 @@
     "industry": "Supply Chain / Logistics / Import-Export",
     "address": "Di An City, Binh Duong",
     "website": "https://example.com/river-media",
-    "description": "A verified SmartHire employer operating in Supply Chain / Logistics / Import-Export, based in Binh Duong.",
+    "description": "Verified employer · Supply Chain / Logistics / Import-Export · Binh Duong.",
     "rating": {
       "score": 3.9,
       "reviewCount": 472
@@ -1768,7 +1768,7 @@
     "industry": "Design / Graphics / Creative Arts",
     "address": "Thanh Khe District, Da Nang",
     "website": "https://example.com/zenith-solutions",
-    "description": "A verified SmartHire employer operating in Design / Graphics / Creative Arts, based in Da Nang.",
+    "description": "Verified employer · Design / Graphics / Creative Arts · Da Nang.",
     "rating": {
       "score": 3.5,
       "reviewCount": 142
@@ -1788,7 +1788,7 @@
     "industry": "Retail / Wholesale / Store Management",
     "address": "Thuan An City, Binh Duong",
     "website": "https://example.com/nova-manufacturing",
-    "description": "A verified SmartHire employer operating in Retail / Wholesale / Store Management, based in Binh Duong.",
+    "description": "Verified employer · Retail / Wholesale / Store Management · Binh Duong.",
     "rating": {
       "score": 4.6,
       "reviewCount": 606
@@ -1808,7 +1808,7 @@
     "industry": "Supply Chain / Logistics / Import-Export",
     "address": "Ninh Kieu District, Can Tho",
     "website": "https://example.com/river-international",
-    "description": "A verified SmartHire employer operating in Supply Chain / Logistics / Import-Export, based in Can Tho.",
+    "description": "Verified employer · Supply Chain / Logistics / Import-Export · Can Tho.",
     "rating": {
       "score": 4.8,
       "reviewCount": 509
@@ -1828,7 +1828,7 @@
     "industry": "Finance / Banking / Securities",
     "address": "Ninh Kieu District, Can Tho",
     "website": "https://example.com/union-tech",
-    "description": "A verified SmartHire employer operating in Finance / Banking / Securities, based in Can Tho.",
+    "description": "Verified employer · Finance / Banking / Securities · Can Tho.",
     "rating": {
       "score": 4.1,
       "reviewCount": 360
@@ -1848,7 +1848,7 @@
     "industry": "Finance / Banking / Securities",
     "address": "Bac Ninh City, Bac Ninh",
     "website": "https://example.com/golden-group",
-    "description": "A verified SmartHire employer operating in Finance / Banking / Securities, based in Bac Ninh.",
+    "description": "Verified employer · Finance / Banking / Securities · Bac Ninh.",
     "rating": {
       "score": 4.5,
       "reviewCount": 382
@@ -1868,7 +1868,7 @@
     "industry": "Cosmetics / Spa / Beauty",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/meridian-consulting",
-    "description": "A verified SmartHire employer operating in Cosmetics / Spa / Beauty, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Cosmetics / Spa / Beauty · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 4.6,
       "reviewCount": 259
@@ -1888,7 +1888,7 @@
     "industry": "Construction / Architecture / Interior Design",
     "address": "Binh Thanh District, Ho Chi Minh City",
     "website": "https://example.com/jade-vietnam",
-    "description": "A verified SmartHire employer operating in Construction / Architecture / Interior Design, based in Ho Chi Minh City.",
+    "description": "Verified employer · Construction / Architecture / Interior Design · Ho Chi Minh City.",
     "rating": {
       "score": 4,
       "reviewCount": 538
@@ -1908,7 +1908,7 @@
     "industry": "Cosmetics / Spa / Beauty",
     "address": "Ngu Hanh Son District, Da Nang",
     "website": "https://example.com/anchor-corp",
-    "description": "A verified SmartHire employer operating in Cosmetics / Spa / Beauty, based in Da Nang.",
+    "description": "Verified employer · Cosmetics / Spa / Beauty · Da Nang.",
     "rating": {
       "score": 4.2,
       "reviewCount": 548
@@ -1928,7 +1928,7 @@
     "industry": "General Labor & Drivers",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/grand-logistics",
-    "description": "A verified SmartHire employer operating in General Labor & Drivers, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · General Labor & Drivers · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 3.6,
       "reviewCount": 245
@@ -1948,7 +1948,7 @@
     "industry": "E-Commerce",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/cascade-vietnam",
-    "description": "A verified SmartHire employer operating in E-Commerce, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · E-Commerce · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 3.7,
       "reviewCount": 273
@@ -1968,7 +1968,7 @@
     "industry": "Insurance",
     "address": "District 1, Ho Chi Minh City",
     "website": "https://example.com/kite-global",
-    "description": "A verified SmartHire employer operating in Insurance, based in Ho Chi Minh City.",
+    "description": "Verified employer · Insurance · Ho Chi Minh City.",
     "rating": {
       "score": 4.1,
       "reviewCount": 444
@@ -1988,7 +1988,7 @@
     "industry": "Cosmetics / Spa / Beauty",
     "address": "Ninh Kieu District, Can Tho",
     "website": "https://example.com/union-systems",
-    "description": "A verified SmartHire employer operating in Cosmetics / Spa / Beauty, based in Can Tho.",
+    "description": "Verified employer · Cosmetics / Spa / Beauty · Can Tho.",
     "rating": {
       "score": 4.1,
       "reviewCount": 510
@@ -2008,7 +2008,7 @@
     "industry": "Retail / Wholesale / Store Management",
     "address": "Ngu Hanh Son District, Da Nang",
     "website": "https://example.com/ivory-digital",
-    "description": "A verified SmartHire employer operating in Retail / Wholesale / Store Management, based in Da Nang.",
+    "description": "Verified employer · Retail / Wholesale / Store Management · Da Nang.",
     "rating": {
       "score": 4.1,
       "reviewCount": 503
@@ -2028,7 +2028,7 @@
     "industry": "Education / Training",
     "address": "Bac Ninh City, Bac Ninh",
     "website": "https://example.com/silver-digital",
-    "description": "A verified SmartHire employer operating in Education / Training, based in Bac Ninh.",
+    "description": "Verified employer · Education / Training · Bac Ninh.",
     "rating": {
       "score": 4.1,
       "reviewCount": 193
@@ -2048,7 +2048,7 @@
     "industry": "Mechanical / Automotive / Automation",
     "address": "Tu Son City, Bac Ninh",
     "website": "https://example.com/sky-global",
-    "description": "A verified SmartHire employer operating in Mechanical / Automotive / Automation, based in Bac Ninh.",
+    "description": "Verified employer · Mechanical / Automotive / Automation · Bac Ninh.",
     "rating": {
       "score": 3.8,
       "reviewCount": 35
@@ -2068,7 +2068,7 @@
     "industry": "Supply Chain / Logistics / Import-Export",
     "address": "Long Thanh District, Dong Nai",
     "website": "https://example.com/unity-capital",
-    "description": "A verified SmartHire employer operating in Supply Chain / Logistics / Import-Export, based in Dong Nai.",
+    "description": "Verified employer · Supply Chain / Logistics / Import-Export · Dong Nai.",
     "rating": {
       "score": 4.8,
       "reviewCount": 86
@@ -2088,7 +2088,7 @@
     "industry": "Mechanical / Automotive / Automation",
     "address": "Bac Ninh City, Bac Ninh",
     "website": "https://example.com/vantage-digital",
-    "description": "A verified SmartHire employer operating in Mechanical / Automotive / Automation, based in Bac Ninh.",
+    "description": "Verified employer · Mechanical / Automotive / Automation · Bac Ninh.",
     "rating": {
       "score": 4.8,
       "reviewCount": 295
@@ -2108,7 +2108,7 @@
     "industry": "Design / Graphics / Creative Arts",
     "address": "Ba Dinh District, Hanoi",
     "website": "https://example.com/falcon-holdings",
-    "description": "A verified SmartHire employer operating in Design / Graphics / Creative Arts, based in Hanoi.",
+    "description": "Verified employer · Design / Graphics / Creative Arts · Hanoi.",
     "rating": {
       "score": 4.1,
       "reviewCount": 182
@@ -2128,7 +2128,7 @@
     "industry": "Design / Graphics / Creative Arts",
     "address": "Thu Dau Mot City, Binh Duong",
     "website": "https://example.com/trident-trading-co",
-    "description": "A verified SmartHire employer operating in Design / Graphics / Creative Arts, based in Binh Duong.",
+    "description": "Verified employer · Design / Graphics / Creative Arts · Binh Duong.",
     "rating": {
       "score": 4.4,
       "reviewCount": 490
@@ -2148,7 +2148,7 @@
     "industry": "Human Resources (HR)",
     "address": "Hong Bang District, Hai Phong",
     "website": "https://example.com/vantage-enterprises",
-    "description": "A verified SmartHire employer operating in Human Resources (HR), based in Hai Phong.",
+    "description": "Verified employer · Human Resources (HR) · Hai Phong.",
     "rating": {
       "score": 3.6,
       "reviewCount": 22
@@ -2168,7 +2168,7 @@
     "industry": "Education / Training",
     "address": "Ngo Quyen District, Hai Phong",
     "website": "https://example.com/compass-enterprises",
-    "description": "A verified SmartHire employer operating in Education / Training, based in Hai Phong.",
+    "description": "Verified employer · Education / Training · Hai Phong.",
     "rating": {
       "score": 4.6,
       "reviewCount": 605
@@ -2188,7 +2188,7 @@
     "industry": "Supply Chain / Logistics / Import-Export",
     "address": "Thanh Khe District, Da Nang",
     "website": "https://example.com/apex-industries",
-    "description": "A verified SmartHire employer operating in Supply Chain / Logistics / Import-Export, based in Da Nang.",
+    "description": "Verified employer · Supply Chain / Logistics / Import-Export · Da Nang.",
     "rating": {
       "score": 3.6,
       "reviewCount": 442
@@ -2208,7 +2208,7 @@
     "industry": "Media / Journalism / Publishing",
     "address": "Di An City, Binh Duong",
     "website": "https://example.com/vertex-vietnam",
-    "description": "A verified SmartHire employer operating in Media / Journalism / Publishing, based in Binh Duong.",
+    "description": "Verified employer · Media / Journalism / Publishing · Binh Duong.",
     "rating": {
       "score": 3.9,
       "reviewCount": 155
@@ -2228,7 +2228,7 @@
     "industry": "Manufacturing / Assembly / Processing",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/fusion-trading-co",
-    "description": "A verified SmartHire employer operating in Manufacturing / Assembly / Processing, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Manufacturing / Assembly / Processing · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 3.8,
       "reviewCount": 245
@@ -2248,7 +2248,7 @@
     "industry": "Insurance",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/horizon-corp",
-    "description": "A verified SmartHire employer operating in Insurance, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Insurance · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 4.1,
       "reviewCount": 623
@@ -2268,7 +2268,7 @@
     "industry": "Retail / Wholesale / Store Management",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/pacific-consulting",
-    "description": "A verified SmartHire employer operating in Retail / Wholesale / Store Management, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Retail / Wholesale / Store Management · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.4,
       "reviewCount": 232
@@ -2288,7 +2288,7 @@
     "industry": "Agriculture / Forestry / Fisheries & Science",
     "address": "Di An City, Binh Duong",
     "website": "https://example.com/grand-global",
-    "description": "A verified SmartHire employer operating in Agriculture / Forestry / Fisheries & Science, based in Binh Duong.",
+    "description": "Verified employer · Agriculture / Forestry / Fisheries & Science · Binh Duong.",
     "rating": {
       "score": 3.8,
       "reviewCount": 261
@@ -2308,7 +2308,7 @@
     "industry": "Education / Training",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/quartz-tech",
-    "description": "A verified SmartHire employer operating in Education / Training, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Education / Training · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.6,
       "reviewCount": 155
@@ -2328,7 +2328,7 @@
     "industry": "E-Commerce",
     "address": "Bac Ninh City, Bac Ninh",
     "website": "https://example.com/delta-enterprises",
-    "description": "A verified SmartHire employer operating in E-Commerce, based in Bac Ninh.",
+    "description": "Verified employer · E-Commerce · Bac Ninh.",
     "rating": {
       "score": 4.7,
       "reviewCount": 126
@@ -2348,7 +2348,7 @@
     "industry": "Media / Journalism / Publishing",
     "address": "Hong Bang District, Hai Phong",
     "website": "https://example.com/zenith-global",
-    "description": "A verified SmartHire employer operating in Media / Journalism / Publishing, based in Hai Phong.",
+    "description": "Verified employer · Media / Journalism / Publishing · Hai Phong.",
     "rating": {
       "score": 4.7,
       "reviewCount": 110
@@ -2368,7 +2368,7 @@
     "industry": "E-Commerce",
     "address": "Bien Hoa City, Dong Nai",
     "website": "https://example.com/prime-capital",
-    "description": "A verified SmartHire employer operating in E-Commerce, based in Dong Nai.",
+    "description": "Verified employer · E-Commerce · Dong Nai.",
     "rating": {
       "score": 3.9,
       "reviewCount": 159
@@ -2388,7 +2388,7 @@
     "industry": "General Labor & Drivers",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/cascade-manufacturing",
-    "description": "A verified SmartHire employer operating in General Labor & Drivers, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · General Labor & Drivers · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 4.5,
       "reviewCount": 97
@@ -2408,7 +2408,7 @@
     "industry": "Real Estate",
     "address": "Ninh Kieu District, Can Tho",
     "website": "https://example.com/river-global",
-    "description": "A verified SmartHire employer operating in Real Estate, based in Can Tho.",
+    "description": "Verified employer · Real Estate · Can Tho.",
     "rating": {
       "score": 4.3,
       "reviewCount": 62
@@ -2428,7 +2428,7 @@
     "industry": "Retail / Wholesale / Store Management",
     "address": "Thu Dau Mot City, Binh Duong",
     "website": "https://example.com/kite-logistics",
-    "description": "A verified SmartHire employer operating in Retail / Wholesale / Store Management, based in Binh Duong.",
+    "description": "Verified employer · Retail / Wholesale / Store Management · Binh Duong.",
     "rating": {
       "score": 3.5,
       "reviewCount": 404
@@ -2448,7 +2448,7 @@
     "industry": "Mechanical / Automotive / Automation",
     "address": "Ninh Kieu District, Can Tho",
     "website": "https://example.com/kite-capital",
-    "description": "A verified SmartHire employer operating in Mechanical / Automotive / Automation, based in Can Tho.",
+    "description": "Verified employer · Mechanical / Automotive / Automation · Can Tho.",
     "rating": {
       "score": 4.7,
       "reviewCount": 66
@@ -2468,7 +2468,7 @@
     "industry": "Customer Service",
     "address": "Thanh Khe District, Da Nang",
     "website": "https://example.com/bridge-holdings",
-    "description": "A verified SmartHire employer operating in Customer Service, based in Da Nang.",
+    "description": "Verified employer · Customer Service · Da Nang.",
     "rating": {
       "score": 4.3,
       "reviewCount": 68
@@ -2488,7 +2488,7 @@
     "industry": "Health, Safety & Environment (HSE)",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/phoenix-corp",
-    "description": "A verified SmartHire employer operating in Health, Safety & Environment (HSE), based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Health, Safety & Environment (HSE) · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 3.8,
       "reviewCount": 525
@@ -2508,7 +2508,7 @@
     "industry": "Real Estate",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/jade-logistics",
-    "description": "A verified SmartHire employer operating in Real Estate, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Real Estate · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 3.5,
       "reviewCount": 481
@@ -2528,7 +2528,7 @@
     "industry": "Education / Training",
     "address": "Ninh Kieu District, Can Tho",
     "website": "https://example.com/union-industries",
-    "description": "A verified SmartHire employer operating in Education / Training, based in Can Tho.",
+    "description": "Verified employer · Education / Training · Can Tho.",
     "rating": {
       "score": 3.7,
       "reviewCount": 99
@@ -2548,7 +2548,7 @@
     "industry": "Mechanical / Automotive / Automation",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/bridge-corp",
-    "description": "A verified SmartHire employer operating in Mechanical / Automotive / Automation, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Mechanical / Automotive / Automation · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 3.5,
       "reviewCount": 492
@@ -2568,7 +2568,7 @@
     "industry": "E-Commerce",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/heritage-retail-group",
-    "description": "A verified SmartHire employer operating in E-Commerce, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · E-Commerce · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.7,
       "reviewCount": 471
@@ -2588,7 +2588,7 @@
     "industry": "Media / Journalism / Publishing",
     "address": "Cai Rang District, Can Tho",
     "website": "https://example.com/apex-media",
-    "description": "A verified SmartHire employer operating in Media / Journalism / Publishing, based in Can Tho.",
+    "description": "Verified employer · Media / Journalism / Publishing · Can Tho.",
     "rating": {
       "score": 4.7,
       "reviewCount": 485
@@ -2608,7 +2608,7 @@
     "industry": "Insurance",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/lotus-global",
-    "description": "A verified SmartHire employer operating in Insurance, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Insurance · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 3.9,
       "reviewCount": 242
@@ -2628,7 +2628,7 @@
     "industry": "Agriculture / Forestry / Fisheries & Science",
     "address": "Thuan An City, Binh Duong",
     "website": "https://example.com/cascade-holdings",
-    "description": "A verified SmartHire employer operating in Agriculture / Forestry / Fisheries & Science, based in Binh Duong.",
+    "description": "Verified employer · Agriculture / Forestry / Fisheries & Science · Binh Duong.",
     "rating": {
       "score": 3.7,
       "reviewCount": 490
@@ -2648,7 +2648,7 @@
     "industry": "Education / Training",
     "address": "Cau Giay District, Hanoi",
     "website": "https://example.com/apex-solutions",
-    "description": "A verified SmartHire employer operating in Education / Training, based in Hanoi.",
+    "description": "Verified employer · Education / Training · Hanoi.",
     "rating": {
       "score": 4.1,
       "reviewCount": 37
@@ -2668,7 +2668,7 @@
     "industry": "E-Commerce",
     "address": "Ngo Quyen District, Hai Phong",
     "website": "https://example.com/titan-solutions",
-    "description": "A verified SmartHire employer operating in E-Commerce, based in Hai Phong.",
+    "description": "Verified employer · E-Commerce · Hai Phong.",
     "rating": {
       "score": 4.5,
       "reviewCount": 468
@@ -2688,7 +2688,7 @@
     "industry": "Design / Graphics / Creative Arts",
     "address": "Dong Da District, Hanoi",
     "website": "https://example.com/onyx-tech",
-    "description": "A verified SmartHire employer operating in Design / Graphics / Creative Arts, based in Hanoi.",
+    "description": "Verified employer · Design / Graphics / Creative Arts · Hanoi.",
     "rating": {
       "score": 3.9,
       "reviewCount": 587
@@ -2708,7 +2708,7 @@
     "industry": "Healthcare / Medical / Pharmaceuticals",
     "address": "Ninh Kieu District, Can Tho",
     "website": "https://example.com/crown-retail-group",
-    "description": "A verified SmartHire employer operating in Healthcare / Medical / Pharmaceuticals, based in Can Tho.",
+    "description": "Verified employer · Healthcare / Medical / Pharmaceuticals · Can Tho.",
     "rating": {
       "score": 4.1,
       "reviewCount": 110
@@ -2728,7 +2728,7 @@
     "industry": "Construction / Architecture / Interior Design",
     "address": "Ngu Hanh Son District, Da Nang",
     "website": "https://example.com/halo-international",
-    "description": "A verified SmartHire employer operating in Construction / Architecture / Interior Design, based in Da Nang.",
+    "description": "Verified employer · Construction / Architecture / Interior Design · Da Nang.",
     "rating": {
       "score": 3.8,
       "reviewCount": 105
@@ -2748,7 +2748,7 @@
     "industry": "Manufacturing / Assembly / Processing",
     "address": "Ngu Hanh Son District, Da Nang",
     "website": "https://example.com/alpha-partners",
-    "description": "A verified SmartHire employer operating in Manufacturing / Assembly / Processing, based in Da Nang.",
+    "description": "Verified employer · Manufacturing / Assembly / Processing · Da Nang.",
     "rating": {
       "score": 4.2,
       "reviewCount": 453
@@ -2768,7 +2768,7 @@
     "industry": "Real Estate",
     "address": "Ninh Kieu District, Can Tho",
     "website": "https://example.com/phoenix-partners",
-    "description": "A verified SmartHire employer operating in Real Estate, based in Can Tho.",
+    "description": "Verified employer · Real Estate · Can Tho.",
     "rating": {
       "score": 4.2,
       "reviewCount": 560
@@ -2788,7 +2788,7 @@
     "industry": "E-Commerce",
     "address": "Bac Ninh City, Bac Ninh",
     "website": "https://example.com/apex-international",
-    "description": "A verified SmartHire employer operating in E-Commerce, based in Bac Ninh.",
+    "description": "Verified employer · E-Commerce · Bac Ninh.",
     "rating": {
       "score": 4.7,
       "reviewCount": 80
@@ -2808,7 +2808,7 @@
     "industry": "Manufacturing / Assembly / Processing",
     "address": "District 1, Ho Chi Minh City",
     "website": "https://example.com/heritage-logistics",
-    "description": "A verified SmartHire employer operating in Manufacturing / Assembly / Processing, based in Ho Chi Minh City.",
+    "description": "Verified employer · Manufacturing / Assembly / Processing · Ho Chi Minh City.",
     "rating": {
       "score": 4.7,
       "reviewCount": 447
@@ -2828,7 +2828,7 @@
     "industry": "Insurance",
     "address": "Son Tra District, Da Nang",
     "website": "https://example.com/golden-international",
-    "description": "A verified SmartHire employer operating in Insurance, based in Da Nang.",
+    "description": "Verified employer · Insurance · Da Nang.",
     "rating": {
       "score": 4.8,
       "reviewCount": 483
@@ -2848,7 +2848,7 @@
     "industry": "Retail / Wholesale / Store Management",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/crown-tech",
-    "description": "A verified SmartHire employer operating in Retail / Wholesale / Store Management, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Retail / Wholesale / Store Management · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 4.6,
       "reviewCount": 518
@@ -2868,7 +2868,7 @@
     "industry": "Education / Training",
     "address": "Thanh Khe District, Da Nang",
     "website": "https://example.com/alpha-manufacturing",
-    "description": "A verified SmartHire employer operating in Education / Training, based in Da Nang.",
+    "description": "Verified employer · Education / Training · Da Nang.",
     "rating": {
       "score": 4.9,
       "reviewCount": 207
@@ -2888,7 +2888,7 @@
     "industry": "Textiles / Footwear / Fashion",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/nova-holdings",
-    "description": "A verified SmartHire employer operating in Textiles / Footwear / Fashion, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Textiles / Footwear / Fashion · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.8,
       "reviewCount": 419
@@ -2908,7 +2908,7 @@
     "industry": "Customer Service",
     "address": "Hai Chau District, Da Nang",
     "website": "https://example.com/trident-group",
-    "description": "A verified SmartHire employer operating in Customer Service, based in Da Nang.",
+    "description": "Verified employer · Customer Service · Da Nang.",
     "rating": {
       "score": 3.6,
       "reviewCount": 370
@@ -2928,7 +2928,7 @@
     "industry": "Customer Service",
     "address": "Ha Dong District, Hanoi",
     "website": "https://example.com/pioneer-group",
-    "description": "A verified SmartHire employer operating in Customer Service, based in Hanoi.",
+    "description": "Verified employer · Customer Service · Hanoi.",
     "rating": {
       "score": 4.6,
       "reviewCount": 51
@@ -2948,7 +2948,7 @@
     "industry": "Health, Safety & Environment (HSE)",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/grand-capital",
-    "description": "A verified SmartHire employer operating in Health, Safety & Environment (HSE), based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Health, Safety & Environment (HSE) · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.2,
       "reviewCount": 510
@@ -2968,7 +2968,7 @@
     "industry": "Real Estate",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/jade-group",
-    "description": "A verified SmartHire employer operating in Real Estate, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Real Estate · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 3.6,
       "reviewCount": 160
@@ -2988,7 +2988,7 @@
     "industry": "Health, Safety & Environment (HSE)",
     "address": "Cai Rang District, Can Tho",
     "website": "https://example.com/quartz-corp",
-    "description": "A verified SmartHire employer operating in Health, Safety & Environment (HSE), based in Can Tho.",
+    "description": "Verified employer · Health, Safety & Environment (HSE) · Can Tho.",
     "rating": {
       "score": 4.5,
       "reviewCount": 504
@@ -3008,7 +3008,7 @@
     "industry": "Customer Service",
     "address": "Binh Thanh District, Ho Chi Minh City",
     "website": "https://example.com/sky-capital",
-    "description": "A verified SmartHire employer operating in Customer Service, based in Ho Chi Minh City.",
+    "description": "Verified employer · Customer Service · Ho Chi Minh City.",
     "rating": {
       "score": 4.7,
       "reviewCount": 528
@@ -3028,7 +3028,7 @@
     "industry": "Health, Safety & Environment (HSE)",
     "address": "Ninh Kieu District, Can Tho",
     "website": "https://example.com/emerald-solutions",
-    "description": "A verified SmartHire employer operating in Health, Safety & Environment (HSE), based in Can Tho.",
+    "description": "Verified employer · Health, Safety & Environment (HSE) · Can Tho.",
     "rating": {
       "score": 4.8,
       "reviewCount": 351
@@ -3048,7 +3048,7 @@
     "industry": "Manufacturing / Assembly / Processing",
     "address": "Bac Ninh City, Bac Ninh",
     "website": "https://example.com/north-star-consulting",
-    "description": "A verified SmartHire employer operating in Manufacturing / Assembly / Processing, based in Bac Ninh.",
+    "description": "Verified employer · Manufacturing / Assembly / Processing · Bac Ninh.",
     "rating": {
       "score": 4,
       "reviewCount": 614
@@ -3068,7 +3068,7 @@
     "industry": "Health, Safety & Environment (HSE)",
     "address": "Hong Bang District, Hai Phong",
     "website": "https://example.com/echo-systems",
-    "description": "A verified SmartHire employer operating in Health, Safety & Environment (HSE), based in Hai Phong.",
+    "description": "Verified employer · Health, Safety & Environment (HSE) · Hai Phong.",
     "rating": {
       "score": 3.9,
       "reviewCount": 450
@@ -3088,7 +3088,7 @@
     "industry": "Real Estate",
     "address": "District 3, Ho Chi Minh City",
     "website": "https://example.com/pacific-industries",
-    "description": "A verified SmartHire employer operating in Real Estate, based in Ho Chi Minh City.",
+    "description": "Verified employer · Real Estate · Ho Chi Minh City.",
     "rating": {
       "score": 3.8,
       "reviewCount": 363
@@ -3108,7 +3108,7 @@
     "industry": "Translation / Interpretation",
     "address": "Tan Binh District, Ho Chi Minh City",
     "website": "https://example.com/apex-holdings",
-    "description": "A verified SmartHire employer operating in Translation / Interpretation, based in Ho Chi Minh City.",
+    "description": "Verified employer · Translation / Interpretation · Ho Chi Minh City.",
     "rating": {
       "score": 4.5,
       "reviewCount": 110
@@ -3128,7 +3128,7 @@
     "industry": "Media / Journalism / Publishing",
     "address": "Dong Da District, Hanoi",
     "website": "https://example.com/ivory-logistics",
-    "description": "A verified SmartHire employer operating in Media / Journalism / Publishing, based in Hanoi.",
+    "description": "Verified employer · Media / Journalism / Publishing · Hanoi.",
     "rating": {
       "score": 4.5,
       "reviewCount": 385
@@ -3148,7 +3148,7 @@
     "industry": "Manufacturing / Assembly / Processing",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/vantage-vietnam",
-    "description": "A verified SmartHire employer operating in Manufacturing / Assembly / Processing, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Manufacturing / Assembly / Processing · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.1,
       "reviewCount": 282
@@ -3168,7 +3168,7 @@
     "industry": "Customer Service",
     "address": "Cai Rang District, Can Tho",
     "website": "https://example.com/lotus-international",
-    "description": "A verified SmartHire employer operating in Customer Service, based in Can Tho.",
+    "description": "Verified employer · Customer Service · Can Tho.",
     "rating": {
       "score": 4,
       "reviewCount": 116
@@ -3188,7 +3188,7 @@
     "industry": "Customer Service",
     "address": "District 10, Ho Chi Minh City",
     "website": "https://example.com/blue-ocean-capital",
-    "description": "A verified SmartHire employer operating in Customer Service, based in Ho Chi Minh City.",
+    "description": "Verified employer · Customer Service · Ho Chi Minh City.",
     "rating": {
       "score": 4.8,
       "reviewCount": 435
@@ -3208,7 +3208,7 @@
     "industry": "Agriculture / Forestry / Fisheries & Science",
     "address": "Ngo Quyen District, Hai Phong",
     "website": "https://example.com/sunrise-solutions",
-    "description": "A verified SmartHire employer operating in Agriculture / Forestry / Fisheries & Science, based in Hai Phong.",
+    "description": "Verified employer · Agriculture / Forestry / Fisheries & Science · Hai Phong.",
     "rating": {
       "score": 4.6,
       "reviewCount": 593
@@ -3228,7 +3228,7 @@
     "industry": "Insurance",
     "address": "Bien Hoa City, Dong Nai",
     "website": "https://example.com/silver-global",
-    "description": "A verified SmartHire employer operating in Insurance, based in Dong Nai.",
+    "description": "Verified employer · Insurance · Dong Nai.",
     "rating": {
       "score": 4.1,
       "reviewCount": 587
@@ -3248,7 +3248,7 @@
     "industry": "Textiles / Footwear / Fashion",
     "address": "Thuan An City, Binh Duong",
     "website": "https://example.com/jade-systems",
-    "description": "A verified SmartHire employer operating in Textiles / Footwear / Fashion, based in Binh Duong.",
+    "description": "Verified employer · Textiles / Footwear / Fashion · Binh Duong.",
     "rating": {
       "score": 4,
       "reviewCount": 219
@@ -3268,7 +3268,7 @@
     "industry": "Customer Service",
     "address": "Bac Ninh City, Bac Ninh",
     "website": "https://example.com/north-star-manufacturing",
-    "description": "A verified SmartHire employer operating in Customer Service, based in Bac Ninh.",
+    "description": "Verified employer · Customer Service · Bac Ninh.",
     "rating": {
       "score": 4.1,
       "reviewCount": 539
@@ -3288,7 +3288,7 @@
     "industry": "Textiles / Footwear / Fashion",
     "address": "Cai Rang District, Can Tho",
     "website": "https://example.com/cascade-media",
-    "description": "A verified SmartHire employer operating in Textiles / Footwear / Fashion, based in Can Tho.",
+    "description": "Verified employer · Textiles / Footwear / Fashion · Can Tho.",
     "rating": {
       "score": 3.6,
       "reviewCount": 587
@@ -3308,7 +3308,7 @@
     "industry": "Agriculture / Forestry / Fisheries & Science",
     "address": "Go Vap District, Ho Chi Minh City",
     "website": "https://example.com/trident-capital",
-    "description": "A verified SmartHire employer operating in Agriculture / Forestry / Fisheries & Science, based in Ho Chi Minh City.",
+    "description": "Verified employer · Agriculture / Forestry / Fisheries & Science · Ho Chi Minh City.",
     "rating": {
       "score": 3.9,
       "reviewCount": 543
@@ -3328,7 +3328,7 @@
     "industry": "Textiles / Footwear / Fashion",
     "address": "Bien Hoa City, Dong Nai",
     "website": "https://example.com/union-corp",
-    "description": "A verified SmartHire employer operating in Textiles / Footwear / Fashion, based in Dong Nai.",
+    "description": "Verified employer · Textiles / Footwear / Fashion · Dong Nai.",
     "rating": {
       "score": 4.4,
       "reviewCount": 630
@@ -3348,7 +3348,7 @@
     "industry": "Retail / Wholesale / Store Management",
     "address": "Thanh Khe District, Da Nang",
     "website": "https://example.com/summit-international",
-    "description": "A verified SmartHire employer operating in Retail / Wholesale / Store Management, based in Da Nang.",
+    "description": "Verified employer · Retail / Wholesale / Store Management · Da Nang.",
     "rating": {
       "score": 4.7,
       "reviewCount": 515
@@ -3368,7 +3368,7 @@
     "industry": "Agriculture / Forestry / Fisheries & Science",
     "address": "Tu Son City, Bac Ninh",
     "website": "https://example.com/titan-media",
-    "description": "A verified SmartHire employer operating in Agriculture / Forestry / Fisheries & Science, based in Bac Ninh.",
+    "description": "Verified employer · Agriculture / Forestry / Fisheries & Science · Bac Ninh.",
     "rating": {
       "score": 4,
       "reviewCount": 512
@@ -3388,7 +3388,7 @@
     "industry": "Textiles / Footwear / Fashion",
     "address": "Cai Rang District, Can Tho",
     "website": "https://example.com/anchor-retail-group",
-    "description": "A verified SmartHire employer operating in Textiles / Footwear / Fashion, based in Can Tho.",
+    "description": "Verified employer · Textiles / Footwear / Fashion · Can Tho.",
     "rating": {
       "score": 4.4,
       "reviewCount": 290
@@ -3408,7 +3408,7 @@
     "industry": "Agriculture / Forestry / Fisheries & Science",
     "address": "District 7, Ho Chi Minh City",
     "website": "https://example.com/silver-partners",
-    "description": "A verified SmartHire employer operating in Agriculture / Forestry / Fisheries & Science, based in Ho Chi Minh City.",
+    "description": "Verified employer · Agriculture / Forestry / Fisheries & Science · Ho Chi Minh City.",
     "rating": {
       "score": 4.8,
       "reviewCount": 330
@@ -3428,7 +3428,7 @@
     "industry": "Insurance",
     "address": "Hong Bang District, Hai Phong",
     "website": "https://example.com/ivory-manufacturing",
-    "description": "A verified SmartHire employer operating in Insurance, based in Hai Phong.",
+    "description": "Verified employer · Insurance · Hai Phong.",
     "rating": {
       "score": 3.7,
       "reviewCount": 483
@@ -3448,7 +3448,7 @@
     "industry": "Translation / Interpretation",
     "address": "Vung Tau City Center, Vung Tau (Ba Ria - Vung Tau)",
     "website": "https://example.com/grand-solutions",
-    "description": "A verified SmartHire employer operating in Translation / Interpretation, based in Vung Tau (Ba Ria - Vung Tau).",
+    "description": "Verified employer · Translation / Interpretation · Vung Tau (Ba Ria - Vung Tau).",
     "rating": {
       "score": 4,
       "reviewCount": 206
@@ -3468,7 +3468,7 @@
     "industry": "Health, Safety & Environment (HSE)",
     "address": "Ngu Hanh Son District, Da Nang",
     "website": "https://example.com/golden-manufacturing",
-    "description": "A verified SmartHire employer operating in Health, Safety & Environment (HSE), based in Da Nang.",
+    "description": "Verified employer · Health, Safety & Environment (HSE) · Da Nang.",
     "rating": {
       "score": 3.9,
       "reviewCount": 489
@@ -3488,7 +3488,7 @@
     "industry": "Translation / Interpretation",
     "address": "Bien Hoa City, Dong Nai",
     "website": "https://example.com/compass-logistics",
-    "description": "A verified SmartHire employer operating in Translation / Interpretation, based in Dong Nai.",
+    "description": "Verified employer · Translation / Interpretation · Dong Nai.",
     "rating": {
       "score": 3.5,
       "reviewCount": 525
@@ -3508,7 +3508,7 @@
     "industry": "Translation / Interpretation",
     "address": "Nha Trang City Center, Nha Trang (Khanh Hoa)",
     "website": "https://example.com/pioneer-logistics",
-    "description": "A verified SmartHire employer operating in Translation / Interpretation, based in Nha Trang (Khanh Hoa).",
+    "description": "Verified employer · Translation / Interpretation · Nha Trang (Khanh Hoa).",
     "rating": {
       "score": 4.5,
       "reviewCount": 152
@@ -3528,7 +3528,7 @@
     "industry": "Translation / Interpretation",
     "address": "District 7, Ho Chi Minh City",
     "website": "https://example.com/falcon-group",
-    "description": "A verified SmartHire employer operating in Translation / Interpretation, based in Ho Chi Minh City.",
+    "description": "Verified employer · Translation / Interpretation · Ho Chi Minh City.",
     "rating": {
       "score": 3.7,
       "reviewCount": 103
@@ -3548,7 +3548,7 @@
     "industry": "Textiles / Footwear / Fashion",
     "address": "Cai Rang District, Can Tho",
     "website": "https://example.com/meridian-digital",
-    "description": "A verified SmartHire employer operating in Textiles / Footwear / Fashion, based in Can Tho.",
+    "description": "Verified employer · Textiles / Footwear / Fashion · Can Tho.",
     "rating": {
       "score": 3.8,
       "reviewCount": 80
@@ -3568,7 +3568,7 @@
     "industry": "Manufacturing / Assembly / Processing",
     "address": "Hai Chau District, Da Nang",
     "website": "https://example.com/sunrise-industries",
-    "description": "A verified SmartHire employer operating in Manufacturing / Assembly / Processing, based in Da Nang.",
+    "description": "Verified employer · Manufacturing / Assembly / Processing · Da Nang.",
     "rating": {
       "score": 4.1,
       "reviewCount": 343
@@ -3588,7 +3588,7 @@
     "industry": "Translation / Interpretation",
     "address": "Dong Da District, Hanoi",
     "website": "https://example.com/horizon-manufacturing",
-    "description": "A verified SmartHire employer operating in Translation / Interpretation, based in Hanoi.",
+    "description": "Verified employer · Translation / Interpretation · Hanoi.",
     "rating": {
       "score": 4.3,
       "reviewCount": 613

@@ -946,6 +946,29 @@
   overscroll-behavior: auto;
 }
 
+/* An empty thread has no header or composer. Render it as one continuous
+   surface so the unused grid rows cannot expose the thread's white base below
+   the tinted empty-state area. */
+.support-thread[data-empty="true"] {
+  display: flex;
+  flex-direction: column;
+  background: var(--sh-color-surface-tinted);
+}
+
+.support-thread[data-empty="true"] .support-empty {
+  flex: 1 1 auto;
+  min-height: 0;
+  background: var(--sh-color-surface-tinted);
+}
+
+/* Keep the three desktop rails on the same neutral card/surface hierarchy;
+   nested forms and the empty state may use the softer tinted surface. */
+.support-sidebar,
+.support-thread,
+.support-case-list {
+  border-color: var(--sh-color-border-subtle);
+}
+
 /* A compact web-chat composer: the message field is the primary surface and
    the send action is visually quiet until it becomes available. */
 .support-reply {

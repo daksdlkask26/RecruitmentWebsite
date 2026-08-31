@@ -11,6 +11,10 @@ vi.mock("@/frontend/features/dashboard/client/workspace-locale", () => ({
   useWorkspaceLocale: () => "en",
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+}));
+
 const company = {
   companyId: approvedCompanyFixture.id,
   slug: approvedCompanyFixture.slug,

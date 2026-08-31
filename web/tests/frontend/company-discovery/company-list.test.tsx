@@ -1,9 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { CompanyListScreen } from "@/frontend/features/candidate-company/company-list-screen";
 
 vi.mock("@/frontend/features/dashboard/client/workspace-locale", () => ({
   useWorkspaceLocale: () => "en",
+}));
+
+const { replaceMock } = vi.hoisted(() => ({ replaceMock: vi.fn() }));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: replaceMock }),
 }));
 
 const companies = [
@@ -62,5 +68,112 @@ describe("Candidate Company list", () => {
       "/company?q=Northstar",
     );
     expect(screen.getByText("Northstar Labs")).toBeInTheDocument();
+  });
+
+  it("renders the directory metadata and complete numbered page map", () => {
+    render(
+      <CompanyListScreen
+        companies={[
+          {
+            ...companies[0],
+            industry: "Information Technology",
+            location: "Can Tho",
+            openPositionCount: 14,
+          },
+        ]}
+        total={180}
+        page={1}
+        totalPages={30}
+        initialLocation="Can Tho"
+        locations={["Can Tho", "Da Nang"]}
+      />,
+    );
+
+    expect(screen.getByText("14 open roles")).toBeInTheDocument();
+    expect(screen.getAllByText("Can Tho").length).toBeGreaterThan(0);
+    expect(screen.getByText("Verified")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Page 30" })).toHaveAttribute(
+      "href",
+      "/company?location=Can+Tho&page=30",
+    );
+    expect(screen.getByText("…")).toBeInTheDocument();
+  });
+
+  it("keeps the location filter at province/city level", () => {
+    render(
+      <CompanyListScreen
+        companies={companies}
+        total={2}
+        locations={[
+          "Thanh Khe District, Da Nang",
+          "District 3, Ho Chi Minh City",
+        ]}
+      />,
+    );
+
+    const locationSelect = screen.getByRole("combobox", {
+      name: "Location",
+    });
+    fireEvent.click(locationSelect);
+
+    const locationOptions = within(
+      screen.getByRole("listbox", { name: "Location" }),
+    ).getAllByRole("option");
+    expect(locationOptions.map((option) => option.textContent)).toEqual([
+      "All locations",
+      "Da Nang",
+      "Ho Chi Minh City",
+    ]);
+  });
+
+  it("highlights the popular filter that matches the current query", () => {
+    render(
+      <CompanyListScreen
+        companies={companies}
+        total={1}
+        initialQuery="Manufacturing"
+        initialLocation="Da Nang"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Manufacturing" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: "Manufacturing" })).toHaveAttribute(
+      "href",
+      "/company?location=Da+Nang",
+    );
+    expect(screen.getByRole("link", { name: "Education" })).not.toHaveAttribute(
+      "aria-current",
+    );
+    expect(screen.getByRole("link", { name: "Education" })).toHaveAttribute(
+      "href",
+      "/company?q=Education&location=Da+Nang",
+    );
+  });
+
+  it("updates results through the route after the user pauses typing", () => {
+    replaceMock.mockReset();
+    vi.useFakeTimers();
+
+    try {
+      render(<CompanyListScreen companies={companies} total={1} />);
+      fireEvent.change(
+        screen.getByRole("searchbox", { name: "Search companies" }),
+        { target: { value: "Manufacturing" } },
+      );
+
+      expect(replaceMock).not.toHaveBeenCalled();
+      act(() => vi.advanceTimersByTime(799));
+      expect(replaceMock).not.toHaveBeenCalled();
+      act(() => vi.advanceTimersByTime(1));
+
+      expect(replaceMock).toHaveBeenCalledWith("/company?q=Manufacturing", {
+        scroll: false,
+      });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

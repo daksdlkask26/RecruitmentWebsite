@@ -6,6 +6,7 @@ import type {
   PublicJobRow,
 } from "@/backend/repositories/jobs/prisma-public-job-repository";
 import { decodeJobCursor, normalizeSearchText } from "./search-normalization";
+import { resolveSearchQuery } from "@/backend/services/search/search-query-resolver";
 import {
   JobServiceError,
   type JobActor,
@@ -114,8 +115,12 @@ function validationError(error: z.ZodError) {
 
 export function parseJobSearchCriteria(raw: unknown): NormalizedJobSearch {
   const parsed = jobSearchQuerySchema.parse(raw);
+  const resolved = resolveSearchQuery(parsed.q, "JOBS");
   return {
     normalizedQuery: normalizeSearchText(parsed.q),
+    searchVariants: resolved.variants,
+    searchInterpretation: resolved.interpretation,
+    resolverVersion: resolved.resolverVersion,
     searchBy: parsed.searchBy,
     normalizedLocation: normalizeSearchText(parsed.location, 160),
     normalizedDistricts: parsed.district.map((district) =>
@@ -376,6 +381,9 @@ export class JobDiscoveryService {
         page: criteria.page ?? 1,
         limit: criteria.limit,
       },
+      ...(criteria.searchInterpretation?.usedFallback
+        ? { searchInterpretation: criteria.searchInterpretation }
+        : {}),
     };
   }
 

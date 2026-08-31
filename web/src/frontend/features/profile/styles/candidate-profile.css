@@ -1,7 +1,9 @@
 /* Candidate profile only. This namespace intentionally does not reuse the
  * legacy professional-profile selectors, so the page has one visual system. */
 .candidate-profile-page {
-  width: 100%;
+  width: min(var(--sh-workspace-content-max), 100%);
+  max-width: var(--sh-workspace-content-max);
+  margin-inline: auto;
   min-width: 0;
   padding: 0 0 var(--sh-space-10);
   color: var(--sh-profile-text);
@@ -48,10 +50,10 @@
 
 .candidate-profile-page .profile-navigation .sh-topbar__tabs {
   display: flex;
-  width: 100%;
+  width: fit-content;
   min-width: 0;
-  max-width: none;
-  flex: 1 1 0%;
+  max-width: 100%;
+  flex: 0 1 auto;
   align-items: center;
   overflow-x: auto;
   overflow-y: hidden;

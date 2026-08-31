@@ -44,6 +44,9 @@ export class CompanyJobSearchService {
       page: result.page,
       totalPages: result.totalPages,
       companyId,
+      ...(result.searchInterpretation
+        ? { searchInterpretation: result.searchInterpretation }
+        : {}),
     });
   }
 }

@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import {
   ApplyButton,
+  JobCardBody,
   JobCardView,
 } from "@/frontend/features/jobs/components/job-card";
 import { JobSearchForm } from "@/frontend/features/jobs/components/job-search-form";
@@ -74,6 +75,21 @@ describe("job discovery presentation", () => {
       "job-salary--negotiable",
     );
     expect(screen.getByText("Hồ Chí Minh")).toBeVisible();
+  });
+
+  it("limits job metadata tags to three visible tags", () => {
+    render(
+      <JobCardBody
+        job={{
+          ...job,
+          skills: ["TypeScript", "React", "Next.js", "Vitest"],
+        }}
+      />,
+    );
+
+    expect(document.querySelectorAll(".job-card-tag")).toHaveLength(3);
+    expect(screen.queryByText("Next.js")).not.toBeInTheDocument();
+    expect(screen.queryByText("Vitest")).not.toBeInTheDocument();
   });
 
   it("routes authenticated card Apply clicks to the page-based flow", () => {

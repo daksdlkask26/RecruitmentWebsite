@@ -486,7 +486,6 @@ export function LiveJobSearchExperience({
               </p>
             ) : null}
           </header>
-
           <div
             className={`job-results-live-content${isLoading ? "is-refreshing" : ""}`}
           >

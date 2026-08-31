@@ -4,7 +4,8 @@
 }
 
 .account-preferences-panel {
-  max-width: 48rem;
+  width: 100%;
+  max-width: none;
   padding: var(--sh-card-padding);
   overflow-wrap: anywhere;
   border: 1px solid var(--sh-color-border-subtle);
@@ -314,7 +315,7 @@
 }
 
 .account-preferences-panel {
-  max-width: 62rem;
+  max-width: none;
   background:
     linear-gradient(
       180deg,
@@ -445,6 +446,32 @@
   justify-content: flex-end;
   gap: var(--sh-space-2);
   margin-top: var(--sh-space-2);
+}
+
+.account-preferences-edit-button {
+  display: inline-flex;
+  min-height: var(--sh-control-height-sm);
+  align-items: center;
+  gap: var(--sh-space-2);
+  padding: 0 var(--sh-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--sh-radius-sm);
+  color: var(--sh-color-brand-primary);
+  background: transparent;
+  font: inherit;
+  font-size: var(--sh-font-size-button);
+  font-weight: var(--sh-font-weight-semibold);
+  cursor: pointer;
+}
+
+.account-preferences-edit-button:hover {
+  border-color: var(--sh-color-brand-primary);
+  background: var(--sh-color-brand-soft);
+}
+
+.account-preferences-edit-button:focus-visible {
+  outline: 2px solid var(--sh-color-border-focus);
+  outline-offset: 2px;
 }
 
 .account-preferences-editor {

@@ -19,6 +19,7 @@ export default async function CompanyPage({ searchParams }: PageProps) {
   const raw = searchParams ? await searchParams : {};
   const parsed = companyListQuerySchema.safeParse({
     q: first(raw.q),
+    location: first(raw.location),
     page: first(raw.page),
     limit: first(raw.limit),
   });
@@ -35,7 +36,9 @@ export default async function CompanyPage({ searchParams }: PageProps) {
       page={result.page}
       totalPages={result.totalPages}
       initialQuery={query.q}
+      initialLocation={query.location}
       initialLimit={query.limit}
+      locations={result.locations}
     />
   );
 }

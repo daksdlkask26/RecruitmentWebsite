@@ -11727,8 +11727,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Recruiter pagination: expose the result range and page-size control first,
-   then keep only the two useful directional actions beside the page status. */
+/* Shared workspace pagination: expose the result range and page-size control
+   first, then keep only the two useful directional actions beside page status. */
 .job-pagination--compact {
   width: 100%;
   justify-content: flex-end;
@@ -11800,12 +11800,16 @@
 
 .job-pagination--compact > button:nth-of-type(1),
 .job-pagination--compact > button:nth-of-type(4),
+.job-pagination--compact .job-pagination-control--first,
+.job-pagination--compact .job-pagination-control--last,
 .job-pagination--compact .job-pagination-pages {
   display: none;
 }
 
 .job-pagination--compact > button:nth-of-type(2),
-.job-pagination--compact > button:nth-of-type(3) {
+.job-pagination--compact > button:nth-of-type(3),
+.job-pagination--compact .job-pagination-control--previous,
+.job-pagination--compact .job-pagination-control--next {
   flex: 0 0 36px;
   width: 36px;
   min-width: 36px;
@@ -11817,23 +11821,63 @@
 .job-pagination--compact > button:nth-of-type(2):hover:not(:disabled),
 .job-pagination--compact > button:nth-of-type(3):hover:not(:disabled),
 .job-pagination--compact > button:nth-of-type(2):focus-visible:not(:disabled),
-.job-pagination--compact > button:nth-of-type(3):focus-visible:not(:disabled) {
+.job-pagination--compact > button:nth-of-type(3):focus-visible:not(:disabled),
+.job-pagination--compact
+  .job-pagination-control--previous:hover:not(.is-disabled),
+.job-pagination--compact .job-pagination-control--next:hover:not(.is-disabled),
+.job-pagination--compact
+  .job-pagination-control--previous:focus-visible:not(.is-disabled),
+.job-pagination--compact
+  .job-pagination-control--next:focus-visible:not(.is-disabled) {
   border-color: var(--sh-color-brand-primary);
   color: var(--sh-color-brand-primary);
   background: var(--sh-color-brand-soft);
 }
 
 .job-pagination--compact > button:nth-of-type(2):disabled,
-.job-pagination--compact > button:nth-of-type(3):disabled {
+.job-pagination--compact > button:nth-of-type(3):disabled,
+.job-pagination--compact .job-pagination-control--previous.is-disabled,
+.job-pagination--compact .job-pagination-control--next.is-disabled {
   border-color: var(--sh-color-border-subtle);
   color: var(--sh-color-text-muted);
   background: var(--sh-color-surface-subtle);
+  cursor: default;
 }
 
 .job-pagination--compact > button:nth-of-type(2) > span[aria-hidden="true"],
-.job-pagination--compact > button:nth-of-type(3) > span[aria-hidden="true"] {
+.job-pagination--compact > button:nth-of-type(3) > span[aria-hidden="true"],
+.job-pagination--compact
+  .job-pagination-control--previous
+  > span[aria-hidden="true"],
+.job-pagination--compact
+  .job-pagination-control--next
+  > span[aria-hidden="true"] {
   width: 16px;
   height: 16px;
+}
+
+.job-pagination--compact
+  .job-pagination-control--first
+  > span[aria-hidden="true"]::before {
+  content: "\00AB";
+}
+
+.job-pagination--compact
+  .job-pagination-control--last
+  > span[aria-hidden="true"]::before {
+  content: "\00BB";
+}
+
+.job-pagination--compact
+  .job-pagination-control--previous
+  > span[aria-hidden="true"]::before {
+  content: "\2039";
+}
+
+.job-pagination--compact
+  .job-pagination-control--next
+  > span[aria-hidden="true"]::before {
+  content: "\203A";
 }
 
 .job-pagination--compact .job-pagination-progress {

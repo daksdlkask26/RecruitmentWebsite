@@ -55,6 +55,29 @@ describe("job-post review policy", () => {
     ).toThrow("UNPUBLISHABLE_JOB_MAPPING");
   });
 
+  it("uses the shared accent-insensitive normalization across the full search document", () => {
+    const projection = projectJobReviewSnapshot(
+      buildJobReviewSnapshot({
+        title: "Kế toán trưởng",
+        description: {
+          ...buildJobReviewSnapshot().description,
+          overview: "Báo cáo tài chính hàng tháng.",
+          responsibilities: ["Đối chiếu sổ sách kế toán."],
+          requirements: ["Am hiểu chuẩn mực kế toán Việt Nam."],
+          benefits: [{ icon: "gift", label: "Đào tạo chuyên môn." }],
+        },
+      }),
+    );
+    expect(projection.normalizedTitle).toBe("ke toan truong");
+    expect(projection.normalizedLocation).not.toMatch(/[ăâđêôơư]/u);
+    expect(projection.searchDocumentNormalized).toContain(
+      "bao cao tai chinh hang thang",
+    );
+    expect(projection.searchDocumentNormalized).toContain(
+      "doi chieu so sach ke toan",
+    );
+  });
+
   it("blocks snapshots whose joined public text would violate the relational projection", () => {
     const snapshot = buildJobReviewSnapshot();
     expect(() =>

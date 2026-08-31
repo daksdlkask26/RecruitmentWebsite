@@ -227,6 +227,19 @@ export const jobSearchResponseSchema = z
     page: z.number().int().positive(),
     totalPages: z.number().int().nonnegative(),
     criteria: z.record(z.string(), z.unknown()),
+    searchInterpretation: z
+      .object({
+        appliedTerms: z.array(z.string().min(1).max(200)).max(6),
+        correction: z
+          .object({
+            from: z.string().min(1).max(200),
+            to: z.string().min(1).max(200),
+            confidence: z.enum(["HIGH", "MEDIUM"]),
+          })
+          .optional(),
+        usedFallback: z.boolean(),
+      })
+      .optional(),
   })
   .strict();
 
