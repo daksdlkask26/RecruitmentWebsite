@@ -9,6 +9,11 @@ export const companyCardSchema = z
     name: z.string().min(1).max(160),
     logoUrl: z.string().nullable(),
     description: z.string().max(3_000),
+    // Optional keeps custom repository adapters and older cached responses
+    // readable while the public Prisma projection supplies these fields.
+    industry: z.string().max(160).nullable().optional(),
+    location: z.string().max(300).nullable().optional(),
+    openPositionCount: z.number().int().nonnegative().optional(),
   })
   .strict();
 
@@ -18,12 +23,29 @@ export const companyListResponseSchema = z
     page: z.number().int().positive(),
     total: z.number().int().nonnegative(),
     totalPages: z.number().int().nonnegative(),
+    // Directory filters expose province/city labels, not raw district-level
+    // company addresses.
+    locations: z.array(z.string().min(1).max(300)).max(200).optional(),
+    searchInterpretation: z
+      .object({
+        appliedTerms: z.array(z.string().min(1).max(200)).max(6),
+        correction: z
+          .object({
+            from: z.string().min(1).max(200),
+            to: z.string().min(1).max(200),
+            confidence: z.enum(["HIGH", "MEDIUM"]),
+          })
+          .optional(),
+        usedFallback: z.boolean(),
+      })
+      .optional(),
   })
   .strict();
 
 export const companyListQuerySchema = z
   .object({
     q: z.string().trim().max(200).optional().default(""),
+    location: z.string().trim().max(160).optional(),
     page: z.coerce.number().int().min(1).max(10_000).optional().default(1),
     limit: z.coerce.number().int().min(1).max(50).optional().default(24),
   })
@@ -36,11 +58,25 @@ export const companyDetailSchema = companyCardSchema
     industry: z.string().max(160).nullable(),
     location: z.string().max(300).nullable(),
     activeEmployeeCount: z.number().int().nonnegative(),
+    openPositionCount: z.number().int().nonnegative().optional(),
     teamRoles: z.array(teamRoleSchema).max(2),
     jobs: z.array(jobCardSchema).max(50),
     jobTotal: z.number().int().nonnegative().default(0),
     jobPage: z.number().int().positive().default(1),
     jobTotalPages: z.number().int().nonnegative().default(0),
+    searchInterpretation: z
+      .object({
+        appliedTerms: z.array(z.string().min(1).max(200)).max(6),
+        correction: z
+          .object({
+            from: z.string().min(1).max(200),
+            to: z.string().min(1).max(200),
+            confidence: z.enum(["HIGH", "MEDIUM"]),
+          })
+          .optional(),
+        usedFallback: z.boolean(),
+      })
+      .optional(),
   })
   .strict();
 
@@ -61,6 +97,7 @@ export const companyJobSearchResponseSchema = z
     page: z.number().int().positive(),
     totalPages: z.number().int().nonnegative(),
     companyId: z.string().min(1).max(128),
+    searchInterpretation: companyDetailSchema.shape.searchInterpretation,
   })
   .strict();
 

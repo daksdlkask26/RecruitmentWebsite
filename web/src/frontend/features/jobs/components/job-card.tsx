@@ -176,8 +176,7 @@ export function JobCardBody({ job }: { job: JobCardData }) {
     copy.employmentTypeLabels[job.employmentType] ?? job.employmentType,
     copy.experienceLevelLabels[job.experienceLevel] ?? job.experienceLevel,
   ];
-  const skillPreview = tagValues.slice(0, 3);
-  const overflowTags = tagValues.slice(3);
+  const visibleTags = [...secondaryTags, ...tagValues].slice(0, 3);
 
   return (
     <div className="job-card-body">
@@ -189,27 +188,19 @@ export function JobCardBody({ job }: { job: JobCardData }) {
         <span>{job.location}</span>
       </p>
       <div className="job-card-tags" aria-label={copy.jobTags}>
-        {secondaryTags.map((tag, index) => (
+        {visibleTags.map((tag, index) => (
           <span
-            className="job-card-tag job-card-tag--neutral"
+            className={
+              "job-card-tag " +
+              (index < secondaryTags.length
+                ? "job-card-tag--neutral"
+                : "job-card-tag--skill")
+            }
             key={tag + index}
           >
             {tag}
           </span>
         ))}
-        {skillPreview.map((tag) => (
-          <span className="job-card-tag job-card-tag--skill" key={tag}>
-            {tag}
-          </span>
-        ))}
-        {overflowTags.length ? (
-          <details className="job-card-overflow">
-            <summary aria-label={copy.showMoreTags(overflowTags.length)}>
-              +{overflowTags.length}
-            </summary>
-            <div role="tooltip">{overflowTags.join(" | ")}</div>
-          </details>
-        ) : null}
       </div>
     </div>
   );

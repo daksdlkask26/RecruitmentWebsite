@@ -19,7 +19,12 @@ import {
   teamRoleSchema,
   type TeamRole,
 } from "@/shared/contracts/company-members/team-applications";
+import {
+  companyLocationRegion,
+  companyLocationRegions,
+} from "@/shared/utils/locations/company-location";
 import { CompanyDiscoveryAuthorizationError } from "./company-discovery-authorization";
+import { resolveSearchQuery } from "@/backend/services/search/search-query-resolver";
 
 const DEFAULT_PAGE_SIZE = 24;
 const MAX_PAGE_SIZE = 50;
@@ -74,17 +79,28 @@ export class CompanyDiscoveryService {
     private readonly opportunities: TeamOpportunityRepositoryPort = new PrismaTeamOpportunityRepository(),
   ) {}
 
-  async list(input: { q?: string; page?: number; limit?: number } = {}) {
+  async list(
+    input: {
+      q?: string;
+      location?: string;
+      page?: number;
+      limit?: number;
+    } = {},
+  ) {
     const query = companyListQuerySchema.parse({
       q: input.q,
+      location: input.location,
       page: pageNumber(input.page),
       limit: pageLimit(input.limit),
     });
+    const location = companyLocationRegion(query.location);
     const result = await this.repository.list({
       q: query.q,
+      ...(location ? { location } : {}),
       page: query.page,
       limit: query.limit,
     });
+    const interpretation = resolveSearchQuery(query.q, "COMPANIES").interpretation;
     const response: CompanyListResponse = {
       items: result.items.map((company) => ({
         companyId: company.id,
@@ -92,11 +108,24 @@ export class CompanyDiscoveryService {
         name: company.displayName,
         logoUrl: company.logoUrl,
         description: safeDescription(company.publicDescription),
+        ...(company.openPositionCount === undefined
+          ? {}
+          : {
+              industry: company.industry?.trim() || null,
+              location: companyLocationRegion(company.publicLocation),
+              openPositionCount: company.openPositionCount,
+            }),
       })),
       page: query.page,
       total: result.total,
       totalPages: Math.ceil(result.total / query.limit),
+      ...(interpretation.usedFallback
+        ? { searchInterpretation: interpretation }
+        : {}),
     };
+    if (result.locations) {
+      response.locations = companyLocationRegions(result.locations);
+    }
     return companyListResponseSchema.parse(response);
   }
 
@@ -124,13 +153,19 @@ export class CompanyDiscoveryService {
       foundedYear: company.foundedYear,
       sizeRange: companySizeRange(company.activeEmployeeCount),
       industry: company.industry?.trim() || null,
-      location: company.publicLocation?.trim() || null,
+      location: companyLocationRegion(company.publicLocation),
       activeEmployeeCount: company.activeEmployeeCount,
+      ...(company.openPositionCount === undefined
+        ? {}
+        : { openPositionCount: company.openPositionCount }),
       teamRoles: roles,
       jobs: jobs.items,
       jobTotal: jobs.total,
       jobPage: jobs.page,
       jobTotalPages: jobs.totalPages,
+      ...(jobs.searchInterpretation
+        ? { searchInterpretation: jobs.searchInterpretation }
+        : {}),
     });
   }
 }

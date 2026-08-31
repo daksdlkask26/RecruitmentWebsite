@@ -72,6 +72,43 @@ describe("Company discovery service", () => {
     });
   });
 
+  it("passes the location filter and preserves the public directory projection", async () => {
+    const repository = {
+      list: vi.fn().mockResolvedValue({
+        items: [
+          {
+            ...approvedCompanyFixture,
+            publicLocation: "Thanh Khe District, Da Nang",
+            industry: "Information Technology",
+            openPositionCount: 14,
+          },
+        ],
+        total: 180,
+        locations: [
+          "Thanh Khe District, Da Nang",
+          "District 3, Ho Chi Minh City",
+        ],
+      }),
+      findById: vi.fn(),
+    };
+    const service = new CompanyDiscoveryService(repository as never);
+
+    const result = await service.list({ location: "  Can Tho  " });
+
+    expect(repository.list).toHaveBeenCalledWith({
+      q: "",
+      location: "Can Tho",
+      page: 1,
+      limit: 24,
+    });
+    expect(result.items[0]).toMatchObject({
+      industry: "Information Technology",
+      location: "Da Nang",
+      openPositionCount: 14,
+    });
+    expect(result.locations).toEqual(["Da Nang", "Ho Chi Minh City"]);
+  });
+
   it("scopes detail jobs to the selected company and exposes open team roles", async () => {
     const repository = {
       list: vi.fn(),

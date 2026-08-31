@@ -11,6 +11,7 @@ import {
   type CompanyDetail,
 } from "@/shared/contracts/company";
 import { CompanyPagination } from "./company-pagination";
+import { CompanyLocationSelect } from "./company-list-screen";
 import { getCompanyCopy } from "./i18n/company-copy";
 import styles from "./candidate-company-screen.module.css";
 
@@ -50,11 +51,13 @@ export function CompanyDetailScreen({
   initialLocation?: string;
   initialLimit?: number;
 }) {
-  const copy = getCompanyCopy(useWorkspaceLocale());
+  const locale = useWorkspaceLocale();
+  const copy = getCompanyCopy(locale);
   const [company, setCompany] = useState(initialCompany);
   const [keyword, setKeyword] = useState(initialKeyword);
   const [location, setLocation] = useState(initialLocation);
   const [jobPage, setJobPage] = useState(initialCompany.jobPage);
+  const [jobLimit, setJobLimit] = useState(initialLimit);
   const [jobTotal, setJobTotal] = useState(initialCompany.jobTotal);
   const [jobTotalPages, setJobTotalPages] = useState(
     initialCompany.jobTotalPages,
@@ -78,12 +81,13 @@ export function CompanyDetailScreen({
     nextKeyword: string,
     nextLocation: string,
     historyMode: "replace" | "push",
+    nextLimit = jobLimit,
   ) {
     const params = jobSearchParams(
       nextKeyword,
       nextLocation,
       nextPage,
-      initialLimit,
+      nextLimit,
     );
     const query = params.toString();
     const path = `/company/${encodeURIComponent(company.companyId)}`;
@@ -222,18 +226,13 @@ export function CompanyDetailScreen({
           </label>
           <label className={styles.field}>
             {copy.location}
-            <select
-              className={styles.select}
+            <CompanyLocationSelect
               value={location}
-              onChange={(event) => setLocation(event.target.value)}
-            >
-              <option value="">{copy.allLocations}</option>
-              {locations.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+              options={locations}
+              label={copy.location}
+              allLocationsLabel={copy.allLocations}
+              onChange={setLocation}
+            />
           </label>
           <button
             className={`${styles.button} ${styles.searchButton}`}
@@ -269,13 +268,17 @@ export function CompanyDetailScreen({
           page={jobPage}
           total={jobTotal}
           totalPages={jobTotalPages}
-          pageSize={initialLimit}
+          pageSize={jobLimit}
           itemLabel={copy.jobUnit}
           ariaLabel={copy.jobResultPages}
           disabled={loading}
           onPageChange={(nextPage) =>
             loadJobs(nextPage, keyword, location, "push")
           }
+          onPageSizeChange={(nextLimit) => {
+            setJobLimit(nextLimit);
+            loadJobs(1, keyword, location, "replace", nextLimit);
+          }}
         />
       </section>
     </main>

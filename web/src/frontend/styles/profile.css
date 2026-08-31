@@ -17,10 +17,10 @@
 
 .profile-navigation .sh-topbar__tabs {
   display: flex;
-  width: 100%;
+  width: fit-content;
   min-width: 0;
-  max-width: none;
-  flex: 1 1 0%;
+  max-width: 100%;
+  flex: 0 1 auto;
   align-items: center;
   overflow-x: auto;
   overflow-y: hidden;
@@ -68,11 +68,13 @@
   background: var(--sh-profile-primary);
 }
 
-/* Profile and account pages share one centred reading column. The tab rail
-   always fills the same available width; only its inner tabs scroll when the
-   labels cannot fit. */
-.profile-page:not(.candidate-profile-page) {
-  width: min(1040px, 100%);
+/* All Profile routes use the workspace content rail. Keeping the width rule
+   here prevents individual routes from introducing a narrower competing
+   column while the workspace owns the page gutters and maximum width. */
+.profile-page,
+.candidate-profile-page {
+  width: min(var(--sh-workspace-content-max), 100%);
+  max-width: var(--sh-workspace-content-max);
   margin-inline: auto;
 }
 

@@ -1,5 +1,6 @@
 import "server-only";
 import { normalizeJobReviewSnapshot } from "./job-post-review-policy";
+import { normalizeSearchText } from "@/backend/services/jobs/search-normalization";
 
 const employmentTypes = {
   full_time: "FULL_TIME",
@@ -39,13 +40,6 @@ function mapped<T extends string>(
   const result = mapping[value.trim().toLowerCase()];
   if (!result) throw new Error("UNPUBLISHABLE_JOB_MAPPING");
   return result;
-}
-
-function normalizedSearch(value: string): string {
-  return value
-    .normalize("NFKD")
-    .replace(/\p{M}+/gu, "")
-    .toLowerCase();
 }
 
 function withinPublicTextBounds(
@@ -91,7 +85,7 @@ export function projectJobReviewSnapshot(value: unknown) {
   const skills = Array.from(
     new Map(
       snapshot.skillTags.map((displayName, position) => {
-        const normalizedName = normalizedSearch(displayName.trim());
+        const normalizedName = normalizeSearchText(displayName.trim(), 80);
         return [
           normalizedName,
           { displayName, normalizedName, position, required: true },
@@ -108,7 +102,7 @@ export function projectJobReviewSnapshot(value: unknown) {
   const requirements = snapshot.description.requirements.join("\n");
   const benefits =
     snapshot.description.benefits.map((item) => item.label).join("\n") || null;
-  const searchDocumentNormalized = normalizedSearch(
+  const searchDocumentNormalized = normalizeSearchText(
     [
       snapshot.title,
       snapshot.shortPitch,
@@ -116,10 +110,17 @@ export function projectJobReviewSnapshot(value: unknown) {
       snapshot.industry,
       snapshot.subIndustry,
       ...snapshot.skillTags,
+      snapshot.description.overview,
+      ...responsibilities.split("\n"),
+      ...requirements.split("\n"),
+      ...(benefits ? benefits.split("\n") : []),
+      ...(snapshot.education ? [snapshot.education] : []),
+      ...snapshot.description.topReasonsToJoin,
     ].join(" "),
+    60_000,
   );
-  const normalizedTitle = normalizedSearch(snapshot.title);
-  const normalizedLocation = normalizedSearch(location);
+  const normalizedTitle = normalizeSearchText(snapshot.title, 200);
+  const normalizedLocation = normalizeSearchText(location, 160);
   assertPublishableText({
     title: snapshot.title,
     summary: snapshot.shortPitch,

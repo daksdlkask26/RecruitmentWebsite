@@ -1450,7 +1450,8 @@
 
 .candidate-application-list-page__header {
   flex-direction: row;
-  gap: 12px;
+  align-items: flex-end;
+  gap: var(--sh-space-5);
   margin-bottom: var(--sh-space-6);
 }
 
@@ -1460,21 +1461,33 @@
 
 .candidate-application-list-page__header h1 {
   margin-bottom: 0;
-  font-size: 24px;
-  line-height: 1.25;
+  font-family: var(--sh-font-family-display);
+  font-size: var(--sh-font-size-h1);
+  line-height: var(--sh-line-height-h1);
+  letter-spacing: -0.03em;
 }
 
 .candidate-application-list-page__header .sh-page-header__subtitle {
-  margin-top: var(--sh-space-1);
-  font-size: 13px;
-  line-height: 1.5;
+  margin-top: var(--sh-space-2);
+  font-size: var(--sh-font-size-body-sm);
+  line-height: var(--sh-line-height-body-sm);
+}
+
+.candidate-application-list-page__actions {
+  min-height: var(--sh-control-height-sm);
+  gap: var(--sh-space-3);
+  padding: 0 var(--sh-space-2) 0 var(--sh-space-3);
+  border: 1px solid var(--sh-color-border-subtle);
+  border-radius: var(--sh-radius-full);
+  background: var(--sh-color-surface-card);
+  box-shadow: var(--sh-shadow-control);
 }
 
 .candidate-application-list-page__count {
-  width: 34px;
-  height: 34px;
-  flex-basis: 34px;
-  font-size: 14px;
+  width: var(--sh-control-height-sm);
+  height: var(--sh-control-height-sm);
+  flex-basis: var(--sh-control-height-sm);
+  font-size: var(--sh-font-size-label);
 }
 
 .candidate-application-filter {
@@ -1555,14 +1568,15 @@
 }
 
 .candidate-application-list {
-  gap: 12px;
+  gap: var(--sh-space-3);
 }
 
 .candidate-application-list-card {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 16px 18px;
+  gap: var(--sh-space-4);
+  padding: var(--sh-space-5);
+  border-radius: var(--sh-radius-lg);
   border-color: var(--sh-color-border-subtle);
   box-shadow: var(--sh-shadow-card);
   opacity: 0;
@@ -1685,7 +1699,8 @@
   }
 
   .candidate-application-list-page__header {
-    flex-direction: row;
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .candidate-application-filter {
@@ -1693,7 +1708,7 @@
   }
 
   .candidate-application-list-card {
-    padding: 16px;
+    padding: var(--sh-space-4);
   }
 
   .candidate-application-list-card__top {

@@ -174,11 +174,11 @@ export function ProfilePreferencesView({
             </div>
             <div className="account-preferences-actions">
               <button
-                className="profile-section-edit-button"
+                className="account-preferences-edit-button"
                 type="button"
                 onClick={() => setIsEditing(true)}
               >
-                <u>{editLabel} &#8594;</u>
+                {editLabel} <span aria-hidden="true">&#8594;</span>
               </button>
             </div>
           </div>

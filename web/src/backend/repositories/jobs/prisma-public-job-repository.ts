@@ -169,6 +169,21 @@ function keywordMatches(
   return Prisma.sql`(${Prisma.join([title, company, skillNameMatches(token)], " OR ")})`;
 }
 
+function fuzzyKeywordMatches(
+  token: string,
+  searchBy: NormalizedJobSearch["searchBy"],
+) {
+  const title = Prisma.sql`j."normalizedTitle" % ${token}`;
+  if (searchBy === "TITLE") return title;
+  const company = Prisma.sql`EXISTS (
+    SELECT 1 FROM "Company" c
+    WHERE c."id" = j."companyId"
+      AND translate(lower(c."displayName"), ${vietnameseAccentSource}, ${vietnameseAccentTarget}) % ${token}
+  )`;
+  if (searchBy === "COMPANY") return company;
+  return Prisma.sql`(${Prisma.join([title, company, Prisma.sql`j."searchDocumentNormalized" % ${token}`], " OR ")})`;
+}
+
 function companySimilarity(query: string) {
   return Prisma.sql`COALESCE((
     SELECT GREATEST(
@@ -178,6 +193,14 @@ function companySimilarity(query: string) {
     FROM "Company" c
     WHERE c."id" = j."companyId"
   ), 0::real)`;
+}
+
+function variantScore(variant: string, searchBy: NormalizedJobSearch["searchBy"]) {
+  const titleExact = Prisma.sql`CASE WHEN j."normalizedTitle" = ${variant} THEN 100::double precision ELSE 0::double precision END`;
+  const title = Prisma.sql`similarity(j."normalizedTitle", ${variant}) * 3`;
+  const document = Prisma.sql`similarity(j."searchDocumentNormalized", ${variant})`;
+  const company = searchBy === "TITLE" ? Prisma.empty : Prisma.sql`+ ${companySimilarity(variant)} * 2`;
+  return Prisma.sql`${titleExact} + ${title} + ${document} ${company}`;
 }
 
 export type RankedJobSearchResult = Readonly<{
@@ -230,8 +253,22 @@ function publicClauses(input: NormalizedJobSearch, now: Date) {
   if (input.companyId) {
     clauses.push(Prisma.sql`j."companyId" = ${input.companyId}`);
   }
-  for (const token of searchTextTokens(input.normalizedQuery)) {
-    clauses.push(keywordMatches(token, input.searchBy));
+  const variants = input.searchVariants?.length
+    ? input.searchVariants
+    : input.normalizedQuery
+      ? [{ value: input.normalizedQuery, source: "ORIGINAL" as const }]
+      : [];
+  if (variants.length) {
+    const variantClauses = variants.map((variant) => {
+      const tokens = searchTextTokens(variant.value);
+      const match = tokens.map((token) =>
+        variant.source === "TYPO_CORRECTION" && token.length >= 4
+          ? fuzzyKeywordMatches(token, input.searchBy)
+          : keywordMatches(token, input.searchBy),
+      );
+      return match.length > 1 ? Prisma.sql`(${Prisma.join(match, " AND ")})` : match[0];
+    });
+    clauses.push(variantClauses.length > 1 ? Prisma.sql`(${Prisma.join(variantClauses, " OR ")})` : variantClauses[0]);
   }
   if (input.normalizedLocation) {
     const locationMatches = searchTextTokens(input.normalizedLocation).map(
@@ -412,12 +449,14 @@ export class PrismaPublicJobRepository implements PublicJobRepository {
   ): Promise<RankedJobSearchResult> {
     const clauses = publicClauses(input, now);
     const query = input.normalizedQuery;
+    const scoreVariants = (input.searchVariants ?? [])
+      .map((variant) => variant.value)
+      .filter(Boolean);
     const score = query
-      ? Prisma.sql`(
-          similarity(j."normalizedTitle", ${query}) * 3
-          + similarity(j."searchDocumentNormalized", ${query})
-          ${input.searchBy === "TITLE" ? Prisma.empty : Prisma.sql`+ ${companySimilarity(query)} * 2`}
-        )`
+      ? Prisma.sql`GREATEST(${Prisma.join(
+          (scoreVariants.length ? scoreVariants : [query]).map((variant) => variantScore(variant, input.searchBy)),
+          ", ",
+        )})`
       : Prisma.sql`0::double precision`;
     const cursor = cursorClause(input, score, now);
     const urgent = Prisma.sql`CASE WHEN j."applicationDeadline" IS NOT NULL AND j."applicationDeadline" > ${now} AND j."applicationDeadline" <= ${new Date(now.getTime() + 14 * 86_400_000)} THEN 1 ELSE 0 END`;

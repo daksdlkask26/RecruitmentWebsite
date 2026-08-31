@@ -142,4 +142,42 @@ describe("Candidate Company detail", () => {
       screen.getByText("No open positions match these filters"),
     ).toBeInTheDocument();
   });
+
+  it("uses the shared jobs pagination to change the page size", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        items: [],
+        total: 41,
+        nextCursor: null,
+        page: 1,
+        totalPages: 1,
+        companyId: approvedCompanyFixture.id,
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <CompanyDetailScreen
+        initialCompany={{
+          ...company,
+          jobTotal: 41,
+          jobPage: 1,
+          jobTotalPages: 3,
+        }}
+        initialKeyword="recruiter"
+        initialLocation="Ho Chi Minh City"
+      />,
+    );
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Per page" }), {
+      target: { value: "50" },
+    });
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      "/api/companies/company-team-028/jobs?q=recruiter&location=Ho+Chi+Minh+City&limit=50",
+      { headers: { Accept: "application/json" } },
+    );
+  });
 });

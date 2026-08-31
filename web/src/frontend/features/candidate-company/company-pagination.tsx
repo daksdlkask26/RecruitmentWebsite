@@ -13,17 +13,36 @@ type CompanyPaginationProps = Readonly<{
   ariaLabel: string;
   hrefForPage?: (page: number) => string;
   onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
   disabled?: boolean;
 }>;
 
-function pageNumbers(currentPage: number, totalPages: number) {
-  if (totalPages <= 5) {
+type PageToken = number | "ellipsis-start" | "ellipsis-end";
+
+function pageNumbers(currentPage: number, totalPages: number): PageToken[] {
+  if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
   }
 
-  const first = Math.max(1, currentPage - 1);
-  const last = Math.min(totalPages, Math.max(currentPage + 1, 3));
-  return Array.from({ length: last - first + 1 }, (_, index) => first + index);
+  const visiblePages = new Set([
+    1,
+    totalPages,
+    Math.max(1, currentPage - 1),
+    currentPage,
+    Math.min(totalPages, currentPage + 1),
+  ]);
+  const sortedPages = [...visiblePages].sort((left, right) => left - right);
+  const tokens: PageToken[] = [];
+
+  sortedPages.forEach((number, index) => {
+    const previous = sortedPages[index - 1];
+    if (previous !== undefined && number - previous > 1) {
+      tokens.push(previous === 1 ? "ellipsis-start" : "ellipsis-end");
+    }
+    tokens.push(number);
+  });
+
+  return tokens;
 }
 
 function controlContent(icon: string, label: string) {
@@ -35,6 +54,8 @@ function controlContent(icon: string, label: string) {
   );
 }
 
+const JOB_PAGE_SIZES = [10, 20, 50] as const;
+
 export function CompanyPagination({
   page,
   total,
@@ -44,6 +65,7 @@ export function CompanyPagination({
   ariaLabel,
   hrefForPage,
   onPageChange,
+  onPageSizeChange,
   disabled = false,
 }: CompanyPaginationProps) {
   const copy = getCompanyCopy(useWorkspaceLocale());
@@ -54,19 +76,29 @@ export function CompanyPagination({
   const goToPage = (nextPage: number) => {
     if (!disabled && nextPage !== page) onPageChange?.(nextPage);
   };
+  const pageSizes = [...new Set([...JOB_PAGE_SIZES, pageSize])].sort(
+    (left, right) => left - right,
+  );
+  const changePageSize = (nextPageSize: number) => {
+    if (!disabled && nextPageSize !== pageSize) {
+      onPageSizeChange?.(nextPageSize);
+    }
+  };
 
   function renderControl(
     targetPage: number,
     label: string,
     icon: string,
+    position: "first" | "previous" | "next" | "last",
     isDisabled: boolean,
   ) {
     const unavailable = disabled || isDisabled;
+    const className = `job-pagination-control job-pagination-control--${position}`;
     if (hrefForPage) {
       if (unavailable) {
         return (
           <span
-            className="job-pagination-control is-disabled"
+            className={`${className} is-disabled`}
             aria-disabled="true"
             aria-label={label}
           >
@@ -76,7 +108,7 @@ export function CompanyPagination({
       }
       return (
         <Link
-          className="job-pagination-control"
+          className={className}
           href={hrefForPage(targetPage)}
           aria-label={label}
           title={label}
@@ -88,7 +120,7 @@ export function CompanyPagination({
 
     return (
       <button
-        className="job-pagination-control"
+        className={className}
         type="button"
         disabled={unavailable}
         aria-label={label}
@@ -109,16 +141,47 @@ export function CompanyPagination({
         <span>
           {copy.paginationShowing}{" "}
           <strong>
-            {start}-{end}
+            {start}–{end}
           </strong>{" "}
           {copy.paginationOf} <strong>{total}</strong> {itemLabel}
         </span>
+        <span className="job-pagination-divider" aria-hidden="true" />
+        <label>
+          {copy.perPage}
+          <select
+            value={String(pageSize)}
+            disabled={disabled || !onPageSizeChange}
+            onChange={(event) => changePageSize(Number(event.target.value))}
+          >
+            {pageSizes.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
-      {renderControl(1, copy.firstPage, "«", page === 1)}
-      {renderControl(page - 1, copy.previousPage, "‹", page === 1)}
+      {renderControl(1, copy.firstPage, "«", "first", page === 1)}
+      {renderControl(
+        page === 1 ? 1 : page - 1,
+        copy.previousPage,
+        "‹",
+        "previous",
+        page === 1,
+      )}
       <div className="job-pagination-pages">
         <ol>
-          {pageNumbers(page, totalPages).map((number) => {
+          {pageNumbers(page, totalPages).map((token) => {
+            if (typeof token !== "number") {
+              return (
+                <li key={token}>
+                  <span className="job-pagination-ellipsis" aria-hidden="true">
+                    …
+                  </span>
+                </li>
+              );
+            }
+            const number = token;
             const current = number === page;
             if (hrefForPage) {
               return (
@@ -159,8 +222,20 @@ export function CompanyPagination({
           })}
         </ol>
       </div>
-      {renderControl(page + 1, copy.nextPage, "›", page === totalPages)}
-      {renderControl(totalPages, copy.lastPage, "»", page === totalPages)}
+      {renderControl(
+        page === totalPages ? totalPages : page + 1,
+        copy.nextPage,
+        "›",
+        "next",
+        page === totalPages,
+      )}
+      {renderControl(
+        totalPages,
+        copy.lastPage,
+        "»",
+        "last",
+        page === totalPages,
+      )}
       <p className="job-pagination-progress" aria-live="polite">
         {copy.paginationPage} {page} / {totalPages}
       </p>
