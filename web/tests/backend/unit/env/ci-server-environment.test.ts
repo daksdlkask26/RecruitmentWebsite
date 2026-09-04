@@ -9,14 +9,14 @@ function readCiEnvironment(): Record<string, string> {
     "utf8",
   );
   const environmentBlock = workflow.match(
-    /^    env:\r?\n([\s\S]*?)^    steps:/mu,
+    /^ {4}env:\r?\n([\s\S]*?)^ {4}steps:/mu,
   )?.[1];
   if (!environmentBlock) throw new Error("CI job environment block not found.");
 
   return Object.fromEntries(
     environmentBlock
       .split(/\r?\n/u)
-      .map((line) => line.match(/^      ([A-Z0-9_]+):\s*(.*)$/u))
+      .map((line) => line.match(/^ {6}([A-Z0-9_]+):\s*(.*)$/u))
       .filter((match) => match)
       .map((match) => {
         const key = match?.[1] ?? "";
