@@ -40,8 +40,8 @@ jobs:
       ADMIN_ORIGIN: http://console.admin.localhost:3001
       RECRUITER_ORIGIN: http://console.recruiter.localhost:3001
       EMAIL_ADAPTER: capture
-      EMAIL_CAPTURE_DIRECTORY: /tmp/smarthire-mail
-      EMAIL_CAPTURE_DIR: /tmp/smarthire-mail
+      EMAIL_CAPTURE_DIRECTORY: .local/mail
+      EMAIL_CAPTURE_DIR: .local/mail
       CV_STORAGE_ADAPTER: filesystem
       CV_STORAGE_LOCAL_ROOT: /tmp/smarthire-cv-storage
       CV_ARTIFACT_ACTIVE_KEY_VERSION: "1"
