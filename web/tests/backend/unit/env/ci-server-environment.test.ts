@@ -34,6 +34,7 @@ describe("CI server environment", () => {
   it("satisfies the runtime environment contract without local env files", () => {
     const environment = readCiEnvironment();
 
+    expect(environment.NODE_OPTIONS).toBe("--max-old-space-size=4096");
     expect(parseServerEnvironment(environment)).toMatchObject({
       APP_ENV: "test",
       CV_PARSER_ADAPTER: "deterministic",

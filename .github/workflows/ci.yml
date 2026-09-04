@@ -23,6 +23,7 @@ jobs:
           --health-retries 20
     env:
       APP_ENV: test
+      NODE_OPTIONS: --max-old-space-size=4096
       NEXT_PUBLIC_APP_URL: http://localhost:3001
       DATABASE_URL: postgresql://smarthire:smarthire@localhost:5432/smarthire_test
       DIRECT_URL: postgresql://smarthire:smarthire@localhost:5432/smarthire_test
