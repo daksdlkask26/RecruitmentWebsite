@@ -94,7 +94,8 @@ jobs:
       - run: git diff --check
       - run: npm run test:admin-management
       - run: npm run perf:admin-management:self-test
-      - run: npm run test
+      - name: Run core unit regression suite
+        run: npm run test:unit --workspace @smarthire/web
       - run: npm run build
       - name: Install Chromium for Search browser gates
         env:

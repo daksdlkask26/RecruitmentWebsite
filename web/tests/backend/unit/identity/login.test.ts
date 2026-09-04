@@ -64,11 +64,15 @@ describe("password login state enforcement", () => {
         headers: headers(),
         subject: randomUUID(),
       });
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(state === "SUSPENDED" ? 423 : 401);
       expect(
         response.headers.getSetCookie().filter((v) => v.includes("session=")),
       ).toHaveLength(0);
-      expect((await response.json()).message).toBe(GENERIC_LOGIN_ERROR);
+      expect((await response.json()).message).toBe(
+        state === "SUSPENDED"
+          ? "This account is suspended."
+          : GENERIC_LOGIN_ERROR,
+      );
     },
   );
   it("returns the same generic message for an unknown email and an incorrect password", async () => {

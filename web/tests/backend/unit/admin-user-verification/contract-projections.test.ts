@@ -17,7 +17,13 @@ describe("Feature 009 contract projections", () => {
         registeredFrom: "2026-01-01",
         registeredTo: "2026-01-31",
       }),
-    ).toMatchObject({ q: "Alice", type: "ALL", status: "ALL", page: 1, pageSize: 25 });
+    ).toMatchObject({
+      q: "Alice",
+      type: "ALL",
+      status: "ALL",
+      page: 1,
+      pageSize: 25,
+    });
     expect(() =>
       accountDirectoryFilterSchema.parse({
         registeredFrom: "2026-02-01",
@@ -43,6 +49,9 @@ describe("Feature 009 contract projections", () => {
         type: "RECRUITER",
         status: "SUSPENDED",
         version: 3,
+        hasCandidateIdentity: false,
+        activeMembershipCount: 1,
+        hasActiveAdministratorGrant: false,
         counts: { kind: "RECRUITER", unavailable: true },
       }).counts,
     ).toEqual({ kind: "RECRUITER", unavailable: true });
@@ -56,7 +65,9 @@ describe("Feature 009 contract projections", () => {
       category: "OTHER",
       applicantComment: "  The supplied evidence is not readable. ",
     });
-    expect(result.applicantComment).toBe("The supplied evidence is not readable.");
+    expect(result.applicantComment).toBe(
+      "The supplied evidence is not readable.",
+    );
     expect(() =>
       verificationRejectCommandSchema.parse({
         idempotencyKey: "00000000-0000-4000-8000-000000000001",
@@ -70,7 +81,10 @@ describe("Feature 009 contract projections", () => {
 
   it("uses the canonical moderation command body", () => {
     expect(
-      moderationCommandSchema.parse({ category: "OTHER", reason: "A valid administrator reason." }),
+      moderationCommandSchema.parse({
+        category: "OTHER",
+        reason: "A valid administrator reason.",
+      }),
     ).toEqual({ category: "OTHER", reason: "A valid administrator reason." });
   });
 
