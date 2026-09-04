@@ -7,9 +7,9 @@ describe("messaging report queue", () => {
       "src/frontend/features/admin/messaging-reports/messaging-report-list.tsx",
       "utf8",
     );
-    expect(source).toContain('source="reporterDisplayName"');
-    expect(source).toContain('source="targetDisplayName"');
-    expect(source).toContain('source="evidenceAvailable"');
+    expect(source).toContain("record.reporterDisplayName");
+    expect(source).toContain("record.targetDisplayName");
+    expect(source).toContain("record.evidenceAvailable");
     expect(source).not.toMatch(/source="(?:detail|content|conversationId)"/u);
   });
 });
