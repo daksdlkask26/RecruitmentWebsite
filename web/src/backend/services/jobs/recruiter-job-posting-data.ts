@@ -47,6 +47,9 @@ import {
   prepareRecruiterJobForSave,
 } from "@/shared/contracts/recruiter-job-posting";
 import { listRecruiterJobTaxonomy } from "@/backend/services/jobs/job-taxonomy-service";
+import { buildJobSearchProfile } from "@/backend/services/search/job-search-profile";
+import { searchCatalogProvider } from "@/backend/services/search/catalogs/search-catalog-provider";
+import type { SearchCatalogIndex } from "@/backend/services/search/catalogs/job-search-catalog-index";
 
 const jobsRepository = configuredJsonJobCatalogueRepository("jobs.json");
 const companiesRepository =
@@ -1429,6 +1432,7 @@ function jobFromCommand(
   status: Extract<JobPostingStatus, "draft">,
   now: string,
   id = buildJobId(),
+  catalogIndex?: SearchCatalogIndex,
 ): JobCatalogItem {
   const normalized = normalizeJob(raw);
   if (!isRecruiterIndustrySelectionValid(normalized)) {
@@ -1439,6 +1443,21 @@ function jobFromCommand(
   const locationPart = input.location.city || "remote";
   return jobDraftCatalogSchema.parse({
     ...input,
+    searchProfile: buildJobSearchProfile(
+      {
+        title: input.title,
+        industryCode: input.industryCode,
+        categoryFamily: input.categoryFamily,
+        categoryIds: input.categoryIds,
+        skills: input.skillTags,
+        description: [
+          input.description.overview,
+          ...input.description.responsibilities,
+          ...input.description.requirements,
+        ],
+      },
+      catalogIndex ? { index: catalogIndex } : undefined,
+    ),
     id,
     slug: `${slugPart(title || "untitled-job")}-${slugPart(locationPart)}-${id.slice(-8)}`,
     companyId,
@@ -1470,7 +1489,16 @@ export async function createRecruiterJob(
     if (missingProfileFields.length) {
       throw new Error("Company profile is incomplete.");
     }
-    const job = jobFromCommand(raw, company.id, userId, status, now);
+    const catalogSnapshot = await searchCatalogProvider.getActiveSnapshot();
+    const job = await jobFromCommand(
+      raw,
+      company.id,
+      userId,
+      status,
+      now,
+      undefined,
+      catalogSnapshot.index,
+    );
     await jobsRepository.mutateIndustryPartition(job.industryCode, (jobs) => [
       ...jobs,
       job,
@@ -1533,10 +1561,26 @@ export async function updateRecruiterJob(userId: string, raw: unknown) {
       );
     }
     const now = new Date().toISOString();
+    const catalogSnapshot = await searchCatalogProvider.getActiveSnapshot();
     const updatedSchema =
       input.status === "draft" ? jobDraftCatalogSchema : jobCatalogSchema;
     const updated = updatedSchema.parse({
       ...input,
+      searchProfile: buildJobSearchProfile(
+        {
+          title: input.title,
+          industryCode: input.industryCode,
+          categoryFamily: input.categoryFamily,
+          categoryIds: input.categoryIds,
+          skills: input.skillTags,
+          description: [
+            input.description.overview,
+            ...input.description.responsibilities,
+            ...input.description.requirements,
+          ],
+        },
+        { index: catalogSnapshot.index },
+      ),
       id: current.id,
       slug: current.slug,
       companyId: current.companyId,

@@ -10,17 +10,26 @@ import {
 import { projectJobReviewSnapshot } from "./job-post-publication-projector";
 import { normalizedReviewTitleSearch } from "./job-post-review-search";
 import { appendJobPostingLifecycleFact } from "@/backend/repositories/analytics/prisma-analytics-repository";
+import { buildJobSearchProfile } from "@/backend/services/search/job-search-profile";
+import { upsertJobSearchProjection } from "@/backend/services/search/job-search-profile-projection";
+import { searchCatalogProvider } from "@/backend/services/search/catalogs/search-catalog-provider";
+import type { SearchCatalogIndex } from "@/backend/services/search/catalogs/job-search-catalog-index";
 
 export async function adoptActiveJobBaseline(input: {
   job: JobCatalogItem;
   authoritativeCompanyId: string;
   actorUserId: string;
   now?: Date;
+  catalogIndex?: SearchCatalogIndex;
 }) {
   const now = input.now ?? new Date();
+  const catalogIndex =
+    input.catalogIndex ??
+    (await searchCatalogProvider.getActiveSnapshot()).index;
   const snapshot = jobReviewSnapshotFromCatalog(
     input.job,
     input.authoritativeCompanyId,
+    catalogIndex,
   );
   const projected = projectJobReviewSnapshot(snapshot);
   const snapshotSha256 = jobReviewSnapshotSha256(snapshot);
@@ -93,6 +102,32 @@ export async function adoptActiveJobBaseline(input: {
         });
       }
     }
+
+    await upsertJobSearchProjection(
+      transaction,
+      publicJob.id,
+      snapshot.searchProfile ??
+        buildJobSearchProfile(
+          {
+            title: snapshot.title,
+            industryCode: snapshot.industryCode,
+            categoryIds: snapshot.categoryIds,
+            skills: snapshot.skillTags,
+            description: [
+              snapshot.description.overview,
+              ...snapshot.description.responsibilities,
+              ...snapshot.description.requirements,
+            ],
+          },
+          { index: catalogIndex },
+        ),
+      {
+        originalTitle: snapshot.title,
+        industryCode: snapshot.industryCode,
+        categoryIds: snapshot.categoryIds,
+        sampleJobId: publicJob.id,
+      },
+    );
 
     const aggregate = await transaction.jobPostReviewAggregate.create({
       data: {

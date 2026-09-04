@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type FormEvent,
+} from "react";
 import {
   Bell,
   CircleHelp,
@@ -33,6 +39,81 @@ type RecentProfileSearch = {
 
 const RECENT_PROFILE_SEARCHES_KEY = "smarthire:recent-profile-searches";
 const MAX_RECENT_PROFILE_SEARCHES = 6;
+let recentSearchesSnapshot = "[]";
+let recentSearchesSnapshotInitialized = false;
+const recentSearchesListeners = new Set<() => void>();
+
+function parseRecentProfileSearches(
+  value: string | null,
+): RecentProfileSearch[] {
+  try {
+    const parsed: unknown = JSON.parse(value ?? "[]");
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(
+        (item): item is RecentProfileSearch =>
+          typeof item === "object" &&
+          item !== null &&
+          typeof item.userId === "string" &&
+          typeof item.displayName === "string",
+      )
+      .slice(0, MAX_RECENT_PROFILE_SEARCHES);
+  } catch {
+    return [];
+  }
+}
+
+function serializeRecentProfileSearches(items: readonly RecentProfileSearch[]) {
+  return JSON.stringify(items);
+}
+
+function getRecentSearchesSnapshot() {
+  if (!recentSearchesSnapshotInitialized && typeof window !== "undefined") {
+    try {
+      recentSearchesSnapshot = serializeRecentProfileSearches(
+        parseRecentProfileSearches(
+          window.localStorage.getItem(RECENT_PROFILE_SEARCHES_KEY),
+        ),
+      );
+    } catch {
+      recentSearchesSnapshot = "[]";
+    }
+    recentSearchesSnapshotInitialized = true;
+  }
+  return recentSearchesSnapshot;
+}
+
+function getServerRecentSearchesSnapshot() {
+  return "[]";
+}
+
+function subscribeRecentSearches(listener: () => void) {
+  recentSearchesListeners.add(listener);
+  if (typeof window === "undefined") return () => undefined;
+  const onStorage = (event: StorageEvent) => {
+    if (event.key !== RECENT_PROFILE_SEARCHES_KEY) return;
+    const next = serializeRecentProfileSearches(
+      parseRecentProfileSearches(event.newValue),
+    );
+    if (next === recentSearchesSnapshot) return;
+    recentSearchesSnapshot = next;
+    recentSearchesSnapshotInitialized = true;
+    for (const subscriber of recentSearchesListeners) subscriber();
+  };
+  window.addEventListener("storage", onStorage);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    recentSearchesListeners.delete(listener);
+  };
+}
+
+function publishRecentSearches(items: readonly RecentProfileSearch[]) {
+  const next = serializeRecentProfileSearches(items);
+  if (next === recentSearchesSnapshot) return;
+  recentSearchesSnapshot = next;
+  recentSearchesSnapshotInitialized = true;
+  for (const subscriber of recentSearchesListeners) subscriber();
+}
 
 function formatConnectionDate(value: string, locale: string) {
   return new Intl.DateTimeFormat(locale, {
@@ -296,49 +377,31 @@ export function ConnectionsWorkspace({
   );
   const [lookupMessage, setLookupMessage] = useState<string | null>(null);
   const [lookupBusy, setLookupBusy] = useState(false);
-  const [recentSearches, setRecentSearches] = useState<RecentProfileSearch[]>(
-    [],
+  const recentSearchesSnapshot = useSyncExternalStore(
+    subscribeRecentSearches,
+    getRecentSearchesSnapshot,
+    getServerRecentSearchesSnapshot,
   );
-
-  useEffect(() => {
-    try {
-      const parsed: unknown = JSON.parse(
-        window.localStorage.getItem(RECENT_PROFILE_SEARCHES_KEY) ?? "[]",
-      );
-      if (!Array.isArray(parsed)) return;
-      setRecentSearches(
-        parsed
-          .filter(
-            (item): item is RecentProfileSearch =>
-              typeof item === "object" &&
-              item !== null &&
-              typeof item.userId === "string" &&
-              typeof item.displayName === "string",
-          )
-          .slice(0, MAX_RECENT_PROFILE_SEARCHES),
-      );
-    } catch {
-      // History is a local convenience; unavailable browser storage is safe to ignore.
-    }
-  }, []);
+  const recentSearches = useMemo(
+    () => parseRecentProfileSearches(recentSearchesSnapshot),
+    [recentSearchesSnapshot],
+  );
 
   function rememberProfile(result: DiscoverableProfile) {
     const entry = { userId: result.userId, displayName: result.displayName };
-    setRecentSearches((current) => {
-      const next = [
-        entry,
-        ...current.filter((item) => item.userId !== entry.userId),
-      ].slice(0, MAX_RECENT_PROFILE_SEARCHES);
-      try {
-        window.localStorage.setItem(
-          RECENT_PROFILE_SEARCHES_KEY,
-          JSON.stringify(next),
-        );
-      } catch {
-        // Do not let unavailable local storage block a lookup.
-      }
-      return next;
-    });
+    const next = [
+      entry,
+      ...recentSearches.filter((item) => item.userId !== entry.userId),
+    ].slice(0, MAX_RECENT_PROFILE_SEARCHES);
+    try {
+      window.localStorage.setItem(
+        RECENT_PROFILE_SEARCHES_KEY,
+        serializeRecentProfileSearches(next),
+      );
+    } catch {
+      // Do not let unavailable local storage block a lookup.
+    }
+    publishRecentSearches(next);
   }
   const refresh = useCallback(async () => {
     const [proposalBody, connectionBody, notificationBody] = await Promise.all([

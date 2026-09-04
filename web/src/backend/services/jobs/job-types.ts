@@ -8,6 +8,12 @@ import type {
   JobSearchResponse,
 } from "@/shared/contracts/jobs/discovery";
 import type { CareerPathSlug } from "@/shared/contracts/jobs/career-paths";
+import type {
+  SearchInterpretation,
+  SearchMode,
+} from "@/shared/contracts/search/search-interpretation";
+import type { JobSearchIntent } from "@/shared/contracts/search/job-search-intent";
+import type { SearchCatalogIndex } from "@/backend/services/search/catalogs/job-search-catalog-index";
 
 export type CandidateActor = { userId: string; sessionId: string };
 export type JobActor =
@@ -20,9 +26,15 @@ export type NormalizedJobSearch = {
    * unrestricted Find Jobs query string. */
   companyId?: string;
   normalizedQuery: string;
+  /** Raw query kept for URL/state echoing; repository searches normalizedQuery. */
+  rawQuery?: string;
   searchVariants?: import("@/backend/services/search/search-query-resolver").SearchQueryVariant[];
-  searchInterpretation?: import("@/backend/services/search/search-query-resolver").SearchInterpretation;
+  searchInterpretation?: SearchInterpretation;
+  searchIntent?: JobSearchIntent;
+  /** Immutable catalog snapshot captured for this request. */
+  catalogIndex?: SearchCatalogIndex;
   resolverVersion?: string;
+  searchMode?: SearchMode;
   searchBy?: "TITLE" | "COMPANY" | "BOTH";
   normalizedLocation: string;
   normalizedDistricts?: string[];

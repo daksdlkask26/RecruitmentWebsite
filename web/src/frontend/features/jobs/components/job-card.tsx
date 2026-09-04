@@ -202,6 +202,18 @@ export function JobCardBody({ job }: { job: JobCardData }) {
           </span>
         ))}
       </div>
+      {job.matchReasons?.length ? (
+        <ul
+          className="job-card-match-reasons"
+          aria-label={locale === "vi" ? "Lý do phù hợp" : "Why this matches"}
+        >
+          {job.matchReasons.map((reason) => (
+            <li key={reason.kind}>
+              {locale === "vi" ? reason.labelVi : reason.labelEn}
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 }

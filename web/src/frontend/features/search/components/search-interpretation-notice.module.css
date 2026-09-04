@@ -1,0 +1,201 @@
+.notice {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sh-space-3);
+  margin: 0 0 var(--sh-space-5);
+  padding: var(--sh-space-3) var(--sh-space-4);
+  overflow: hidden;
+  border: 1px solid var(--sh-color-border-subtle);
+  border-radius: var(--sh-radius-md);
+  color: var(--sh-color-text-primary);
+  background: var(--sh-color-surface-tinted);
+  box-shadow: none;
+}
+
+.notice::before {
+  position: absolute;
+  inset-block: var(--sh-space-3);
+  inset-inline-start: 0;
+  width: 3px;
+  border-radius: var(--sh-radius-full);
+  content: "";
+  background: var(--sh-color-info);
+}
+
+.indicator {
+  display: grid;
+  width: var(--sh-space-8);
+  height: var(--sh-space-8);
+  flex: 0 0 var(--sh-space-8);
+  place-items: center;
+  border: 0;
+  border-radius: var(--sh-radius-sm);
+  color: var(--sh-color-info);
+  background: var(--sh-color-info-bg);
+}
+
+.content {
+  min-width: 0;
+}
+
+.content p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--sh-color-text-primary);
+  font-size: var(--sh-font-size-body-sm);
+  font-weight: var(--sh-font-weight-medium);
+  line-height: var(--sh-line-height-body-sm);
+}
+
+.content .message {
+  font-weight: var(--sh-font-weight-semibold);
+}
+
+.content .detail {
+  margin-top: var(--sh-space-1);
+  color: var(--sh-color-text-secondary);
+  font-size: var(--sh-font-size-caption);
+  font-weight: var(--sh-font-weight-regular);
+}
+
+.facets {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sh-space-1) var(--sh-space-3);
+  margin-top: var(--sh-space-2);
+}
+
+.facetLabel {
+  color: var(--sh-color-text-secondary);
+  font-size: var(--sh-font-size-caption);
+  font-weight: var(--sh-font-weight-semibold);
+}
+
+.facet {
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--sh-color-text-secondary);
+  background: transparent;
+  font-size: var(--sh-font-size-caption);
+  line-height: var(--sh-line-height-caption);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  min-width: 0;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sh-space-2);
+}
+
+.action {
+  display: inline-flex;
+  min-width: 0;
+  min-height: auto;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--sh-space-1);
+  max-width: 24rem;
+  padding: var(--sh-space-1) var(--sh-space-2);
+  border: 0;
+  border-radius: var(--sh-radius-sm);
+  color: var(--sh-color-brand-primary);
+  background: transparent;
+  box-shadow: none;
+  font: inherit;
+  font-size: var(--sh-font-size-body-sm);
+  font-weight: var(--sh-font-weight-semibold);
+  line-height: var(--sh-line-height-body-sm);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color var(--sh-motion-fast) ease,
+    background-color var(--sh-motion-fast) ease,
+    border-color var(--sh-motion-fast) ease,
+    box-shadow var(--sh-motion-fast) ease,
+    transform var(--sh-motion-fast) ease;
+}
+
+.action span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.action svg {
+  flex: 0 0 auto;
+}
+
+.action:hover {
+  color: var(--sh-color-brand-primary-hover);
+  background: var(--sh-color-surface-subtle);
+}
+
+.undoAction {
+  color: var(--sh-color-text-secondary);
+  background: transparent;
+}
+
+.undoAction:hover {
+  color: var(--sh-color-text-primary);
+  background: var(--sh-color-surface-subtle);
+}
+
+.action:active {
+  background: var(--sh-color-surface-subtle);
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--sh-color-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .notice {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: var(--sh-space-3);
+  }
+
+  .actions {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .notice {
+    padding: var(--sh-space-3);
+  }
+
+  .indicator {
+    width: var(--sh-space-8);
+    height: var(--sh-space-8);
+  }
+
+  .actions {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .action {
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action {
+    transition: none;
+  }
+}

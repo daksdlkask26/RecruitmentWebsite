@@ -79,6 +79,10 @@ export async function start() {
   );
 
   try {
+    const { configureSearchObservability } = await import(
+      "./src/backend/observability/search-observability-composition"
+    );
+    configureSearchObservability();
     const { attachSocketIoChatGateway } =
       await import("./src/backend/messaging/realtime/socket-io-chat-gateway");
     await app.prepare();

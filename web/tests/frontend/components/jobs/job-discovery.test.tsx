@@ -172,9 +172,7 @@ describe("job discovery presentation", () => {
     fireEvent.change(screen.getByLabelText(/skill/i), {
       target: { value: "Đà Nẵng" },
     });
-    expect(
-      screen.queryByRole("button", { name: /search jobs/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Search" })).toBeVisible();
     expect(
       screen.getAllByRole("link", { name: /clear filters/i }).at(-1),
     ).toHaveAttribute("href", "/jobs");

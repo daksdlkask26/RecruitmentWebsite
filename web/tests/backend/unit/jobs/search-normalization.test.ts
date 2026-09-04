@@ -13,6 +13,9 @@ describe("Vietnamese job search normalization", () => {
     ["lập   trình-viên", "lap trinh vien"],
     ["Đà Nẵng", "da nang"],
     ["  TypeScript / React  ", "typescript react"],
+    ["C++ Developer", "c++ developer"],
+    [".NET Developer", ".net developer"],
+    ["Node.js / React.js", "node.js react.js"],
   ])("normalizes %s deterministically", (input, expected) => {
     expect(normalizeSearchText(input)).toBe(expected);
   });

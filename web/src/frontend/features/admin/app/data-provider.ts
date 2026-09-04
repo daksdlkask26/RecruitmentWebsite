@@ -21,6 +21,8 @@ const endpoints: Record<string, string> = {
   "job-post-reviews": "/api/admin/job-post-reviews",
   "job-postings": "/api/admin/job-postings",
   "job-taxonomy": "/api/admin/job-taxonomy",
+  "search-mapping-reviews": "/api/admin/search-mapping-reviews",
+  "search-catalog-versions": "/api/admin/search-catalog-versions",
 };
 
 export function adminApiErrorDetails(body: unknown) {
@@ -384,4 +386,18 @@ export function jobTaxonomyCommandPath(
   action: "deactivate" | "reactivate" | "remove",
 ) {
   return `${endpoint("job-taxonomy")}/${encodeURIComponent(String(subIndustryId))}/${action}`;
+}
+
+export function searchMappingReviewCommandPath(
+  reviewId: Identifier,
+  action: "approve" | "reject" | "merge" | "intentional-untranslated",
+) {
+  return `${endpoint("search-mapping-reviews")}/${encodeURIComponent(String(reviewId))}/${action}`;
+}
+
+export function searchCatalogVersionCommandPath(
+  versionId: Identifier,
+  action: "publish" | "rollback" | "retire",
+) {
+  return `${endpoint("search-catalog-versions")}/${encodeURIComponent(String(versionId))}/${action}`;
 }

@@ -82,6 +82,7 @@
     "typecheck": "npm run typecheck --workspace @smarthire/web",
     "test": "npm run test --workspace @smarthire/web",
     "test:job-board": "npm run test:job-board --workspace @smarthire/web",
+    "test:search:e2e": "npm run test:search:e2e --workspace @smarthire/web",
     "test:admin-management": "npm run test:admin-management --workspace @smarthire/web",
     "test:admin-management:e2e": "npm run test:admin-management:e2e --workspace @smarthire/web",
     "test:messaging": "npm run test:messaging --workspace @smarthire/web",
@@ -101,7 +102,11 @@
     "smoke:messaging:server": "npm run smoke:messaging:server --workspace @smarthire/web",
     "db:validate": "npm run db:validate --workspace @smarthire/web",
     "db:migrate": "npm run db:migrations:check --workspace @smarthire/web && npm run db:up && npm run db:migrations:reconcile-names --workspace @smarthire/web -- --apply && npm run db:migrate --workspace @smarthire/web",
-    "db:studio": "npm run db:studio --workspace @smarthire/web"
+    "db:studio": "npm run db:studio --workspace @smarthire/web",
+    "search:catalog:reconcile": "npm run search:catalog:reconcile --workspace @smarthire/web --",
+    "search:review:queue": "npm run search:review:queue --workspace @smarthire/web --",
+    "search:review:manifest": "npm run search:review:manifest --workspace @smarthire/web --",
+    "search:review:batch": "npm run search:review:batch --workspace @smarthire/web --"
   },
   "dependencies": {
     "motion": "^12.42.2"
@@ -110,5 +115,8 @@
     "@prisma/engines@7.9.0": true,
     "esbuild@0.28.1": true,
     "prisma@7.9.0": true
+  },
+  "devDependencies": {
+    "prisma": "7.9.0"
   }
 }

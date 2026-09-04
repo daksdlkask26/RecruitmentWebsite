@@ -6,7 +6,7 @@ describe("job discovery accessibility", () => {
   it("groups filters and labels every control", () => {
     render(<JobSearchForm criteria={{}} />);
     expect(screen.getByRole("search", { name: /job search/i })).toBeVisible();
-    expect(screen.getByText(/job category/i)).toBeVisible();
+    expect(screen.getByText(/^experience$/i)).toBeVisible();
     expect(screen.getByText(/salary/i)).toBeVisible();
     expect(screen.getByText(/employment type/i)).toBeVisible();
     expect(screen.getByLabelText(/work arrangement/i)).toBeVisible();

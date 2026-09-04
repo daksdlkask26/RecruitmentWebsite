@@ -7,15 +7,17 @@ loadEnvironment({ path: resolve(process.cwd(), ".env.local"), quiet: true });
 const [command, encoded = "bnVsbA"] = process.argv.slice(2);
 const payload = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8"));
 const { prisma } = await import("../../../src/backend/database/prisma.ts");
-const {
-  createJobBoardDatabaseFixture,
-  deleteJobBoardDatabaseFixture,
-} = await import("../job-board-database-fixture.ts");
+const { createJobBoardDatabaseFixture, deleteJobBoardDatabaseFixture } =
+  await import("../job-board-database-fixture.ts");
 
 let result;
 try {
   if (command === "create") {
-    const databaseFixture = await createJobBoardDatabaseFixture(`home-${payload.label}`);
+    const fixtureNow = payload?.now ? new Date(payload.now) : undefined;
+    const databaseFixture = await createJobBoardDatabaseFixture(
+      `home-${payload.label}`,
+      fixtureNow,
+    );
     const { hashPassword } = await import("better-auth/crypto");
     const passwordHash = await hashPassword("Home candidate 2026!");
     await prisma.company.update({
@@ -48,20 +50,41 @@ try {
     });
     result = {
       databaseFixture,
-      candidate: accounts.find((account) => account.id === databaseFixture.userIds[0]),
-      employer: accounts.find((account) => account.id === databaseFixture.userIds[1]),
+      candidate: accounts.find(
+        (account) => account.id === databaseFixture.userIds[0],
+      ),
+      employer: accounts.find(
+        (account) => account.id === databaseFixture.userIds[1],
+      ),
     };
   } else if (command === "delete") {
     await deleteJobBoardDatabaseFixture(payload.databaseFixture);
     result = { deleted: true };
   } else if (command === "expire-user") {
-    result = { deleted: (await prisma.session.deleteMany({ where: { userId: payload.userId } })).count };
+    result = {
+      deleted: (
+        await prisma.session.deleteMany({ where: { userId: payload.userId } })
+      ).count,
+    };
   } else if (command === "deactivate-company") {
     await prisma.company.update({
       where: { id: payload.companyId },
-      data: { verificationState: "INACTIVE", verificationInactiveAt: new Date() },
+      data: {
+        verificationState: "INACTIVE",
+        verificationInactiveAt: new Date(),
+      },
     });
     result = { updated: true };
+  } else if (command === "set-language") {
+    if (!payload?.userId || !["EN", "VI"].includes(payload.language)) {
+      throw new Error("set-language requires userId and EN/VI language");
+    }
+    await prisma.accountPreferences.upsert({
+      where: { userId: payload.userId },
+      create: { userId: payload.userId, language: payload.language },
+      update: { language: payload.language },
+    });
+    result = { updated: true, language: payload.language };
   } else if (command === "public-job-count") {
     const now = new Date();
     result = {
@@ -70,7 +93,10 @@ try {
           status: "ACTIVE",
           approvedAt: { not: null },
           publishedAt: { not: null, lte: now },
-          OR: [{ applicationDeadline: null }, { applicationDeadline: { gt: now } }],
+          OR: [
+            { applicationDeadline: null },
+            { applicationDeadline: { gt: now } },
+          ],
           company: { verifiedAt: { not: null } },
         },
       }),

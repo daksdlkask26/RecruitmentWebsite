@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "search-canary-report-v1",
+  "owner": "search-platform-on-call",
+  "generatedAt": "2026-09-04T09:01:43.017Z",
+  "sampleCount": 127,
+  "errorRate": 0,
+  "zeroResultRate": 0,
+  "wrongCorrectionRate": 0,
+  "criticalWrongCorrectionRate": 0,
+  "fallbackRate": 0,
+  "candidateCapRate": 0,
+  "p95Ms": 319.8,
+  "p99Ms": 319.8,
+  "relevancePassed": true,
+  "projectionInvariantPassed": true,
+  "browserE2ePassed": true,
+  "migrationPassed": true,
+  "runtimeCatalogObserved": true,
+  "rollbackReady": true
+}

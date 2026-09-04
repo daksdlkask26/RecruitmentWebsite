@@ -114,9 +114,18 @@ export function BackupSettings() {
     setRuns(nextRuns);
   }, []);
   useEffect(() => {
-    void load().catch((error: unknown) =>
-      showError(error, "BACKUP_LOAD_FAILED"),
-    );
+    let cancelled = false;
+    const run = async () => {
+      try {
+        await load();
+      } catch (error: unknown) {
+        if (!cancelled) showError(error, "BACKUP_LOAD_FAILED");
+      }
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
   }, [load]);
   useEffect(() => {
     if (!runs.some((run) => run.status === "QUEUED" || run.status === "LEASED"))

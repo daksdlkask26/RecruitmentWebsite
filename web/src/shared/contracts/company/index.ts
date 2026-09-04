@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { jobCardSchema } from "@/shared/contracts/jobs/discovery";
 import { teamRoleSchema } from "@/shared/contracts/company-members/team-applications";
+import {
+  searchInterpretationSchema,
+  searchMetadataSchema,
+  searchModeSchema,
+} from "@/shared/contracts/search/search-interpretation";
 
 export const companyCardSchema = z
   .object({
@@ -26,25 +31,15 @@ export const companyListResponseSchema = z
     // Directory filters expose province/city labels, not raw district-level
     // company addresses.
     locations: z.array(z.string().min(1).max(300)).max(200).optional(),
-    searchInterpretation: z
-      .object({
-        appliedTerms: z.array(z.string().min(1).max(200)).max(6),
-        correction: z
-          .object({
-            from: z.string().min(1).max(200),
-            to: z.string().min(1).max(200),
-            confidence: z.enum(["HIGH", "MEDIUM"]),
-          })
-          .optional(),
-        usedFallback: z.boolean(),
-      })
-      .optional(),
+    searchMetadata: searchMetadataSchema.optional(),
+    searchInterpretation: searchInterpretationSchema.optional(),
   })
   .strict();
 
 export const companyListQuerySchema = z
   .object({
     q: z.string().trim().max(200).optional().default(""),
+    searchMode: searchModeSchema.optional().default("SMART"),
     location: z.string().trim().max(160).optional(),
     page: z.coerce.number().int().min(1).max(10_000).optional().default(1),
     limit: z.coerce.number().int().min(1).max(50).optional().default(24),
@@ -64,25 +59,15 @@ export const companyDetailSchema = companyCardSchema
     jobTotal: z.number().int().nonnegative().default(0),
     jobPage: z.number().int().positive().default(1),
     jobTotalPages: z.number().int().nonnegative().default(0),
-    searchInterpretation: z
-      .object({
-        appliedTerms: z.array(z.string().min(1).max(200)).max(6),
-        correction: z
-          .object({
-            from: z.string().min(1).max(200),
-            to: z.string().min(1).max(200),
-            confidence: z.enum(["HIGH", "MEDIUM"]),
-          })
-          .optional(),
-        usedFallback: z.boolean(),
-      })
-      .optional(),
+    searchMetadata: searchMetadataSchema.optional(),
+    searchInterpretation: searchInterpretationSchema.optional(),
   })
   .strict();
 
 export const companyJobSearchQuerySchema = z
   .object({
     q: z.string().trim().max(200).optional().default(""),
+    searchMode: searchModeSchema.optional().default("SMART"),
     location: z.string().trim().max(160).optional().default(""),
     page: z.coerce.number().int().min(1).max(10_000).optional().default(1),
     limit: z.coerce.number().int().min(1).max(50).optional().default(20),
@@ -97,7 +82,8 @@ export const companyJobSearchResponseSchema = z
     page: z.number().int().positive(),
     totalPages: z.number().int().nonnegative(),
     companyId: z.string().min(1).max(128),
-    searchInterpretation: companyDetailSchema.shape.searchInterpretation,
+    searchMetadata: searchMetadataSchema.optional(),
+    searchInterpretation: searchInterpretationSchema.optional(),
   })
   .strict();
 

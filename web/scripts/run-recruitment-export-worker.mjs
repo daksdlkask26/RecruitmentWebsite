@@ -31,9 +31,9 @@ if (probe) {
     ),
   );
 } else {
-  const module =
+  const workerModule =
     await import("../src/backend/exports/candidate-export-worker.ts");
-  const worker = new module.CandidateExportWorker();
+  const worker = new workerModule.CandidateExportWorker();
   while (!stopping) {
     const didProcess = await worker.runOnce();
     if (didProcess) {

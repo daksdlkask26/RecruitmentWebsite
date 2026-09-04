@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   jobSearchResponseSchema,
   type JobSearchResponse,
@@ -11,13 +11,19 @@ import {
   type JobSearchCriteria,
 } from "./job-search-form";
 import { JobResultsList } from "./job-results-list";
-import { JobSearchEmptyState } from "./job-search-empty-state";
+import {
+  JobSearchEmptyState,
+  type JobSearchEmptyStateAction,
+} from "./job-search-empty-state";
 import { JobsWorkspaceNav } from "./jobs-workspace";
 import type { JobSearchTaxonomy } from "@/shared/contracts/jobs/taxonomy";
 import { JOB_SEARCH_CRITERIA_CHANGED_EVENT } from "./job-search-events";
+import { SearchInterpretationNotice } from "@/frontend/features/search/components/search-interpretation-notice";
+import type { SearchRecoveryAction } from "@/shared/contracts/search/search-recovery";
 
 const scalarCriteriaNames = [
   "q",
+  "searchMode",
   "searchBy",
   "location",
   "careerPath",
@@ -72,6 +78,17 @@ export type JobsLiveCopy = Readonly<{
   emptyPage: string;
   emptyPageCopy: string;
   clear: string;
+  searchResultsFor: string;
+  includingRelatedTerm: string;
+  searchLiteral: string;
+  didYouMean: string;
+  searchSuggested: string;
+  undo: string;
+  literalMode: string;
+  enableSmartSearch: string;
+  interpretedAsOccupation: string;
+  correctionHint: string;
+  matchedFacets: string;
 }>;
 
 function one(value: string | string[] | number | undefined) {
@@ -80,6 +97,7 @@ function one(value: string | string[] | number | undefined) {
 
 const defaultCriteriaValues: Record<string, string> = {
   searchBy: "BOTH",
+  searchMode: "SMART",
   sort: "RELEVANCE",
   salaryCurrency: "VND",
   salaryPeriod: "MONTH",
@@ -97,6 +115,44 @@ function hasActiveSearchCriteria(criteria: JobSearchCriteria) {
     const defaultValue = defaultCriteriaValues[name];
     return values.some((value) => value !== defaultValue);
   });
+}
+
+function applyRecoveryFilterRemoval(
+  criteria: JobSearchCriteria,
+  action: SearchRecoveryAction,
+) {
+  const next = { ...criteria };
+  switch (action.removeFilter) {
+    case "LOCATION":
+      delete next.location;
+      break;
+    case "DISTRICT":
+      delete next.district;
+      break;
+    case "SALARY":
+      delete next.salaryMin;
+      delete next.salaryMax;
+      delete next.salaryNegotiable;
+      break;
+    case "SENIORITY":
+      delete next.experienceLevel;
+      break;
+    case "EMPLOYMENT_TYPE":
+      delete next.employmentType;
+      break;
+    case "WORK_ARRANGEMENT":
+      delete next.workArrangement;
+      break;
+    case "SKILL":
+      delete next.skills;
+      break;
+    case "CATEGORY":
+      delete next.categoryFamily;
+      delete next.categoryId;
+      delete next.categoryTitle;
+      break;
+  }
+  return next;
 }
 
 export function criteriaFromSearchParams(
@@ -132,7 +188,12 @@ export function jobSearchParams(criteria: JobSearchCriteria, page: number) {
   const params = new URLSearchParams();
   for (const name of scalarCriteriaNames) {
     const value = one(criteria[name]);
-    if (!value || (name === "sort" && value === "RELEVANCE")) continue;
+    if (
+      !value ||
+      (name === "sort" && value === "RELEVANCE") ||
+      (name === "searchMode" && value === "SMART")
+    )
+      continue;
     params.set(name, value);
   }
   for (const name of arrayCriteriaNames) {
@@ -193,6 +254,9 @@ export function LiveJobSearchExperience({
   );
   const [isLoading, setIsLoading] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  const [undoCriteria, setUndoCriteria] = useState<JobSearchCriteria | null>(
+    null,
+  );
   const requestId = useRef(0);
   const abortController = useRef<AbortController | null>(null);
   const debounceTimer = useRef<number | null>(null);
@@ -270,6 +334,7 @@ export function LiveJobSearchExperience({
   const runCriteriaChange = useCallback(
     (nextCriteria: JobSearchCriteria, trigger: JobFilterTrigger) => {
       cancelPendingRequest();
+      setUndoCriteria(null);
       setCriteria(nextCriteria);
       setPage(1);
       setError(null);
@@ -287,9 +352,64 @@ export function LiveJobSearchExperience({
     [cancelPendingRequest, fetchJobs, updateUrl],
   );
 
+  const applySearchRecovery = useCallback(
+    (action: SearchRecoveryAction) => {
+      const nextCriteria = applyRecoveryFilterRemoval(criteria, action);
+      if (action.query !== undefined) nextCriteria.q = action.query;
+      if (action.kind === "LITERAL") nextCriteria.searchMode = "LITERAL";
+      runCriteriaChange(nextCriteria, "immediate");
+    },
+    [criteria, runCriteriaChange],
+  );
+
   const clearFilters = useCallback(() => {
     runCriteriaChange({}, "immediate");
   }, [runCriteriaChange]);
+
+  const setSearchMode = useCallback(
+    (nextMode: "SMART" | "LITERAL") => {
+      runCriteriaChange({ ...criteria, searchMode: nextMode }, "immediate");
+    },
+    [criteria, runCriteriaChange],
+  );
+
+  const acceptSearchSuggestion = useCallback(() => {
+    const suggestion = result?.searchInterpretation?.effectiveQuery;
+    if (!suggestion) return;
+    const previousCriteria = criteria;
+    runCriteriaChange(
+      { ...criteria, q: suggestion, searchMode: "SMART" },
+      "immediate",
+    );
+    setUndoCriteria(previousCriteria);
+  }, [
+    criteria,
+    result?.searchInterpretation?.effectiveQuery,
+    runCriteriaChange,
+  ]);
+
+  const searchLiterally = useCallback(() => {
+    const previousCriteria = criteria;
+    setSearchMode("LITERAL");
+    setUndoCriteria(previousCriteria);
+  }, [criteria, setSearchMode]);
+
+  const enableSmartSearch = useCallback(() => {
+    if (undoCriteria) {
+      const previousCriteria = undoCriteria;
+      setUndoCriteria(null);
+      runCriteriaChange(previousCriteria, "immediate");
+      return;
+    }
+    setSearchMode("SMART");
+  }, [runCriteriaChange, setSearchMode, undoCriteria]);
+
+  const undoSearch = useCallback(() => {
+    if (!undoCriteria) return;
+    const previousCriteria = undoCriteria;
+    setUndoCriteria(null);
+    runCriteriaChange(previousCriteria, "immediate");
+  }, [runCriteriaChange, undoCriteria]);
 
   const goToPage = useCallback(
     (nextPage: number) => {
@@ -334,6 +454,25 @@ export function LiveJobSearchExperience({
     !error && !isLoading && (isNoMatch || isEmptyPage),
   );
   const hasResettableCriteria = hasActiveSearchCriteria(criteria);
+  const recoveryActions = useMemo<JobSearchEmptyStateAction[]>(
+    () => [
+      ...(result?.searchRecovery?.actions ?? []).map((action) => ({
+        label: copy.locale === "vi" ? action.labelVi : action.labelEn,
+        onClick: () => applySearchRecovery(action),
+      })),
+      ...(hasResettableCriteria
+        ? [{ label: copy.resetSearch, onClick: clearFilters }]
+        : []),
+    ],
+    [
+      applySearchRecovery,
+      clearFilters,
+      copy.locale,
+      copy.resetSearch,
+      hasResettableCriteria,
+      result?.searchRecovery?.actions,
+    ],
+  );
   const total = result?.total;
   const resultSummary =
     total === undefined ? "" : `${total} ${copy.opportunities}`;
@@ -391,6 +530,8 @@ export function LiveJobSearchExperience({
             resultCount={total}
             isLoading={isLoading}
             taxonomy={taxonomy}
+            searchInterpretation={result?.searchInterpretation}
+            searchMetadata={result?.searchMetadata}
           />
         </aside>
 
@@ -399,6 +540,17 @@ export function LiveJobSearchExperience({
           aria-labelledby="job-results-heading"
           aria-busy={isLoading}
         >
+          {!isLoading ? (
+            <SearchInterpretationNotice
+              interpretation={result?.searchInterpretation}
+              locale={copy.locale}
+              copy={copy}
+              onSearchLiteral={searchLiterally}
+              onAcceptSuggestion={acceptSearchSuggestion}
+              onEnableSmartSearch={enableSmartSearch}
+              onUndo={undoCriteria ? undoSearch : undefined}
+            />
+          ) : null}
           {!isEmptyView ? (
             <div
               className="job-results-toolbar"
@@ -632,11 +784,7 @@ export function LiveJobSearchExperience({
                 headingId="job-search-empty-heading"
                 title={copy.empty}
                 description={copy.emptyCopy}
-                action={
-                  hasResettableCriteria
-                    ? { label: copy.resetSearch, onClick: clearFilters }
-                    : undefined
-                }
+                actions={recoveryActions}
               />
             ) : isEmptyPage ? (
               <JobSearchEmptyState

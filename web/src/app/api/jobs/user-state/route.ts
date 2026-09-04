@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   jobPreferencesUpdateSchema,
+  savedFilterPresetSchema,
   userJobStateViewSchema,
 } from "@/shared/contracts/jobs/catalog";
 import {
@@ -46,6 +47,18 @@ const mutationSchema = z.discriminatedUnion("action", [
     .object({
       action: z.literal("update-preferences"),
       jobPreferences: jobPreferencesUpdateSchema,
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("save-filter-preset"),
+      preset: savedFilterPresetSchema,
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("delete-filter-preset"),
+      presetId: z.string().min(1).max(128),
     })
     .strict(),
 ]);

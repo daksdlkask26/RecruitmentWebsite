@@ -86,11 +86,11 @@ function EffectiveAccessChip({
   );
 }
 
-function MemberField(_props: { label?: string }) {
+function MemberField({ label }: { label?: string }) {
   const record = useRecordContext<MembershipRecord>();
   if (!record) return null;
   return (
-    <Stack spacing={0.25} sx={{ minWidth: 175 }}>
+    <Stack spacing={0.25} sx={{ minWidth: 175 }} aria-label={label}>
       <RouterLink
         to={`/accounts/${encodeURIComponent(record.accountId)}/show`}
         onClick={(event) => event.stopPropagation()}
@@ -108,7 +108,7 @@ function MemberField(_props: { label?: string }) {
   );
 }
 
-function CompanyField(_props: { label?: string }) {
+function CompanyField({ label }: { label?: string }) {
   const record = useRecordContext<MembershipRecord>();
   if (!record) return null;
   const verificationColor =
@@ -118,7 +118,12 @@ function CompanyField(_props: { label?: string }) {
         ? "warning"
         : "default";
   return (
-    <Stack spacing={0.5} alignItems="flex-start" sx={{ minWidth: 230 }}>
+    <Stack
+      spacing={0.5}
+      alignItems="flex-start"
+      sx={{ minWidth: 230 }}
+      aria-label={label}
+    >
       <RouterLink
         to={`/companies/${encodeURIComponent(record.companyId)}/show`}
         onClick={(event) => event.stopPropagation()}
@@ -139,11 +144,16 @@ function CompanyField(_props: { label?: string }) {
   );
 }
 
-function AccessField(_props: { label?: string }) {
+function AccessField({ label }: { label?: string }) {
   const record = useRecordContext<MembershipRecord>();
   if (!record) return null;
   return (
-    <Stack spacing={0.75} alignItems="flex-start" sx={{ minWidth: 185 }}>
+    <Stack
+      spacing={0.75}
+      alignItems="flex-start"
+      sx={{ minWidth: 185 }}
+      aria-label={label}
+    >
       <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
         <Chip
           label={sentenceCase(record.role)}
@@ -162,11 +172,11 @@ function AccessField(_props: { label?: string }) {
   );
 }
 
-function ActivityField(_props: { label?: string }) {
+function ActivityField({ label }: { label?: string }) {
   const record = useRecordContext<MembershipRecord>();
   if (!record) return null;
   return (
-    <Stack spacing={0.25} sx={{ minWidth: 180 }}>
+    <Stack spacing={0.25} sx={{ minWidth: 180 }} aria-label={label}>
       <Typography variant="body2">
         Joined {dateTime(record.createdAt)}
       </Typography>

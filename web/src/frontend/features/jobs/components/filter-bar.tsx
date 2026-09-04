@@ -12,9 +12,20 @@ import {
 } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { JobSearchResponse } from "@/shared/contracts/jobs/discovery";
-import { useOptionalJobInteraction } from "./job-interaction-provider";
+import type { SavedFilterPreset } from "@/shared/contracts/jobs/catalog";
+import type { SearchSuggestion } from "@/shared/contracts/search/search-suggestions";
+import { useSearchSuggestions } from "@/frontend/features/search/client/use-search-suggestions";
+import {
+  SearchSuggestionList,
+  localizedSuggestionLabel,
+} from "@/frontend/features/search/components/search-suggestion-list";
+import {
+  useOptionalJobInteraction,
+  type FilterPresetMetadata,
+} from "./job-interaction-provider";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
 import { jobCopy } from "./job-copy";
+import { SavedSearchVersionNotice } from "./saved-search-version-notice";
 
 export type JobSortMode =
   | "best-match"
@@ -130,6 +141,7 @@ function filterText(locale: FilterLocale) {
         company: "Công ty",
         titleSkillsCompany: "Chức danh, kỹ năng + công ty",
         searchJobs: "Tìm việc làm",
+        searchButton: "Tìm kiếm",
         searchPlaceholder: "Tìm chức danh, kỹ năng, công ty",
         quickFilters: "Bộ lọc nhanh",
         filtersAndSort: "Bộ lọc & sắp xếp",
@@ -188,6 +200,7 @@ function filterText(locale: FilterLocale) {
         company: "Company",
         titleSkillsCompany: "Title, skills + company",
         searchJobs: "Search jobs",
+        searchButton: "Search",
         searchPlaceholder: "Search job titles, skills, companies",
         quickFilters: "Quick filters",
         filtersAndSort: "Filters & Sort",
@@ -857,10 +870,13 @@ export function FilterBar({
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [presetName, setPresetName] = useState("");
+  const [restoredPreset, setRestoredPreset] =
+    useState<SavedFilterPreset | null>(null);
   const keywordTimer = useRef<number | null>(null);
   const locale = useWorkspaceLocale();
   const text = filterText(locale);
   const quickFilters = quickFiltersFor(locale);
+  const suggestions = useSearchSuggestions("JOBS", keyword);
 
   useEffect(() => {
     const timer = window.setTimeout(
@@ -877,19 +893,90 @@ export function FilterBar({
 
   function scheduleKeyword(value: string) {
     setKeyword(value);
+    setRestoredPreset(null);
     if (keywordTimer.current) window.clearTimeout(keywordTimer.current);
     keywordTimer.current = window.setTimeout(() => {
       update((params) => {
         if (value.trim()) params.set("q", value.trim());
-        else params.delete("q");
+        else {
+          params.delete("q");
+          params.delete("searchMode");
+        }
       });
     }, 420);
+  }
+
+  function commitKeyword(value = keyword) {
+    if (keywordTimer.current) window.clearTimeout(keywordTimer.current);
+    const trimmed = value.trim();
+    setKeyword(value);
+    setRestoredPreset(null);
+    suggestions.setOpen(false);
+    suggestions.setActiveIndex(-1);
+    update((params) => {
+      if (trimmed) params.set("q", trimmed);
+      else {
+        params.delete("q");
+        params.delete("searchMode");
+      }
+    });
+  }
+
+  function selectKeywordSuggestion(suggestion: SearchSuggestion) {
+    commitKeyword(localizedSuggestionLabel(suggestion, locale));
+  }
+
+  function handleKeywordSuggestionKeyDown(
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) {
+    if (event.key === "Escape") {
+      if (suggestions.open) {
+        event.preventDefault();
+        suggestions.setOpen(false);
+        suggestions.setActiveIndex(-1);
+      }
+      return;
+    }
+    if (event.key === "Tab") {
+      suggestions.setOpen(false);
+      suggestions.setActiveIndex(-1);
+      return;
+    }
+    if (suggestions.open && suggestions.suggestions.length) {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        suggestions.setActiveIndex(
+          (suggestions.activeIndex + 1) % suggestions.suggestions.length,
+        );
+        return;
+      }
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        suggestions.setActiveIndex(
+          suggestions.activeIndex <= 0
+            ? suggestions.suggestions.length - 1
+            : suggestions.activeIndex - 1,
+        );
+        return;
+      }
+      if (event.key === "Enter" && suggestions.activeIndex >= 0) {
+        event.preventDefault();
+        const suggestion = suggestions.suggestions[suggestions.activeIndex];
+        if (suggestion) selectKeywordSuggestion(suggestion);
+        return;
+      }
+    }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      commitKeyword();
+    }
   }
 
   function removeChip(name: string, value?: string) {
     update((params) => {
       if (value === undefined || params.getAll(name).length <= 1) {
         params.delete(name);
+        if (name === "q") params.delete("searchMode");
         return;
       }
       const values = params.getAll(name).filter((item) => item !== value);
@@ -899,6 +986,7 @@ export function FilterBar({
   }
 
   function clearAll() {
+    setRestoredPreset(null);
     update((params) => {
       for (const key of [...params.keys()]) params.delete(key);
     });
@@ -943,19 +1031,65 @@ export function FilterBar({
             <option value="BOTH">{text.titleSkillsCompany}</option>
           </select>
         </div>
-        <label className="job-keyword-field">
-          <span className="sr-only">{text.searchJobs}</span>
+        <div className="job-keyword-field">
+          <label className="sr-only" htmlFor="job-search-query">
+            {text.searchJobs}
+          </label>
           <span className="job-search-icon" aria-hidden="true">
             ⌕
           </span>
           <input
+            id="job-search-query"
             type="search"
             value={keyword}
             maxLength={200}
             placeholder={text.searchPlaceholder}
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={
+              suggestions.open && suggestions.suggestions.length > 0
+            }
+            aria-controls="job-search-suggestions"
+            aria-activedescendant={
+              suggestions.activeIndex >= 0
+                ? `job-search-suggestions-option-${suggestions.activeIndex}`
+                : undefined
+            }
             onChange={(event) => scheduleKeyword(event.currentTarget.value)}
+            onFocus={() => {
+              if (suggestions.suggestions.length) suggestions.setOpen(true);
+            }}
+            onBlur={() =>
+              window.setTimeout(() => {
+                suggestions.setOpen(false);
+                suggestions.setActiveIndex(-1);
+              }, 100)
+            }
+            onKeyDown={handleKeywordSuggestionKeyDown}
           />
-        </label>
+          {suggestions.isLoading ? (
+            <span className="search-suggestion-loading" aria-hidden="true" />
+          ) : null}
+          {suggestions.open ? (
+            <SearchSuggestionList
+              id="job-search-suggestions"
+              scope="JOBS"
+              locale={locale}
+              suggestions={suggestions.suggestions}
+              activeIndex={suggestions.activeIndex}
+              onSelect={selectKeywordSuggestion}
+              onActiveChange={suggestions.setActiveIndex}
+              density="compact"
+            />
+          ) : null}
+        </div>
+        <button
+          className="sh-button job-keyword-submit"
+          type="button"
+          onClick={() => commitKeyword()}
+        >
+          {text.searchButton}
+        </button>
         <div className="job-quick-filter-row" aria-label={text.quickFilters}>
           {quickFilters.map((filter) => {
             const active = searchParams
@@ -1036,9 +1170,17 @@ export function FilterBar({
                     (item) => item.id === event.currentTarget.value,
                   );
                   if (!preset) return;
+                  setRestoredPreset(preset);
                   update((params) => {
                     for (const key of [...params.keys()]) params.delete(key);
                     for (const [key, value] of Object.entries(preset.filters)) {
+                      if (
+                        key === "q" ||
+                        key === "searchMode" ||
+                        key === "page" ||
+                        key === "cursor"
+                      )
+                        continue;
                       if (Array.isArray(value)) {
                         for (const item of value)
                           if (typeof item === "string")
@@ -1047,6 +1189,19 @@ export function FilterBar({
                         params.set(key, value);
                       }
                     }
+                    const legacyQuery =
+                      typeof preset.filters.q === "string"
+                        ? preset.filters.q.trim()
+                        : "";
+                    const rawQuery = preset.q.trim() || legacyQuery;
+                    if (rawQuery) params.set("q", rawQuery);
+                    const legacyMode =
+                      preset.filters.searchMode === "LITERAL"
+                        ? "LITERAL"
+                        : "SMART";
+                    if ((preset.searchMode ?? legacyMode) === "LITERAL") {
+                      params.set("searchMode", "LITERAL");
+                    } else params.delete("searchMode");
                   });
                   event.currentTarget.value = "";
                 }}
@@ -1059,6 +1214,12 @@ export function FilterBar({
                 ))}
               </select>
             ) : null}
+            <SavedSearchVersionNotice
+              preset={restoredPreset}
+              interpretation={result?.searchInterpretation}
+              metadata={result?.searchMetadata}
+              locale={locale}
+            />
           </div>
         </aside>
         <section className="job-results-column">{children}</section>
@@ -1156,7 +1317,27 @@ export function FilterBar({
                 type="button"
                 disabled={!presetName.trim()}
                 onClick={() => {
-                  shared?.saveFilterPreset(presetName, filterSnapshot);
+                  const metadata: FilterPresetMetadata = {
+                    q: searchParams.get("q") ?? "",
+                    searchMode:
+                      searchParams.get("searchMode") === "LITERAL"
+                        ? "LITERAL"
+                        : "SMART",
+                    resolverVersion:
+                      result?.searchInterpretation?.resolverVersion ??
+                      result?.searchMetadata?.resolverVersion,
+                    catalogVersion:
+                      result?.searchInterpretation?.catalogVersion ??
+                      result?.searchMetadata?.catalogVersion,
+                    structuredFilters:
+                      result?.searchInterpretation?.structuredFilters,
+                    searchIntent: result?.searchInterpretation?.searchIntent,
+                  };
+                  shared?.saveFilterPreset(
+                    presetName,
+                    filterSnapshot,
+                    metadata,
+                  );
                   setPresetName("");
                   setSaveDialogOpen(false);
                 }}

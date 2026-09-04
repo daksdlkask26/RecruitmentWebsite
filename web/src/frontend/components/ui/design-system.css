@@ -636,6 +636,13 @@
   background: currentColor;
 }
 
+/* The primary brand blue is intentionally strong for light surfaces, but it
+ * is too dark against the dark workspace canvas. Keep the same semantic
+ * accent while using the accessible light counterpart in dark mode. */
+:root[data-theme="dark"] .sh-page-header__eyebrow {
+  color: #93c5fd;
+}
+
 /* Workspace context is deliberately quiet and identical across candidate
    utility pages, whether they use PageHeader or a lightweight local header. */
 .workspace-kicker,
@@ -1000,7 +1007,8 @@
   background: var(--sh-color-surface-subtle);
 }
 
-:root[data-theme="dark"] .sh-selectable-card[data-selected="true"]
+:root[data-theme="dark"]
+  .sh-selectable-card[data-selected="true"]
   .sh-selectable-card__status {
   color: var(--sh-color-brand-accent);
   background: var(--sh-color-surface-subtle);

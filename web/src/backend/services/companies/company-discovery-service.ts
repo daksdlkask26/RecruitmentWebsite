@@ -23,8 +23,14 @@ import {
   companyLocationRegion,
   companyLocationRegions,
 } from "@/shared/utils/locations/company-location";
+import type { SearchMode } from "@/shared/contracts/search/search-interpretation";
 import { CompanyDiscoveryAuthorizationError } from "./company-discovery-authorization";
-import { resolveSearchQuery } from "@/backend/services/search/search-query-resolver";
+import { JOB_SEARCH_CATALOG_VERSION } from "@/backend/services/search/catalogs/job-search-catalog";
+import { emitSearchResolutionMetric } from "@/backend/observability/search-resolution-metrics";
+import {
+  resolveSearchQuery,
+  SEARCH_RESOLVER_VERSION,
+} from "@/backend/services/search/search-query-resolver";
 
 const DEFAULT_PAGE_SIZE = 24;
 const MAX_PAGE_SIZE = 50;
@@ -82,13 +88,16 @@ export class CompanyDiscoveryService {
   async list(
     input: {
       q?: string;
+      searchMode?: SearchMode;
       location?: string;
       page?: number;
       limit?: number;
     } = {},
   ) {
+    const startedAt = performance.now();
     const query = companyListQuerySchema.parse({
       q: input.q,
+      searchMode: input.searchMode,
       location: input.location,
       page: pageNumber(input.page),
       limit: pageLimit(input.limit),
@@ -96,11 +105,23 @@ export class CompanyDiscoveryService {
     const location = companyLocationRegion(query.location);
     const result = await this.repository.list({
       q: query.q,
+      ...(input.searchMode ? { searchMode: query.searchMode } : {}),
       ...(location ? { location } : {}),
       page: query.page,
       limit: query.limit,
     });
-    const interpretation = resolveSearchQuery(query.q, "COMPANIES").interpretation;
+    const interpretation =
+      result.searchInterpretation ??
+      resolveSearchQuery(query.q, "COMPANIES", "en", query.searchMode)
+        .interpretation;
+    emitSearchResolutionMetric({
+      context: "COMPANIES",
+      interpretation,
+      variantCount: interpretation.appliedTerms.length + 1,
+      resultCount: result.total,
+      candidateCount: result.total,
+      durationMs: performance.now() - startedAt,
+    });
     const response: CompanyListResponse = {
       items: result.items.map((company) => ({
         companyId: company.id,
@@ -119,7 +140,13 @@ export class CompanyDiscoveryService {
       page: query.page,
       total: result.total,
       totalPages: Math.ceil(result.total / query.limit),
-      ...(interpretation.usedFallback
+      searchMetadata: {
+        resolverVersion: SEARCH_RESOLVER_VERSION,
+        catalogVersion: JOB_SEARCH_CATALOG_VERSION,
+      },
+      ...(interpretation.mode === "LITERAL" ||
+      interpretation.reason !== "NONE" ||
+      Boolean(interpretation.correction)
         ? { searchInterpretation: interpretation }
         : {}),
     };
@@ -163,6 +190,7 @@ export class CompanyDiscoveryService {
       jobTotal: jobs.total,
       jobPage: jobs.page,
       jobTotalPages: jobs.totalPages,
+      ...(jobs.searchMetadata ? { searchMetadata: jobs.searchMetadata } : {}),
       ...(jobs.searchInterpretation
         ? { searchInterpretation: jobs.searchInterpretation }
         : {}),

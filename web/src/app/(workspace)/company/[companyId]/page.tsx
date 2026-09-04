@@ -28,6 +28,7 @@ export default async function CompanyDetailPage({
   const raw = searchParams ? await searchParams : {};
   const parsedQuery = companyJobSearchQuerySchema.safeParse({
     q: first(raw.q),
+    searchMode: first(raw.searchMode),
     location: first(raw.location),
     page: first(raw.page),
     limit: first(raw.limit),
@@ -47,6 +48,7 @@ export default async function CompanyDetailPage({
       },
       {
         q: query.q,
+        searchMode: query.searchMode,
         location: query.location,
         searchBy: "BOTH",
         sort: "NEWEST",
@@ -63,6 +65,7 @@ export default async function CompanyDetailPage({
       <CompanyDetailScreen
         initialCompany={company}
         initialKeyword={query.q}
+        initialSearchMode={query.searchMode}
         initialLocation={query.location}
         initialLimit={query.limit}
       />

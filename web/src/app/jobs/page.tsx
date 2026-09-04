@@ -6,64 +6,12 @@ import {
   LiveJobSearchExperience,
   type JobsLiveCopy,
 } from "@/frontend/features/jobs/components/live-job-search-experience";
-import { jobSearchBySchema } from "@/shared/contracts/jobs/discovery";
 import { listCandidateVisibleJobSearchTaxonomy } from "@/backend/services/jobs/job-search-taxonomy";
+import { jobsPageQuery } from "./jobs-page-query";
 
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
-
-export function jobsPageQuery(
-  input: Record<string, string | string[] | undefined>,
-) {
-  const array = (name: string) => {
-    const value = input[name];
-    return value === undefined ? [] : Array.isArray(value) ? value : [value];
-  };
-  return {
-    q: Array.isArray(input.q) ? input.q[0] : input.q,
-    searchBy:
-      jobSearchBySchema.safeParse(
-        Array.isArray(input.searchBy) ? input.searchBy[0] : input.searchBy,
-      ).data ?? "BOTH",
-    location: Array.isArray(input.location)
-      ? input.location[0]
-      : input.location,
-    district: array("district").filter(Boolean),
-    categoryFamily: array("categoryFamily").filter(Boolean),
-    categoryId: array("categoryId").filter(Boolean),
-    categoryTitle: array("categoryTitle").filter(Boolean),
-    employmentType: array("employmentType").filter(Boolean),
-    experienceLevel: array("experienceLevel").filter(Boolean),
-    workArrangement: array("workArrangement").filter(Boolean),
-    careerPath: Array.isArray(input.careerPath)
-      ? input.careerPath[0]
-      : input.careerPath,
-    skills: array("skills").filter(Boolean),
-    salaryMin: Array.isArray(input.salaryMin)
-      ? input.salaryMin[0]
-      : input.salaryMin,
-    salaryMax: Array.isArray(input.salaryMax)
-      ? input.salaryMax[0]
-      : input.salaryMax,
-    salaryNegotiable: Array.isArray(input.salaryNegotiable)
-      ? input.salaryNegotiable[0]
-      : input.salaryNegotiable,
-    salaryCurrency: Array.isArray(input.salaryCurrency)
-      ? input.salaryCurrency[0]
-      : input.salaryCurrency,
-    salaryPeriod: Array.isArray(input.salaryPeriod)
-      ? input.salaryPeriod[0]
-      : input.salaryPeriod,
-    postedWithinDays: Array.isArray(input.postedWithinDays)
-      ? input.postedWithinDays[0]
-      : input.postedWithinDays,
-    sort: Array.isArray(input.sort) ? input.sort[0] : input.sort,
-    cursor: Array.isArray(input.cursor) ? input.cursor[0] : input.cursor,
-    page: Array.isArray(input.page) ? input.page[0] : input.page,
-    limit: Array.isArray(input.limit) ? input.limit[0] : input.limit,
-  };
-}
 
 const vietnameseCopy: JobsLiveCopy = {
   locale: "vi",
@@ -95,6 +43,17 @@ const vietnameseCopy: JobsLiveCopy = {
   emptyPage: "Không có việc làm ở trang này",
   emptyPageCopy: "Hãy quay lại trang đầu để xem các kết quả hiện có.",
   clear: "Xóa bộ lọc",
+  searchResultsFor: "Đang hiển thị kết quả cho “{query}”.",
+  includingRelatedTerm: "Đồng thời bao gồm “{term}”.",
+  searchLiteral: "Tìm nguyên văn “{query}”",
+  didYouMean: "Có phải bạn muốn tìm “{query}”?",
+  searchSuggested: "Tìm “{query}”",
+  undo: "Hoàn tác",
+  literalMode: "Đang tìm nguyên văn “{query}”.",
+  enableSmartSearch: "Bật tìm kiếm thông minh",
+  interpretedAsOccupation: "Đã hiểu “{original}” là nghề “{occupation}”.",
+  correctionHint: "Đã sửa từ “{query}”.",
+  matchedFacets: "Tín hiệu khớp",
 };
 
 const englishCopy: JobsLiveCopy = {
@@ -127,6 +86,17 @@ const englishCopy: JobsLiveCopy = {
   emptyPage: "No jobs on this page",
   emptyPageCopy: "Return to the first page to see the available results.",
   clear: "Clear filters",
+  searchResultsFor: "Showing results for “{query}”.",
+  includingRelatedTerm: "Also including “{term}”.",
+  searchLiteral: "Search instead for “{query}”",
+  didYouMean: "Did you mean “{query}”?",
+  searchSuggested: "Search for “{query}”",
+  undo: "Undo",
+  literalMode: "Searching literally for “{query}”.",
+  enableSmartSearch: "Enable smart search",
+  interpretedAsOccupation: "Interpreted “{original}” as “{occupation}”.",
+  correctionHint: "Corrected from “{query}”.",
+  matchedFacets: "Matched signals",
 };
 
 export default async function JobsPage({ searchParams }: PageProps) {

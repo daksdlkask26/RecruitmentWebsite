@@ -5,11 +5,13 @@ import { useMemo, useState, useTransition, type FormEvent } from "react";
 import { Building2 } from "lucide-react";
 import { CompanyAvatar } from "@/frontend/features/jobs/components/company-avatar";
 import { JobResultsList } from "@/frontend/features/jobs/components/job-results-list";
+import { SearchInterpretationNotice } from "@/frontend/features/search/components/search-interpretation-notice";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
 import {
   companyJobSearchResponseSchema,
   type CompanyDetail,
 } from "@/shared/contracts/company";
+import type { SearchMode } from "@/shared/contracts/search/search-interpretation";
 import { CompanyPagination } from "./company-pagination";
 import { CompanyLocationSelect } from "./company-list-screen";
 import { getCompanyCopy } from "./i18n/company-copy";
@@ -22,10 +24,12 @@ function jobSearchParams(
   location: string,
   page: number,
   limit: number,
+  searchMode: SearchMode,
 ) {
   const params = new URLSearchParams();
   if (keyword.trim()) params.set("q", keyword.trim());
   if (location) params.set("location", location);
+  if (searchMode !== "SMART") params.set("searchMode", searchMode);
   if (page > 1) params.set("page", String(page));
   if (limit !== DEFAULT_JOB_PAGE_SIZE) params.set("limit", String(limit));
   return params;
@@ -43,11 +47,13 @@ function valueOrUnavailable(
 export function CompanyDetailScreen({
   initialCompany,
   initialKeyword = "",
+  initialSearchMode = "SMART",
   initialLocation = "",
   initialLimit = DEFAULT_JOB_PAGE_SIZE,
 }: {
   initialCompany: CompanyDetail;
   initialKeyword?: string;
+  initialSearchMode?: SearchMode;
   initialLocation?: string;
   initialLimit?: number;
 }) {
@@ -55,6 +61,7 @@ export function CompanyDetailScreen({
   const copy = getCompanyCopy(locale);
   const [company, setCompany] = useState(initialCompany);
   const [keyword, setKeyword] = useState(initialKeyword);
+  const [searchMode, setSearchMode] = useState<SearchMode>(initialSearchMode);
   const [location, setLocation] = useState(initialLocation);
   const [jobPage, setJobPage] = useState(initialCompany.jobPage);
   const [jobLimit, setJobLimit] = useState(initialLimit);
@@ -82,16 +89,19 @@ export function CompanyDetailScreen({
     nextLocation: string,
     historyMode: "replace" | "push",
     nextLimit = jobLimit,
+    nextSearchMode = searchMode,
   ) {
     const params = jobSearchParams(
       nextKeyword,
       nextLocation,
       nextPage,
       nextLimit,
+      nextSearchMode,
     );
     const query = params.toString();
     const path = `/company/${encodeURIComponent(company.companyId)}`;
     setError(null);
+    setCompany((current) => ({ ...current, searchInterpretation: undefined }));
     const nextUrl = query ? `${path}?${query}` : path;
     if (historyMode === "push") window.history.pushState(null, "", nextUrl);
     else window.history.replaceState(null, "", nextUrl);
@@ -108,7 +118,13 @@ export function CompanyDetailScreen({
           return companyJobSearchResponseSchema.parse(body);
         })
         .then((result) => {
-          setCompany((current) => ({ ...current, jobs: result.items }));
+          setCompany((current) => ({
+            ...current,
+            jobs: result.items,
+            ...(result.searchInterpretation
+              ? { searchInterpretation: result.searchInterpretation }
+              : { searchInterpretation: undefined }),
+          }));
           setJobPage(result.page);
           setJobTotal(result.total);
           setJobTotalPages(result.totalPages);
@@ -125,7 +141,26 @@ export function CompanyDetailScreen({
   function clearFilters() {
     setKeyword("");
     setLocation("");
-    loadJobs(1, "", "", "replace");
+    setSearchMode("SMART");
+    loadJobs(1, "", "", "replace", jobLimit, "SMART");
+  }
+
+  function searchLiterally() {
+    setSearchMode("LITERAL");
+    loadJobs(1, keyword, location, "replace", jobLimit, "LITERAL");
+  }
+
+  function enableSmartSearch() {
+    setSearchMode("SMART");
+    loadJobs(1, keyword, location, "replace", jobLimit, "SMART");
+  }
+
+  function acceptSuggestion() {
+    const suggestion = company.searchInterpretation?.effectiveQuery;
+    if (!suggestion) return;
+    setKeyword(suggestion);
+    setSearchMode("SMART");
+    loadJobs(1, suggestion, location, "replace", jobLimit, "SMART");
   }
 
   return (
@@ -250,6 +285,16 @@ export function CompanyDetailScreen({
             {copy.clear}
           </button>
         </form>
+        {!loading ? (
+          <SearchInterpretationNotice
+            interpretation={company.searchInterpretation}
+            locale={locale}
+            copy={copy}
+            onSearchLiteral={searchLiterally}
+            onAcceptSuggestion={acceptSuggestion}
+            onEnableSmartSearch={enableSmartSearch}
+          />
+        ) : null}
         <p className={styles.resultNote} role="status" aria-live="polite">
           {error ?? copy.positionsShown(jobTotal)}
         </p>

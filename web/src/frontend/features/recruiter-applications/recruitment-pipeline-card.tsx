@@ -121,7 +121,6 @@ export function RecruitmentPipelineCard({
   // The server projection is authoritative. A missing dragDestinations value
   // is treated as no drag permission instead of widening the policy on the FE.
   const dragDestinations = terminal ? [] : (card.dragDestinations ?? []);
-  const allowedDestinations = terminal ? [] : card.allowedDestinations;
   const canDrag = !dragOverlay && dragDestinations.length > 0 && !locked;
   const draggable = useDraggable({
     id: dragOverlay ? `${card.applicationId}-overlay` : card.applicationId,

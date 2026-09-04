@@ -283,6 +283,60 @@ enum JobPostingStatus {
   REMOVED
 }
 
+enum JobSearchProfileSource {
+  EXPLICIT
+  AUTO_HIGH_CONFIDENCE
+  REVIEWED
+  UNMAPPED
+}
+
+enum JobSearchTranslationStatus {
+  HUMAN_VERIFIED
+  AUTO_HIGH_CONFIDENCE
+  REQUIRES_REVIEW
+  INTENTIONAL_UNTRANSLATED
+  AMBIGUOUS
+  UNMAPPED
+}
+
+enum JobSearchMappingSource {
+  CURATED
+  EXACT_CANONICAL
+  EXACT_VERIFIED_ALIAS
+  FUZZY_VERIFIED_ALIAS
+  TAXONOMY_INFERENCE
+  SEMANTIC_SUGGESTION
+  MANUAL_REVIEW
+}
+
+enum SearchCatalogVersionStatus {
+  DRAFT
+  PUBLISHED
+  RETIRED
+}
+
+enum SearchMappingReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  MERGED
+  /// A queue item was safely consolidated into another pending item. This is
+  /// an operational state, not an approval decision and never implies human
+  /// translation verification.
+  DEDUPLICATED
+}
+
+enum SearchReconciliationRunStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+enum SearchReconciliationRunMode {
+  DRY_RUN
+  APPLY
+}
+
 enum EmploymentType {
   FULL_TIME
   PART_TIME
@@ -2511,6 +2565,7 @@ model JobPosting {
   applicationAttemptCounters JobApplicationAttemptCounter[]
   candidateApplicationDrafts CandidateApplicationDraft[]
   reviewAggregate          JobPostReviewAggregate?
+  searchProjection         JobSearchProjection?
   applicationArtifactPromotions ApplicationArtifactPromotion[]
   scoringOperations        ScoringOperation[]
   rankingSnapshots         RankingSnapshot[]
@@ -2531,6 +2586,39 @@ model JobPosting {
   @@index([normalizedTitle(ops: raw("gin_trgm_ops"))], type: Gin, map: "JobPosting_normalizedTitle_trgm_idx")
   @@index([normalizedLocation(ops: raw("gin_trgm_ops"))], type: Gin, map: "JobPosting_normalizedLocation_trgm_idx")
   @@index([searchDocumentNormalized(ops: raw("gin_trgm_ops"))], type: Gin, map: "JobPosting_searchDocumentNormalized_trgm_idx")
+}
+
+/**
+ * Queryable, versioned search profile for published job retrieval. Keep this
+ * separate from review JSON so search can use typed indexed fields without
+ * exposing or scanning the full moderation snapshot.
+ */
+model JobSearchProjection {
+  jobPostingId       String                 @id
+  titleIds           String[]               @default([])
+  occupationIds      String[]               @default([])
+  facetIds           String[]               @default([])
+  canonicalTitleVi   String?                @db.VarChar(160)
+  canonicalTitleEn   String?                @db.VarChar(160)
+  normalizedTitle    String                 @db.VarChar(200)
+  normalizedAliases  String[]               @default([])
+  normalizedSkills   String[]               @default([])
+  profileSource      JobSearchProfileSource
+  profileConfidence  Float
+  translationStatus  JobSearchTranslationStatus @default(UNMAPPED)
+  mappingSource      JobSearchMappingSource @default(MANUAL_REVIEW)
+  mappingConfidence  Float                  @default(0)
+  catalogVersion     String                 @db.VarChar(64)
+  updatedAt          DateTime               @updatedAt
+  jobPosting         JobPosting             @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+
+  @@index([catalogVersion, profileSource])
+  @@index([catalogVersion, translationStatus])
+  @@index([titleIds], type: Gin)
+  @@index([occupationIds], type: Gin)
+  @@index([facetIds], type: Gin)
+  @@index([normalizedAliases], type: Gin)
+  @@index([normalizedTitle(ops: raw("gin_trgm_ops"))], type: Gin, map: "JobSearchProjection_normalizedTitle_trgm_idx")
 }
 
 model JobPostReviewAggregate {
@@ -4796,4 +4884,189 @@ model ActivityLegalHold {
 
   @@index([scopeType, scopeReference, startsAt, endsAt], map: "ActivityLegalHold_scope_idx")
   @@index([endsAt, releasedAt], map: "ActivityLegalHold_expiry_idx")
+}
+
+/// Versioned, admin-owned search taxonomy metadata. The compiled TypeScript
+/// catalog remains a safe bootstrap/fallback during rollout; published rows
+/// are the operational source for review and rollback workflows.
+model SearchCatalogVersion {
+  id                    String                     @id @default(cuid())
+  version               String                     @unique @db.VarChar(64)
+  status                SearchCatalogVersionStatus @default(DRAFT)
+  isActive              Boolean                    @default(false)
+  revision              Int                        @default(1)
+  parentVersion         String?                    @db.VarChar(64)
+  changeReason          String?                    @db.VarChar(1000)
+  createdByAdminUserId  String?
+  publishedByAdminUserId String?
+  retiredByAdminUserId  String?
+  publishedAt           DateTime?
+  retiredAt             DateTime?
+  createdAt             DateTime                   @default(now())
+  updatedAt             DateTime                   @updatedAt
+  /// Immutable, validated SearchCatalog payload used to build the runtime
+  /// index. Relational rows remain available for admin review/audit.
+  catalogPayload        Json?
+
+  @@index([status, createdAt(sort: Desc), id])
+  @@index([isActive, status])
+}
+
+model SearchOccupation {
+  id               String   @id @default(cuid())
+  catalogVersionId String
+  occupationId     String   @db.VarChar(128)
+  labelVi          String   @db.VarChar(160)
+  labelEn          String   @db.VarChar(160)
+  aliasesVi        String[] @default([])
+  aliasesEn        String[] @default([])
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([catalogVersionId, occupationId])
+  @@index([catalogVersionId, labelVi])
+  @@index([catalogVersionId, labelEn])
+}
+
+model SearchJobTitle {
+  id                String                     @id @default(cuid())
+  catalogVersionId  String
+  titleId           String                     @db.VarChar(180)
+  occupationId      String?                    @db.VarChar(128)
+  canonicalVi       String                     @db.VarChar(160)
+  canonicalEn       String                     @db.VarChar(160)
+  aliasesVi         String[]                   @default([])
+  aliasesEn         String[]                   @default([])
+  abbreviations     String[]                   @default([])
+  excludedTerms     String[]                   @default([])
+  skillSignals      String[]                   @default([])
+  facetIds          String[]                   @default([])
+  translationStatus JobSearchTranslationStatus @default(REQUIRES_REVIEW)
+  mappingSource     JobSearchMappingSource     @default(MANUAL_REVIEW)
+  mappingConfidence Float                      @default(0)
+  reviewReason      String?                    @db.VarChar(1000)
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+
+  @@unique([catalogVersionId, titleId])
+  @@index([catalogVersionId, canonicalVi])
+  @@index([catalogVersionId, canonicalEn])
+  @@index([catalogVersionId, translationStatus])
+  @@index([facetIds], type: Gin)
+}
+
+model SearchJobTitleTranslation {
+  id               String           @id @default(cuid())
+  catalogVersionId String
+  titleId          String           @db.VarChar(180)
+  locale           PreferenceLanguage
+  value            String           @db.VarChar(160)
+  status           JobSearchTranslationStatus @default(REQUIRES_REVIEW)
+  source           JobSearchMappingSource     @default(MANUAL_REVIEW)
+  confidence       Float          @default(0)
+  reviewReason     String?        @db.VarChar(1000)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@unique([catalogVersionId, titleId, locale])
+  @@index([catalogVersionId, locale, status])
+}
+
+model SearchAlias {
+  id               String                 @id @default(cuid())
+  catalogVersionId String
+  targetType       String                 @db.VarChar(32)
+  targetId         String                 @db.VarChar(180)
+  phrase           String                 @db.VarChar(160)
+  normalizedPhrase String                 @db.VarChar(160)
+  locale           PreferenceLanguage?
+  source           JobSearchMappingSource @default(MANUAL_REVIEW)
+  confidence       Float                  @default(0)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  @@unique([catalogVersionId, targetType, targetId, normalizedPhrase, locale])
+  @@index([catalogVersionId, targetType, normalizedPhrase])
+}
+
+model SearchFacet {
+  id               String   @id @default(cuid())
+  catalogVersionId String
+  facetId          String   @db.VarChar(160)
+  kind             String   @db.VarChar(48)
+  labelVi          String   @db.VarChar(160)
+  labelEn          String   @db.VarChar(160)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([catalogVersionId, facetId])
+  @@index([catalogVersionId, kind])
+}
+
+model SearchTitleFacet {
+  id               String  @id @default(cuid())
+  catalogVersionId String
+  titleId          String  @db.VarChar(180)
+  facetId          String  @db.VarChar(160)
+  required         Boolean @default(true)
+  createdAt        DateTime @default(now())
+
+  @@unique([catalogVersionId, titleId, facetId])
+  @@index([catalogVersionId, facetId])
+}
+
+model SearchMappingReview {
+  id                    String                    @id @default(cuid())
+  catalogVersionId      String
+  openKey               String?                   @unique @db.VarChar(240)
+  originalTitle         String                    @db.VarChar(160)
+  normalizedTitle       String                    @db.VarChar(160)
+  context               Json
+  suggestedTitleId      String?                   @db.VarChar(180)
+  suggestedTranslationVi String?                  @db.VarChar(160)
+  suggestedTranslationEn String?                  @db.VarChar(160)
+  suggestedOccupationId String?                   @db.VarChar(128)
+  suggestedFacetIds     String[]                  @default([])
+  suggestedSkillSignals String[]                 @default([])
+  confidence            Float                     @default(0)
+  status                SearchMappingReviewStatus @default(PENDING)
+  version               Int                       @default(1)
+  decisionReason        String?                   @db.VarChar(1000)
+  resultCatalogVersionId String?
+  reviewedByAdminUserId String?
+  reviewedAt            DateTime?
+  deduplicatedIntoReviewId String?
+  deduplicatedAt           DateTime?
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+
+  @@index([catalogVersionId, status, createdAt, id])
+  @@index([normalizedTitle, status])
+  @@index([deduplicatedIntoReviewId])
+}
+
+model SearchProjectionReconciliationRun {
+  id                 String                       @id @default(cuid())
+  catalogVersionId   String
+  mode               SearchReconciliationRunMode
+  status             SearchReconciliationRunStatus @default(RUNNING)
+  inspected          Int                          @default(0)
+  refreshed          Int                          @default(0)
+  missing            Int                          @default(0)
+  stale              Int                          @default(0)
+  inconsistent       Int                          @default(0)
+  unmapped           Int                          @default(0)
+  ambiguous          Int                          @default(0)
+  requiresReview     Int                          @default(0)
+  orphaned           Int                          @default(0)
+  policyFailures     Int                          @default(0)
+  cursor             String?
+  errorMessage       String?                      @db.VarChar(2000)
+  createdByAdminUserId String?
+  startedAt          DateTime                     @default(now())
+  completedAt        DateTime?
+
+  @@index([catalogVersionId, startedAt(sort: Desc), id])
+  @@index([status, startedAt(sort: Desc), id])
 }

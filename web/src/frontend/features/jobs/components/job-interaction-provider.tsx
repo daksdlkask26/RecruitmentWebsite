@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { toast } from "sonner";
@@ -13,9 +14,17 @@ import { mutateWithCurrentCsrf } from "@/frontend/features/authentication/client
 import { useCsrfProof } from "@/frontend/features/authentication/client/csrf-proof-context";
 import { savedJobOutcomeSchema } from "@/shared/contracts/jobs/actions";
 import {
+  savedFilterPresetSchema,
   userJobStateViewSchema,
+  type SavedFilterPreset,
   type UserJobState,
 } from "@/shared/contracts/jobs/catalog";
+import {
+  searchModeSchema,
+  type SearchMode,
+} from "@/shared/contracts/search/search-interpretation";
+import type { StructuredSearchFilter } from "@/shared/contracts/search/natural-language-search";
+import type { JobSearchIntent } from "@/shared/contracts/search/job-search-intent";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
 import { jobCopy } from "./job-copy";
 
@@ -29,14 +38,24 @@ export type JobInteractionRecord = JobInteractionSeed & {
   hidden: boolean;
 };
 
-type FilterPreset = UserJobState["savedFilterPresets"][number];
+export type FilterPreset = SavedFilterPreset;
+export type FilterPresetMetadata = Readonly<{
+  q?: string;
+  searchMode?: SearchMode;
+  resolverVersion?: string;
+  catalogVersion?: string;
+  structuredFilters?: readonly StructuredSearchFilter[];
+  searchIntent?: JobSearchIntent;
+}>;
 type UserJobStateView = Pick<
   UserJobState,
-  "savedJobIds" | "hiddenJobIds" | "appliedJobIds"
+  "savedJobIds" | "hiddenJobIds" | "appliedJobIds" | "savedFilterPresets"
 >;
 type UserJobStateMutation =
   | { action: "hide"; jobId: string }
-  | { action: "unhide"; jobId: string };
+  | { action: "unhide"; jobId: string }
+  | { action: "save-filter-preset"; preset: FilterPreset }
+  | { action: "delete-filter-preset"; presetId: string };
 
 type JobInteractionContextValue = {
   records: Record<string, JobInteractionRecord>;
@@ -47,7 +66,12 @@ type JobInteractionContextValue = {
   hideJob: (jobId: string) => void;
   undoHide: (jobId: string) => void;
   savedFilterPresets: FilterPreset[];
-  saveFilterPreset: (name: string, filters: Record<string, unknown>) => void;
+  saveFilterPreset: (
+    name: string,
+    filters: Record<string, unknown>,
+    metadata?: FilterPresetMetadata,
+  ) => void;
+  deleteFilterPreset: (presetId: string) => void;
 };
 
 const JobInteractionContext = createContext<JobInteractionContextValue | null>(
@@ -67,7 +91,7 @@ function syncUserJobState(
     },
     csrfProof,
   ).then(async (response) => {
-    if (!response.ok) return;
+    if (!response.ok) throw new Error("USER_JOB_STATE_UPDATE_FAILED");
     userJobStateViewSchema.parse(await response.json());
   });
 }
@@ -100,6 +124,8 @@ export function JobInteractionProvider({
   const [savedFilterPresets, setSavedFilterPresets] = useState<FilterPreset[]>(
     [],
   );
+  const hasLocalPresetChanges = useRef(false);
+  const presetMutationQueue = useRef(Promise.resolve());
 
   useEffect(() => {
     let active = true;
@@ -108,6 +134,9 @@ export function JobInteractionProvider({
       : readUserJobStateView();
     void state.then((view) => {
       if (!active || !view) return;
+      if (!hasLocalPresetChanges.current) {
+        setSavedFilterPresets(view.savedFilterPresets);
+      }
       setRecords((current) => {
         const next = { ...current };
         const ids = new Set([...view.savedJobIds, ...view.hiddenJobIds]);
@@ -257,20 +286,93 @@ export function JobInteractionProvider({
   );
 
   const saveFilterPreset = useCallback(
-    (name: string, filters: Record<string, unknown>) => {
-      const preset: FilterPreset = {
-        id:
-          globalThis.crypto?.randomUUID?.() ??
-          "preset-" + Date.now() + "-" + Math.random().toString(36).slice(2),
-        name: name.trim(),
+    (
+      name: string,
+      filters: Record<string, unknown>,
+      metadata: FilterPresetMetadata = {},
+    ) => {
+      const trimmedName = name.trim();
+      if (!trimmedName) return;
+
+      const id =
+        globalThis.crypto?.randomUUID?.() ??
+        "preset-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+      const rawQuery =
+        metadata.q?.trim() ??
+        (typeof filters.q === "string" ? filters.q.trim() : "");
+      const parsedMode = searchModeSchema.safeParse(
+        metadata.searchMode ?? filters.searchMode ?? "SMART",
+      );
+      const preset = savedFilterPresetSchema.parse({
+        id,
+        name: trimmedName,
         filters,
-      };
+        q: rawQuery,
+        searchMode: parsedMode.success ? parsedMode.data : "SMART",
+        ...(metadata.resolverVersion
+          ? { resolverVersion: metadata.resolverVersion }
+          : {}),
+        ...(metadata.catalogVersion
+          ? { catalogVersion: metadata.catalogVersion }
+          : {}),
+        ...(metadata.structuredFilters?.length
+          ? { structuredFilters: [...metadata.structuredFilters] }
+          : {}),
+        ...(metadata.searchIntent
+          ? { searchIntent: metadata.searchIntent }
+          : {}),
+      });
+      hasLocalPresetChanges.current = true;
       setSavedFilterPresets((current) => [preset, ...current].slice(0, 100));
+      const persist = async () => {
+        await syncUserJobState(csrfProof, {
+          action: "save-filter-preset",
+          preset,
+        });
+      };
+      presetMutationQueue.current = presetMutationQueue.current
+        .catch(() => undefined)
+        .then(persist)
+        .catch(() => {
+          setSavedFilterPresets((current) =>
+            current.filter((item) => item.id !== preset.id),
+          );
+        });
       toast(copy.filterSaved, {
         description: copy.filterSavedDescription(preset.name),
       });
     },
-    [copy],
+    [copy, csrfProof],
+  );
+
+  const deleteFilterPreset = useCallback(
+    (presetId: string) => {
+      const deletedPreset = savedFilterPresets.find(
+        (preset) => preset.id === presetId,
+      );
+      if (!deletedPreset) return;
+      hasLocalPresetChanges.current = true;
+      setSavedFilterPresets((current) =>
+        current.filter((preset) => preset.id !== presetId),
+      );
+      const persist = async () => {
+        await syncUserJobState(csrfProof, {
+          action: "delete-filter-preset",
+          presetId,
+        });
+      };
+      presetMutationQueue.current = presetMutationQueue.current
+        .catch(() => undefined)
+        .then(persist)
+        .catch(() => {
+          setSavedFilterPresets((current) =>
+            current.some((preset) => preset.id === deletedPreset.id)
+              ? current
+              : [deletedPreset, ...current].slice(0, 100),
+          );
+        });
+    },
+    [csrfProof, savedFilterPresets],
   );
 
   const value = useMemo(
@@ -284,6 +386,7 @@ export function JobInteractionProvider({
       undoHide,
       savedFilterPresets,
       saveFilterPreset,
+      deleteFilterPreset,
     }),
     [
       hideJob,
@@ -295,6 +398,7 @@ export function JobInteractionProvider({
       savedFilterPresets,
       toggleSaved,
       undoHide,
+      deleteFilterPreset,
     ],
   );
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Eye, EyeOff, ShieldCheck } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import type { CandidateProfileContract } from "@/shared/contracts/account/profile";
 import type {
@@ -44,7 +44,16 @@ function visibilitySections(locale: "vi" | "en") {
   ) as Array<[VisibilitySection, string, string]>;
 }
 
-export function ProfileVisibilityForm({
+export function ProfileVisibilityForm(props: {
+  profile: CandidateProfileContract;
+  saving: boolean;
+  feedback: ProfileEditorFeedback | null;
+  onSave: (draft: ProfileSectionDraft) => Promise<boolean>;
+}) {
+  return <ProfileVisibilityEditor key={props.profile.revision} {...props} />;
+}
+
+function ProfileVisibilityEditor({
   profile,
   saving,
   feedback,
@@ -114,12 +123,6 @@ export function ProfileVisibilityForm({
   const [recruiterSections, setRecruiterSections] = useState<
     VisibilitySection[]
   >(visibility.recruiterSections);
-
-  useEffect(() => {
-    setDiscoverable(visibility.discoverableByExactId);
-    setCandidateSections(visibility.candidateSections);
-    setRecruiterSections(visibility.recruiterSections);
-  }, [profile.revision]);
 
   const toggle = (
     value: VisibilitySection,

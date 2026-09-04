@@ -1,4 +1,4 @@
-type JobSearchEmptyStateAction = Readonly<{
+export type JobSearchEmptyStateAction = Readonly<{
   label: string;
   onClick: () => void;
 }>;
@@ -8,12 +8,15 @@ export function JobSearchEmptyState({
   title,
   description,
   action,
+  actions,
 }: Readonly<{
   headingId: string;
   title: string;
   description: string;
   action?: JobSearchEmptyStateAction;
+  actions?: readonly JobSearchEmptyStateAction[];
 }>) {
+  const availableActions = actions?.length ? actions : action ? [action] : [];
   return (
     <div
       className="job-panel job-search-empty-state"
@@ -28,23 +31,26 @@ export function JobSearchEmptyState({
       </span>
       <h2 id={headingId}>{title}</h2>
       <p>{description}</p>
-      {action ? (
+      {availableActions.length ? (
         <div className="job-search-empty-actions">
-          <button
-            className="job-secondary-link job-search-empty-action"
-            type="button"
-            onClick={action.onClick}
-          >
-            <svg
-              className="job-empty-action-icon"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
+          {availableActions.map((availableAction) => (
+            <button
+              className="job-secondary-link job-search-empty-action"
+              key={availableAction.label}
+              type="button"
+              onClick={availableAction.onClick}
             >
-              <path d="M20 11a8 8 0 1 0 1.6 4.8" />
-              <path d="M20 4v7h-7" />
-            </svg>
-            <span>{action.label}</span>
-          </button>
+              <svg
+                className="job-empty-action-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M20 11a8 8 0 1 0 1.6 4.8" />
+                <path d="M20 4v7h-7" />
+              </svg>
+              <span>{availableAction.label}</span>
+            </button>
+          ))}
         </div>
       ) : null}
     </div>

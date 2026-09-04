@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "search-catalog-version-reconcile-v1",
+  "generatedAt": "2026-09-04T09:17:36.244Z",
+  "mode": "DRY_RUN",
+  "expectedCatalogVersion": "2026-09-04.1-2026-09-04.1",
+  "activeCatalog": {
+    "id": "search-catalog-version-2026-09-04-1-2026-09-04-1",
+    "version": "2026-09-04.1-2026-09-04.1",
+    "revision": 7
+  },
+  "candidate": {
+    "id": "search-catalog-version-2026-09-04-1-2026-09-04-1",
+    "version": "2026-09-04.1-2026-09-04.1",
+    "status": "PUBLISHED",
+    "isActive": true,
+    "revision": 7
+  },
+  "drift": false,
+  "activationPerformed": false,
+  "publishRequired": false,
+  "guard": {
+    "expectedActiveVersion": null,
+    "writesPerformed": false,
+    "activationForbidden": true
+  }
+}

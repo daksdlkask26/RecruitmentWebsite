@@ -455,6 +455,7 @@ export const ModelName = {
   ModerationReportHistory: 'ModerationReportHistory',
   ModerationPrivateNote: 'ModerationPrivateNote',
   JobPosting: 'JobPosting',
+  JobSearchProjection: 'JobSearchProjection',
   JobPostReviewAggregate: 'JobPostReviewAggregate',
   JobPostRevisionRequest: 'JobPostRevisionRequest',
   JobPostFeaturedPlacement: 'JobPostFeaturedPlacement',
@@ -550,7 +551,16 @@ export const ModelName = {
   ExportRequest: 'ExportRequest',
   BackupConfiguration: 'BackupConfiguration',
   BackupRun: 'BackupRun',
-  ActivityLegalHold: 'ActivityLegalHold'
+  ActivityLegalHold: 'ActivityLegalHold',
+  SearchCatalogVersion: 'SearchCatalogVersion',
+  SearchOccupation: 'SearchOccupation',
+  SearchJobTitle: 'SearchJobTitle',
+  SearchJobTitleTranslation: 'SearchJobTitleTranslation',
+  SearchAlias: 'SearchAlias',
+  SearchFacet: 'SearchFacet',
+  SearchTitleFacet: 'SearchTitleFacet',
+  SearchMappingReview: 'SearchMappingReview',
+  SearchProjectionReconciliationRun: 'SearchProjectionReconciliationRun'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -566,7 +576,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "userAccount" | "authProviderAccount" | "session" | "verification" | "twoFactor" | "candidateIdentity" | "candidateProfile" | "candidateProfileVisibility" | "profileExperience" | "profileEducation" | "skill" | "candidateProfileSkill" | "socialLink" | "accountPreferences" | "userJobWorkspaceState" | "emailChangeRequest" | "passwordChangeAttemptWindow" | "passwordChangeOperation" | "securityToken" | "passwordResetOperation" | "fullAccountRecoveryOperation" | "authenticationChallenge" | "rateLimitBucket" | "emailOutbox" | "inAppNotification" | "auditEvent" | "company" | "jobIndustry" | "jobSubIndustry" | "jobTaxonomyProposal" | "companyInvitation" | "teamOpportunity" | "teamApplication" | "companyTeamActivity" | "companyMembership" | "platformAdministratorGrant" | "platformAdministratorGrantScopeAssignment" | "administratorSessionPolicy" | "companyMembershipHistory" | "companyAccessPrerequisite" | "recruiterVerificationRequest" | "verificationNotificationEvent" | "employerVerificationPreparation" | "businessRegistryLookupSnapshot" | "companyContactEmailChallenge" | "verificationBusinessFacts" | "businessLicenseEvidence" | "verificationSafetyAttempt" | "verificationDecisionHistory" | "verificationPrivateNote" | "privilegedActionRationale" | "adminCommandReceipt" | "securityNotificationWork" | "adminDashboardSnapshot" | "moderationReport" | "moderationReportHistory" | "moderationPrivateNote" | "jobPosting" | "jobPostReviewAggregate" | "jobPostRevisionRequest" | "jobPostFeaturedPlacement" | "jobPostEnforcementAction" | "jobPostEnforcementTarget" | "moderationReportEnforcementLink" | "jobPostOperationalHistory" | "jobPostReviewVersion" | "jobPostReviewHistory" | "jobPostReviewPrivateNote" | "jobCatalogueWriteLease" | "jobPostingSkill" | "applicationQuestion" | "candidateCv" | "privateCvMatchCheck" | "privateCvMatchAttempt" | "privateAutomaticMatchResult" | "privateAiEvaluationResult" | "privateMatchEvidence" | "privateCvMatchCommandReceipt" | "savedJob" | "jobReport" | "candidateApplicationDraft" | "applicationIntake" | "applicationPublicUpdate" | "applicationNotificationPreference" | "jobApplication" | "jobApplicationContactConsent" | "jobApplicationAttemptCounter" | "applicationDocument" | "applicationCoverLetterText" | "applicationArtifactPromotion" | "applicationDocumentLegalHold" | "professionalConnection" | "professionalConnectionProposal" | "professionalConnectionDecision" | "professionalConnectionProposalHistory" | "professionalConnectionNotification" | "professionalConnectionCommandReceipt" | "supportConversation" | "supportMessage" | "supportAssignment" | "supportInternalNote" | "supportConversationHistory" | "recruitmentThread" | "recruitmentMessage" | "messagingConversation" | "messagingConversationParticipant" | "messagingMessage" | "userMessagingBlock" | "messagingReport" | "messagingReportReviewEvent" | "messagingReportPrivateNote" | "applicationStageEvent" | "applicationAnswer" | "recruitmentNotificationWork" | "cvAccountQuota" | "cvUpload" | "cvStoredArtifact" | "cvScanAssessment" | "cvExtraction" | "cvParseJob" | "cvRetryRequest" | "cvDraft" | "cvProcessingConsent" | "cvImportConfirmation" | "ocrProcessingAttempt" | "ocrUnitOutcome" | "searchImageQuery" | "searchStoredArtifact" | "searchScanAssessment" | "searchImageDecodeAttempt" | "searchIntentAttempt" | "searchProcessingConsent" | "imageSearchAdmissionEvent" | "imageSearchOperationalEvidence" | "automaticMatchResult" | "documentParseResult" | "skillEvidenceExtraction" | "cvEvidenceExcerpt" | "aiAssessment" | "aiAssessmentFinding" | "aiSuggestedInterviewQuestion" | "scoringOperation" | "scoringWorkItem" | "aiAssessmentAttempt" | "applicationScoringResult" | "manualApplicationPriority" | "rankingSnapshot" | "rankingSnapshotRow" | "jobPostingViewFact" | "jobPostingLifecycleFact" | "exportRequest" | "backupConfiguration" | "backupRun" | "activityLegalHold"
+    modelProps: "userAccount" | "authProviderAccount" | "session" | "verification" | "twoFactor" | "candidateIdentity" | "candidateProfile" | "candidateProfileVisibility" | "profileExperience" | "profileEducation" | "skill" | "candidateProfileSkill" | "socialLink" | "accountPreferences" | "userJobWorkspaceState" | "emailChangeRequest" | "passwordChangeAttemptWindow" | "passwordChangeOperation" | "securityToken" | "passwordResetOperation" | "fullAccountRecoveryOperation" | "authenticationChallenge" | "rateLimitBucket" | "emailOutbox" | "inAppNotification" | "auditEvent" | "company" | "jobIndustry" | "jobSubIndustry" | "jobTaxonomyProposal" | "companyInvitation" | "teamOpportunity" | "teamApplication" | "companyTeamActivity" | "companyMembership" | "platformAdministratorGrant" | "platformAdministratorGrantScopeAssignment" | "administratorSessionPolicy" | "companyMembershipHistory" | "companyAccessPrerequisite" | "recruiterVerificationRequest" | "verificationNotificationEvent" | "employerVerificationPreparation" | "businessRegistryLookupSnapshot" | "companyContactEmailChallenge" | "verificationBusinessFacts" | "businessLicenseEvidence" | "verificationSafetyAttempt" | "verificationDecisionHistory" | "verificationPrivateNote" | "privilegedActionRationale" | "adminCommandReceipt" | "securityNotificationWork" | "adminDashboardSnapshot" | "moderationReport" | "moderationReportHistory" | "moderationPrivateNote" | "jobPosting" | "jobSearchProjection" | "jobPostReviewAggregate" | "jobPostRevisionRequest" | "jobPostFeaturedPlacement" | "jobPostEnforcementAction" | "jobPostEnforcementTarget" | "moderationReportEnforcementLink" | "jobPostOperationalHistory" | "jobPostReviewVersion" | "jobPostReviewHistory" | "jobPostReviewPrivateNote" | "jobCatalogueWriteLease" | "jobPostingSkill" | "applicationQuestion" | "candidateCv" | "privateCvMatchCheck" | "privateCvMatchAttempt" | "privateAutomaticMatchResult" | "privateAiEvaluationResult" | "privateMatchEvidence" | "privateCvMatchCommandReceipt" | "savedJob" | "jobReport" | "candidateApplicationDraft" | "applicationIntake" | "applicationPublicUpdate" | "applicationNotificationPreference" | "jobApplication" | "jobApplicationContactConsent" | "jobApplicationAttemptCounter" | "applicationDocument" | "applicationCoverLetterText" | "applicationArtifactPromotion" | "applicationDocumentLegalHold" | "professionalConnection" | "professionalConnectionProposal" | "professionalConnectionDecision" | "professionalConnectionProposalHistory" | "professionalConnectionNotification" | "professionalConnectionCommandReceipt" | "supportConversation" | "supportMessage" | "supportAssignment" | "supportInternalNote" | "supportConversationHistory" | "recruitmentThread" | "recruitmentMessage" | "messagingConversation" | "messagingConversationParticipant" | "messagingMessage" | "userMessagingBlock" | "messagingReport" | "messagingReportReviewEvent" | "messagingReportPrivateNote" | "applicationStageEvent" | "applicationAnswer" | "recruitmentNotificationWork" | "cvAccountQuota" | "cvUpload" | "cvStoredArtifact" | "cvScanAssessment" | "cvExtraction" | "cvParseJob" | "cvRetryRequest" | "cvDraft" | "cvProcessingConsent" | "cvImportConfirmation" | "ocrProcessingAttempt" | "ocrUnitOutcome" | "searchImageQuery" | "searchStoredArtifact" | "searchScanAssessment" | "searchImageDecodeAttempt" | "searchIntentAttempt" | "searchProcessingConsent" | "imageSearchAdmissionEvent" | "imageSearchOperationalEvidence" | "automaticMatchResult" | "documentParseResult" | "skillEvidenceExtraction" | "cvEvidenceExcerpt" | "aiAssessment" | "aiAssessmentFinding" | "aiSuggestedInterviewQuestion" | "scoringOperation" | "scoringWorkItem" | "aiAssessmentAttempt" | "applicationScoringResult" | "manualApplicationPriority" | "rankingSnapshot" | "rankingSnapshotRow" | "jobPostingViewFact" | "jobPostingLifecycleFact" | "exportRequest" | "backupConfiguration" | "backupRun" | "activityLegalHold" | "searchCatalogVersion" | "searchOccupation" | "searchJobTitle" | "searchJobTitleTranslation" | "searchAlias" | "searchFacet" | "searchTitleFacet" | "searchMappingReview" | "searchProjectionReconciliationRun"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4859,6 +4869,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.JobPostingCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.JobPostingCountAggregateOutputType> | number
+        }
+      }
+    }
+    JobSearchProjection: {
+      payload: Prisma.$JobSearchProjectionPayload<ExtArgs>
+      fields: Prisma.JobSearchProjectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.JobSearchProjectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobSearchProjectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.JobSearchProjectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobSearchProjectionPayload>
+        }
+        findFirst: {
+          args: Prisma.JobSearchProjectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobSearchProjectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.JobSearchProjectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobSearchProjectionPayload>
+        }
+        findMany: {
+          args: Prisma.JobSearchProjectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobSearchProjectionPayload>[]
+        }
+        create: {
+          args: Prisma.JobSearchProjectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobSearchProjectionPayload>
+        }
+        createMany: {
+          args: Prisma.JobSearchProjectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.JobSearchProjectionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobSearchProjectionPayload>[]
+        }
+        delete: {
+          args: Prisma.JobSearchProjectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobSearchProjectionPayload>
+        }
+        update: {
+          args: Prisma.JobSearchProjectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobSearchProjectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.JobSearchProjectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.JobSearchProjectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.JobSearchProjectionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobSearchProjectionPayload>[]
+        }
+        upsert: {
+          args: Prisma.JobSearchProjectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobSearchProjectionPayload>
+        }
+        aggregate: {
+          args: Prisma.JobSearchProjectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateJobSearchProjection>
+        }
+        groupBy: {
+          args: Prisma.JobSearchProjectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JobSearchProjectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.JobSearchProjectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JobSearchProjectionCountAggregateOutputType> | number
         }
       }
     }
@@ -11966,6 +12050,672 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SearchCatalogVersion: {
+      payload: Prisma.$SearchCatalogVersionPayload<ExtArgs>
+      fields: Prisma.SearchCatalogVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SearchCatalogVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchCatalogVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SearchCatalogVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchCatalogVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.SearchCatalogVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchCatalogVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SearchCatalogVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchCatalogVersionPayload>
+        }
+        findMany: {
+          args: Prisma.SearchCatalogVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchCatalogVersionPayload>[]
+        }
+        create: {
+          args: Prisma.SearchCatalogVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchCatalogVersionPayload>
+        }
+        createMany: {
+          args: Prisma.SearchCatalogVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SearchCatalogVersionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchCatalogVersionPayload>[]
+        }
+        delete: {
+          args: Prisma.SearchCatalogVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchCatalogVersionPayload>
+        }
+        update: {
+          args: Prisma.SearchCatalogVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchCatalogVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.SearchCatalogVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SearchCatalogVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SearchCatalogVersionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchCatalogVersionPayload>[]
+        }
+        upsert: {
+          args: Prisma.SearchCatalogVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchCatalogVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.SearchCatalogVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSearchCatalogVersion>
+        }
+        groupBy: {
+          args: Prisma.SearchCatalogVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchCatalogVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SearchCatalogVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchCatalogVersionCountAggregateOutputType> | number
+        }
+      }
+    }
+    SearchOccupation: {
+      payload: Prisma.$SearchOccupationPayload<ExtArgs>
+      fields: Prisma.SearchOccupationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SearchOccupationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchOccupationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SearchOccupationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchOccupationPayload>
+        }
+        findFirst: {
+          args: Prisma.SearchOccupationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchOccupationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SearchOccupationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchOccupationPayload>
+        }
+        findMany: {
+          args: Prisma.SearchOccupationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchOccupationPayload>[]
+        }
+        create: {
+          args: Prisma.SearchOccupationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchOccupationPayload>
+        }
+        createMany: {
+          args: Prisma.SearchOccupationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SearchOccupationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchOccupationPayload>[]
+        }
+        delete: {
+          args: Prisma.SearchOccupationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchOccupationPayload>
+        }
+        update: {
+          args: Prisma.SearchOccupationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchOccupationPayload>
+        }
+        deleteMany: {
+          args: Prisma.SearchOccupationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SearchOccupationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SearchOccupationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchOccupationPayload>[]
+        }
+        upsert: {
+          args: Prisma.SearchOccupationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchOccupationPayload>
+        }
+        aggregate: {
+          args: Prisma.SearchOccupationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSearchOccupation>
+        }
+        groupBy: {
+          args: Prisma.SearchOccupationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchOccupationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SearchOccupationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchOccupationCountAggregateOutputType> | number
+        }
+      }
+    }
+    SearchJobTitle: {
+      payload: Prisma.$SearchJobTitlePayload<ExtArgs>
+      fields: Prisma.SearchJobTitleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SearchJobTitleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitlePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SearchJobTitleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitlePayload>
+        }
+        findFirst: {
+          args: Prisma.SearchJobTitleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitlePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SearchJobTitleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitlePayload>
+        }
+        findMany: {
+          args: Prisma.SearchJobTitleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitlePayload>[]
+        }
+        create: {
+          args: Prisma.SearchJobTitleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitlePayload>
+        }
+        createMany: {
+          args: Prisma.SearchJobTitleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SearchJobTitleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitlePayload>[]
+        }
+        delete: {
+          args: Prisma.SearchJobTitleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitlePayload>
+        }
+        update: {
+          args: Prisma.SearchJobTitleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitlePayload>
+        }
+        deleteMany: {
+          args: Prisma.SearchJobTitleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SearchJobTitleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SearchJobTitleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitlePayload>[]
+        }
+        upsert: {
+          args: Prisma.SearchJobTitleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitlePayload>
+        }
+        aggregate: {
+          args: Prisma.SearchJobTitleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSearchJobTitle>
+        }
+        groupBy: {
+          args: Prisma.SearchJobTitleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchJobTitleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SearchJobTitleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchJobTitleCountAggregateOutputType> | number
+        }
+      }
+    }
+    SearchJobTitleTranslation: {
+      payload: Prisma.$SearchJobTitleTranslationPayload<ExtArgs>
+      fields: Prisma.SearchJobTitleTranslationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SearchJobTitleTranslationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitleTranslationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SearchJobTitleTranslationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitleTranslationPayload>
+        }
+        findFirst: {
+          args: Prisma.SearchJobTitleTranslationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitleTranslationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SearchJobTitleTranslationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitleTranslationPayload>
+        }
+        findMany: {
+          args: Prisma.SearchJobTitleTranslationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitleTranslationPayload>[]
+        }
+        create: {
+          args: Prisma.SearchJobTitleTranslationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitleTranslationPayload>
+        }
+        createMany: {
+          args: Prisma.SearchJobTitleTranslationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SearchJobTitleTranslationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitleTranslationPayload>[]
+        }
+        delete: {
+          args: Prisma.SearchJobTitleTranslationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitleTranslationPayload>
+        }
+        update: {
+          args: Prisma.SearchJobTitleTranslationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitleTranslationPayload>
+        }
+        deleteMany: {
+          args: Prisma.SearchJobTitleTranslationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SearchJobTitleTranslationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SearchJobTitleTranslationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitleTranslationPayload>[]
+        }
+        upsert: {
+          args: Prisma.SearchJobTitleTranslationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchJobTitleTranslationPayload>
+        }
+        aggregate: {
+          args: Prisma.SearchJobTitleTranslationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSearchJobTitleTranslation>
+        }
+        groupBy: {
+          args: Prisma.SearchJobTitleTranslationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchJobTitleTranslationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SearchJobTitleTranslationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchJobTitleTranslationCountAggregateOutputType> | number
+        }
+      }
+    }
+    SearchAlias: {
+      payload: Prisma.$SearchAliasPayload<ExtArgs>
+      fields: Prisma.SearchAliasFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SearchAliasFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchAliasPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SearchAliasFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchAliasPayload>
+        }
+        findFirst: {
+          args: Prisma.SearchAliasFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchAliasPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SearchAliasFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchAliasPayload>
+        }
+        findMany: {
+          args: Prisma.SearchAliasFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchAliasPayload>[]
+        }
+        create: {
+          args: Prisma.SearchAliasCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchAliasPayload>
+        }
+        createMany: {
+          args: Prisma.SearchAliasCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SearchAliasCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchAliasPayload>[]
+        }
+        delete: {
+          args: Prisma.SearchAliasDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchAliasPayload>
+        }
+        update: {
+          args: Prisma.SearchAliasUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchAliasPayload>
+        }
+        deleteMany: {
+          args: Prisma.SearchAliasDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SearchAliasUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SearchAliasUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchAliasPayload>[]
+        }
+        upsert: {
+          args: Prisma.SearchAliasUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchAliasPayload>
+        }
+        aggregate: {
+          args: Prisma.SearchAliasAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSearchAlias>
+        }
+        groupBy: {
+          args: Prisma.SearchAliasGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchAliasGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SearchAliasCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchAliasCountAggregateOutputType> | number
+        }
+      }
+    }
+    SearchFacet: {
+      payload: Prisma.$SearchFacetPayload<ExtArgs>
+      fields: Prisma.SearchFacetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SearchFacetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchFacetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SearchFacetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchFacetPayload>
+        }
+        findFirst: {
+          args: Prisma.SearchFacetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchFacetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SearchFacetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchFacetPayload>
+        }
+        findMany: {
+          args: Prisma.SearchFacetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchFacetPayload>[]
+        }
+        create: {
+          args: Prisma.SearchFacetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchFacetPayload>
+        }
+        createMany: {
+          args: Prisma.SearchFacetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SearchFacetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchFacetPayload>[]
+        }
+        delete: {
+          args: Prisma.SearchFacetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchFacetPayload>
+        }
+        update: {
+          args: Prisma.SearchFacetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchFacetPayload>
+        }
+        deleteMany: {
+          args: Prisma.SearchFacetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SearchFacetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SearchFacetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchFacetPayload>[]
+        }
+        upsert: {
+          args: Prisma.SearchFacetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchFacetPayload>
+        }
+        aggregate: {
+          args: Prisma.SearchFacetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSearchFacet>
+        }
+        groupBy: {
+          args: Prisma.SearchFacetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchFacetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SearchFacetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchFacetCountAggregateOutputType> | number
+        }
+      }
+    }
+    SearchTitleFacet: {
+      payload: Prisma.$SearchTitleFacetPayload<ExtArgs>
+      fields: Prisma.SearchTitleFacetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SearchTitleFacetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchTitleFacetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SearchTitleFacetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchTitleFacetPayload>
+        }
+        findFirst: {
+          args: Prisma.SearchTitleFacetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchTitleFacetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SearchTitleFacetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchTitleFacetPayload>
+        }
+        findMany: {
+          args: Prisma.SearchTitleFacetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchTitleFacetPayload>[]
+        }
+        create: {
+          args: Prisma.SearchTitleFacetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchTitleFacetPayload>
+        }
+        createMany: {
+          args: Prisma.SearchTitleFacetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SearchTitleFacetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchTitleFacetPayload>[]
+        }
+        delete: {
+          args: Prisma.SearchTitleFacetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchTitleFacetPayload>
+        }
+        update: {
+          args: Prisma.SearchTitleFacetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchTitleFacetPayload>
+        }
+        deleteMany: {
+          args: Prisma.SearchTitleFacetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SearchTitleFacetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SearchTitleFacetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchTitleFacetPayload>[]
+        }
+        upsert: {
+          args: Prisma.SearchTitleFacetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchTitleFacetPayload>
+        }
+        aggregate: {
+          args: Prisma.SearchTitleFacetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSearchTitleFacet>
+        }
+        groupBy: {
+          args: Prisma.SearchTitleFacetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchTitleFacetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SearchTitleFacetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchTitleFacetCountAggregateOutputType> | number
+        }
+      }
+    }
+    SearchMappingReview: {
+      payload: Prisma.$SearchMappingReviewPayload<ExtArgs>
+      fields: Prisma.SearchMappingReviewFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SearchMappingReviewFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchMappingReviewPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SearchMappingReviewFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchMappingReviewPayload>
+        }
+        findFirst: {
+          args: Prisma.SearchMappingReviewFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchMappingReviewPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SearchMappingReviewFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchMappingReviewPayload>
+        }
+        findMany: {
+          args: Prisma.SearchMappingReviewFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchMappingReviewPayload>[]
+        }
+        create: {
+          args: Prisma.SearchMappingReviewCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchMappingReviewPayload>
+        }
+        createMany: {
+          args: Prisma.SearchMappingReviewCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SearchMappingReviewCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchMappingReviewPayload>[]
+        }
+        delete: {
+          args: Prisma.SearchMappingReviewDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchMappingReviewPayload>
+        }
+        update: {
+          args: Prisma.SearchMappingReviewUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchMappingReviewPayload>
+        }
+        deleteMany: {
+          args: Prisma.SearchMappingReviewDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SearchMappingReviewUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SearchMappingReviewUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchMappingReviewPayload>[]
+        }
+        upsert: {
+          args: Prisma.SearchMappingReviewUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchMappingReviewPayload>
+        }
+        aggregate: {
+          args: Prisma.SearchMappingReviewAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSearchMappingReview>
+        }
+        groupBy: {
+          args: Prisma.SearchMappingReviewGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchMappingReviewGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SearchMappingReviewCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchMappingReviewCountAggregateOutputType> | number
+        }
+      }
+    }
+    SearchProjectionReconciliationRun: {
+      payload: Prisma.$SearchProjectionReconciliationRunPayload<ExtArgs>
+      fields: Prisma.SearchProjectionReconciliationRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SearchProjectionReconciliationRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchProjectionReconciliationRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SearchProjectionReconciliationRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchProjectionReconciliationRunPayload>
+        }
+        findFirst: {
+          args: Prisma.SearchProjectionReconciliationRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchProjectionReconciliationRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SearchProjectionReconciliationRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchProjectionReconciliationRunPayload>
+        }
+        findMany: {
+          args: Prisma.SearchProjectionReconciliationRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchProjectionReconciliationRunPayload>[]
+        }
+        create: {
+          args: Prisma.SearchProjectionReconciliationRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchProjectionReconciliationRunPayload>
+        }
+        createMany: {
+          args: Prisma.SearchProjectionReconciliationRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SearchProjectionReconciliationRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchProjectionReconciliationRunPayload>[]
+        }
+        delete: {
+          args: Prisma.SearchProjectionReconciliationRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchProjectionReconciliationRunPayload>
+        }
+        update: {
+          args: Prisma.SearchProjectionReconciliationRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchProjectionReconciliationRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.SearchProjectionReconciliationRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SearchProjectionReconciliationRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SearchProjectionReconciliationRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchProjectionReconciliationRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.SearchProjectionReconciliationRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchProjectionReconciliationRunPayload>
+        }
+        aggregate: {
+          args: Prisma.SearchProjectionReconciliationRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSearchProjectionReconciliationRun>
+        }
+        groupBy: {
+          args: Prisma.SearchProjectionReconciliationRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchProjectionReconciliationRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SearchProjectionReconciliationRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchProjectionReconciliationRunCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -13136,6 +13886,28 @@ export const JobPostingScalarFieldEnum = {
 } as const
 
 export type JobPostingScalarFieldEnum = (typeof JobPostingScalarFieldEnum)[keyof typeof JobPostingScalarFieldEnum]
+
+
+export const JobSearchProjectionScalarFieldEnum = {
+  jobPostingId: 'jobPostingId',
+  titleIds: 'titleIds',
+  occupationIds: 'occupationIds',
+  facetIds: 'facetIds',
+  canonicalTitleVi: 'canonicalTitleVi',
+  canonicalTitleEn: 'canonicalTitleEn',
+  normalizedTitle: 'normalizedTitle',
+  normalizedAliases: 'normalizedAliases',
+  normalizedSkills: 'normalizedSkills',
+  profileSource: 'profileSource',
+  profileConfidence: 'profileConfidence',
+  translationStatus: 'translationStatus',
+  mappingSource: 'mappingSource',
+  mappingConfidence: 'mappingConfidence',
+  catalogVersion: 'catalogVersion',
+  updatedAt: 'updatedAt'
+} as const
+
+export type JobSearchProjectionScalarFieldEnum = (typeof JobSearchProjectionScalarFieldEnum)[keyof typeof JobSearchProjectionScalarFieldEnum]
 
 
 export const JobPostReviewAggregateScalarFieldEnum = {
@@ -15013,6 +15785,181 @@ export const ActivityLegalHoldScalarFieldEnum = {
 export type ActivityLegalHoldScalarFieldEnum = (typeof ActivityLegalHoldScalarFieldEnum)[keyof typeof ActivityLegalHoldScalarFieldEnum]
 
 
+export const SearchCatalogVersionScalarFieldEnum = {
+  id: 'id',
+  version: 'version',
+  status: 'status',
+  isActive: 'isActive',
+  revision: 'revision',
+  parentVersion: 'parentVersion',
+  changeReason: 'changeReason',
+  createdByAdminUserId: 'createdByAdminUserId',
+  publishedByAdminUserId: 'publishedByAdminUserId',
+  retiredByAdminUserId: 'retiredByAdminUserId',
+  publishedAt: 'publishedAt',
+  retiredAt: 'retiredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  catalogPayload: 'catalogPayload'
+} as const
+
+export type SearchCatalogVersionScalarFieldEnum = (typeof SearchCatalogVersionScalarFieldEnum)[keyof typeof SearchCatalogVersionScalarFieldEnum]
+
+
+export const SearchOccupationScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  occupationId: 'occupationId',
+  labelVi: 'labelVi',
+  labelEn: 'labelEn',
+  aliasesVi: 'aliasesVi',
+  aliasesEn: 'aliasesEn',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchOccupationScalarFieldEnum = (typeof SearchOccupationScalarFieldEnum)[keyof typeof SearchOccupationScalarFieldEnum]
+
+
+export const SearchJobTitleScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  titleId: 'titleId',
+  occupationId: 'occupationId',
+  canonicalVi: 'canonicalVi',
+  canonicalEn: 'canonicalEn',
+  aliasesVi: 'aliasesVi',
+  aliasesEn: 'aliasesEn',
+  abbreviations: 'abbreviations',
+  excludedTerms: 'excludedTerms',
+  skillSignals: 'skillSignals',
+  facetIds: 'facetIds',
+  translationStatus: 'translationStatus',
+  mappingSource: 'mappingSource',
+  mappingConfidence: 'mappingConfidence',
+  reviewReason: 'reviewReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchJobTitleScalarFieldEnum = (typeof SearchJobTitleScalarFieldEnum)[keyof typeof SearchJobTitleScalarFieldEnum]
+
+
+export const SearchJobTitleTranslationScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  titleId: 'titleId',
+  locale: 'locale',
+  value: 'value',
+  status: 'status',
+  source: 'source',
+  confidence: 'confidence',
+  reviewReason: 'reviewReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchJobTitleTranslationScalarFieldEnum = (typeof SearchJobTitleTranslationScalarFieldEnum)[keyof typeof SearchJobTitleTranslationScalarFieldEnum]
+
+
+export const SearchAliasScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  phrase: 'phrase',
+  normalizedPhrase: 'normalizedPhrase',
+  locale: 'locale',
+  source: 'source',
+  confidence: 'confidence',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchAliasScalarFieldEnum = (typeof SearchAliasScalarFieldEnum)[keyof typeof SearchAliasScalarFieldEnum]
+
+
+export const SearchFacetScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  facetId: 'facetId',
+  kind: 'kind',
+  labelVi: 'labelVi',
+  labelEn: 'labelEn',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchFacetScalarFieldEnum = (typeof SearchFacetScalarFieldEnum)[keyof typeof SearchFacetScalarFieldEnum]
+
+
+export const SearchTitleFacetScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  titleId: 'titleId',
+  facetId: 'facetId',
+  required: 'required',
+  createdAt: 'createdAt'
+} as const
+
+export type SearchTitleFacetScalarFieldEnum = (typeof SearchTitleFacetScalarFieldEnum)[keyof typeof SearchTitleFacetScalarFieldEnum]
+
+
+export const SearchMappingReviewScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  openKey: 'openKey',
+  originalTitle: 'originalTitle',
+  normalizedTitle: 'normalizedTitle',
+  context: 'context',
+  suggestedTitleId: 'suggestedTitleId',
+  suggestedTranslationVi: 'suggestedTranslationVi',
+  suggestedTranslationEn: 'suggestedTranslationEn',
+  suggestedOccupationId: 'suggestedOccupationId',
+  suggestedFacetIds: 'suggestedFacetIds',
+  suggestedSkillSignals: 'suggestedSkillSignals',
+  confidence: 'confidence',
+  status: 'status',
+  version: 'version',
+  decisionReason: 'decisionReason',
+  resultCatalogVersionId: 'resultCatalogVersionId',
+  reviewedByAdminUserId: 'reviewedByAdminUserId',
+  reviewedAt: 'reviewedAt',
+  deduplicatedIntoReviewId: 'deduplicatedIntoReviewId',
+  deduplicatedAt: 'deduplicatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchMappingReviewScalarFieldEnum = (typeof SearchMappingReviewScalarFieldEnum)[keyof typeof SearchMappingReviewScalarFieldEnum]
+
+
+export const SearchProjectionReconciliationRunScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  mode: 'mode',
+  status: 'status',
+  inspected: 'inspected',
+  refreshed: 'refreshed',
+  missing: 'missing',
+  stale: 'stale',
+  inconsistent: 'inconsistent',
+  unmapped: 'unmapped',
+  ambiguous: 'ambiguous',
+  requiresReview: 'requiresReview',
+  orphaned: 'orphaned',
+  policyFailures: 'policyFailures',
+  cursor: 'cursor',
+  errorMessage: 'errorMessage',
+  createdByAdminUserId: 'createdByAdminUserId',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type SearchProjectionReconciliationRunScalarFieldEnum = (typeof SearchProjectionReconciliationRunScalarFieldEnum)[keyof typeof SearchProjectionReconciliationRunScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -15911,6 +16858,62 @@ export type EnumJobPostingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<
  * Reference to a field of type 'JobPostingStatus[]'
  */
 export type ListEnumJobPostingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobPostingStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'JobSearchProfileSource'
+ */
+export type EnumJobSearchProfileSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobSearchProfileSource'>
+    
+
+
+/**
+ * Reference to a field of type 'JobSearchProfileSource[]'
+ */
+export type ListEnumJobSearchProfileSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobSearchProfileSource[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
+ * Reference to a field of type 'JobSearchTranslationStatus'
+ */
+export type EnumJobSearchTranslationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobSearchTranslationStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'JobSearchTranslationStatus[]'
+ */
+export type ListEnumJobSearchTranslationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobSearchTranslationStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'JobSearchMappingSource'
+ */
+export type EnumJobSearchMappingSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobSearchMappingSource'>
+    
+
+
+/**
+ * Reference to a field of type 'JobSearchMappingSource[]'
+ */
+export type ListEnumJobSearchMappingSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobSearchMappingSource[]'>
     
 
 
@@ -17133,16 +18136,58 @@ export type ListEnumBackupRunStatusFieldRefInput<$PrismaModel> = FieldRefInputTy
 
 
 /**
- * Reference to a field of type 'Float'
+ * Reference to a field of type 'SearchCatalogVersionStatus'
  */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+export type EnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SearchCatalogVersionStatus'>
     
 
 
 /**
- * Reference to a field of type 'Float[]'
+ * Reference to a field of type 'SearchCatalogVersionStatus[]'
  */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+export type ListEnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SearchCatalogVersionStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SearchMappingReviewStatus'
+ */
+export type EnumSearchMappingReviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SearchMappingReviewStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'SearchMappingReviewStatus[]'
+ */
+export type ListEnumSearchMappingReviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SearchMappingReviewStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SearchReconciliationRunMode'
+ */
+export type EnumSearchReconciliationRunModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SearchReconciliationRunMode'>
+    
+
+
+/**
+ * Reference to a field of type 'SearchReconciliationRunMode[]'
+ */
+export type ListEnumSearchReconciliationRunModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SearchReconciliationRunMode[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SearchReconciliationRunStatus'
+ */
+export type EnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SearchReconciliationRunStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'SearchReconciliationRunStatus[]'
+ */
+export type ListEnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SearchReconciliationRunStatus[]'>
     
 
 /**
@@ -17354,6 +18399,7 @@ export type GlobalOmitConfig = {
   moderationReportHistory?: Prisma.ModerationReportHistoryOmit
   moderationPrivateNote?: Prisma.ModerationPrivateNoteOmit
   jobPosting?: Prisma.JobPostingOmit
+  jobSearchProjection?: Prisma.JobSearchProjectionOmit
   jobPostReviewAggregate?: Prisma.JobPostReviewAggregateOmit
   jobPostRevisionRequest?: Prisma.JobPostRevisionRequestOmit
   jobPostFeaturedPlacement?: Prisma.JobPostFeaturedPlacementOmit
@@ -17450,6 +18496,15 @@ export type GlobalOmitConfig = {
   backupConfiguration?: Prisma.BackupConfigurationOmit
   backupRun?: Prisma.BackupRunOmit
   activityLegalHold?: Prisma.ActivityLegalHoldOmit
+  searchCatalogVersion?: Prisma.SearchCatalogVersionOmit
+  searchOccupation?: Prisma.SearchOccupationOmit
+  searchJobTitle?: Prisma.SearchJobTitleOmit
+  searchJobTitleTranslation?: Prisma.SearchJobTitleTranslationOmit
+  searchAlias?: Prisma.SearchAliasOmit
+  searchFacet?: Prisma.SearchFacetOmit
+  searchTitleFacet?: Prisma.SearchTitleFacetOmit
+  searchMappingReview?: Prisma.SearchMappingReviewOmit
+  searchProjectionReconciliationRun?: Prisma.SearchProjectionReconciliationRunOmit
 }
 
 /* Types for Logging */

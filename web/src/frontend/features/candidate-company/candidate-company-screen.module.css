@@ -154,7 +154,7 @@
 }
 
 .locationValuePlaceholder {
-  color: var(--sh-color-text-muted);
+  color: var(--sh-color-text-secondary);
 }
 
 .selectChevron {
@@ -505,6 +505,14 @@
   color: var(--sh-color-brand-primary);
   background: var(--sh-color-brand-soft);
   white-space: nowrap;
+}
+
+:global(:root[data-theme="dark"]) .openRoles {
+  color: #93c5fd;
+}
+
+:global(:root[data-theme="dark"]) .secondary {
+  color: var(--sh-color-text-primary);
 }
 
 .arrow {

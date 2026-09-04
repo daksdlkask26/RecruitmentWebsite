@@ -26,6 +26,7 @@ import { emitJobPostReviewOperation } from "./job-post-review-operations";
 import { appendJobPostingLifecycleFact } from "@/backend/repositories/analytics/prisma-analytics-repository";
 import { publishApprovedJobToCatalogue } from "@/backend/services/jobs/publish-approved-job-to-catalogue";
 import { syncManagedJobPublicProjection } from "@/backend/repositories/jobs/prisma-job-post-management-repository";
+import { searchCatalogProvider } from "@/backend/services/search/catalogs/search-catalog-provider";
 
 /**
  * Application boundary for the review lifecycle. User-story orchestration is
@@ -401,6 +402,7 @@ export class JobPostReviewService {
   }) {
     const now = input.now ?? new Date();
     const startedAt = performance.now();
+    const catalogSnapshot = await searchCatalogProvider.getActiveSnapshot();
     const result = await new PrismaAdminCommandRepository().execute(
       {
         actorUserId: input.authority.userId,
@@ -534,6 +536,7 @@ export class JobPostReviewService {
           notifySubmitter: submitterEligible,
           correlationId,
           now,
+          catalogIndex: catalogSnapshot.index,
         });
         emitJobPostReviewOperation({
           operation: "decision",

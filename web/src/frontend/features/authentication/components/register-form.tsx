@@ -3,7 +3,7 @@
 import { cloneElement, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import {
   registrationSchema,
@@ -26,7 +26,7 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors, isSubmitting },
     setError,
   } = useForm<RegistrationInput>({
@@ -38,7 +38,7 @@ export function RegisterForm() {
       passwordConfirmation: "",
     },
   });
-  const password = watch("password");
+  const password = useWatch({ control, name: "password", defaultValue: "" });
   const submit = handleSubmit(async (values) => {
     setServerStatus("");
     try {
@@ -96,11 +96,7 @@ export function RegisterForm() {
       </Field>
       <Field
         label={copy.common.emailAddress}
-        error={localizedAuthFieldError(
-          locale,
-          "email",
-          errors.email?.message,
-        )}
+        error={localizedAuthFieldError(locale, "email", errors.email?.message)}
       >
         <input
           type="email"

@@ -12,6 +12,7 @@ export type HomeE2EDatabaseFixture = {
   jobs: {
     active: { id: string; slug: string; title: string };
     activeSecond: { id: string; slug: string; title: string };
+    pending: { id: string; slug: string; title: string };
   };
 };
 
@@ -22,7 +23,13 @@ export type HomeE2EFixture = {
 };
 
 export async function runHomeE2EControl<T>(
-  command: "create" | "delete" | "expire-user" | "deactivate-company" | "public-job-count",
+  command:
+    | "create"
+    | "delete"
+    | "expire-user"
+    | "deactivate-company"
+    | "set-language"
+    | "public-job-count",
   payload: unknown = null,
 ) {
   const script = resolve(

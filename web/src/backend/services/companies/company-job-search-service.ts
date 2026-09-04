@@ -24,9 +24,14 @@ export class CompanyJobSearchService {
   ): Promise<CompanyJobSearchResponse> {
     await requirePublicCompany(companyId);
     const query = companyJobSearchQuerySchema.parse(raw);
+    const hasExplicitSearchMode =
+      typeof raw === "object" &&
+      raw !== null &&
+      Object.prototype.hasOwnProperty.call(raw, "searchMode");
     const result = await this.discovery.searchScoped(
       {
         q: query.q,
+        ...(hasExplicitSearchMode ? { searchMode: query.searchMode } : {}),
         location: query.location,
         searchBy: "BOTH",
         sort: "NEWEST",
@@ -44,6 +49,9 @@ export class CompanyJobSearchService {
       page: result.page,
       totalPages: result.totalPages,
       companyId,
+      ...(result.searchMetadata
+        ? { searchMetadata: result.searchMetadata }
+        : {}),
       ...(result.searchInterpretation
         ? { searchInterpretation: result.searchInterpretation }
         : {}),

@@ -5,7 +5,9 @@ import { prisma } from "@/backend/database/prisma";
 import type { Prisma } from "@/backend/generated/prisma/client";
 import {
   type JobPreferences,
+  type SavedFilterPreset,
   type UserJobState,
+  savedFilterPresetSchema,
   userJobStateSchema,
 } from "@/shared/contracts/jobs/catalog";
 import {
@@ -15,24 +17,16 @@ import {
 import { z } from "zod";
 
 const hiddenJobIdsSchema = z.array(z.string().min(1).max(128)).max(10_000);
-const savedFilterPresetsSchema = z
-  .array(
-    z
-      .object({
-        id: z.string().min(1).max(128),
-        name: z.string().min(1).max(160),
-        filters: z.record(z.string(), z.unknown()),
-      })
-      .strict(),
-  )
-  .max(100);
+const savedFilterPresetsSchema = z.array(savedFilterPresetSchema).max(100);
 
 export type UserJobStateMutation =
   | { action: "save"; jobId: string }
   | { action: "unsave"; jobId: string }
   | { action: "hide"; jobId: string }
   | { action: "unhide"; jobId: string }
-  | { action: "update-preferences"; jobPreferences: JobPreferences };
+  | { action: "update-preferences"; jobPreferences: JobPreferences }
+  | { action: "save-filter-preset"; preset: SavedFilterPreset }
+  | { action: "delete-filter-preset"; presetId: string };
 
 function jsonValue(value: unknown): Prisma.InputJsonValue {
   return value as Prisma.InputJsonValue;
@@ -84,6 +78,7 @@ export function projectUserJobState(state: UserJobState) {
     savedJobIds: state.savedJobIds,
     hiddenJobIds: state.hiddenJobIds,
     appliedJobIds: state.appliedJobIds,
+    savedFilterPresets: state.savedFilterPresets,
   };
 }
 
@@ -148,6 +143,28 @@ export async function updateUserJobState(
       await persistWorkspaceState(userId, {
         ...current,
         jobPreferences: mutation.jobPreferences,
+      });
+      break;
+    }
+    case "save-filter-preset": {
+      const current = await readUserJobStateFromDatabase(userId);
+      const preset = savedFilterPresetSchema.parse(mutation.preset);
+      await persistWorkspaceState(userId, {
+        ...current,
+        savedFilterPresets: [
+          preset,
+          ...current.savedFilterPresets.filter((item) => item.id !== preset.id),
+        ].slice(0, 100),
+      });
+      break;
+    }
+    case "delete-filter-preset": {
+      const current = await readUserJobStateFromDatabase(userId);
+      await persistWorkspaceState(userId, {
+        ...current,
+        savedFilterPresets: current.savedFilterPresets.filter(
+          (preset) => preset.id !== mutation.presetId,
+        ),
       });
       break;
     }

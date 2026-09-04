@@ -5,6 +5,10 @@ import {
   jobSearchResponseSchema,
 } from "@/shared/contracts/jobs/discovery";
 import {
+  savedFilterPresetSchema,
+  userJobStateViewSchema,
+} from "@/shared/contracts/jobs/catalog";
+import {
   applicationSubmissionSchema,
   candidateCvOptionSchema,
   jobReportInputSchema,
@@ -19,6 +23,13 @@ describe("job board transport contracts", () => {
         limit: "20",
       }),
     ).toMatchObject({ q: "Lập trình viên", limit: 20 });
+    expect(jobSearchQuerySchema.parse({}).searchMode).toBe("SMART");
+    expect(
+      jobSearchQuerySchema.parse({ searchMode: "LITERAL" }).searchMode,
+    ).toBe("LITERAL");
+    expect(() =>
+      jobSearchQuerySchema.parse({ searchMode: "UNSAFE" }),
+    ).toThrow();
     expect(() =>
       jobSearchQuerySchema.parse({ salaryMin: "10", salaryMax: "2" }),
     ).toThrow();
@@ -152,6 +163,36 @@ describe("job board transport contracts", () => {
         benefits: null,
         canonicalUrl: "https://jobs.example.test/jobs/lap-trinh-vien",
         moderationReason: "private",
+      }),
+    ).toThrow();
+  });
+
+  it("keeps saved searches bounded and backward compatible", () => {
+    const preset = savedFilterPresetSchema.parse({
+      id: "preset-1",
+      name: "  Remote accountant  ",
+      filters: { q: "ketoan", location: "Da Nang", page: "4" },
+    });
+
+    expect(preset).toMatchObject({
+      id: "preset-1",
+      name: "Remote accountant",
+      q: "",
+    });
+    expect(preset.searchMode).toBeUndefined();
+    expect(
+      userJobStateViewSchema.parse({
+        savedJobIds: [],
+        hiddenJobIds: [],
+        appliedJobIds: [],
+      }).savedFilterPresets,
+    ).toEqual([]);
+    expect(() =>
+      savedFilterPresetSchema.parse({
+        id: "preset-1",
+        name: "x",
+        filters: {},
+        unexpected: true,
       }),
     ).toThrow();
   });

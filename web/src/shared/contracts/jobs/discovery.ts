@@ -1,5 +1,11 @@
 import { z } from "zod";
 import { careerPathSlugSchema } from "./career-paths";
+import {
+  searchInterpretationSchema,
+  searchMetadataSchema,
+  searchModeSchema,
+} from "../search/search-interpretation";
+import { searchRecoverySchema } from "../search/search-recovery";
 
 export const employmentTypeSchema = z.enum([
   "FULL_TIME",
@@ -58,6 +64,7 @@ const optionalTrue = z.preprocess(
 export const jobSearchQuerySchema = z
   .object({
     q: z.string().trim().max(200).default(""),
+    searchMode: searchModeSchema.default("SMART"),
     searchBy: jobSearchBySchema.default("BOTH"),
     location: z.string().trim().max(160).default(""),
     district: stringArray(z.string().trim().min(1).max(160), 20).default([]),
@@ -215,6 +222,24 @@ export const jobCardSchema = z
     categoryFamily: z.string().max(80).optional(),
     experienceMinYears: z.number().int().nonnegative().optional(),
     matchScore: z.number().int().min(0).max(100).optional(),
+    matchReasons: z
+      .array(
+        z
+          .object({
+            kind: z.enum([
+              "TITLE",
+              "SKILL",
+              "LOCATION",
+              "EXPERIENCE",
+              "WORK_ARRANGEMENT",
+            ]),
+            labelVi: z.string().trim().min(1).max(160),
+            labelEn: z.string().trim().min(1).max(160),
+          })
+          .strict(),
+      )
+      .max(3)
+      .optional(),
     actions: publicJobActionsSchema,
   })
   .strict();
@@ -227,19 +252,9 @@ export const jobSearchResponseSchema = z
     page: z.number().int().positive(),
     totalPages: z.number().int().nonnegative(),
     criteria: z.record(z.string(), z.unknown()),
-    searchInterpretation: z
-      .object({
-        appliedTerms: z.array(z.string().min(1).max(200)).max(6),
-        correction: z
-          .object({
-            from: z.string().min(1).max(200),
-            to: z.string().min(1).max(200),
-            confidence: z.enum(["HIGH", "MEDIUM"]),
-          })
-          .optional(),
-        usedFallback: z.boolean(),
-      })
-      .optional(),
+    searchMetadata: searchMetadataSchema.optional(),
+    searchInterpretation: searchInterpretationSchema.optional(),
+    searchRecovery: searchRecoverySchema.optional(),
   })
   .strict();
 

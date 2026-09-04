@@ -491,6 +491,14 @@
   object-fit: cover;
 }
 
+/* Dark-mode small-text accents need a lighter foreground than the filled
+ * primary button token. Keep button contrast intact while making avatar
+ * initials readable on the brand-soft surface. */
+:root[data-theme="dark"] .workspace-account-avatar,
+:root[data-theme="dark"] .home-profile-icon {
+  color: #93c5fd;
+}
+
 .workspace-account-chip small {
   display: block;
   max-width: 220px;
@@ -611,7 +619,7 @@
   box-shadow: var(--sh-shadow-floating);
 }
 
-.workspace-content [role="option"] {
+.workspace-content [role="option"]:not(.search-suggestion-option) {
   border: 1px solid transparent;
   border-radius: var(--sh-radius-sm);
   color: var(--sh-color-text-secondary);
@@ -622,9 +630,10 @@
     border-color var(--sh-motion-fast) ease;
 }
 
-.workspace-content [role="option"]:hover,
-.workspace-content [role="option"]:focus-visible,
-.workspace-content [role="option"][aria-selected="true"] {
+.workspace-content [role="option"]:not(.search-suggestion-option):hover,
+.workspace-content [role="option"]:not(.search-suggestion-option):focus-visible,
+.workspace-content
+  [role="option"]:not(.search-suggestion-option)[aria-selected="true"] {
   border-color: var(--sh-color-brand-soft);
   color: var(--sh-color-brand-primary);
   background: var(--sh-color-brand-soft);
@@ -1615,6 +1624,32 @@
   .workspace-account-chip strong,
   .workspace-account-chip small {
     max-width: 120px;
+  }
+}
+
+/* Tablet workspaces keep the expanded sidebar, so the top bar gets a full
+ * row for its actions instead of allowing intrinsic button labels to widen
+ * the document beyond the viewport. The action row itself remains
+ * horizontally scrollable when a translated label set needs more space. */
+@media (min-width: 761px) and (max-width: 1023px) {
+  .workspace-header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace-header-identity,
+  .workspace-header-job-search-slot,
+  .workspace-header-actions {
+    grid-column: 1 / -1;
+  }
+
+  .workspace-header-actions {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    justify-self: stretch;
+    overflow-x: auto;
+    padding-right: 0;
+    scrollbar-width: thin;
   }
 }
 

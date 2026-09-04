@@ -1340,6 +1340,84 @@ export type EnumJobPostingStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumJobPostingStatusFilter<$PrismaModel>
 }
 
+export type EnumJobSearchProfileSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobSearchProfileSource | Prisma.EnumJobSearchProfileSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.JobSearchProfileSource[] | Prisma.ListEnumJobSearchProfileSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JobSearchProfileSource[] | Prisma.ListEnumJobSearchProfileSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJobSearchProfileSourceFilter<$PrismaModel> | $Enums.JobSearchProfileSource
+}
+
+export type FloatFilter<$PrismaModel = never> = {
+  equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  notIn?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  lt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  lte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedFloatFilter<$PrismaModel> | number
+}
+
+export type EnumJobSearchTranslationStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobSearchTranslationStatus | Prisma.EnumJobSearchTranslationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.JobSearchTranslationStatus[] | Prisma.ListEnumJobSearchTranslationStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JobSearchTranslationStatus[] | Prisma.ListEnumJobSearchTranslationStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJobSearchTranslationStatusFilter<$PrismaModel> | $Enums.JobSearchTranslationStatus
+}
+
+export type EnumJobSearchMappingSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobSearchMappingSource | Prisma.EnumJobSearchMappingSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.JobSearchMappingSource[] | Prisma.ListEnumJobSearchMappingSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JobSearchMappingSource[] | Prisma.ListEnumJobSearchMappingSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJobSearchMappingSourceFilter<$PrismaModel> | $Enums.JobSearchMappingSource
+}
+
+export type EnumJobSearchProfileSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobSearchProfileSource | Prisma.EnumJobSearchProfileSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.JobSearchProfileSource[] | Prisma.ListEnumJobSearchProfileSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JobSearchProfileSource[] | Prisma.ListEnumJobSearchProfileSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJobSearchProfileSourceWithAggregatesFilter<$PrismaModel> | $Enums.JobSearchProfileSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumJobSearchProfileSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumJobSearchProfileSourceFilter<$PrismaModel>
+}
+
+export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  notIn?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  lt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  lte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedFloatWithAggregatesFilter<$PrismaModel> | number
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _avg?: Prisma.NestedFloatFilter<$PrismaModel>
+  _sum?: Prisma.NestedFloatFilter<$PrismaModel>
+  _min?: Prisma.NestedFloatFilter<$PrismaModel>
+  _max?: Prisma.NestedFloatFilter<$PrismaModel>
+}
+
+export type EnumJobSearchTranslationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobSearchTranslationStatus | Prisma.EnumJobSearchTranslationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.JobSearchTranslationStatus[] | Prisma.ListEnumJobSearchTranslationStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JobSearchTranslationStatus[] | Prisma.ListEnumJobSearchTranslationStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJobSearchTranslationStatusWithAggregatesFilter<$PrismaModel> | $Enums.JobSearchTranslationStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumJobSearchTranslationStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumJobSearchTranslationStatusFilter<$PrismaModel>
+}
+
+export type EnumJobSearchMappingSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobSearchMappingSource | Prisma.EnumJobSearchMappingSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.JobSearchMappingSource[] | Prisma.ListEnumJobSearchMappingSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JobSearchMappingSource[] | Prisma.ListEnumJobSearchMappingSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJobSearchMappingSourceWithAggregatesFilter<$PrismaModel> | $Enums.JobSearchMappingSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumJobSearchMappingSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumJobSearchMappingSourceFilter<$PrismaModel>
+}
+
 export type EnumJobPostVisibilityStateFilter<$PrismaModel = never> = {
   equals?: $Enums.JobPostVisibilityState | Prisma.EnumJobPostVisibilityStateFieldRefInput<$PrismaModel>
   in?: $Enums.JobPostVisibilityState[] | Prisma.ListEnumJobPostVisibilityStateFieldRefInput<$PrismaModel>
@@ -2965,6 +3043,91 @@ export type EnumBackupRunStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumBackupRunStatusFilter<$PrismaModel>
 }
 
+export type EnumSearchCatalogVersionStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchCatalogVersionStatus | Prisma.EnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchCatalogVersionStatus[] | Prisma.ListEnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchCatalogVersionStatus[] | Prisma.ListEnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchCatalogVersionStatusFilter<$PrismaModel> | $Enums.SearchCatalogVersionStatus
+}
+
+export type EnumSearchCatalogVersionStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchCatalogVersionStatus | Prisma.EnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchCatalogVersionStatus[] | Prisma.ListEnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchCatalogVersionStatus[] | Prisma.ListEnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchCatalogVersionStatusWithAggregatesFilter<$PrismaModel> | $Enums.SearchCatalogVersionStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSearchCatalogVersionStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSearchCatalogVersionStatusFilter<$PrismaModel>
+}
+
+export type EnumPreferenceLanguageNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreferenceLanguage | Prisma.EnumPreferenceLanguageFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreferenceLanguage[] | Prisma.ListEnumPreferenceLanguageFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.PreferenceLanguage[] | Prisma.ListEnumPreferenceLanguageFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumPreferenceLanguageNullableFilter<$PrismaModel> | $Enums.PreferenceLanguage | null
+}
+
+export type EnumPreferenceLanguageNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreferenceLanguage | Prisma.EnumPreferenceLanguageFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreferenceLanguage[] | Prisma.ListEnumPreferenceLanguageFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.PreferenceLanguage[] | Prisma.ListEnumPreferenceLanguageFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumPreferenceLanguageNullableWithAggregatesFilter<$PrismaModel> | $Enums.PreferenceLanguage | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreferenceLanguageNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreferenceLanguageNullableFilter<$PrismaModel>
+}
+
+export type EnumSearchMappingReviewStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchMappingReviewStatus | Prisma.EnumSearchMappingReviewStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchMappingReviewStatus[] | Prisma.ListEnumSearchMappingReviewStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchMappingReviewStatus[] | Prisma.ListEnumSearchMappingReviewStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchMappingReviewStatusFilter<$PrismaModel> | $Enums.SearchMappingReviewStatus
+}
+
+export type EnumSearchMappingReviewStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchMappingReviewStatus | Prisma.EnumSearchMappingReviewStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchMappingReviewStatus[] | Prisma.ListEnumSearchMappingReviewStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchMappingReviewStatus[] | Prisma.ListEnumSearchMappingReviewStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchMappingReviewStatusWithAggregatesFilter<$PrismaModel> | $Enums.SearchMappingReviewStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSearchMappingReviewStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSearchMappingReviewStatusFilter<$PrismaModel>
+}
+
+export type EnumSearchReconciliationRunModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchReconciliationRunMode | Prisma.EnumSearchReconciliationRunModeFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchReconciliationRunMode[] | Prisma.ListEnumSearchReconciliationRunModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchReconciliationRunMode[] | Prisma.ListEnumSearchReconciliationRunModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchReconciliationRunModeFilter<$PrismaModel> | $Enums.SearchReconciliationRunMode
+}
+
+export type EnumSearchReconciliationRunStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchReconciliationRunStatus | Prisma.EnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchReconciliationRunStatus[] | Prisma.ListEnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchReconciliationRunStatus[] | Prisma.ListEnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchReconciliationRunStatusFilter<$PrismaModel> | $Enums.SearchReconciliationRunStatus
+}
+
+export type EnumSearchReconciliationRunModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchReconciliationRunMode | Prisma.EnumSearchReconciliationRunModeFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchReconciliationRunMode[] | Prisma.ListEnumSearchReconciliationRunModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchReconciliationRunMode[] | Prisma.ListEnumSearchReconciliationRunModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchReconciliationRunModeWithAggregatesFilter<$PrismaModel> | $Enums.SearchReconciliationRunMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSearchReconciliationRunModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSearchReconciliationRunModeFilter<$PrismaModel>
+}
+
+export type EnumSearchReconciliationRunStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchReconciliationRunStatus | Prisma.EnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchReconciliationRunStatus[] | Prisma.ListEnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchReconciliationRunStatus[] | Prisma.ListEnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchReconciliationRunStatusWithAggregatesFilter<$PrismaModel> | $Enums.SearchReconciliationRunStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSearchReconciliationRunStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSearchReconciliationRunStatusFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -4248,6 +4411,73 @@ export type NestedEnumJobPostingStatusWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumJobPostingStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumJobPostingStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumJobSearchProfileSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobSearchProfileSource | Prisma.EnumJobSearchProfileSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.JobSearchProfileSource[] | Prisma.ListEnumJobSearchProfileSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JobSearchProfileSource[] | Prisma.ListEnumJobSearchProfileSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJobSearchProfileSourceFilter<$PrismaModel> | $Enums.JobSearchProfileSource
+}
+
+export type NestedEnumJobSearchTranslationStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobSearchTranslationStatus | Prisma.EnumJobSearchTranslationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.JobSearchTranslationStatus[] | Prisma.ListEnumJobSearchTranslationStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JobSearchTranslationStatus[] | Prisma.ListEnumJobSearchTranslationStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJobSearchTranslationStatusFilter<$PrismaModel> | $Enums.JobSearchTranslationStatus
+}
+
+export type NestedEnumJobSearchMappingSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobSearchMappingSource | Prisma.EnumJobSearchMappingSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.JobSearchMappingSource[] | Prisma.ListEnumJobSearchMappingSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JobSearchMappingSource[] | Prisma.ListEnumJobSearchMappingSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJobSearchMappingSourceFilter<$PrismaModel> | $Enums.JobSearchMappingSource
+}
+
+export type NestedEnumJobSearchProfileSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobSearchProfileSource | Prisma.EnumJobSearchProfileSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.JobSearchProfileSource[] | Prisma.ListEnumJobSearchProfileSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JobSearchProfileSource[] | Prisma.ListEnumJobSearchProfileSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJobSearchProfileSourceWithAggregatesFilter<$PrismaModel> | $Enums.JobSearchProfileSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumJobSearchProfileSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumJobSearchProfileSourceFilter<$PrismaModel>
+}
+
+export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  notIn?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  lt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  lte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedFloatWithAggregatesFilter<$PrismaModel> | number
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _avg?: Prisma.NestedFloatFilter<$PrismaModel>
+  _sum?: Prisma.NestedFloatFilter<$PrismaModel>
+  _min?: Prisma.NestedFloatFilter<$PrismaModel>
+  _max?: Prisma.NestedFloatFilter<$PrismaModel>
+}
+
+export type NestedEnumJobSearchTranslationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobSearchTranslationStatus | Prisma.EnumJobSearchTranslationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.JobSearchTranslationStatus[] | Prisma.ListEnumJobSearchTranslationStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JobSearchTranslationStatus[] | Prisma.ListEnumJobSearchTranslationStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJobSearchTranslationStatusWithAggregatesFilter<$PrismaModel> | $Enums.JobSearchTranslationStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumJobSearchTranslationStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumJobSearchTranslationStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumJobSearchMappingSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobSearchMappingSource | Prisma.EnumJobSearchMappingSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.JobSearchMappingSource[] | Prisma.ListEnumJobSearchMappingSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JobSearchMappingSource[] | Prisma.ListEnumJobSearchMappingSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJobSearchMappingSourceWithAggregatesFilter<$PrismaModel> | $Enums.JobSearchMappingSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumJobSearchMappingSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumJobSearchMappingSourceFilter<$PrismaModel>
 }
 
 export type NestedEnumJobPostVisibilityStateFilter<$PrismaModel = never> = {
@@ -5873,6 +6103,91 @@ export type NestedEnumBackupRunStatusWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumBackupRunStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumBackupRunStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumSearchCatalogVersionStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchCatalogVersionStatus | Prisma.EnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchCatalogVersionStatus[] | Prisma.ListEnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchCatalogVersionStatus[] | Prisma.ListEnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchCatalogVersionStatusFilter<$PrismaModel> | $Enums.SearchCatalogVersionStatus
+}
+
+export type NestedEnumSearchCatalogVersionStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchCatalogVersionStatus | Prisma.EnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchCatalogVersionStatus[] | Prisma.ListEnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchCatalogVersionStatus[] | Prisma.ListEnumSearchCatalogVersionStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchCatalogVersionStatusWithAggregatesFilter<$PrismaModel> | $Enums.SearchCatalogVersionStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSearchCatalogVersionStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSearchCatalogVersionStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumPreferenceLanguageNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreferenceLanguage | Prisma.EnumPreferenceLanguageFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreferenceLanguage[] | Prisma.ListEnumPreferenceLanguageFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.PreferenceLanguage[] | Prisma.ListEnumPreferenceLanguageFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumPreferenceLanguageNullableFilter<$PrismaModel> | $Enums.PreferenceLanguage | null
+}
+
+export type NestedEnumPreferenceLanguageNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreferenceLanguage | Prisma.EnumPreferenceLanguageFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreferenceLanguage[] | Prisma.ListEnumPreferenceLanguageFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.PreferenceLanguage[] | Prisma.ListEnumPreferenceLanguageFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumPreferenceLanguageNullableWithAggregatesFilter<$PrismaModel> | $Enums.PreferenceLanguage | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreferenceLanguageNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreferenceLanguageNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumSearchMappingReviewStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchMappingReviewStatus | Prisma.EnumSearchMappingReviewStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchMappingReviewStatus[] | Prisma.ListEnumSearchMappingReviewStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchMappingReviewStatus[] | Prisma.ListEnumSearchMappingReviewStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchMappingReviewStatusFilter<$PrismaModel> | $Enums.SearchMappingReviewStatus
+}
+
+export type NestedEnumSearchMappingReviewStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchMappingReviewStatus | Prisma.EnumSearchMappingReviewStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchMappingReviewStatus[] | Prisma.ListEnumSearchMappingReviewStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchMappingReviewStatus[] | Prisma.ListEnumSearchMappingReviewStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchMappingReviewStatusWithAggregatesFilter<$PrismaModel> | $Enums.SearchMappingReviewStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSearchMappingReviewStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSearchMappingReviewStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumSearchReconciliationRunModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchReconciliationRunMode | Prisma.EnumSearchReconciliationRunModeFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchReconciliationRunMode[] | Prisma.ListEnumSearchReconciliationRunModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchReconciliationRunMode[] | Prisma.ListEnumSearchReconciliationRunModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchReconciliationRunModeFilter<$PrismaModel> | $Enums.SearchReconciliationRunMode
+}
+
+export type NestedEnumSearchReconciliationRunStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchReconciliationRunStatus | Prisma.EnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchReconciliationRunStatus[] | Prisma.ListEnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchReconciliationRunStatus[] | Prisma.ListEnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchReconciliationRunStatusFilter<$PrismaModel> | $Enums.SearchReconciliationRunStatus
+}
+
+export type NestedEnumSearchReconciliationRunModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchReconciliationRunMode | Prisma.EnumSearchReconciliationRunModeFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchReconciliationRunMode[] | Prisma.ListEnumSearchReconciliationRunModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchReconciliationRunMode[] | Prisma.ListEnumSearchReconciliationRunModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchReconciliationRunModeWithAggregatesFilter<$PrismaModel> | $Enums.SearchReconciliationRunMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSearchReconciliationRunModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSearchReconciliationRunModeFilter<$PrismaModel>
+}
+
+export type NestedEnumSearchReconciliationRunStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SearchReconciliationRunStatus | Prisma.EnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SearchReconciliationRunStatus[] | Prisma.ListEnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SearchReconciliationRunStatus[] | Prisma.ListEnumSearchReconciliationRunStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSearchReconciliationRunStatusWithAggregatesFilter<$PrismaModel> | $Enums.SearchReconciliationRunStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSearchReconciliationRunStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSearchReconciliationRunStatusFilter<$PrismaModel>
 }
 
 
