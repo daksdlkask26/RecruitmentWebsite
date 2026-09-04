@@ -23,13 +23,47 @@ jobs:
           --health-retries 20
     env:
       APP_ENV: test
+      NEXT_PUBLIC_APP_URL: http://localhost:3001
       DATABASE_URL: postgresql://smarthire:smarthire@localhost:5432/smarthire_test
       DIRECT_URL: postgresql://smarthire:smarthire@localhost:5432/smarthire_test
       TOKEN_SECRET: ci-only-token-secret-with-at-least-thirty-two-characters
+      BETTER_AUTH_URL: http://localhost:3001
       BETTER_AUTH_SECRET: ci-only-better-auth-secret-thirty-two-characters
+      AUTH_COOKIE_ENV: local
+      SESSION_COOKIE_NAME: smarthire.session
+      PRE_AUTH_COOKIE_NAME: smarthire.pre-auth
+      COOKIE_SECURE: "false"
+      COOKIE_SAME_SITE: lax
+      AUDIT_TRUSTED_PROXY_HOPS: "0"
       CANDIDATE_ORIGIN: http://localhost:3001
       ADMIN_ORIGIN: http://console.admin.localhost:3001
       RECRUITER_ORIGIN: http://console.recruiter.localhost:3001
+      EMAIL_ADAPTER: capture
+      EMAIL_CAPTURE_DIRECTORY: /tmp/smarthire-mail
+      EMAIL_CAPTURE_DIR: /tmp/smarthire-mail
+      CV_STORAGE_ADAPTER: filesystem
+      CV_STORAGE_LOCAL_ROOT: /tmp/smarthire-cv-storage
+      CV_ARTIFACT_ACTIVE_KEY_VERSION: "1"
+      CV_ARTIFACT_KEY_V1: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+      CV_CLAMD_SOCKET_PATH: /run/clamav/clamd.sock
+      CV_CLAMD_SIGNATURE_MAX_AGE_HOURS: "24"
+      CV_PARSER_ADAPTER: deterministic
+      CV_OPENAI_ENABLED: "false"
+      CV_OPENAI_LOCAL_DEV_ENABLED: "false"
+      CV_OPENAI_MODEL: gpt-5.4-mini-2026-03-17
+      CV_OPENAI_DPA_APPROVED: "false"
+      CV_OPENAI_CROSS_BORDER_APPROVED: "false"
+      CV_OPENAI_ZDR_APPROVED: "false"
+      CV_WORKER_ENABLED: "false"
+      CV_CLEANUP_ENABLED: "true"
+      CV_SOURCE_MAX_BYTES: "5000000"
+      CV_UPLOAD_ATTEMPTS_PER_HOUR: "5"
+      CV_ACCOUNT_MAX_IMPORTS: "10"
+      CV_ACCOUNT_MAX_STORAGE_BYTES: "52428800"
+      CV_REJECTED_RETENTION_HOURS: "24"
+      CV_UNCONFIRMED_RETENTION_DAYS: "30"
+      CV_CONFIRMED_RETENTION_DAYS: "7"
+      CV_CANDIDATE_DELETE_RETENTION_HOURS: "24"
       ADMIN_EVIDENCE_STORAGE_ADAPTER: filesystem
       ADMIN_EVIDENCE_STORAGE_ROOT: /tmp/smarthire-admin-evidence
       ADMIN_EVIDENCE_KEY_V1: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
