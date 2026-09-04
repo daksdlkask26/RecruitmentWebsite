@@ -107,7 +107,7 @@ jobs:
           NODE_ENV=production PORT=3001 npm run start --workspace @smarthire/web > /tmp/smarthire-search-e2e.log 2>&1 &
           echo $! > /tmp/smarthire-search-e2e.pid
           for attempt in {1..180}; do
-            if curl --fail --silent http://127.0.0.1:3001/login > /dev/null; then
+            if curl --fail --silent http://127.0.0.1:3001/api/health > /dev/null; then
               exit 0
             fi
             if [ -f /tmp/smarthire-search-e2e.pid ] && ! kill -0 "$(cat /tmp/smarthire-search-e2e.pid)" 2>/dev/null; then
