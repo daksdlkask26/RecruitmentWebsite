@@ -34,6 +34,10 @@ import { CompanyList } from "../companies/company-list";
 import { BackupSettings } from "../backup/backup-settings";
 import { JobTaxonomyList } from "../job-taxonomy/job-taxonomy-list";
 import { JobTaxonomyShow } from "../job-taxonomy/job-taxonomy-show";
+import { SearchMappingReviewList } from "../search-mapping-reviews/search-mapping-review-list";
+import { SearchMappingReviewShow } from "../search-mapping-reviews/search-mapping-review-show";
+import { SearchCatalogVersionList } from "../search-catalog-versions/search-catalog-version-list";
+import { SearchCatalogVersionShow } from "../search-catalog-versions/search-catalog-version-show";
 
 const theme = createTheme({
   palette: { mode: "light", primary: { main: "#155eef" } },
@@ -106,6 +110,20 @@ export function AdminApp() {
             icon={AccountTreeOutlinedIcon}
             list={JobTaxonomyList}
             show={JobTaxonomyShow}
+          />
+          <Resource
+            name="search-mapping-reviews"
+            options={{ label: "Search Mapping Reviews" }}
+            icon={FactCheckOutlinedIcon}
+            list={SearchMappingReviewList}
+            show={SearchMappingReviewShow}
+          />
+          <Resource
+            name="search-catalog-versions"
+            options={{ label: "Search Catalog Versions" }}
+            icon={AccountTreeOutlinedIcon}
+            list={SearchCatalogVersionList}
+            show={SearchCatalogVersionShow}
           />
           <Resource
             name="accounts"

@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import {
   ArrowRight,
   Building2,
@@ -15,8 +21,18 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/frontend/components/layout/page-header";
 import { CompanyAvatar } from "@/frontend/features/jobs/components/company-avatar";
+import { SearchInterpretationNotice } from "@/frontend/features/search/components/search-interpretation-notice";
+import {
+  SearchSuggestionList,
+  localizedSuggestionLabel,
+} from "@/frontend/features/search/components/search-suggestion-list";
+import { useSearchSuggestions } from "@/frontend/features/search/client/use-search-suggestions";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
 import type { CompanyCard } from "@/shared/contracts/company";
+import type {
+  SearchInterpretation,
+  SearchMode,
+} from "@/shared/contracts/search/search-interpretation";
 import { companyLocationRegion } from "@/shared/utils/locations/company-location";
 import { CompanyPagination } from "./company-pagination";
 import styles from "./candidate-company-screen.module.css";
@@ -24,10 +40,16 @@ import { getCompanyCopy, type CompanyCopy } from "./i18n/company-copy";
 
 const COMPANY_SEARCH_DEBOUNCE_MS = 800;
 
-function companyListSearchHref(query: string, location: string, limit: number) {
+function companyListSearchHref(
+  query: string,
+  location: string,
+  limit: number,
+  searchMode: SearchMode = "SMART",
+) {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
   if (location) params.set("location", location);
+  if (searchMode !== "SMART") params.set("searchMode", searchMode);
   if (limit !== 24) params.set("limit", String(limit));
   const search = params.toString();
   return search ? `/company?${search}` : "/company";
@@ -211,6 +233,7 @@ export function CompanyLocationSelect({
 function CompanySearchForm({
   copy,
   initialQuery,
+  initialSearchMode,
   initialLocation,
   initialLimit,
   hasFilters,
@@ -218,6 +241,7 @@ function CompanySearchForm({
 }: {
   copy: CompanyCopy;
   initialQuery: string;
+  initialSearchMode: SearchMode;
   initialLocation: string;
   initialLimit: number;
   hasFilters: boolean;
@@ -227,6 +251,51 @@ function CompanySearchForm({
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [selectedLocation, setSelectedLocation] = useState(initialLocation);
   const [isPending, startTransition] = useTransition();
+  const locale = useWorkspaceLocale();
+  const suggestions = useSearchSuggestions("COMPANIES", searchQuery);
+
+  const selectCompanySuggestion = (
+    suggestion: Parameters<typeof localizedSuggestionLabel>[0],
+  ) => {
+    setSearchQuery(localizedSuggestionLabel(suggestion, locale));
+    suggestions.setOpen(false);
+  };
+
+  const handleSuggestionKeyDown = (
+    event: ReactKeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === "Escape") {
+      if (suggestions.open) {
+        event.preventDefault();
+        suggestions.setOpen(false);
+        suggestions.setActiveIndex(-1);
+      }
+      return;
+    }
+    if (event.key === "Tab") {
+      suggestions.setOpen(false);
+      suggestions.setActiveIndex(-1);
+      return;
+    }
+    if (!suggestions.open || !suggestions.suggestions.length) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      suggestions.setActiveIndex(
+        (suggestions.activeIndex + 1) % suggestions.suggestions.length,
+      );
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      suggestions.setActiveIndex(
+        suggestions.activeIndex <= 0
+          ? suggestions.suggestions.length - 1
+          : suggestions.activeIndex - 1,
+      );
+    } else if (event.key === "Enter" && suggestions.activeIndex >= 0) {
+      event.preventDefault();
+      const suggestion = suggestions.suggestions[suggestions.activeIndex];
+      if (suggestion) selectCompanySuggestion(suggestion);
+    }
+  };
 
   useEffect(() => {
     const nextQuery = searchQuery.trim();
@@ -240,7 +309,12 @@ function CompanySearchForm({
     const timer = window.setTimeout(() => {
       startTransition(() => {
         router.replace(
-          companyListSearchHref(nextQuery, selectedLocation, initialLimit),
+          companyListSearchHref(
+            nextQuery,
+            selectedLocation,
+            initialLimit,
+            initialSearchMode,
+          ),
           { scroll: false },
         );
       });
@@ -251,6 +325,7 @@ function CompanySearchForm({
     initialLimit,
     initialLocation,
     initialQuery,
+    initialSearchMode,
     router,
     searchQuery,
     selectedLocation,
@@ -267,18 +342,54 @@ function CompanySearchForm({
       role="search"
       aria-busy={isPending}
     >
-      <label className={styles.companySearchField}>
-        <span className="sr-only">{copy.searchCompanies}</span>
+      <div className={styles.companySearchField}>
+        <label className="sr-only" htmlFor="company-search-query">
+          {copy.searchCompanies}
+        </label>
         <Search size={19} aria-hidden="true" />
         <input
+          id="company-search-query"
           className={`${styles.input} ${styles.searchInput}`}
           name="q"
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
           placeholder={copy.companySearchPlaceholder}
           type="search"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={suggestions.open && suggestions.suggestions.length > 0}
+          aria-controls="company-search-suggestions"
+          aria-activedescendant={
+            suggestions.activeIndex >= 0
+              ? `company-search-suggestions-option-${suggestions.activeIndex}`
+              : undefined
+          }
+          onFocus={() => {
+            if (suggestions.suggestions.length) suggestions.setOpen(true);
+          }}
+          onBlur={() =>
+            window.setTimeout(() => {
+              suggestions.setOpen(false);
+              suggestions.setActiveIndex(-1);
+            }, 100)
+          }
+          onKeyDown={handleSuggestionKeyDown}
         />
-      </label>
+        {suggestions.isLoading ? (
+          <span className="search-suggestion-loading" aria-hidden="true" />
+        ) : null}
+        {suggestions.open ? (
+          <SearchSuggestionList
+            id="company-search-suggestions"
+            scope="COMPANIES"
+            locale={locale}
+            suggestions={suggestions.suggestions}
+            activeIndex={suggestions.activeIndex}
+            onSelect={selectCompanySuggestion}
+            onActiveChange={suggestions.setActiveIndex}
+          />
+        ) : null}
+      </div>
       <CompanyLocationSelect
         value={selectedLocation}
         options={locationOptions}
@@ -286,6 +397,9 @@ function CompanySearchForm({
         allLocationsLabel={copy.allLocations}
         onChange={setSelectedLocation}
       />
+      {initialSearchMode !== "SMART" ? (
+        <input type="hidden" name="searchMode" value={initialSearchMode} />
+      ) : null}
       <div className={styles.searchActions}>
         <button className={styles.button} type="submit">
           <Search size={18} aria-hidden="true" />
@@ -310,25 +424,31 @@ export function CompanyListScreen({
   page = 1,
   totalPages = 1,
   initialQuery = "",
+  initialSearchMode = "SMART",
   initialLocation = "",
   initialLimit = 24,
   locations = [],
+  searchInterpretation,
 }: {
   companies: readonly CompanyCard[];
   total: number;
   page?: number;
   totalPages?: number;
   initialQuery?: string;
+  initialSearchMode?: SearchMode;
   initialLocation?: string;
   initialLimit?: number;
   locations?: readonly string[];
+  searchInterpretation?: SearchInterpretation;
 }) {
+  const router = useRouter();
   const locale = useWorkspaceLocale();
   const copy = getCompanyCopy(locale);
   const hasQuery = Boolean(initialQuery.trim());
   const activeLocation = companyLocationRegion(initialLocation) ?? "";
   const hasLocation = Boolean(activeLocation);
-  const hasFilters = hasQuery || hasLocation;
+  const hasFilters =
+    hasQuery || hasLocation || (initialSearchMode === "LITERAL" && hasQuery);
   const normalizedQuery = initialQuery
     .trim()
     .replace(/\s+/gu, " ")
@@ -344,6 +464,9 @@ export function CompanyListScreen({
   const pageHref = (nextPage: number, nextLimit = initialLimit) => {
     const params = new URLSearchParams();
     if (hasQuery) params.set("q", initialQuery.trim());
+    if (initialSearchMode !== "SMART") {
+      params.set("searchMode", initialSearchMode);
+    }
     if (hasLocation) params.set("location", activeLocation);
     if (nextPage > 1) params.set("page", String(nextPage));
     if (nextLimit !== 24) params.set("limit", String(nextLimit));
@@ -362,6 +485,9 @@ export function CompanyListScreen({
   const popularFilterHref = (query?: string) => {
     const params = new URLSearchParams();
     if (query) params.set("q", query);
+    if (initialSearchMode !== "SMART") {
+      params.set("searchMode", initialSearchMode);
+    }
     if (hasLocation) params.set("location", activeLocation);
     const popularQuery = params.toString();
     return popularQuery ? `/company?${popularQuery}` : "/company";
@@ -385,13 +511,58 @@ export function CompanyListScreen({
       />
       <section className={styles.searchPanel} aria-label={copy.searchCompanies}>
         <CompanySearchForm
-          key={`${initialQuery}\u0000${activeLocation}\u0000${initialLimit}`}
+          key={`${initialQuery}\u0000${initialSearchMode}\u0000${activeLocation}\u0000${initialLimit}`}
           copy={copy}
           initialQuery={initialQuery}
+          initialSearchMode={initialSearchMode}
           initialLocation={activeLocation}
           initialLimit={initialLimit}
           hasFilters={hasFilters}
           locationOptions={locationOptions}
+        />
+        <SearchInterpretationNotice
+          interpretation={searchInterpretation}
+          locale={locale}
+          copy={copy}
+          onSearchLiteral={
+            searchInterpretation?.canSearchLiteral
+              ? () =>
+                  router.replace(
+                    companyListSearchHref(
+                      initialQuery.trim(),
+                      activeLocation,
+                      initialLimit,
+                      "LITERAL",
+                    ),
+                    { scroll: false },
+                  )
+              : undefined
+          }
+          onAcceptSuggestion={
+            searchInterpretation?.effectiveQuery
+              ? () =>
+                  router.replace(
+                    companyListSearchHref(
+                      searchInterpretation.effectiveQuery,
+                      activeLocation,
+                      initialLimit,
+                      "SMART",
+                    ),
+                    { scroll: false },
+                  )
+              : undefined
+          }
+          onEnableSmartSearch={() =>
+            router.replace(
+              companyListSearchHref(
+                initialQuery.trim(),
+                activeLocation,
+                initialLimit,
+                "SMART",
+              ),
+              { scroll: false },
+            )
+          }
         />
         <div className={styles.popularFilters} aria-label={copy.popular}>
           <span className={styles.popularLabel}>{copy.popular}:</span>

@@ -20,6 +20,7 @@ import { normalizedReviewTitleSearch } from "./job-post-review-search";
 import { JobPostReviewError } from "./job-post-review-errors";
 import { leastLoadedReviewAdministrator } from "./job-post-review-assignment";
 import { createPendingJobTaxonomyProposal } from "@/backend/services/jobs/job-taxonomy-service";
+import { searchCatalogProvider } from "@/backend/services/search/catalogs/search-catalog-provider";
 
 const requestHash = (value: string) =>
   createHash("sha256").update(value).digest("hex");
@@ -85,16 +86,22 @@ export class JobPostSubmissionService {
     // The old flow first changed an active catalogue row to draft and adopted
     // its PostgreSQL baseline. Preserve that lifecycle fact even though the
     // new fast path skips the pre-review catalogue write entirely.
+    const catalogSnapshot = await searchCatalogProvider.getActiveSnapshot();
     if (existingJob?.status === "active") {
       await adoptActiveJobBaseline({
         job: existingJob,
         authoritativeCompanyId: membership.companyId,
         actorUserId: input.actorUserId,
         now,
+        catalogIndex: catalogSnapshot.index,
       });
     }
 
-    const snapshot = jobReviewSnapshotFromCatalog(job, membership.companyId);
+    const snapshot = jobReviewSnapshotFromCatalog(
+      job,
+      membership.companyId,
+      catalogSnapshot.index,
+    );
     try {
       projectJobReviewSnapshot(snapshot);
     } catch (error) {

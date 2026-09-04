@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import { createPortal } from "react-dom";
 import {
   Briefcase,
@@ -54,6 +61,11 @@ import { ImageSearchRecovery } from "./image-search-recovery";
 import { ImageSearchConsent } from "./image-search-consent";
 import { ImageSearchFeedback } from "./image-search-feedback";
 import { JOB_SEARCH_CRITERIA_CHANGED_EVENT } from "../../components/job-search-events";
+import { useSearchSuggestions } from "@/frontend/features/search/client/use-search-suggestions";
+import {
+  SearchSuggestionList,
+  localizedSuggestionLabel,
+} from "@/frontend/features/search/components/search-suggestion-list";
 
 const defaults: ManualSearchContext = {
   q: "",
@@ -501,7 +513,13 @@ function JobCategoryMenu({
         aria-expanded={open}
         aria-controls="job-category-flyout"
         data-selected={Boolean(appliedSelectionLabel)}
-        title={appliedSelectionLabel}
+        aria-label={
+          appliedSelectionLabel || (vi ? "Nhóm ngành" : "Job Category")
+        }
+        title={
+          appliedSelectionLabel ||
+          (vi ? "Chọn nhóm ngành việc làm" : "Select job category")
+        }
         onClick={openMenu}
       >
         <span className="job-category-trigger-icon" aria-hidden="true">
@@ -513,7 +531,7 @@ function JobCategoryMenu({
           {appliedSelectionLabel
             ? appliedSelectionLabel
             : vi
-              ? "Job categories"
+              ? "Nhóm ngành"
               : "Job Category"}
         </span>
         <svg
@@ -609,7 +627,7 @@ function JobCategoryMenu({
                 className="job-category-industries"
                 aria-label={vi ? "Nhóm ngành" : "Job categories"}
               >
-                {taxonomy.industries.map((industry, index) => {
+                {taxonomy.industries.map((industry) => {
                   const selected = industry.code === active.code;
                   return (
                     <li
@@ -650,14 +668,16 @@ function JobCategoryMenu({
                         <span
                           className="job-category-industry-icon"
                           data-industry-code={industry.code}
-                          data-tone={(index % 5) + 1}
                           aria-hidden="true"
                         >
                           <IndustryIcon code={industry.code} />
                         </span>
                         <span className="job-category-industry-copy">
                           <strong>{industry.name}</strong>
-                          <small>{industry.count} open roles</small>
+                          <small>
+                            {industry.count}{" "}
+                            {vi ? "vị trí đang tuyển" : "open roles"}
+                          </small>
                         </span>
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                           <path d="m9 6 6 6-6 6" />
@@ -746,7 +766,11 @@ function JobCategoryMenu({
                             type="button"
                             data-selected={selectedCategory}
                             aria-pressed={selectedCategory}
-                            aria-label={`${selectedCategory ? "Clear" : "Select"} sub-industry: ${subIndustry.name}`}
+                            aria-label={
+                              vi
+                                ? `${selectedCategory ? "Bỏ chọn" : "Chọn"} nhóm ngành: ${subIndustry.name}`
+                                : `${selectedCategory ? "Clear" : "Select"} sub-industry: ${subIndustry.name}`
+                            }
                             onClick={() => {
                               setDraftIndustryCode(undefined);
                               setDraftRoles({});
@@ -757,7 +781,13 @@ function JobCategoryMenu({
                               );
                             }}
                           >
-                            {selectedCategory ? "Selected" : "Select"}
+                            {selectedCategory
+                              ? vi
+                                ? "Đã chọn"
+                                : "Selected"
+                              : vi
+                                ? "Chọn"
+                                : "Select"}
                           </button>
                         ) : null}
                       </div>
@@ -830,7 +860,7 @@ function JobCategoryMenu({
                     : "industry selected"
                   : draftCategoryIds.length
                     ? vi
-                      ? "nhÃ³m ngÃ nh Ä‘Ã£ chá»n"
+                      ? "nhóm ngành đã chọn"
                       : "sub-industries selected"
                     : vi
                       ? "vị trí đã chọn"
@@ -838,6 +868,7 @@ function JobCategoryMenu({
               </span>
               {hasSelection ? (
                 <button
+                  className="job-category-selection-clear-all"
                   type="button"
                   onClick={() => {
                     setDraftIndustryCode(undefined);
@@ -850,7 +881,11 @@ function JobCategoryMenu({
               ) : null}
             </div>
             <div className="job-category-explorer-actions">
-              <button type="button" onClick={close}>
+              <button
+                className="job-category-cancel"
+                type="button"
+                onClick={close}
+              >
                 {vi ? "Hủy" : "Cancel"}
               </button>
               <button
@@ -908,7 +943,7 @@ function ClearFieldButton({
       aria-label={label}
       onClick={onClear}
     >
-      &times;
+      <X aria-hidden="true" />
     </button>
   );
 }
@@ -996,6 +1031,7 @@ export function LocationPicker({
             readOnly
             data-selected={Boolean(location) && !open}
             aria-label={vi ? "Địa điểm" : "Location"}
+            role="combobox"
             aria-haspopup="dialog"
             aria-expanded={open}
             aria-controls="job-location-picker-dialog"
@@ -1217,6 +1253,7 @@ export function GlobalImageSearch({
     currentCriteria: criteria,
     csrfProof: activeCsrfProof,
   });
+  const suggestions = useSearchSuggestions("JOBS", query);
   const busy = search.phase === "UPLOADING" || search.phase === "PROCESSING";
   const showPanel = panelOpen || search.phase !== "IDLE";
   const navigateJobSearch =
@@ -1300,6 +1337,49 @@ export function GlobalImageSearch({
 
   const submitJobTextSearch = () => {
     navigateJobSearch(jobTextSearchHref(window.location.href, query));
+  };
+
+  const selectJobSuggestion = (
+    suggestion: Parameters<typeof localizedSuggestionLabel>[0],
+  ) => {
+    setQuery(localizedSuggestionLabel(suggestion, locale));
+    suggestions.setOpen(false);
+  };
+
+  const handleSuggestionKeyDown = (
+    event: ReactKeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === "Escape") {
+      if (suggestions.open) {
+        event.preventDefault();
+        suggestions.setOpen(false);
+        suggestions.setActiveIndex(-1);
+      }
+      return;
+    }
+    if (event.key === "Tab") {
+      suggestions.setOpen(false);
+      suggestions.setActiveIndex(-1);
+      return;
+    }
+    if (!suggestions.open || !suggestions.suggestions.length) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      suggestions.setActiveIndex(
+        (suggestions.activeIndex + 1) % suggestions.suggestions.length,
+      );
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      suggestions.setActiveIndex(
+        suggestions.activeIndex <= 0
+          ? suggestions.suggestions.length - 1
+          : suggestions.activeIndex - 1,
+      );
+    } else if (event.key === "Enter" && suggestions.activeIndex >= 0) {
+      event.preventDefault();
+      const suggestion = suggestions.suggestions[suggestions.activeIndex];
+      if (suggestion) selectJobSuggestion(suggestion);
+    }
   };
 
   const clearSelectedIndustry = () => {
@@ -1397,6 +1477,17 @@ export function GlobalImageSearch({
                 id="global-job-search-query"
                 type="search"
                 autoComplete="off"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={
+                  suggestions.open && suggestions.suggestions.length > 0
+                }
+                aria-controls="global-job-search-suggestions"
+                aria-activedescendant={
+                  suggestions.activeIndex >= 0
+                    ? `global-job-search-suggestions-option-${suggestions.activeIndex}`
+                    : undefined
+                }
                 value={query}
                 maxLength={200}
                 placeholder={
@@ -1405,11 +1496,49 @@ export function GlobalImageSearch({
                     : "Search jobs, skills, or companies"
                 }
                 onChange={(event) => setQuery(event.currentTarget.value)}
+                onFocus={() => {
+                  if (suggestions.suggestions.length) suggestions.setOpen(true);
+                }}
+                onBlur={() =>
+                  window.setTimeout(() => {
+                    suggestions.setOpen(false);
+                    suggestions.setActiveIndex(-1);
+                  }, 100)
+                }
+                onKeyDown={handleSuggestionKeyDown}
               />
-              {query.length > 0 ? (
-                <ClearFieldButton
-                  label={vi ? "Xóa tìm kiếm" : "Clear search"}
-                  onClear={() => setQuery("")}
+              {query.length > 0 || suggestions.isLoading ? (
+                <span className="global-image-search-query-actions">
+                  {suggestions.isLoading ? (
+                    <>
+                      <span
+                        className="search-suggestion-loading"
+                        aria-hidden="true"
+                      />
+                      <span className="sr-only" role="status">
+                        {vi
+                          ? "Đang tải gợi ý tìm kiếm"
+                          : "Loading search suggestions"}
+                      </span>
+                    </>
+                  ) : null}
+                  {query.length > 0 ? (
+                    <ClearFieldButton
+                      label={vi ? "Xóa tìm kiếm" : "Clear search"}
+                      onClear={() => setQuery("")}
+                    />
+                  ) : null}
+                </span>
+              ) : null}
+              {suggestions.open ? (
+                <SearchSuggestionList
+                  id="global-job-search-suggestions"
+                  scope="JOBS"
+                  locale={locale}
+                  suggestions={suggestions.suggestions}
+                  activeIndex={suggestions.activeIndex}
+                  onSelect={selectJobSuggestion}
+                  onActiveChange={suggestions.setActiveIndex}
                 />
               ) : null}
             </div>

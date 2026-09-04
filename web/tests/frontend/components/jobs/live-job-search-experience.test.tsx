@@ -51,12 +51,24 @@ const copy: JobsLiveCopy = {
   emptyPage: "No jobs on this page",
   emptyPageCopy: "Return to the first page to see the available results.",
   clear: "Clear filters",
+  searchResultsFor: "Showing results for “{query}”.",
+  includingRelatedTerm: "Also including “{term}”.",
+  searchLiteral: "Search instead for “{query}”",
+  didYouMean: "Did you mean “{query}”?",
+  searchSuggested: "Search for “{query}”",
+  undo: "Undo",
+  literalMode: "Searching literally for “{query}”.",
+  enableSmartSearch: "Enable smart search",
+  interpretedAsOccupation: "Interpreted “{original}” as “{occupation}”.",
+  correctionHint: "Corrected from “{query}”.",
+  matchedFacets: "Matched signals",
 };
 
 function result(
   total: number,
   includeItems = total > 0,
   page = 1,
+  searchInterpretation?: JobSearchResponse["searchInterpretation"],
 ): JobSearchResponse {
   return {
     items: includeItems
@@ -67,13 +79,17 @@ function result(
     page,
     totalPages: Math.max(1, Math.ceil(total / 20)),
     criteria: {},
+    ...(searchInterpretation ? { searchInterpretation } : {}),
   };
 }
 
-function response(total: number) {
+function response(
+  total: number,
+  searchInterpretation?: JobSearchResponse["searchInterpretation"],
+) {
   return {
     ok: true,
-    json: async () => result(total, false),
+    json: async () => result(total, false, 1, searchInterpretation),
   };
 }
 
@@ -216,5 +232,61 @@ describe("live job search experience", () => {
       await Promise.resolve();
     });
     expect(screen.queryByText("99 matching jobs")).not.toBeInTheDocument();
+  });
+
+  it("updates the URL for a suggestion and can undo back to the original query", async () => {
+    const acceptedInterpretation: JobSearchResponse["searchInterpretation"] = {
+      mode: "SMART",
+      originalQuery: "frontend",
+      normalizedQuery: "frontend",
+      effectiveQuery: "frontend",
+      reason: "ALIAS_EXPANDED",
+      appliedTerms: ["frontend"],
+      canSearchLiteral: true,
+      matchedTitle: {
+        titleId: "title-frontend-developer",
+        labelVi: "Lập trình viên frontend",
+        labelEn: "Frontend Developer",
+      },
+    };
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(response(1, acceptedInterpretation));
+    vi.stubGlobal("fetch", fetchMock);
+    renderExperience(
+      result(1, true, 1, {
+        mode: "SMART",
+        originalQuery: "frotend",
+        normalizedQuery: "frotend",
+        effectiveQuery: "frontend",
+        reason: "TYPO_CORRECTED",
+        confidence: "MEDIUM",
+        correction: { from: "frotend", to: "frontend" },
+        appliedTerms: [],
+        canSearchLiteral: true,
+      }),
+      { q: "frotend" },
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /Search for .*frontend/u }),
+    );
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      "/api/jobs?q=frontend",
+      expect.objectContaining({ headers: { Accept: "application/json" } }),
+    );
+    expect(window.location.search).toBe("?q=frontend");
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Undo" })).toBeVisible(),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      "/api/jobs?q=frotend",
+      expect.objectContaining({ headers: { Accept: "application/json" } }),
+    );
+    expect(window.location.search).toBe("?q=frotend");
   });
 });

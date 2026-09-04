@@ -109,11 +109,11 @@ function StateChip({ state }: { state: ModerationReportRecord["state"] }) {
   );
 }
 
-function ReporterField(_props: { label?: string }) {
+function ReporterField({ label }: { label?: string }) {
   const record = useRecordContext<ModerationReportRecord>();
   if (!record) return null;
   return (
-    <Stack spacing={0.25} sx={{ minWidth: 175 }}>
+    <Stack spacing={0.25} sx={{ minWidth: 175 }} aria-label={label}>
       <RouterLink
         to={`/accounts/${encodeURIComponent(record.reporterAccountId)}/show`}
         onClick={(event) => event.stopPropagation()}
@@ -131,11 +131,16 @@ function ReporterField(_props: { label?: string }) {
   );
 }
 
-function TargetField(_props: { label?: string }) {
+function TargetField({ label }: { label?: string }) {
   const record = useRecordContext<ModerationReportRecord>();
   if (!record) return null;
   return (
-    <Stack spacing={0.5} alignItems="flex-start" sx={{ minWidth: 200 }}>
+    <Stack
+      spacing={0.5}
+      alignItems="flex-start"
+      sx={{ minWidth: 200 }}
+      aria-label={label}
+    >
       <RouterLink
         to={targetPath(record)}
         onClick={(event) => event.stopPropagation()}
@@ -177,11 +182,16 @@ function TargetField(_props: { label?: string }) {
   );
 }
 
-function QueueField(_props: { label?: string }) {
+function QueueField({ label }: { label?: string }) {
   const record = useRecordContext<ModerationReportRecord>();
   if (!record) return null;
   return (
-    <Stack spacing={0.75} alignItems="flex-start" sx={{ minWidth: 165 }}>
+    <Stack
+      spacing={0.75}
+      alignItems="flex-start"
+      sx={{ minWidth: 165 }}
+      aria-label={label}
+    >
       <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
         <PriorityChip priority={record.priority} />
         <StateChip state={record.state} />
@@ -201,11 +211,11 @@ function QueueField(_props: { label?: string }) {
   );
 }
 
-function ActivityField(_props: { label?: string }) {
+function ActivityField({ label }: { label?: string }) {
   const record = useRecordContext<ModerationReportRecord>();
   if (!record) return null;
   return (
-    <Stack spacing={0.25} sx={{ minWidth: 170 }}>
+    <Stack spacing={0.25} sx={{ minWidth: 170 }} aria-label={label}>
       <Typography variant="body2">
         Reported {dateTime(record.createdAt)}
       </Typography>

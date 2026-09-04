@@ -5,6 +5,12 @@ import {
   jobPreferencesUpdateSchema,
   type JobPreferences,
 } from "./preferences";
+import {
+  jobSearchIntentSchema,
+  jobSearchProfileSchema,
+} from "../search/job-search-intent";
+import { searchModeSchema } from "../search/search-interpretation";
+import { structuredSearchFilterSchema } from "../search/natural-language-search";
 
 const nullableString = (maximum: number) =>
   z.string().trim().max(maximum).nullable();
@@ -138,6 +144,8 @@ export const jobCatalogSchema = z
         applicantCount: z.number().int().nonnegative(),
       })
       .strict(),
+    /** Derived, versioned search projection; absent on legacy catalogue rows. */
+    searchProfile: jobSearchProfileSchema.optional(),
   })
   .strict();
 
@@ -203,6 +211,25 @@ export const companyCatalogSchema = z
   })
   .strict();
 
+/**
+ * A saved search keeps the user's raw query and the resolver context that
+ * produced it. The defaults deliberately accept older JSON rows that only
+ * stored a name and filter snapshot.
+ */
+export const savedFilterPresetSchema = z
+  .object({
+    id: z.string().min(1).max(128),
+    name: z.string().trim().min(1).max(160),
+    filters: z.record(z.string(), z.unknown()),
+    q: z.string().trim().max(200).default(""),
+    searchMode: searchModeSchema.optional(),
+    resolverVersion: z.string().trim().min(1).max(64).optional(),
+    catalogVersion: z.string().trim().min(1).max(64).optional(),
+    structuredFilters: z.array(structuredSearchFilterSchema).max(16).optional(),
+    searchIntent: jobSearchIntentSchema.optional(),
+  })
+  .strict();
+
 export const userJobStateSchema = z
   .object({
     userId: z.string().min(1).max(128),
@@ -210,17 +237,7 @@ export const userJobStateSchema = z
     hiddenJobIds: z.array(z.string().min(1).max(128)).max(10_000),
     appliedJobIds: z.array(z.string().min(1).max(128)).max(10_000),
     jobPreferences: jobPreferencesSchema.default(defaultJobPreferences),
-    savedFilterPresets: z
-      .array(
-        z
-          .object({
-            id: z.string().min(1).max(128),
-            name: z.string().min(1).max(160),
-            filters: z.record(z.string(), z.unknown()),
-          })
-          .strict(),
-      )
-      .max(100),
+    savedFilterPresets: z.array(savedFilterPresetSchema).max(100).default([]),
   })
   .strict();
 
@@ -229,11 +246,13 @@ export const userJobStateViewSchema = z
     savedJobIds: z.array(z.string().min(1).max(128)).max(10_000),
     hiddenJobIds: z.array(z.string().min(1).max(128)).max(10_000),
     appliedJobIds: z.array(z.string().min(1).max(128)).max(10_000),
+    savedFilterPresets: z.array(savedFilterPresetSchema).max(100).default([]),
   })
   .strict();
 export type JobCatalogItem = z.infer<typeof jobCatalogSchema>;
 export type CompanyCatalogItem = z.infer<typeof companyCatalogSchema>;
 export type JobPostingStatus = z.infer<typeof jobPostingStatusSchema>;
+export type SavedFilterPreset = z.infer<typeof savedFilterPresetSchema>;
 export type UserJobState = z.infer<typeof userJobStateSchema>;
 
 export type RecruiterCompanyRole =

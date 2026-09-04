@@ -364,6 +364,78 @@ export const JobPostingStatus = {
 export type JobPostingStatus = (typeof JobPostingStatus)[keyof typeof JobPostingStatus]
 
 
+export const JobSearchProfileSource = {
+  EXPLICIT: 'EXPLICIT',
+  AUTO_HIGH_CONFIDENCE: 'AUTO_HIGH_CONFIDENCE',
+  REVIEWED: 'REVIEWED',
+  UNMAPPED: 'UNMAPPED'
+} as const
+
+export type JobSearchProfileSource = (typeof JobSearchProfileSource)[keyof typeof JobSearchProfileSource]
+
+
+export const JobSearchTranslationStatus = {
+  HUMAN_VERIFIED: 'HUMAN_VERIFIED',
+  AUTO_HIGH_CONFIDENCE: 'AUTO_HIGH_CONFIDENCE',
+  REQUIRES_REVIEW: 'REQUIRES_REVIEW',
+  INTENTIONAL_UNTRANSLATED: 'INTENTIONAL_UNTRANSLATED',
+  AMBIGUOUS: 'AMBIGUOUS',
+  UNMAPPED: 'UNMAPPED'
+} as const
+
+export type JobSearchTranslationStatus = (typeof JobSearchTranslationStatus)[keyof typeof JobSearchTranslationStatus]
+
+
+export const JobSearchMappingSource = {
+  CURATED: 'CURATED',
+  EXACT_CANONICAL: 'EXACT_CANONICAL',
+  EXACT_VERIFIED_ALIAS: 'EXACT_VERIFIED_ALIAS',
+  FUZZY_VERIFIED_ALIAS: 'FUZZY_VERIFIED_ALIAS',
+  TAXONOMY_INFERENCE: 'TAXONOMY_INFERENCE',
+  SEMANTIC_SUGGESTION: 'SEMANTIC_SUGGESTION',
+  MANUAL_REVIEW: 'MANUAL_REVIEW'
+} as const
+
+export type JobSearchMappingSource = (typeof JobSearchMappingSource)[keyof typeof JobSearchMappingSource]
+
+
+export const SearchCatalogVersionStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  RETIRED: 'RETIRED'
+} as const
+
+export type SearchCatalogVersionStatus = (typeof SearchCatalogVersionStatus)[keyof typeof SearchCatalogVersionStatus]
+
+
+export const SearchMappingReviewStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  MERGED: 'MERGED',
+  DEDUPLICATED: 'DEDUPLICATED'
+} as const
+
+export type SearchMappingReviewStatus = (typeof SearchMappingReviewStatus)[keyof typeof SearchMappingReviewStatus]
+
+
+export const SearchReconciliationRunStatus = {
+  RUNNING: 'RUNNING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED'
+} as const
+
+export type SearchReconciliationRunStatus = (typeof SearchReconciliationRunStatus)[keyof typeof SearchReconciliationRunStatus]
+
+
+export const SearchReconciliationRunMode = {
+  DRY_RUN: 'DRY_RUN',
+  APPLY: 'APPLY'
+} as const
+
+export type SearchReconciliationRunMode = (typeof SearchReconciliationRunMode)[keyof typeof SearchReconciliationRunMode]
+
+
 export const EmploymentType = {
   FULL_TIME: 'FULL_TIME',
   PART_TIME: 'PART_TIME',

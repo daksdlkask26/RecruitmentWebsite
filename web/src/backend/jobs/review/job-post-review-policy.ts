@@ -6,6 +6,8 @@ import {
 } from "@/shared/contracts/recruiter-job-posting";
 import type { JobPostReviewState } from "@/shared/contracts/admin/job-post-review";
 import type { JobCatalogItem } from "@/shared/contracts/jobs/catalog";
+import { buildJobSearchProfile } from "@/backend/services/search/job-search-profile";
+import type { SearchCatalogIndex } from "@/backend/services/search/catalogs/job-search-catalog-index";
 
 export const JOB_REVIEW_SNAPSHOT_SCHEMA_VERSION = "1";
 
@@ -36,9 +38,18 @@ export function normalizeJobReviewSnapshot(value: unknown): JobReviewSnapshot {
   return jobReviewSnapshotSchema.parse(normalizeValue(value));
 }
 
+export function withoutJobSearchProfile(
+  value: JobReviewSnapshot,
+): Omit<JobReviewSnapshot, "searchProfile"> {
+  const content = { ...value };
+  delete content.searchProfile;
+  return content;
+}
+
 export function jobReviewSnapshotFromCatalog(
   value: JobCatalogItem,
   authoritativeCompanyId: string,
+  catalogIndex?: SearchCatalogIndex,
 ) {
   const candidate = {
     ...value,
@@ -53,6 +64,21 @@ export function jobReviewSnapshotFromCatalog(
     "stats",
   ])
     delete candidate[field];
+  candidate.searchProfile = buildJobSearchProfile(
+    {
+      title: value.title,
+      industryCode: value.industryCode,
+      categoryFamily: value.categoryFamily,
+      categoryIds: value.categoryIds,
+      skills: value.skillTags,
+      description: [
+        value.description.overview,
+        ...value.description.responsibilities,
+        ...value.description.requirements,
+      ],
+    },
+    catalogIndex ? { index: catalogIndex } : undefined,
+  );
   return normalizeJobReviewSnapshot(candidate);
 }
 

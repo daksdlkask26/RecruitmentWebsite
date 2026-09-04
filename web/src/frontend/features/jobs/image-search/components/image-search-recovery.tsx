@@ -3,6 +3,7 @@
 import type { ImageSearchFallbackReason } from "../client/use-image-search";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
 import { ImagePlus, Search } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const fallbackContent: Record<
   ImageSearchFallbackReason,
@@ -44,7 +45,17 @@ export function ImageSearchRecovery({
   onManual(): void;
 }) {
   const vi = useWorkspaceLocale() === "vi";
+  const [now, setNow] = useState(() => Date.now());
   const retryDate = retryAt ? new Date(retryAt) : null;
+  const retryTimestamp = retryDate?.getTime() ?? Number.NaN;
+  useEffect(() => {
+    if (!Number.isFinite(retryTimestamp) || retryTimestamp <= now) return;
+    const timer = window.setTimeout(
+      () => setNow(Date.now()),
+      Math.min(retryTimestamp - now, 2_147_483_647),
+    );
+    return () => window.clearTimeout(timer);
+  }, [now, retryTimestamp]);
   const retryLabel =
     retryDate && !Number.isNaN(retryDate.getTime())
       ? retryDate.toLocaleTimeString([], {
@@ -52,10 +63,7 @@ export function ImageSearchRecovery({
           minute: "2-digit",
         })
       : null;
-  const retryBlocked =
-    retryDate !== null &&
-    !Number.isNaN(retryDate.getTime()) &&
-    retryDate.getTime() > Date.now();
+  const retryBlocked = Number.isFinite(retryTimestamp) && retryTimestamp > now;
 
   const actions = (manualLabel: string) => (
     <div className="image-search-recovery-actions">
@@ -129,9 +137,7 @@ export function ImageSearchRecovery({
       <p>{error}</p>
       {retryLabel ? (
         <p className="image-search-recovery-retry-detail">
-          {vi
-            ? `Thử lại sau ${retryLabel}.`
-            : `Try again after ${retryLabel}.`}
+          {vi ? `Thử lại sau ${retryLabel}.` : `Try again after ${retryLabel}.`}
         </p>
       ) : null}
       <p>

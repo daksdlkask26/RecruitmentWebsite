@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { jobSearchRequestQuery } from "@/app/api/jobs/route";
+import { jobSearchRequestQuery } from "@/app/api/jobs/job-search-request-query";
 import { parseJobSearchCriteria } from "@/backend/services/jobs/job-discovery-service";
 
 describe("public job search API query parsing", () => {
@@ -26,6 +26,30 @@ describe("public job search API query parsing", () => {
 
     expect(criteria.categoryFamily).toEqual(["r29", "r03"]);
     expect(criteria.categoryIds).toEqual(["r03-software-development"]);
+  });
+
+  it("passes the generic-role SEO composition into job retrieval", () => {
+    const criteria = parseJobSearchCriteria({ q: "chuyên viên SEO" });
+
+    expect(criteria.searchVariants?.map((variant) => variant.value)).toEqual(
+      expect.arrayContaining(["seo specialist"]),
+    );
+    expect(criteria.searchIntent?.requiredFacetIds).toContain(
+      "specialization.seo",
+    );
+    expect(criteria.searchIntent?.occupationCandidates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          occupationId: "occ-r02-marketing-communications",
+          matchKind: "RELATED",
+        }),
+      ]),
+    );
+    expect(
+      criteria.searchVariants?.some(
+        (variant) => variant.occupationId === "occ-r07-electrical-electronics",
+      ),
+    ).toBe(false);
   });
 
   it("preserves the negotiable-salary filter for the discovery service", () => {

@@ -158,7 +158,10 @@ export function useSubmittedCandidates(
   );
 
   useEffect(() => {
-    void load();
+    const run = async () => {
+      await load();
+    };
+    void run();
     return () => {
       requestId.current += 1;
     };

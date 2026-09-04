@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { CompanyListScreen } from "@/frontend/features/candidate-company/company-list-screen";
+import type { SearchSuggestion } from "@/shared/contracts/search/search-suggestions";
 
 vi.mock("@/frontend/features/dashboard/client/workspace-locale", () => ({
   useWorkspaceLocale: () => "en",
@@ -8,8 +9,21 @@ vi.mock("@/frontend/features/dashboard/client/workspace-locale", () => ({
 
 const { replaceMock } = vi.hoisted(() => ({ replaceMock: vi.fn() }));
 
+const suggestionState = vi.hoisted(() => ({
+  suggestions: [] as SearchSuggestion[],
+  isLoading: false,
+  open: false,
+  activeIndex: -1,
+  setOpen: vi.fn(),
+  setActiveIndex: vi.fn(),
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock }),
+}));
+
+vi.mock("@/frontend/features/search/client/use-search-suggestions", () => ({
+  useSearchSuggestions: () => suggestionState,
 }));
 
 const companies = [
@@ -58,7 +72,7 @@ describe("Candidate Company list", () => {
     );
 
     expect(
-      screen.getByRole("searchbox", { name: "Search companies" }),
+      screen.getByRole("combobox", { name: "Search companies" }),
     ).toHaveValue("Northstar");
     expect(
       screen.getByRole("navigation", { name: "Companies" }),
@@ -68,6 +82,28 @@ describe("Candidate Company list", () => {
       "/company?q=Northstar",
     );
     expect(screen.getByText("Northstar Labs")).toBeInTheDocument();
+  });
+
+  it("preserves literal search mode when paginating company results", () => {
+    render(
+      <CompanyListScreen
+        companies={companies}
+        total={49}
+        page={2}
+        totalPages={3}
+        initialQuery="FPT"
+        initialSearchMode="LITERAL"
+      />,
+    );
+
+    expect(
+      screen.getByRole("combobox", { name: "Search companies" }),
+    ).toHaveValue("FPT");
+    expect(screen.getByRole("link", { name: "Page 1" })).toHaveAttribute(
+      "href",
+      "/company?q=FPT&searchMode=LITERAL",
+    );
+    expect(screen.getByDisplayValue("LITERAL")).toBeInTheDocument();
   });
 
   it("renders the directory metadata and complete numbered page map", () => {
@@ -160,18 +196,77 @@ describe("Candidate Company list", () => {
     try {
       render(<CompanyListScreen companies={companies} total={1} />);
       fireEvent.change(
-        screen.getByRole("searchbox", { name: "Search companies" }),
+        screen.getByRole("combobox", { name: "Search companies" }),
         { target: { value: "Manufacturing" } },
       );
 
       expect(replaceMock).not.toHaveBeenCalled();
       act(() => vi.advanceTimersByTime(799));
       expect(replaceMock).not.toHaveBeenCalled();
-      act(() => vi.advanceTimersByTime(1));
+      act(() => vi.runOnlyPendingTimers());
 
       expect(replaceMock).toHaveBeenCalledWith("/company?q=Manufacturing", {
         scroll: false,
       });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("supports keyboard selection in the company search combobox", () => {
+    suggestionState.suggestions = [
+      {
+        id: "company:company-1",
+        type: "COMPANY",
+        labelVi: "Northstar Labs",
+        labelEn: "Northstar Labs",
+      },
+    ];
+    suggestionState.open = true;
+    suggestionState.activeIndex = -1;
+    suggestionState.setOpen.mockClear();
+    suggestionState.setActiveIndex.mockClear();
+
+    try {
+      render(<CompanyListScreen companies={companies} total={1} />);
+      const input = screen.getByRole("combobox", { name: "Search companies" });
+      fireEvent.keyDown(input, { key: "ArrowDown" });
+      expect(suggestionState.setActiveIndex).toHaveBeenCalledWith(0);
+
+      suggestionState.activeIndex = 0;
+      fireEvent.keyDown(input, { key: "Enter" });
+      expect(input).toHaveValue("Northstar Labs");
+      expect(suggestionState.setOpen).toHaveBeenCalledWith(false);
+    } finally {
+      suggestionState.suggestions = [];
+      suggestionState.open = false;
+      suggestionState.activeIndex = -1;
+    }
+  });
+
+  it("keeps literal mode while the debounced company query changes", () => {
+    replaceMock.mockReset();
+    vi.useFakeTimers();
+
+    try {
+      render(
+        <CompanyListScreen
+          companies={companies}
+          total={1}
+          initialQuery="FPT"
+          initialSearchMode="LITERAL"
+        />,
+      );
+      fireEvent.change(
+        screen.getByRole("combobox", { name: "Search companies" }),
+        { target: { value: "FPT Holdings" } },
+      );
+      act(() => vi.runOnlyPendingTimers());
+
+      expect(replaceMock).toHaveBeenCalledWith(
+        "/company?q=FPT+Holdings&searchMode=LITERAL",
+        { scroll: false },
+      );
     } finally {
       vi.useRealTimers();
     }

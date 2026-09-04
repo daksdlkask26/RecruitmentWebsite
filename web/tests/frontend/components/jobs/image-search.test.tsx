@@ -187,7 +187,7 @@ describe("image-assisted job-search controls", () => {
   it("shows the search clear control solely while the query has a value", () => {
     render(<GlobalImageSearch taxonomy={taxonomy} />);
 
-    const searchField = screen.getByRole("searchbox", {
+    const searchField = screen.getByRole("combobox", {
       name: "Search jobs, skills, or companies",
     });
     expect(
@@ -196,7 +196,12 @@ describe("image-assisted job-search controls", () => {
 
     fireEvent.focus(searchField);
     fireEvent.change(searchField, { target: { value: "com" } });
-    expect(screen.getByRole("button", { name: "Clear search" })).toBeVisible();
+    const clearButton = screen.getByRole("button", { name: "Clear search" });
+    expect(clearButton).toBeVisible();
+    expect(clearButton.querySelector("svg")).toBeInTheDocument();
+    expect(
+      clearButton.closest(".global-image-search-query-actions"),
+    ).not.toBeNull();
 
     fireEvent.blur(searchField);
     expect(screen.getByRole("button", { name: "Clear search" })).toBeVisible();
@@ -522,7 +527,7 @@ describe("image-assisted job-search controls", () => {
       />,
     );
 
-    const locationField = screen.getByRole("textbox", { name: "Location" });
+    const locationField = screen.getByRole("combobox", { name: "Location" });
     expect(locationField).toHaveAttribute(
       "placeholder",
       "Province/city, district...",
@@ -633,7 +638,7 @@ describe("image-assisted job-search controls", () => {
     };
     render(<LocationFilterHarness taxonomy={longLocationTaxonomy} />);
 
-    const locationField = screen.getByRole("textbox", { name: "Location" });
+    const locationField = screen.getByRole("combobox", { name: "Location" });
     fireEvent.focus(locationField);
     fireEvent.click(screen.getByRole("checkbox", { name: "Long Hải" }));
     fireEvent.click(screen.getByRole("checkbox", { name: "Phước Hải" }));
@@ -655,7 +660,7 @@ describe("image-assisted job-search controls", () => {
   it("shows only the province when all districts are selected", () => {
     render(<LocationFilterHarness taxonomy={taxonomy} />);
 
-    const locationField = screen.getByRole("textbox", { name: "Location" });
+    const locationField = screen.getByRole("combobox", { name: "Location" });
     expect(locationField).toHaveAttribute(
       "placeholder",
       "Province/city, district...",
@@ -741,9 +746,11 @@ describe("image-assisted job-search controls", () => {
     const trigger = screen.getByRole("button", { name: "Job Category" });
 
     fireEvent.click(trigger);
-    fireEvent.click(
-      screen.getByRole("button", { name: "Close job categories" }),
-    );
+    const closeButton = screen.getByRole("button", {
+      name: "Close job categories",
+    });
+    expect(closeButton.querySelector("svg")).toBeInTheDocument();
+    fireEvent.click(closeButton);
     expect(screen.queryByRole("dialog", { name: "Job categories" })).toBeNull();
 
     fireEvent.click(trigger);
@@ -801,6 +808,9 @@ describe("image-assisted job-search controls", () => {
     expect(
       [...icons].map((icon) => icon.getAttribute("data-industry-code")),
     ).toEqual(allIndustries.industries.map((industry) => industry.code));
+    expect([...icons].every((icon) => !icon.hasAttribute("data-tone"))).toBe(
+      true,
+    );
     expect(
       new Set(
         [...icons].map((icon) =>

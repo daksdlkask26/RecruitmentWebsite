@@ -15,6 +15,7 @@ import {
 import { z } from "zod";
 import type { RecruiterReviewProjection } from "./admin/job-post-review";
 import type { RecruiterJobTaxonomy } from "./jobs/job-taxonomy";
+import { jobSearchProfileSchema } from "./search/job-search-intent";
 
 export {
   companyCatalogSchema,
@@ -38,11 +39,12 @@ const serverOwnedJobFields = {
 /** Immutable, normalized content captured by the server at submission time. */
 export const jobReviewSnapshotSchema = jobCatalogSchema
   .omit(serverOwnedJobFields)
+  .extend({ searchProfile: jobSearchProfileSchema.optional() })
   .strict();
 
 /** Fields a Recruiter may author. Identity and lifecycle facts are server-derived. */
 export const recruiterJobReviewInputSchema = jobReviewSnapshotSchema
-  .omit({ id: true, slug: true, companyId: true })
+  .omit({ id: true, slug: true, companyId: true, searchProfile: true })
   .strict();
 
 export const submitJobReviewCommandSchema = z

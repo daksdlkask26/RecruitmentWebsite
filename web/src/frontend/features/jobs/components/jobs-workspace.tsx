@@ -1,8 +1,9 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { TopBar } from "@/frontend/components/layout/top-bar";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
-import { useSearchParams } from "next/navigation";
+import { JOB_SEARCH_CRITERIA_CHANGED_EVENT } from "./job-search-events";
 
 export const jobsWorkspaceTabs = [
   { id: "search", href: "/jobs" },
@@ -13,15 +14,38 @@ export const jobsWorkspaceTabs = [
 
 export type JobsWorkspaceTab = (typeof jobsWorkspaceTabs)[number]["id"];
 
+function subscribeToSearchChanges(onChange: () => void) {
+  window.addEventListener("popstate", onChange);
+  window.addEventListener(JOB_SEARCH_CRITERIA_CHANGED_EVENT, onChange);
+  return () => {
+    window.removeEventListener("popstate", onChange);
+    window.removeEventListener(JOB_SEARCH_CRITERIA_CHANGED_EVENT, onChange);
+  };
+}
+
+function getSearchSnapshot() {
+  return window.location.search;
+}
+
+function getServerSearchSnapshot() {
+  return "";
+}
+
 export function JobsWorkspaceNav({
   activeTab,
 }: {
   activeTab: JobsWorkspaceTab;
 }) {
   const locale = useWorkspaceLocale();
-  const searchParams = useSearchParams();
+  const searchParams = new URLSearchParams(
+    useSyncExternalStore(
+      subscribeToSearchChanges,
+      getSearchSnapshot,
+      getServerSearchSnapshot,
+    ),
+  );
   const sharedSearch = new URLSearchParams();
-  for (const name of ["q", "location", "district"]) {
+  for (const name of ["q", "searchMode", "location", "district"]) {
     for (const value of searchParams.getAll(name)) {
       if (value) sharedSearch.append(name, value);
     }

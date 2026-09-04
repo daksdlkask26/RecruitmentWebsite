@@ -109,6 +109,7 @@ export const ModelName = {
   ModerationReportHistory: 'ModerationReportHistory',
   ModerationPrivateNote: 'ModerationPrivateNote',
   JobPosting: 'JobPosting',
+  JobSearchProjection: 'JobSearchProjection',
   JobPostReviewAggregate: 'JobPostReviewAggregate',
   JobPostRevisionRequest: 'JobPostRevisionRequest',
   JobPostFeaturedPlacement: 'JobPostFeaturedPlacement',
@@ -204,7 +205,16 @@ export const ModelName = {
   ExportRequest: 'ExportRequest',
   BackupConfiguration: 'BackupConfiguration',
   BackupRun: 'BackupRun',
-  ActivityLegalHold: 'ActivityLegalHold'
+  ActivityLegalHold: 'ActivityLegalHold',
+  SearchCatalogVersion: 'SearchCatalogVersion',
+  SearchOccupation: 'SearchOccupation',
+  SearchJobTitle: 'SearchJobTitle',
+  SearchJobTitleTranslation: 'SearchJobTitleTranslation',
+  SearchAlias: 'SearchAlias',
+  SearchFacet: 'SearchFacet',
+  SearchTitleFacet: 'SearchTitleFacet',
+  SearchMappingReview: 'SearchMappingReview',
+  SearchProjectionReconciliationRun: 'SearchProjectionReconciliationRun'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1354,6 +1364,28 @@ export const JobPostingScalarFieldEnum = {
 } as const
 
 export type JobPostingScalarFieldEnum = (typeof JobPostingScalarFieldEnum)[keyof typeof JobPostingScalarFieldEnum]
+
+
+export const JobSearchProjectionScalarFieldEnum = {
+  jobPostingId: 'jobPostingId',
+  titleIds: 'titleIds',
+  occupationIds: 'occupationIds',
+  facetIds: 'facetIds',
+  canonicalTitleVi: 'canonicalTitleVi',
+  canonicalTitleEn: 'canonicalTitleEn',
+  normalizedTitle: 'normalizedTitle',
+  normalizedAliases: 'normalizedAliases',
+  normalizedSkills: 'normalizedSkills',
+  profileSource: 'profileSource',
+  profileConfidence: 'profileConfidence',
+  translationStatus: 'translationStatus',
+  mappingSource: 'mappingSource',
+  mappingConfidence: 'mappingConfidence',
+  catalogVersion: 'catalogVersion',
+  updatedAt: 'updatedAt'
+} as const
+
+export type JobSearchProjectionScalarFieldEnum = (typeof JobSearchProjectionScalarFieldEnum)[keyof typeof JobSearchProjectionScalarFieldEnum]
 
 
 export const JobPostReviewAggregateScalarFieldEnum = {
@@ -3229,6 +3261,181 @@ export const ActivityLegalHoldScalarFieldEnum = {
 } as const
 
 export type ActivityLegalHoldScalarFieldEnum = (typeof ActivityLegalHoldScalarFieldEnum)[keyof typeof ActivityLegalHoldScalarFieldEnum]
+
+
+export const SearchCatalogVersionScalarFieldEnum = {
+  id: 'id',
+  version: 'version',
+  status: 'status',
+  isActive: 'isActive',
+  revision: 'revision',
+  parentVersion: 'parentVersion',
+  changeReason: 'changeReason',
+  createdByAdminUserId: 'createdByAdminUserId',
+  publishedByAdminUserId: 'publishedByAdminUserId',
+  retiredByAdminUserId: 'retiredByAdminUserId',
+  publishedAt: 'publishedAt',
+  retiredAt: 'retiredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  catalogPayload: 'catalogPayload'
+} as const
+
+export type SearchCatalogVersionScalarFieldEnum = (typeof SearchCatalogVersionScalarFieldEnum)[keyof typeof SearchCatalogVersionScalarFieldEnum]
+
+
+export const SearchOccupationScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  occupationId: 'occupationId',
+  labelVi: 'labelVi',
+  labelEn: 'labelEn',
+  aliasesVi: 'aliasesVi',
+  aliasesEn: 'aliasesEn',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchOccupationScalarFieldEnum = (typeof SearchOccupationScalarFieldEnum)[keyof typeof SearchOccupationScalarFieldEnum]
+
+
+export const SearchJobTitleScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  titleId: 'titleId',
+  occupationId: 'occupationId',
+  canonicalVi: 'canonicalVi',
+  canonicalEn: 'canonicalEn',
+  aliasesVi: 'aliasesVi',
+  aliasesEn: 'aliasesEn',
+  abbreviations: 'abbreviations',
+  excludedTerms: 'excludedTerms',
+  skillSignals: 'skillSignals',
+  facetIds: 'facetIds',
+  translationStatus: 'translationStatus',
+  mappingSource: 'mappingSource',
+  mappingConfidence: 'mappingConfidence',
+  reviewReason: 'reviewReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchJobTitleScalarFieldEnum = (typeof SearchJobTitleScalarFieldEnum)[keyof typeof SearchJobTitleScalarFieldEnum]
+
+
+export const SearchJobTitleTranslationScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  titleId: 'titleId',
+  locale: 'locale',
+  value: 'value',
+  status: 'status',
+  source: 'source',
+  confidence: 'confidence',
+  reviewReason: 'reviewReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchJobTitleTranslationScalarFieldEnum = (typeof SearchJobTitleTranslationScalarFieldEnum)[keyof typeof SearchJobTitleTranslationScalarFieldEnum]
+
+
+export const SearchAliasScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  phrase: 'phrase',
+  normalizedPhrase: 'normalizedPhrase',
+  locale: 'locale',
+  source: 'source',
+  confidence: 'confidence',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchAliasScalarFieldEnum = (typeof SearchAliasScalarFieldEnum)[keyof typeof SearchAliasScalarFieldEnum]
+
+
+export const SearchFacetScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  facetId: 'facetId',
+  kind: 'kind',
+  labelVi: 'labelVi',
+  labelEn: 'labelEn',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchFacetScalarFieldEnum = (typeof SearchFacetScalarFieldEnum)[keyof typeof SearchFacetScalarFieldEnum]
+
+
+export const SearchTitleFacetScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  titleId: 'titleId',
+  facetId: 'facetId',
+  required: 'required',
+  createdAt: 'createdAt'
+} as const
+
+export type SearchTitleFacetScalarFieldEnum = (typeof SearchTitleFacetScalarFieldEnum)[keyof typeof SearchTitleFacetScalarFieldEnum]
+
+
+export const SearchMappingReviewScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  openKey: 'openKey',
+  originalTitle: 'originalTitle',
+  normalizedTitle: 'normalizedTitle',
+  context: 'context',
+  suggestedTitleId: 'suggestedTitleId',
+  suggestedTranslationVi: 'suggestedTranslationVi',
+  suggestedTranslationEn: 'suggestedTranslationEn',
+  suggestedOccupationId: 'suggestedOccupationId',
+  suggestedFacetIds: 'suggestedFacetIds',
+  suggestedSkillSignals: 'suggestedSkillSignals',
+  confidence: 'confidence',
+  status: 'status',
+  version: 'version',
+  decisionReason: 'decisionReason',
+  resultCatalogVersionId: 'resultCatalogVersionId',
+  reviewedByAdminUserId: 'reviewedByAdminUserId',
+  reviewedAt: 'reviewedAt',
+  deduplicatedIntoReviewId: 'deduplicatedIntoReviewId',
+  deduplicatedAt: 'deduplicatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchMappingReviewScalarFieldEnum = (typeof SearchMappingReviewScalarFieldEnum)[keyof typeof SearchMappingReviewScalarFieldEnum]
+
+
+export const SearchProjectionReconciliationRunScalarFieldEnum = {
+  id: 'id',
+  catalogVersionId: 'catalogVersionId',
+  mode: 'mode',
+  status: 'status',
+  inspected: 'inspected',
+  refreshed: 'refreshed',
+  missing: 'missing',
+  stale: 'stale',
+  inconsistent: 'inconsistent',
+  unmapped: 'unmapped',
+  ambiguous: 'ambiguous',
+  requiresReview: 'requiresReview',
+  orphaned: 'orphaned',
+  policyFailures: 'policyFailures',
+  cursor: 'cursor',
+  errorMessage: 'errorMessage',
+  createdByAdminUserId: 'createdByAdminUserId',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type SearchProjectionReconciliationRunScalarFieldEnum = (typeof SearchProjectionReconciliationRunScalarFieldEnum)[keyof typeof SearchProjectionReconciliationRunScalarFieldEnum]
 
 
 export const SortOrder = {

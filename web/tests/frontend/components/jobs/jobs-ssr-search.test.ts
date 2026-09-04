@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { jobsPageQuery } from "@/app/jobs/page";
+import { jobsPageQuery } from "@/app/jobs/jobs-page-query";
 
 describe("Jobs SSR search criteria", () => {
   it("keeps a valid searchBy mode from the shared URL contract", () => {

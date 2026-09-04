@@ -4,7 +4,18 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
 import { LocationPicker } from "@/frontend/features/jobs/image-search/components/global-image-search";
+import {
+  useOptionalJobInteraction,
+  type FilterPresetMetadata,
+} from "./job-interaction-provider";
+import type {
+  SearchInterpretation,
+  SearchMetadata,
+} from "@/shared/contracts/search/search-interpretation";
+import type { StructuredSearchFilter } from "@/shared/contracts/search/natural-language-search";
 import type { JobSearchTaxonomy } from "@/shared/contracts/jobs/taxonomy";
+import type { SavedFilterPreset } from "@/shared/contracts/jobs/catalog";
+import { SavedSearchVersionNotice } from "./saved-search-version-notice";
 
 export type JobSearchCriteria = Partial<
   Record<string, string | string[] | number | undefined>
@@ -30,6 +41,8 @@ type JobSearchFormProps = Readonly<{
   resultCount?: number;
   isLoading?: boolean;
   taxonomy?: JobSearchTaxonomy;
+  searchInterpretation?: SearchInterpretation;
+  searchMetadata?: SearchMetadata;
 }>;
 
 const valueLabels: Record<string, string> = {
@@ -130,6 +143,7 @@ function removeFilterHref(
     for (const item of existing.filter((item) => item !== value))
       params.append(name, item);
   }
+  if (name === "q" && !params.get("q")) params.delete("searchMode");
   const query = params.toString();
   return query ? `/jobs?${query}` : "/jobs";
 }
@@ -162,6 +176,7 @@ function removeActiveFilter(
   }
   const next = removeCriterion(criteria, filter.name, filter.value);
   if (filter.name === "location") delete next.district;
+  if (filter.name === "q" && !next.q) delete next.searchMode;
   return next;
 }
 
@@ -280,6 +295,97 @@ function activeFilters(
   return output;
 }
 
+function clientNormalize(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[đĐ]/gu, "d")
+    .replace(/[\u0300-\u036f]/gu, "")
+    .toLocaleLowerCase()
+    .replace(/[^\p{L}\p{N}+#.]+/gu, " ")
+    .trim()
+    .replace(/\s+/gu, " ");
+}
+
+function removeStructuredQuery(
+  criteria: JobSearchCriteria,
+  query: string,
+): JobSearchCriteria {
+  const rawQuery = one(criteria.q).trim();
+  const rawTokens = rawQuery ? rawQuery.split(/\s+/u) : [];
+  const queryTokens = clientNormalize(query).split(/\s+/u).filter(Boolean);
+  const normalizedRawTokens = rawTokens.map(clientNormalize);
+  if (!queryTokens.length || !rawTokens.length) return criteria;
+  const start = normalizedRawTokens.findIndex((_, index) =>
+    queryTokens.every(
+      (token, offset) => normalizedRawTokens[index + offset] === token,
+    ),
+  );
+  if (start < 0) return criteria;
+  const next = { ...criteria };
+  const remaining = rawTokens.filter(
+    (_, index) => index < start || index >= start + queryTokens.length,
+  );
+  if (remaining.length) next.q = remaining.join(" ");
+  else {
+    delete next.q;
+    delete next.searchMode;
+  }
+  return next;
+}
+
+function structuredFilterLabel(
+  filter: StructuredSearchFilter,
+  locale: "vi" | "en",
+) {
+  const kindLabels =
+    locale === "vi"
+      ? {
+          TITLE: "Chức danh",
+          OCCUPATION: "Nghề nghiệp",
+          SKILL: "Kỹ năng",
+          SENIORITY: "Kinh nghiệm",
+          EMPLOYMENT_TYPE: "Loại việc",
+          WORK_ARRANGEMENT: "Hình thức",
+          LOCATION: "Địa điểm",
+          DISTRICT: "Quận/Huyện",
+          SALARY: "Lương",
+          COMPANY: "Công ty",
+          POSTED_TIME: "Thời gian đăng",
+        }
+      : {
+          TITLE: "Title",
+          OCCUPATION: "Occupation",
+          SKILL: "Skill",
+          SENIORITY: "Experience",
+          EMPLOYMENT_TYPE: "Employment",
+          WORK_ARRANGEMENT: "Work arrangement",
+          LOCATION: "Location",
+          DISTRICT: "District",
+          SALARY: "Salary",
+          COMPANY: "Company",
+          POSTED_TIME: "Posted",
+        };
+  return `${kindLabels[filter.kind]}: ${locale === "vi" ? filter.labelVi : filter.labelEn}`;
+}
+
+function structuredActiveFilters(
+  criteria: JobSearchCriteria,
+  interpretation: SearchInterpretation | undefined,
+  locale: "vi" | "en",
+): ActiveFilter[] {
+  return (interpretation?.structuredFilters ?? []).map((filter) => {
+    const next = removeStructuredQuery(criteria, filter.query);
+    const query = jobCriteriaParams(next).toString();
+    return {
+      id: filter.id,
+      label: structuredFilterLabel(filter, locale),
+      name: "structuredQuery",
+      value: filter.query,
+      href: query ? `/jobs?${query}` : "/jobs",
+    };
+  });
+}
+
 export function JobSearchForm({
   criteria,
   onCriteriaChange,
@@ -287,6 +393,8 @@ export function JobSearchForm({
   resultCount,
   isLoading = false,
   taxonomy,
+  searchInterpretation,
+  searchMetadata,
 }: JobSearchFormProps) {
   const locale = useWorkspaceLocale();
   const vi = locale === "vi";
@@ -300,8 +408,6 @@ export function JobSearchForm({
         refine: "Tinh chỉnh tìm kiếm",
         filters: "Bộ lọc",
         intro: "Danh sách tự cập nhật khi bạn thay đổi tiêu chí.",
-        keywords: "Từ khóa",
-        keywordPlaceholder: "Chức danh, kỹ năng hoặc công ty",
         location: "Địa điểm",
         locationPlaceholder: "Thành phố Hồ Chí Minh",
         employment: "Loại công việc",
@@ -318,6 +424,18 @@ export function JobSearchForm({
         updating: "Đang cập nhật",
         matching: "việc làm phù hợp",
         noMatching: "Chưa có việc làm phù hợp",
+        keepSearch: "Lưu tìm kiếm này",
+        saveDescription: "Đặt tên để dùng lại bộ lọc và từ khóa này.",
+        savedSearches: "Tìm kiếm đã lưu",
+        reuseSaved: "Dùng lại tìm kiếm đã lưu…",
+        saveFilter: "Lưu bộ lọc",
+        nameSearch: "Đặt tên tìm kiếm",
+        savedDescription:
+          "Tìm kiếm này lưu nguyên văn từ khóa và chế độ tìm kiếm hiện tại.",
+        searchName: "Tên tìm kiếm",
+        searchExample: "ví dụ: Vị trí sản phẩm cấp cao từ xa",
+        cancel: "Hủy",
+        saveFilterAction: "Lưu bộ lọc",
       }
     : {
         mobile: "Filters",
@@ -328,8 +446,6 @@ export function JobSearchForm({
         refine: "Refine search",
         filters: "Filters",
         intro: "The list updates as you change a criterion.",
-        keywords: "Keywords",
-        keywordPlaceholder: "Title, skill, or company",
         location: "Location",
         locationPlaceholder: "Ho Chi Minh City",
         employment: "Employment type",
@@ -346,11 +462,28 @@ export function JobSearchForm({
         updating: "Updating",
         matching: "matching jobs",
         noMatching: "No matching jobs yet",
+        keepSearch: "Save this search",
+        saveDescription: "Name this search and reuse its filters later.",
+        savedSearches: "Saved searches",
+        reuseSaved: "Reuse saved search…",
+        saveFilter: "Save filter",
+        nameSearch: "Name this search",
+        savedDescription:
+          "This search keeps the raw keyword and current search mode.",
+        searchName: "Search name",
+        searchExample: "e.g. Senior remote product roles",
+        cancel: "Cancel",
+        saveFilterAction: "Save filter",
       };
   const filters = useMemo(
     () => activeFilters(criteria, locale, taxonomy),
     [criteria, locale, taxonomy],
   );
+  const parsedFilters = useMemo(
+    () => structuredActiveFilters(criteria, searchInterpretation, locale),
+    [criteria, locale, searchInterpretation],
+  );
+  const displayedFilters = [...filters, ...parsedFilters];
   const [mobileOpen, setMobileOpen] = useState(false);
   const [customSalaryMin, setCustomSalaryMin] = useState("");
   const [customSalaryMax, setCustomSalaryMax] = useState("");
@@ -358,9 +491,73 @@ export function JobSearchForm({
   const trigger = useRef<HTMLButtonElement>(null);
   const form = useRef<HTMLFormElement>(null);
   const live = Boolean(onCriteriaChange);
-  const showLegacyFilters = false;
+  const shared = useOptionalJobInteraction();
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [presetName, setPresetName] = useState("");
+  const [selectedPresetId, setSelectedPresetId] = useState("");
+  const [restoredPreset, setRestoredPreset] =
+    useState<SavedFilterPreset | null>(null);
   const optionLabel = (value: string) =>
     (vi ? valueLabelsVi : valueLabels)[value] ?? value;
+
+  const filterSnapshot = useMemo(() => {
+    const snapshot: Record<string, unknown> = {};
+    for (const [name, value] of Object.entries(criteria)) {
+      if (value === undefined) continue;
+      snapshot[name] = Array.isArray(value) ? [...value] : value;
+    }
+    return snapshot;
+  }, [criteria]);
+
+  const presetMetadata: FilterPresetMetadata = {
+    q: one(criteria.q),
+    searchMode: one(criteria.searchMode) === "LITERAL" ? "LITERAL" : "SMART",
+    resolverVersion:
+      searchInterpretation?.resolverVersion ?? searchMetadata?.resolverVersion,
+    catalogVersion:
+      searchInterpretation?.catalogVersion ?? searchMetadata?.catalogVersion,
+    structuredFilters: searchInterpretation?.structuredFilters,
+    searchIntent: searchInterpretation?.searchIntent,
+  };
+
+  const restorePreset = (presetId: string) => {
+    setSelectedPresetId("");
+    if (!onCriteriaChange || !shared) return;
+    const preset = shared.savedFilterPresets.find(
+      (item) => item.id === presetId,
+    );
+    if (!preset) return;
+    setRestoredPreset(preset);
+
+    const next: JobSearchCriteria = {};
+    for (const [name, value] of Object.entries(preset.filters)) {
+      if (
+        name === "q" ||
+        name === "searchMode" ||
+        name === "page" ||
+        name === "cursor"
+      )
+        continue;
+      if (typeof value === "string" || typeof value === "number") {
+        next[name] = value;
+      } else if (
+        Array.isArray(value) &&
+        value.every((item): item is string => typeof item === "string")
+      ) {
+        next[name] = value;
+      }
+    }
+
+    const legacyQuery =
+      typeof preset.filters.q === "string" ? preset.filters.q.trim() : "";
+    const rawQuery = preset.q.trim() || legacyQuery;
+    if (rawQuery) next.q = rawQuery;
+
+    const legacyMode =
+      preset.filters.searchMode === "LITERAL" ? "LITERAL" : "SMART";
+    if (rawQuery) next.searchMode = preset.searchMode ?? legacyMode;
+    onCriteriaChange(next, "immediate");
+  };
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -440,6 +637,7 @@ export function JobSearchForm({
     const next = { ...criteria };
     if (value) next[name] = value;
     else delete next[name];
+    if (name === "q" && !value) delete next.searchMode;
     onCriteriaChange(next, trigger);
   };
 
@@ -475,7 +673,7 @@ export function JobSearchForm({
 
   const setNegotiableSalary = () => {
     if (!onCriteriaChange) return;
-    const next = { ...criteria, salaryNegotiable: "true" };
+    const next: JobSearchCriteria = { ...criteria, salaryNegotiable: "true" };
     delete next.salaryMin;
     delete next.salaryMax;
     onCriteriaChange(next, "immediate");
@@ -525,13 +723,13 @@ export function JobSearchForm({
         onClick={() => setMobileOpen(true)}
       >
         <span>{copy.mobile}</span>
-        <strong>{filters.length}</strong>
+        <strong>{displayedFilters.length}</strong>
       </button>
 
-      {filters.length ? (
+      {displayedFilters.length ? (
         <div className="job-active-filters" aria-label={copy.applied}>
           <div>
-            {filters.map((filter) =>
+            {displayedFilters.map((filter) =>
               onCriteriaChange ? (
                 <button
                   key={filter.id}
@@ -539,7 +737,9 @@ export function JobSearchForm({
                   type="button"
                   onClick={() =>
                     onCriteriaChange(
-                      removeActiveFilter(criteria, filter),
+                      filter.name === "structuredQuery"
+                        ? removeStructuredQuery(criteria, filter.value ?? "")
+                        : removeActiveFilter(criteria, filter),
                       "immediate",
                     )
                   }
@@ -593,10 +793,7 @@ export function JobSearchForm({
           role="search"
           aria-label={vi ? "Tìm kiếm việc làm" : "Job search"}
           action="/jobs"
-          onSubmit={(event) => {
-            event.preventDefault();
-            onCriteriaChange?.(criteria, "immediate");
-          }}
+          onSubmit={(event) => event.preventDefault()}
         >
           <header className="job-filter-heading">
             <span className="job-filter-icon" aria-hidden="true">
@@ -631,197 +828,6 @@ export function JobSearchForm({
             </button>
           </header>
           <p className="job-filter-copy">{copy.intro}</p>
-          {showLegacyFilters ? (
-            <div className="job-filter-fields">
-              <label>
-                {copy.keywords}
-                <input
-                  name="q"
-                  type="search"
-                  maxLength={200}
-                  placeholder={copy.keywordPlaceholder}
-                  {...valueProps("q")}
-                  onChange={(event) =>
-                    updateCriterion("q", event.currentTarget.value, "debounced")
-                  }
-                />
-              </label>
-              <label>
-                {copy.location}
-                <input
-                  name="location"
-                  maxLength={160}
-                  placeholder={copy.locationPlaceholder}
-                  {...valueProps("location")}
-                  onChange={(event) =>
-                    updateCriterion(
-                      "location",
-                      event.currentTarget.value,
-                      "debounced",
-                    )
-                  }
-                />
-              </label>
-              <label>
-                {copy.employment}
-                <select
-                  name="employmentType"
-                  {...valueProps("employmentType")}
-                  onChange={(event) =>
-                    updateCriterion(
-                      "employmentType",
-                      event.currentTarget.value,
-                      "immediate",
-                    )
-                  }
-                >
-                  <option value="">{copy.any}</option>
-                  <option value="FULL_TIME">{optionLabel("FULL_TIME")}</option>
-                  <option value="PART_TIME">{optionLabel("PART_TIME")}</option>
-                  <option value="CONTRACT">{optionLabel("CONTRACT")}</option>
-                  <option value="INTERNSHIP">
-                    {optionLabel("INTERNSHIP")}
-                  </option>
-                  <option value="TEMPORARY">{optionLabel("TEMPORARY")}</option>
-                </select>
-              </label>
-              <label>
-                {copy.experience}
-                <select
-                  name="experienceLevel"
-                  {...valueProps("experienceLevel")}
-                  onChange={(event) =>
-                    updateCriterion(
-                      "experienceLevel",
-                      event.currentTarget.value,
-                      "immediate",
-                    )
-                  }
-                >
-                  <option value="">{copy.any}</option>
-                  <option value="ENTRY">{optionLabel("ENTRY")}</option>
-                  <option value="JUNIOR">{optionLabel("JUNIOR")}</option>
-                  <option value="MID">{optionLabel("MID")}</option>
-                  <option value="SENIOR">{optionLabel("SENIOR")}</option>
-                  <option value="LEAD">{optionLabel("LEAD")}</option>
-                  <option value="MANAGER">{optionLabel("MANAGER")}</option>
-                </select>
-              </label>
-              <label>
-                {copy.arrangement}
-                <select
-                  name="workArrangement"
-                  {...valueProps("workArrangement")}
-                  onChange={(event) =>
-                    updateCriterion(
-                      "workArrangement",
-                      event.currentTarget.value,
-                      "immediate",
-                    )
-                  }
-                >
-                  <option value="">{copy.any}</option>
-                  <option value="ONSITE">{optionLabel("ONSITE")}</option>
-                  <option value="HYBRID">{optionLabel("HYBRID")}</option>
-                  <option value="REMOTE">{optionLabel("REMOTE")}</option>
-                </select>
-              </label>
-              <label>
-                {copy.salaryMin}
-                <input
-                  name="salaryMin"
-                  type="number"
-                  min="0"
-                  inputMode="numeric"
-                  {...valueProps("salaryMin")}
-                  onChange={(event) =>
-                    updateCriterion(
-                      "salaryMin",
-                      event.currentTarget.value,
-                      "debounced",
-                    )
-                  }
-                />
-              </label>
-              <label>
-                {copy.salaryMax}
-                <input
-                  name="salaryMax"
-                  type="number"
-                  min="0"
-                  inputMode="numeric"
-                  {...valueProps("salaryMax")}
-                  onChange={(event) =>
-                    updateCriterion(
-                      "salaryMax",
-                      event.currentTarget.value,
-                      "debounced",
-                    )
-                  }
-                />
-              </label>
-              <label>
-                {copy.skill}
-                <input
-                  name="skills"
-                  maxLength={80}
-                  placeholder="TypeScript"
-                  {...valueProps("skills")}
-                  onChange={(event) =>
-                    updateCriterion(
-                      "skills",
-                      event.currentTarget.value,
-                      "debounced",
-                    )
-                  }
-                />
-              </label>
-              <label>
-                {copy.posted}
-                <select
-                  name="postedWithinDays"
-                  {...valueProps("postedWithinDays")}
-                  onChange={(event) =>
-                    updateCriterion(
-                      "postedWithinDays",
-                      event.currentTarget.value,
-                      "immediate",
-                    )
-                  }
-                >
-                  <option value="">{copy.anyTime}</option>
-                  <option value="1">{optionLabel("1")}</option>
-                  <option value="3">{optionLabel("3")}</option>
-                  <option value="7">{optionLabel("7")}</option>
-                  <option value="14">{optionLabel("14")}</option>
-                  <option value="30">{optionLabel("30")}</option>
-                </select>
-              </label>
-              <label>
-                {copy.sort}
-                <select
-                  name="sort"
-                  value={live ? one(criteria.sort) || "RELEVANCE" : undefined}
-                  defaultValue={
-                    live ? undefined : one(criteria.sort) || "RELEVANCE"
-                  }
-                  onChange={(event) =>
-                    updateCriterion(
-                      "sort",
-                      event.currentTarget.value,
-                      "immediate",
-                    )
-                  }
-                >
-                  <option value="RELEVANCE">{optionLabel("RELEVANCE")}</option>
-                  <option value="NEWEST">{optionLabel("NEWEST")}</option>
-                  <option value="SALARY_DESC">
-                    {optionLabel("SALARY_DESC")}
-                  </option>
-                </select>
-              </label>
-            </div>
-          ) : null}
           <div className="job-filter-fields job-filter-fields--redesigned">
             {taxonomy ? (
               <fieldset className="job-filter-section job-filter-location-section">
@@ -1100,7 +1106,94 @@ export function JobSearchForm({
             )}
           </div>
         </form>
+        {live && shared ? (
+          <div className="job-save-filter-card">
+            <span className="job-save-filter-icon" aria-hidden="true">
+              ◌
+            </span>
+            <div>
+              <strong>{copy.keepSearch}</strong>
+              <p>{copy.saveDescription}</p>
+            </div>
+            <button type="button" onClick={() => setSaveDialogOpen(true)}>
+              {copy.saveFilter}
+            </button>
+            {shared.savedFilterPresets.length ? (
+              <select
+                aria-label={copy.savedSearches}
+                value={selectedPresetId}
+                onChange={(event) => restorePreset(event.currentTarget.value)}
+              >
+                <option value="">{copy.reuseSaved}</option>
+                {shared.savedFilterPresets.map((preset) => (
+                  <option key={preset.id} value={preset.id}>
+                    {preset.name}
+                  </option>
+                ))}
+              </select>
+            ) : null}
+            <SavedSearchVersionNotice
+              preset={restoredPreset}
+              interpretation={searchInterpretation}
+              metadata={searchMetadata}
+              locale={vi ? "vi" : "en"}
+            />
+          </div>
+        ) : null}
       </section>
+      {saveDialogOpen && shared ? (
+        <div className="job-save-filter-dialog-backdrop">
+          <section
+            className="job-save-filter-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="live-save-filter-title"
+          >
+            <p className="panel-kicker">{copy.saveFilter}</p>
+            <h2 id="live-save-filter-title">{copy.nameSearch}</h2>
+            <p>{copy.savedDescription}</p>
+            <label>
+              {copy.searchName}
+              <input
+                className="sh-input"
+                autoFocus
+                maxLength={160}
+                value={presetName}
+                placeholder={copy.searchExample}
+                onChange={(event) => setPresetName(event.currentTarget.value)}
+              />
+            </label>
+            <div className="job-dialog-actions">
+              <button
+                className="sh-button sh-button--secondary"
+                type="button"
+                onClick={() => {
+                  setPresetName("");
+                  setSaveDialogOpen(false);
+                }}
+              >
+                {copy.cancel}
+              </button>
+              <button
+                className="sh-button"
+                type="button"
+                disabled={!presetName.trim()}
+                onClick={() => {
+                  shared.saveFilterPreset(
+                    presetName,
+                    filterSnapshot,
+                    presetMetadata,
+                  );
+                  setPresetName("");
+                  setSaveDialogOpen(false);
+                }}
+              >
+                {copy.saveFilterAction}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </div>
   );
 }

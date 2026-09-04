@@ -45,10 +45,56 @@ jobs:
       - run: npm run db:migrations:check
       - run: npm run db:deploy
       - run: npm run db:verify
+      - run: npm run search:catalog:bootstrap --workspace @smarthire/web -- --apply
       - run: npm run admin:contracts --workspace @smarthire/web
       - run: npm run typecheck
+      - run: npm run test:search --workspace @smarthire/web
+      - run: npm run search:occupation:audit:catalog --workspace @smarthire/web -- --summary --limit-error-samples=20
+      - run: npm run search:relevance --workspace @smarthire/web
+      - run: npm run perf:search --workspace @smarthire/web
+      - run: npm run search:canary:gate:self-test --workspace @smarthire/web
+      - run: npm run lint:search --workspace @smarthire/web
+      - run: npm run format:search --workspace @smarthire/web
       - run: npm run lint
+      - run: git diff --check
       - run: npm run test:admin-management
       - run: npm run perf:admin-management:self-test
       - run: npm run test
       - run: npm run build
+      - name: Install Chromium for Search browser gates
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/web/.local/playwright-browsers
+        run: npx playwright install --with-deps chromium
+      - name: Start production server for Search browser gates
+        shell: bash
+        run: |
+          NODE_ENV=production PORT=3001 npm run start --workspace @smarthire/web > /tmp/smarthire-search-e2e.log 2>&1 &
+          echo $! > /tmp/smarthire-search-e2e.pid
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:3001/login > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/smarthire-search-e2e.log
+          exit 1
+      - name: Run Search browser gates
+        env:
+          PLAYWRIGHT_REUSE_SERVER: "1"
+          PLAYWRIGHT_PRODUCTION: "1"
+        run: npm run test:search:e2e --workspace @smarthire/web
+      - name: Run Admin Search lifecycle browser gate
+        env:
+          PLAYWRIGHT_REUSE_SERVER: "1"
+          PLAYWRIGHT_PRODUCTION: "1"
+        run: npm run test:search:e2e:admin --workspace @smarthire/web
+      - name: Stop Search browser server
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/smarthire-search-e2e.pid ]; then
+            kill "$(cat /tmp/smarthire-search-e2e.pid)" || true
+          fi
+          if [ -f /tmp/smarthire-search-e2e.log ]; then
+            tail -n 80 /tmp/smarthire-search-e2e.log || true
+          fi

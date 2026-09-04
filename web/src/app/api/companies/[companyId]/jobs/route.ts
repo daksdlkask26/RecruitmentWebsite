@@ -18,6 +18,7 @@ export async function GET(
     const params = new URL(request.url).searchParams;
     const parsed = companyJobSearchQuerySchema.safeParse({
       q: params.get("q") ?? undefined,
+      searchMode: params.get("searchMode") ?? undefined,
       location: params.get("location") ?? undefined,
       page: params.get("page") ?? undefined,
       limit: params.get("limit") ?? undefined,

@@ -15,6 +15,9 @@ import {
   resolveApprovedJobTaxonomy,
 } from "@/backend/services/jobs/job-taxonomy-service";
 import type { TaxonomyResolution } from "@/backend/services/jobs/job-taxonomy-service";
+import { buildJobSearchProfile } from "@/backend/services/search/job-search-profile";
+import { upsertJobSearchProjection } from "@/backend/services/search/job-search-profile-projection";
+import type { SearchCatalogIndex } from "@/backend/services/search/catalogs/job-search-catalog-index";
 
 type ReviewDb = typeof prisma | Prisma.TransactionClient;
 
@@ -280,6 +283,7 @@ export class PrismaJobPostReviewRepository {
     notifySubmitter: boolean;
     correlationId: string;
     now: Date;
+    catalogIndex?: SearchCatalogIndex;
   }) {
     const decisionState =
       input.command.command === "APPROVE" ? "APPROVED" : "REJECTED";
@@ -424,6 +428,33 @@ export class PrismaJobPostReviewRepository {
           },
         });
       }
+      await upsertJobSearchProjection(
+        this.db,
+        publicJob.id,
+        buildJobSearchProfile(
+          {
+            title: input.snapshot.title,
+            industryCode: projectedJobData.industryCode,
+            categoryIds: [projectedJobData.subIndustryCode],
+            skills: input.snapshot.skillTags,
+            description: [
+              input.snapshot.description.overview,
+              ...input.snapshot.description.responsibilities,
+              ...input.snapshot.description.requirements,
+            ],
+          },
+          {
+            reviewed: true,
+            ...(input.catalogIndex ? { index: input.catalogIndex } : {}),
+          },
+        ),
+        {
+          originalTitle: input.snapshot.title,
+          industryCode: projectedJobData.industryCode,
+          categoryIds: [projectedJobData.subIndustryCode],
+          sampleJobId: publicJob.id,
+        },
+      );
     }
 
     const aggregate = await this.db.jobPostReviewAggregate.updateMany({

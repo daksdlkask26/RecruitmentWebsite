@@ -7,6 +7,15 @@ import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspa
 import { RankingModalFrame } from "./ranking-modal-frame";
 import { applicationDetailCopy } from "./application-detail-copy";
 
+let idempotencySequence = 0;
+
+function createIdempotencyKey(prefix: string) {
+  const uuid = globalThis.crypto?.randomUUID?.();
+  if (uuid) return uuid;
+  idempotencySequence += 1;
+  return `${prefix}-${idempotencySequence}`;
+}
+
 export function ManualPriorityModal({
   candidate,
   suggestedRank,
@@ -38,8 +47,7 @@ export function ManualPriorityModal({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Idempotency-Key":
-              globalThis.crypto?.randomUUID?.() ?? "priority-" + Date.now(),
+            "Idempotency-Key": createIdempotencyKey("priority"),
           },
           body: JSON.stringify({
             confirmed: true,
@@ -70,9 +78,7 @@ export function ManualPriorityModal({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Idempotency-Key":
-              globalThis.crypto?.randomUUID?.() ??
-              "priority-remove-" + Date.now(),
+            "Idempotency-Key": createIdempotencyKey("priority-remove"),
           },
           body: JSON.stringify({
             action: "remove",

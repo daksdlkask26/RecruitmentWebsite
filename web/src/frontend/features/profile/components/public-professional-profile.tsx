@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Image from "next/image";
 import {
   BriefcaseBusiness,
   GraduationCap,
@@ -84,7 +85,13 @@ export function PublicProfessionalProfile({
         <div className="public-profile-hero__identity">
           <div className="public-profile-avatar" aria-hidden="true">
             {participant.image ? (
-              <img src={participant.image} alt="" />
+              <Image
+                src={participant.image}
+                alt=""
+                width={76}
+                height={76}
+                unoptimized
+              />
             ) : (
               participant.name.slice(0, 1).toUpperCase()
             )}

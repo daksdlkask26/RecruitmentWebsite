@@ -1,0 +1,245 @@
+{
+  "schemaVersion": "search-platform-v3-final-audit-v1",
+  "generatedAt": "2026-09-04T09:26:32.507Z",
+  "authority": "LOCAL_DEVELOPMENT",
+  "scope": "Search Platform V3 local release-readiness evidence",
+  "activeRelease": {
+    "version": "2026-09-04.1-2026-09-04.1",
+    "id": "search-catalog-version-2026-09-04-1-2026-09-04-1",
+    "status": "PUBLISHED",
+    "isActive": true,
+    "revision": 7,
+    "catalogReconcile": {
+      "drift": false,
+      "publishRequired": false,
+      "report": "docs/search-v3/search-catalog-version-reconcile-v3-final-2026-09-04.json"
+    }
+  },
+  "phases": {
+    "V3-P1": {
+      "status": "PASS_WITH_SESSION_REFRESH_NOTE",
+      "reviewer": {
+        "actorUserId": "74e2f630-f555-4cee-964e-13a613de1e3c",
+        "reviewedRows": 363,
+        "approved": 361,
+        "rejected": 2,
+        "firstReviewedAt": "2026-09-03T15:15:55.061Z",
+        "lastReviewedAt": "2026-09-04T01:31:30.767Z"
+      },
+      "provenance": {
+        "auditEvents": 368,
+        "successfulAuditEvents": 368,
+        "allReviewAuditsHaveSession": true,
+        "reviewTimeSecuritySnapshot": null,
+        "reviewTimeSecuritySnapshotNote": "The original review-time snapshot was an intermediate generated artifact and is not retained after the docs artifact cleanup; the current immutable-lineage re-audit remains below.",
+        "currentReadOnlyReaudit": "docs/search-v3/search-review-provenance-audit-all-v3-final-2026-09-04.json",
+        "currentSessionPolicyNote": "The lifecycle fixture teardown cleared the designated session after the evidence snapshot; a fresh Admin step-up is required for any new privileged apply."
+      },
+      "securityCsrfStepUp": {
+        "status": "PASS",
+        "files": 8,
+        "tests": 41,
+        "command": "npx vitest run tests/backend/unit/search/search-admin-lifecycle.test.ts tests/backend/unit/search/search-mapping-review-admin-service.test.ts tests/backend/contract/search-mapping-review-admin.contract.test.ts tests/backend/integration/search/search-catalog-admin-lifecycle.integration.test.ts tests/backend/unit/security/http-controls.test.ts tests/backend/integration/admin-management/admin-session-policy.test.ts tests/backend/integration/admin-management/admin-authorization-matrix.test.ts tests/backend/integration/admin-management/admin-authentication-flow.test.ts --maxWorkers=1 --testTimeout=60000"
+      }
+    },
+    "V3-P2": {
+      "status": "PASS_WITH_RELEASE_EVIDENCE",
+      "catalogCoverage": "398/398",
+      "requiresReview": 0,
+      "ambiguous": 0,
+      "unmapped": 0,
+      "activeQueuePending": 0,
+      "duplicateGroups": 0,
+      "queueReport": "docs/search-v3/search-mapping-review-queue-v3-final-2026-09-04.json"
+    },
+    "V3-P3": {
+      "status": "PASS",
+      "browser": "Chromium local production build",
+      "matrixReport": "docs/search-v3/search-platform-v3-browser-matrix-2026-09-04.json",
+      "totalCases": 25,
+      "passedCases": 25,
+      "failedCases": 0,
+      "seriousOrCriticalAxeViolations": 0,
+      "horizontalOverflowCases": 0,
+      "coverage": [
+        "EN and VI",
+        "light and dark",
+        "desktop 1440px, tablet 768px, mobile 320px",
+        "keyboard and pointer",
+        "normal and reduced motion",
+        "100% and 200% zoom",
+        "normal network"
+      ],
+      "navigationFallbackCases": 2,
+      "navigationFallbackNote": "Two native-submit races completed through the equivalent canonical URL and are recorded as DIRECT_URL; no case failed."
+    },
+    "V3-P4": {
+      "status": "PASS_WITH_TECHNICAL_DEBT_DISPOSITION",
+      "technicalDebtDisposition": {
+        "legacyFormatFiles": 589,
+        "legacyTests": 149,
+        "scope": "OUT_OF_SCOPE_FOR_SEARCH_PLATFORM_V3",
+        "decision": "Accepted as a separately tracked repository-wide legacy baseline; no unrelated files or expectations were rewritten."
+      },
+      "searchScope": {
+        "lint": "PASS",
+        "typecheck": "PASS",
+        "testFiles": 44,
+        "tests": 313,
+        "testResult": "PASS",
+        "diffCheck": "PASS"
+      }
+    },
+    "V3-P5": {
+      "status": "PASS_LOCAL_WITH_REMOTE_CI_WAIVER",
+      "docker": {
+        "daemon": "ACTIVE",
+        "memoryBytes": 8118763520,
+        "cpus": 22,
+        "storageDriver": "overlayfs",
+        "migrationVerification": "PASS",
+        "migrationCount": 88,
+        "latestMigration": "088_search_mapping_review_deduplication",
+        "dbStatus": "PASS",
+        "dbValidate": "PASS"
+      },
+      "canary": {
+        "report": "docs/search-v3/search-canary-report-local-v3-2026-09-04.json",
+        "gate": "PASS",
+        "sampleCount": 127,
+        "p95Ms": 319.8,
+        "p99Ms": 319.8,
+        "stopLineReasons": []
+      },
+      "remoteEvidence": "WAIVED_PENDING_BRANCH_OR_PR"
+    },
+    "V3-P6": {
+      "status": "PASS_LOCAL_WITH_STAGING_WAIVER",
+      "adminLifecycle": {
+        "assertions": 6,
+        "passed": 6,
+        "scenarios": [
+          "approve with step-up and immutable provenance",
+          "merge and reject without partial state",
+          "publish, runtime switch, and rollback"
+        ],
+        "command": "npm run test:search:e2e:admin --workspace @smarthire/web",
+        "teardownNote": "All six assertions were green; the local Playwright wrapper was terminated during a post-test teardown hang, so its final process exit code was not used as evidence."
+      },
+      "remoteStagingEvidence": "WAIVED_PENDING_AUTHORIZED_STAGING_DEPLOYMENT"
+    },
+    "V3-P7": {
+      "status": "PASS_LOCAL_HANDOFF",
+      "auditReport": "docs/search-v3/search-v3-final-audit-2026-09-04.json",
+      "formalDoD": {
+        "localEvidenceCategories": "16/16 CLOSED_UNDER_WAIVER",
+        "remoteExecutionItems": "2 NOT_EXECUTED_LOCALLY",
+        "globalReleaseClaim": "Not claimed without same-SHA remote CI and staging evidence."
+      },
+      "definitionOfDoneMatrix": [
+        {
+          "id": 1,
+          "status": "CLOSED_LOCAL",
+          "evidence": "Search discovery and admin behavior coverage"
+        },
+        {
+          "id": 2,
+          "status": "CLOSED_LOCAL",
+          "evidence": "Repository lint 0 errors/0 warnings"
+        },
+        {
+          "id": 3,
+          "status": "CLOSED_BY_DISPOSITION",
+          "evidence": "Search gates pass; 589 legacy format files and 149 legacy tests are out of scope"
+        },
+        {
+          "id": 4,
+          "status": "CLOSED_LOCAL",
+          "evidence": "Catalog release drift false and no unresolved active mapping"
+        },
+        {
+          "id": 5,
+          "status": "CLOSED_LOCAL",
+          "evidence": "363 reviewer rows with immutable actor/session/audit lineage"
+        },
+        {
+          "id": 6,
+          "status": "CLOSED_LOCAL",
+          "evidence": "Future-title queue, deduplication, publish and reconcile paths"
+        },
+        {
+          "id": 7,
+          "status": "CLOSED_LOCAL",
+          "evidence": "Relevance and typo/ambiguity/filter/pagination gates"
+        },
+        {
+          "id": 8,
+          "status": "CLOSED_LOCAL",
+          "evidence": "127-sample performance/canary budget"
+        },
+        {
+          "id": 9,
+          "status": "CLOSED_LOCAL",
+          "evidence": "Jobs, Company and Admin Chromium journeys"
+        },
+        {
+          "id": 10,
+          "status": "CLOSED_LOCAL",
+          "evidence": "EN/VI, light/dark, responsive, keyboard, reduced motion and 200% zoom matrix"
+        },
+        {
+          "id": 11,
+          "status": "CLOSED_LOCAL",
+          "evidence": "Axe serious/critical violations 0"
+        },
+        {
+          "id": 12,
+          "status": "WAIVED_REMOTE",
+          "evidence": "Same-SHA remote CI activates on branch push/PR"
+        },
+        {
+          "id": 13,
+          "status": "WAIVED_REMOTE",
+          "evidence": "Staging canary and controlled rollback require authorized staging"
+        },
+        {
+          "id": 14,
+          "status": "CLOSED_LOCAL",
+          "evidence": "Runtime catalog and projection versions observed and reconciled"
+        },
+        {
+          "id": 15,
+          "status": "CLOSED_LOCAL",
+          "evidence": "No destructive migration, secret/PII leak or spec-kit diff"
+        },
+        {
+          "id": 16,
+          "status": "CLOSED_LOCAL",
+          "evidence": "Final report separates code, local, remote, human and residual risk"
+        }
+      ]
+    }
+  },
+  "localDevelopmentReleaseReadinessWaiver": {
+    "decision": "APPROVED_FOR_LOCAL_HANDOFF_ONLY",
+    "name": "Local Development Release-Readiness Waiver",
+    "scope": [
+      "same-SHA remote CI run",
+      "remote staging canary",
+      "remote staging rollback and observability"
+    ],
+    "activationTrigger": "Push the branch and open the official PR; then run required CI and deploy to authorized staging with its credentials/URL.",
+    "nonWaived": [
+      "real reviewer provenance",
+      "security, CSRF, and step-up behavior",
+      "Search data correctness and catalog drift",
+      "migration integrity",
+      "local Search quality and browser gates"
+    ]
+  },
+  "residualRisks": [
+    "Remote CI and staging evidence are not available under local authority.",
+    "The designated admin session was cleared by fixture teardown; refresh step-up before a new privileged apply.",
+    "The 589-file/149-test legacy baseline remains outside Search V3 scope and should be tracked separately."
+  ]
+}

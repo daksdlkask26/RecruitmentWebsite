@@ -34,21 +34,16 @@ type Tab = "automatic" | "ai" | "documents" | "profile";
 type CandidateScoreDrawerCandidate =
   | RankedApplicationRow
   | PipelineApplicationCard;
+let idempotencySequence = 0;
 
-export function CandidateScoreDrawer({
-  jobId,
-  jobTitle,
-  candidate,
-  readOnly = false,
-  onClose,
-  onSetPriority,
-  onShortlist,
-  onMoveToInterview,
-  onReject,
-  onApplicationOpened,
-  onOpenRecruitmentChat,
-  onScoringChanged,
-}: {
+function createIdempotencyKey(prefix: string) {
+  const uuid = globalThis.crypto?.randomUUID?.();
+  if (uuid) return uuid;
+  idempotencySequence += 1;
+  return `${prefix}-${idempotencySequence}`;
+}
+
+type CandidateScoreDrawerProps = {
   jobId: string;
   jobTitle: string;
   candidate: CandidateScoreDrawerCandidate;
@@ -61,7 +56,31 @@ export function CandidateScoreDrawer({
   onApplicationOpened: () => void | Promise<void>;
   onOpenRecruitmentChat: () => Promise<void>;
   onScoringChanged: () => void;
-}) {
+};
+
+export function CandidateScoreDrawer(props: CandidateScoreDrawerProps) {
+  return (
+    <CandidateScoreDrawerContent
+      key={props.candidate.applicationId}
+      {...props}
+    />
+  );
+}
+
+function CandidateScoreDrawerContent({
+  jobId,
+  jobTitle,
+  candidate,
+  readOnly = false,
+  onClose,
+  onSetPriority,
+  onShortlist,
+  onMoveToInterview,
+  onReject,
+  onApplicationOpened,
+  onOpenRecruitmentChat,
+  onScoringChanged,
+}: CandidateScoreDrawerProps) {
   const locale = useWorkspaceLocale();
   const detailCopy = useMemo(() => applicationDetailCopy(locale), [locale]);
   const copy = detailCopy.drawer;
@@ -87,13 +106,6 @@ export function CandidateScoreDrawer({
     acknowledgedApplicationId.current = candidate.applicationId;
     void Promise.resolve(onApplicationOpened()).catch(() => undefined);
   }, [candidate.applicationId, onApplicationOpened]);
-
-  useEffect(() => {
-    setDetail(null);
-    setError(null);
-    setProfileReview(null);
-    setOpenDocument(null);
-  }, [candidate.applicationId]);
 
   const loadDetail = useCallback(
     async (signal?: AbortSignal) => {
@@ -288,8 +300,7 @@ export function CandidateScoreDrawer({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Idempotency-Key":
-              globalThis.crypto?.randomUUID?.() ?? `retry-${Date.now()}`,
+            "Idempotency-Key": createIdempotencyKey("retry"),
           },
           body: JSON.stringify({ confirmed: true }),
         },
@@ -318,8 +329,7 @@ export function CandidateScoreDrawer({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Idempotency-Key":
-              globalThis.crypto?.randomUUID?.() ?? `score-${Date.now()}`,
+            "Idempotency-Key": createIdempotencyKey("score"),
           },
           body: JSON.stringify({ confirmed: true }),
         },

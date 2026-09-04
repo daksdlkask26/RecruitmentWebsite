@@ -35,6 +35,7 @@ describe("Company discovery contract", () => {
       companyListQuerySchema.parse({ q: "  Northstar Labs  ", page: "2" }),
     ).toEqual({
       q: "Northstar Labs",
+      searchMode: "SMART",
       page: 2,
       limit: 24,
     });

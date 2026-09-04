@@ -71,11 +71,11 @@ function AssigneeChip({ assigneeId }: { assigneeId: string | null }) {
   );
 }
 
-function CaseField(_props: { label?: string }) {
+function CaseField({ label }: { label?: string }) {
   const record = useRecordContext<SupportCaseRecord>();
   if (!record) return null;
   return (
-    <Stack spacing={0.25} sx={{ minWidth: 220 }}>
+    <Stack spacing={0.25} sx={{ minWidth: 220 }} aria-label={label}>
       <Typography fontWeight={700} sx={{ overflowWrap: "anywhere" }}>
         {record.subject}
       </Typography>
@@ -95,11 +95,11 @@ function CaseField(_props: { label?: string }) {
   );
 }
 
-function RequesterField(_props: { label?: string }) {
+function RequesterField({ label }: { label?: string }) {
   const record = useRecordContext<SupportCaseRecord>();
   if (!record) return null;
   return (
-    <Stack spacing={0.25} sx={{ minWidth: 170 }}>
+    <Stack spacing={0.25} sx={{ minWidth: 170 }} aria-label={label}>
       <RouterLink
         to={`/accounts/${encodeURIComponent(record.requesterUserId)}/show`}
         onClick={(event) => event.stopPropagation()}
@@ -117,17 +117,28 @@ function RequesterField(_props: { label?: string }) {
   );
 }
 
-function TopicField(_props: { label?: string }) {
-  const record = useRecordContext<SupportCaseRecord>();
-  if (!record) return null;
-  return <Chip label={sentenceCase(record.category)} size="small" />;
-}
-
-function QueueField(_props: { label?: string }) {
+function TopicField({ label }: { label?: string }) {
   const record = useRecordContext<SupportCaseRecord>();
   if (!record) return null;
   return (
-    <Stack spacing={0.75} alignItems="flex-start" sx={{ minWidth: 165 }}>
+    <Chip
+      label={sentenceCase(record.category)}
+      size="small"
+      aria-label={label}
+    />
+  );
+}
+
+function QueueField({ label }: { label?: string }) {
+  const record = useRecordContext<SupportCaseRecord>();
+  if (!record) return null;
+  return (
+    <Stack
+      spacing={0.75}
+      alignItems="flex-start"
+      sx={{ minWidth: 165 }}
+      aria-label={label}
+    >
       <StateChip state={record.state} />
       <AssigneeChip assigneeId={record.currentAssigneeUserId} />
       {record.currentAssigneeUserId && (
@@ -139,11 +150,11 @@ function QueueField(_props: { label?: string }) {
   );
 }
 
-function ActivityField(_props: { label?: string }) {
+function ActivityField({ label }: { label?: string }) {
   const record = useRecordContext<SupportCaseRecord>();
   if (!record) return null;
   return (
-    <Stack spacing={0.25} sx={{ minWidth: 185 }}>
+    <Stack spacing={0.25} sx={{ minWidth: 185 }} aria-label={label}>
       <Typography variant="body2">
         Updated {dateTime(record.updatedAt)}
       </Typography>

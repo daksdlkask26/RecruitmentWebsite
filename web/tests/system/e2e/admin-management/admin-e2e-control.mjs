@@ -262,12 +262,95 @@ async function setupPerformanceFixture() {
 }
 
 async function cleanupRun(runId) {
+  const ownedCatalogPrefix = `search-catalog-draft-search-review-${runId}-`;
+  const [mappingReviews, directlyOwnedCatalogs] = await Promise.all([
+    prisma.searchMappingReview.findMany({
+      where: {
+        OR: [
+          { openKey: { contains: runId } },
+          { id: { startsWith: `search-review-${runId}-` } },
+        ],
+      },
+      select: { id: true, resultCatalogVersionId: true },
+    }),
+    // A publish can commit before the browser process is interrupted. In that
+    // case the service clears openKey and the review may already be removed,
+    // so discover this run's deterministic draft ID directly as a recovery
+    // path. The prefix is scoped to this run UUID and never touches a real
+    // catalog version.
+    prisma.searchCatalogVersion.findMany({
+      where: { id: { startsWith: ownedCatalogPrefix } },
+      select: { id: true },
+    }),
+  ]);
+  const mappingReviewIds = mappingReviews.map((row) => row.id);
+  const mappingCatalogIds = [
+    ...mappingReviews.map((row) => row.resultCatalogVersionId),
+    ...directlyOwnedCatalogs.map((row) => row.id),
+  ].filter(
+    (value) =>
+      typeof value === "string" && value.startsWith(ownedCatalogPrefix),
+  );
+  if (mappingCatalogIds.length) {
+    const uniqueCatalogIds = [...new Set(mappingCatalogIds)];
+    // Never delete the review row before checking this invariant. Keeping the
+    // row allows a subsequent recovery run to identify the draft if a test
+    // was interrupted after publish but before rollback.
+    const activeOwnedCatalogs = await prisma.searchCatalogVersion.count({
+      where: { id: { in: uniqueCatalogIds }, isActive: true },
+    });
+    if (activeOwnedCatalogs) {
+      throw new Error("ADMIN_E2E_ACTIVE_SEARCH_CATALOG_LEFT_BEHIND");
+    }
+  }
+  if (mappingReviewIds.length) {
+    await prisma.searchMappingReview.deleteMany({
+      where: { id: { in: mappingReviewIds } },
+    });
+  }
+  if (mappingCatalogIds.length) {
+    const uniqueCatalogIds = [...new Set(mappingCatalogIds)];
+    const remainingReviewCounts = await Promise.all(
+      uniqueCatalogIds.map(async (catalogVersionId) => ({
+        catalogVersionId,
+        count: await prisma.searchMappingReview.count({
+          where: { resultCatalogVersionId: catalogVersionId },
+        }),
+      })),
+    );
+    const deletableCatalogIds = remainingReviewCounts
+      .filter((row) => row.count === 0)
+      .map((row) => row.catalogVersionId);
+    if (deletableCatalogIds.length) {
+      await prisma.searchTitleFacet.deleteMany({
+        where: { catalogVersionId: { in: deletableCatalogIds } },
+      });
+      await prisma.searchJobTitleTranslation.deleteMany({
+        where: { catalogVersionId: { in: deletableCatalogIds } },
+      });
+      await prisma.searchAlias.deleteMany({
+        where: { catalogVersionId: { in: deletableCatalogIds } },
+      });
+      await prisma.searchJobTitle.deleteMany({
+        where: { catalogVersionId: { in: deletableCatalogIds } },
+      });
+      await prisma.searchOccupation.deleteMany({
+        where: { catalogVersionId: { in: deletableCatalogIds } },
+      });
+      await prisma.searchFacet.deleteMany({
+        where: { catalogVersionId: { in: deletableCatalogIds } },
+      });
+      await prisma.searchCatalogVersion.deleteMany({
+        where: { id: { in: deletableCatalogIds }, isActive: false },
+      });
+    }
+  }
+
   const users = await prisma.userAccount.findMany({
     where: { email: { contains: runId } },
     select: { id: true },
   });
   const userIds = users.map((row) => row.id);
-  if (!userIds.length) return { cleaned: 0 };
   const requests = await prisma.recruiterVerificationRequest.findMany({
     where: { applicantUserId: { in: userIds } },
     select: { id: true },
@@ -405,6 +488,205 @@ async function createMembershipScenario(runId) {
     membershipId: membership.id,
     unrelatedMembershipId: unrelated.id,
     companyDisplayName: companyA.displayName,
+  };
+}
+
+async function createSearchMappingScenario(runId) {
+  const catalog = await prisma.searchCatalogVersion.findFirst({
+    where: { isActive: true, status: "PUBLISHED" },
+    select: { id: true, version: true },
+  });
+  if (!catalog) throw new Error("ADMIN_E2E_SEARCH_CATALOG_MISSING");
+  const titles = await prisma.searchJobTitle.findMany({
+    where: { catalogVersionId: catalog.id },
+    orderBy: { titleId: "asc" },
+    select: {
+      titleId: true,
+      canonicalVi: true,
+      canonicalEn: true,
+      occupationId: true,
+      facetIds: true,
+    },
+  });
+  const title = titles.find(
+    (candidate) =>
+      candidate.canonicalVi.trim().toLocaleLowerCase() !==
+      candidate.canonicalEn.trim().toLocaleLowerCase(),
+  );
+  if (!title) throw new Error("ADMIN_E2E_SEARCH_TITLE_MISSING");
+  const reviewId = `search-review-${runId}-${randomUUID()}`;
+  const originalTitle = `E2E Search Alias ${runId}-${reviewId.slice(-8)}`;
+  const review = await prisma.searchMappingReview.create({
+    data: {
+      id: reviewId,
+      catalogVersionId: catalog.id,
+      openKey: `e2e-search-mapping:${runId}:${reviewId}`,
+      originalTitle,
+      normalizedTitle: originalTitle.toLowerCase(),
+      context: {
+        schemaVersion: "search-mapping-review-context-v1",
+        catalogVersion: catalog.version,
+        sampleJobIds: [],
+      },
+      suggestedTitleId: title.titleId,
+      suggestedTranslationVi: title.canonicalVi,
+      suggestedTranslationEn: title.canonicalEn,
+      suggestedOccupationId: title.occupationId,
+      suggestedFacetIds: title.facetIds,
+      suggestedSkillSignals: [],
+      confidence: 0.55,
+    },
+  });
+  return {
+    runId,
+    reviewId: review.id,
+    titleId: title.titleId,
+    catalogVersionId: catalog.id,
+    originalTitle,
+  };
+}
+
+async function inspectSearchMappingScenario(reviewId) {
+  const review = await prisma.searchMappingReview.findUnique({
+    where: { id: reviewId },
+    select: {
+      id: true,
+      status: true,
+      version: true,
+      openKey: true,
+      resultCatalogVersionId: true,
+      reviewedByAdminUserId: true,
+      reviewedAt: true,
+      suggestedTitleId: true,
+    },
+  });
+  if (!review) throw new Error("ADMIN_E2E_SEARCH_REVIEW_MISSING");
+  const draft = review.resultCatalogVersionId
+    ? await prisma.searchCatalogVersion.findUnique({
+        where: { id: review.resultCatalogVersionId },
+        select: { id: true, version: true, status: true, parentVersion: true },
+      })
+    : null;
+  const targetTitle =
+    draft && review.suggestedTitleId
+      ? await prisma.searchJobTitle.findFirst({
+          where: {
+            catalogVersionId: draft.id,
+            titleId: review.suggestedTitleId,
+          },
+          select: {
+            titleId: true,
+            aliasesVi: true,
+            aliasesEn: true,
+            translationStatus: true,
+            mappingSource: true,
+            mappingConfidence: true,
+          },
+        })
+      : null;
+  const aliases =
+    draft && review.suggestedTitleId
+      ? await prisma.searchAlias.findMany({
+          where: {
+            catalogVersionId: draft.id,
+            targetType: "TITLE",
+            targetId: review.suggestedTitleId,
+          },
+          select: {
+            phrase: true,
+            normalizedPhrase: true,
+            locale: true,
+            source: true,
+            confidence: true,
+          },
+          orderBy: { phrase: "asc" },
+        })
+      : [];
+  const audits = await prisma.auditEvent.findMany({
+    where: { targetType: "search_mapping_review", targetId: reviewId },
+    orderBy: [{ occurredAt: "asc" }, { id: "asc" }],
+    select: {
+      action: true,
+      result: true,
+      actorUserId: true,
+      actorSessionId: true,
+      correlationId: true,
+      context: true,
+    },
+  });
+  const rationaleCount = await prisma.privilegedActionRationale.count({
+    where: { correlationId: { in: audits.map((row) => row.correlationId) } },
+  });
+  return {
+    review,
+    draft,
+    targetTitle,
+    aliases,
+    audits,
+    rationaleCount,
+  };
+}
+
+async function inspectSearchCatalogVersion(versionId) {
+  const row = await prisma.searchCatalogVersion.findUnique({
+    where: { id: versionId },
+    select: {
+      id: true,
+      version: true,
+      status: true,
+      isActive: true,
+      revision: true,
+      parentVersion: true,
+      publishedAt: true,
+      retiredAt: true,
+    },
+  });
+  if (!row) throw new Error("ADMIN_E2E_SEARCH_CATALOG_MISSING");
+  const [active, parent, audits] = await Promise.all([
+    prisma.searchCatalogVersion.findFirst({
+      where: { isActive: true },
+      select: {
+        id: true,
+        version: true,
+        status: true,
+        isActive: true,
+        revision: true,
+      },
+    }),
+    row.parentVersion
+      ? prisma.searchCatalogVersion.findUnique({
+          where: { version: row.parentVersion },
+          select: {
+            id: true,
+            version: true,
+            status: true,
+            isActive: true,
+            revision: true,
+          },
+        })
+      : null,
+    prisma.auditEvent.findMany({
+      where: { targetType: "search_catalog_version", targetId: versionId },
+      orderBy: [{ occurredAt: "asc" }, { id: "asc" }],
+      select: {
+        action: true,
+        result: true,
+        actorUserId: true,
+        actorSessionId: true,
+        correlationId: true,
+        context: true,
+      },
+    }),
+  ]);
+  return {
+    row: {
+      ...row,
+      publishedAt: row.publishedAt?.toISOString() ?? null,
+      retiredAt: row.retiredAt?.toISOString() ?? null,
+    },
+    active,
+    parent,
+    audits,
   };
 }
 
@@ -1099,6 +1381,12 @@ try {
     result = await createAccountScenario(arguments_[0]);
   else if (command === "create-membership")
     result = await createMembershipScenario(arguments_[0]);
+  else if (command === "create-search-mapping")
+    result = await createSearchMappingScenario(arguments_[0]);
+  else if (command === "inspect-search-mapping")
+    result = await inspectSearchMappingScenario(arguments_[0]);
+  else if (command === "inspect-search-catalog")
+    result = await inspectSearchCatalogVersion(arguments_[0]);
   else if (command === "create-verification")
     result = await createVerificationScenario(arguments_[0], arguments_[1]);
   else if (command === "expire-proof")

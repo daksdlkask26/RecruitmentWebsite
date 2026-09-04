@@ -91,6 +91,16 @@ const companyCopyExtensions = {
     status === "DEAD" ? "Delivery failed" : status.toLowerCase(),
   ownerRole: "Owner",
   submitted: "Submitted",
+  searchResultsFor: "Showing companies matching “{query}”.",
+  includingRelatedTerm: "Also including “{term}”.",
+  searchLiteral: "Search literally for “{query}”",
+  didYouMean: "Did you mean “{query}”?",
+  searchSuggested: "Search for “{query}”",
+  literalMode: "Searching literally for “{query}”.",
+  enableSmartSearch: "Enable smart search",
+  interpretedAsOccupation: "Interpreted “{original}” as “{occupation}”.",
+  correctionHint: "Corrected from “{query}”.",
+  matchedFacets: "Matched signals",
 } as const;
 
 const vietnameseCompanyCopyExtensions = {
@@ -193,6 +203,16 @@ const vietnameseCompanyCopyExtensions = {
     })[status] ?? status,
   ownerRole: "Owner",
   submitted: "Đã nộp",
+  searchResultsFor: "Đang hiển thị công ty phù hợp với “{query}”.",
+  includingRelatedTerm: "Đồng thời bao gồm “{term}”.",
+  searchLiteral: "Tìm nguyên văn “{query}”",
+  didYouMean: "Có phải bạn muốn tìm “{query}”?",
+  searchSuggested: "Tìm “{query}”",
+  literalMode: "Đang tìm nguyên văn “{query}”.",
+  enableSmartSearch: "Bật tìm kiếm thông minh",
+  interpretedAsOccupation: "Đã hiểu “{original}” là “{occupation}”.",
+  correctionHint: "Đã sửa từ “{query}”.",
+  matchedFacets: "Tín hiệu khớp",
 } as const;
 
 const englishCompanyCopy = {

@@ -13,6 +13,7 @@ export async function GET(request: Request) {
     const params = new URL(request.url).searchParams;
     const parsed = companyListQuerySchema.safeParse({
       q: params.get("q") ?? undefined,
+      searchMode: params.get("searchMode") ?? undefined,
       location: params.get("location") ?? undefined,
       page: params.get("page") ?? undefined,
       limit: params.get("limit") ?? undefined,
@@ -26,6 +27,7 @@ export async function GET(request: Request) {
     return accountJson(
       await new CompanyDiscoveryService().list({
         q: parsed.data.q,
+        searchMode: parsed.data.searchMode,
         location: parsed.data.location,
         page: parsed.data.page,
         limit: parsed.data.limit,

@@ -24,14 +24,60 @@ export function normalizeSearchText(value: string, maximum = 200): string {
   if (Array.from(value).length > maximum) {
     throw new Error("JOB_SEARCH_TEXT_TOO_LONG");
   }
-  return value
-    .normalize("NFD")
-    .replace(/[đĐ]/gu, "d")
-    .replace(/\p{M}+/gu, "")
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, " ")
-    .trim()
-    .replace(/\s+/gu, " ");
+  return (
+    value
+      .normalize("NFD")
+      .replace(/[đĐ]/gu, "d")
+      .replace(/\p{M}+/gu, "")
+      .toLowerCase()
+      // Keep technology identifiers searchable as identifiers.  `C++`, `C#`,
+      // `.NET`, `Node.js`, and `React.js` must not collapse into unrelated
+      // one-letter or generic tokens, while ordinary punctuation remains a
+      // word separator.
+      .replace(/[^\p{L}\p{N}+#.]+/gu, " ")
+      .trim()
+      .replace(/\s+/gu, " ")
+  );
+}
+
+/**
+ * The resolver keeps several intentionally separate representations of a
+ * query.  `normalizedQuery` is the backwards-compatible value used by the
+ * existing SQL predicates; `foldedQuery` is the accent-insensitive value used
+ * by vocabulary matching and `compactQuery` is only used for compact aliases
+ * (for example `ketoan`).  None of these values should be used as display
+ * copy.
+ */
+export type SearchQueryRepresentations = Readonly<{
+  originalQuery: string;
+  normalizedQuery: string;
+  foldedQuery: string;
+  compactQuery: string;
+  effectiveQuery: string;
+}>;
+
+export function foldSearchText(value: string, maximum = 200) {
+  return normalizeSearchText(value, maximum);
+}
+
+export function compactSearchText(value: string, maximum = 200) {
+  return foldSearchText(value, maximum).replace(/\s+/gu, "");
+}
+
+export function searchQueryRepresentations(
+  originalQuery: string,
+  effectiveQuery = originalQuery,
+): SearchQueryRepresentations {
+  const normalizedQuery = normalizeSearchText(originalQuery);
+  const foldedQuery = foldSearchText(originalQuery);
+  const normalizedEffectiveQuery = normalizeSearchText(effectiveQuery);
+  return Object.freeze({
+    originalQuery,
+    normalizedQuery,
+    foldedQuery,
+    compactQuery: compactSearchText(originalQuery),
+    effectiveQuery: normalizedEffectiveQuery,
+  });
 }
 
 /**

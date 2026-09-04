@@ -173,6 +173,14 @@ export const authenticationAuditAction = z.enum([
   "admin.job_taxonomy_deactivated",
   "admin.job_taxonomy_reactivated",
   "admin.job_taxonomy_removed",
+  "admin.search_mapping_review_approved",
+  "admin.search_mapping_review_rejected",
+  "admin.search_mapping_review_merged",
+  "admin.search_mapping_review_intentional_untranslated",
+  "admin.search_mapping_review_queue_deduplicated",
+  "admin.search_catalog_version_published",
+  "admin.search_catalog_version_rolled_back",
+  "admin.search_catalog_version_retired",
   "profile.visibility_changed",
   "profile.discovery_returned",
   "profile.discovery_neutral",
@@ -236,11 +244,38 @@ const auditContextSchema = z
     priorState: z.string().max(80).optional(),
     resultingState: z.string().max(80).optional(),
     targetVersion: z.number().int().nonnegative().optional(),
+    parentCatalogVersionId: z.string().max(180).optional(),
+    parentCatalogVersion: z.string().max(64).optional(),
+    targetTitleId: z.string().max(180).optional(),
+    deduplicatedIntoReviewId: z.string().max(180).optional(),
+    beforeReference: z
+      .object({
+        reviewId: z.string().max(180),
+        status: z.string().max(80),
+        version: z.number().int().nonnegative(),
+        openKey: z.string().max(240).nullable(),
+      })
+      .strict()
+      .optional(),
+    afterReference: z
+      .object({
+        reviewId: z.string().max(180),
+        status: z.string().max(80),
+        version: z.number().int().nonnegative(),
+        resultCatalogVersionId: z.string().max(180).optional(),
+        draftVersion: z.string().max(64).optional(),
+      })
+      .strict()
+      .optional(),
     companyReference: z.string().max(128).optional(),
     visibility: z.string().max(80).optional(),
     applicationState: z.string().max(80).optional(),
     outcome: z.string().max(80).optional(),
     preservedStage: z.string().max(40).optional(),
+    resultCatalogVersionId: z.string().max(180).optional(),
+    draftVersion: z.string().max(64).optional(),
+    runtimeCatalogVersion: z.string().max(64).optional(),
+    runtimeSupported: z.boolean().optional(),
   })
   .strict();
 
@@ -287,6 +322,8 @@ export const authenticationAuditEventSchema = z
       "professional_connection",
       "connection_notification",
       "job_post_review",
+      "search_mapping_review",
+      "search_catalog_version",
       "export_request",
       "candidate_profile",
       "profile_discovery",

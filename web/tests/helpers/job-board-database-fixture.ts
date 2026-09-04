@@ -5,12 +5,16 @@ import { normalizeSearchText } from "@/backend/services/jobs/search-normalizatio
 export type JobBoardDatabaseFixture = Awaited<
   ReturnType<typeof createJobBoardDatabaseFixture>
 >;
+export type JobBoardDatabaseFixtureOptions = Readonly<{
+  includeSearchRankingFixtures?: boolean;
+}>;
 const checksum = (value: string) =>
   createHash("sha256").update(value, "utf8").digest("hex");
 
 export async function createJobBoardDatabaseFixture(
   label = "job-board",
   now = new Date("2026-08-01T08:00:00.000Z"),
+  options: JobBoardDatabaseFixtureOptions = {},
 ) {
   const suffix = randomUUID();
   const userIds = [`job-${label}-a-${suffix}`, `job-${label}-b-${suffix}`];
@@ -95,6 +99,28 @@ export async function createJobBoardDatabaseFixture(
     }
   }
   const sharedSkill = skill;
+  let pythonSkill: typeof sharedSkill | null = null;
+  if (options.includeSearchRankingFixtures) {
+    pythonSkill = await prisma.skill.findUnique({
+      where: { normalizedName: "python" },
+    });
+    if (!pythonSkill) {
+      try {
+        pythonSkill = await prisma.skill.create({
+          data: {
+            id: `skill-python-${suffix}`,
+            name: "Python",
+            normalizedName: "python",
+          },
+        });
+      } catch (error) {
+        pythonSkill = await prisma.skill.findUnique({
+          where: { normalizedName: "python" },
+        });
+        if (!pythonSkill) throw error;
+      }
+    }
+  }
   const base = {
     companyId: company.id,
     industryId: "r03",
@@ -125,10 +151,22 @@ export async function createJobBoardDatabaseFixture(
     status: "ACTIVE" | "CLOSED" | "EXPIRED" | "PENDING_REVIEW" | "REMOVED";
     publishedAt: Date;
     applicationDeadline?: Date | null;
+    industryCode?: string;
+    industryId?: string;
+    subIndustryCode?: string;
+    subIndustryId?: string;
+    skills?: readonly { skillId: string; displayName: string }[];
   }) {
+    const skillEntries = input.skills?.length
+      ? input.skills
+      : [{ skillId: sharedSkill.id, displayName: "TypeScript" }];
     return prisma.jobPosting.create({
       data: {
         ...base,
+        industryCode: input.industryCode ?? base.industryCode,
+        industryId: input.industryId ?? base.industryId,
+        subIndustryCode: input.subIndustryCode ?? base.subIndustryCode,
+        subIndustryId: input.subIndustryId ?? base.subIndustryId,
         id: `job-${input.key}-${suffix}`,
         slug: `${input.key}-${suffix}`,
         title: input.title,
@@ -146,12 +184,12 @@ export async function createJobBoardDatabaseFixture(
           input.status === "CLOSED" || input.status === "EXPIRED" ? now : null,
         removedAt: input.status === "REMOVED" ? now : null,
         skills: {
-          create: {
-            skillId: sharedSkill.id,
-            displayName: "TypeScript",
+          create: skillEntries.map((entry, position) => ({
+            skillId: entry.skillId,
+            displayName: entry.displayName,
             required: true,
-            position: 0,
-          },
+            position,
+          })),
         },
         questions:
           input.key === "active"
@@ -235,6 +273,54 @@ export async function createJobBoardDatabaseFixture(
     }),
   };
 
+  const rankingJobs = options.includeSearchRankingFixtures
+    ? {
+        seoSpecialist: await createJob({
+          key: "seo-specialist",
+          title: "SEO Specialist",
+          location: "Há»“ ChÃ­ Minh",
+          status: "ACTIVE",
+          publishedAt: new Date(now.getTime() - 2 * 60 * 60_000),
+          applicationDeadline: new Date(now.getTime() + 14 * 24 * 60 * 60_000),
+          industryCode: "r02",
+          industryId: "r02",
+          subIndustryCode: "r02-digital-marketing",
+          subIndustryId: "r02-digital-marketing",
+        }),
+        seoExecutive: await createJob({
+          key: "seo-executive",
+          title: "SEO Executive",
+          location: "Há»“ ChÃ­ Minh",
+          status: "ACTIVE",
+          publishedAt: new Date(now.getTime() - 3 * 60 * 60_000),
+          applicationDeadline: new Date(now.getTime() + 14 * 24 * 60 * 60_000),
+          industryCode: "r02",
+          industryId: "r02",
+          subIndustryCode: "r02-digital-marketing",
+          subIndustryId: "r02-digital-marketing",
+        }),
+        electronicsEngineer: await createJob({
+          key: "electronics-engineer",
+          title: "Electronics Engineer",
+          location: "Há»“ ChÃ­ Minh",
+          status: "ACTIVE",
+          publishedAt: new Date(now.getTime() - 60 * 60_000),
+          applicationDeadline: new Date(now.getTime() + 14 * 24 * 60 * 60_000),
+        }),
+        pythonDeveloper: await createJob({
+          key: "python-developer",
+          title: "Python Developer",
+          location: "Hồ Chí Minh",
+          status: "ACTIVE",
+          publishedAt: new Date(now.getTime() - 30 * 60_000),
+          applicationDeadline: new Date(now.getTime() + 14 * 24 * 60 * 60_000),
+          skills: pythonSkill
+            ? [{ skillId: pythonSkill.id, displayName: "Python" }]
+            : undefined,
+        }),
+      }
+    : null;
+
   return {
     now,
     suffix,
@@ -247,6 +333,7 @@ export async function createJobBoardDatabaseFixture(
       (_, index) => `cv-unconfirmed-${index}-${suffix}`,
     ),
     jobs,
+    rankingJobs,
   };
 }
 

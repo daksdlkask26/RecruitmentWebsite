@@ -6,7 +6,20 @@ import type {
   PublicJobRow,
 } from "@/backend/repositories/jobs/prisma-public-job-repository";
 import { decodeJobCursor, normalizeSearchText } from "./search-normalization";
-import { resolveSearchQuery } from "@/backend/services/search/search-query-resolver";
+import { JOB_SEARCH_CATALOG_VERSION } from "@/backend/services/search/catalogs/job-search-catalog";
+import { jobSearchCatalogIndex } from "@/backend/services/search/catalogs/job-search-catalog-index";
+import { emitSearchResolutionMetric } from "@/backend/observability/search-resolution-metrics";
+import {
+  resolveSearchQuery,
+  SEARCH_RESOLVER_VERSION,
+} from "@/backend/services/search/search-query-resolver";
+import { parseNaturalLanguageJobSearch } from "@/backend/services/search/natural-language-search-parser";
+import { buildJobSearchRecovery } from "@/backend/services/search/job-search-recovery";
+import {
+  searchCatalogProvider,
+  type SearchCatalogProvider,
+} from "@/backend/services/search/catalogs/search-catalog-provider";
+import type { SearchCatalogIndex } from "@/backend/services/search/catalogs/job-search-catalog-index";
 import {
   JobServiceError,
   type JobActor,
@@ -113,37 +126,112 @@ function validationError(error: z.ZodError) {
   });
 }
 
-export function parseJobSearchCriteria(raw: unknown): NormalizedJobSearch {
+export function parseJobSearchCriteria(
+  raw: unknown,
+  catalogIndex: SearchCatalogIndex = jobSearchCatalogIndex,
+): NormalizedJobSearch {
   const parsed = jobSearchQuerySchema.parse(raw);
-  const resolved = resolveSearchQuery(parsed.q, "JOBS");
-  return {
+  const natural =
+    parsed.searchMode === "SMART"
+      ? parseNaturalLanguageJobSearch(parsed.q, catalogIndex)
+      : parseNaturalLanguageJobSearch("", catalogIndex);
+  const resolverQuery = natural.hasFilters ? natural.residualQuery : parsed.q;
+  const resolved = resolveSearchQuery(
+    resolverQuery,
+    "JOBS",
+    "en",
+    parsed.searchMode,
+    {
+      allowOccupationExpansion: parsed.searchBy !== "COMPANY",
+      catalogIndex,
+    },
+  );
+  const structuredFilters = [
+    ...natural.structuredFilters,
+    ...(resolved.interpretation.matchedTitle
+      ? [
+          {
+            id: `query:TITLE:${resolved.interpretation.matchedTitle.titleId}`,
+            kind: "TITLE" as const,
+            value: resolved.interpretation.matchedTitle.titleId,
+            query: resolverQuery,
+            labelVi: resolved.interpretation.matchedTitle.labelVi,
+            labelEn: resolved.interpretation.matchedTitle.labelEn,
+            source: "QUERY" as const,
+          },
+        ]
+      : []),
+    ...(resolved.interpretation.matchedOccupation
+      ? [
+          {
+            id: `query:OCCUPATION:${resolved.interpretation.matchedOccupation.occupationId}`,
+            kind: "OCCUPATION" as const,
+            value: resolved.interpretation.matchedOccupation.occupationId,
+            query: resolverQuery,
+            labelVi: resolved.interpretation.matchedOccupation.labelVi,
+            labelEn: resolved.interpretation.matchedOccupation.labelEn,
+            source: "QUERY" as const,
+          },
+        ]
+      : []),
+  ].slice(0, 16);
+  const searchInterpretation = {
+    ...resolved.interpretation,
+    originalQuery: parsed.q,
     normalizedQuery: normalizeSearchText(parsed.q),
+    ...(structuredFilters.length ? { structuredFilters } : {}),
+    ...(resolved.intent ? { searchIntent: resolved.intent } : {}),
+  };
+  return {
+    rawQuery: parsed.q,
+    normalizedQuery: normalizeSearchText(resolverQuery),
     searchVariants: resolved.variants,
-    searchInterpretation: resolved.interpretation,
+    searchInterpretation,
+    catalogIndex,
+    ...(resolved.intent ? { searchIntent: resolved.intent } : {}),
     resolverVersion: resolved.resolverVersion,
+    searchMode: parsed.searchMode,
     searchBy: parsed.searchBy,
-    normalizedLocation: normalizeSearchText(parsed.location, 160),
-    normalizedDistricts: parsed.district.map((district) =>
-      normalizeSearchText(district, 160),
+    normalizedLocation: normalizeSearchText(
+      parsed.location || natural.filters.location || "",
+      160,
     ),
+    normalizedDistricts: parsed.district.length
+      ? parsed.district.map((district) => normalizeSearchText(district, 160))
+      : natural.filters.district.map((district) =>
+          normalizeSearchText(district, 160),
+        ),
     categoryFamily: parsed.categoryFamily.map(canonicalTaxonomyValue),
     categoryIds: parsed.categoryId.map(canonicalTaxonomyValue),
     normalizedRoleTitles: parsed.categoryTitle.map((title) =>
       normalizeSearchText(title, 160),
     ),
-    normalizedSkills: parsed.skills.map((skill) =>
-      normalizeSearchText(skill, 80),
-    ),
-    employmentType: parsed.employmentType,
-    experienceLevel: parsed.experienceLevel,
-    workArrangement: parsed.workArrangement,
+    normalizedSkills: parsed.skills.length
+      ? parsed.skills.map((skill) => normalizeSearchText(skill, 80))
+      : natural.filters.skills.map((skill) => normalizeSearchText(skill, 80)),
+    employmentType: parsed.employmentType.length
+      ? parsed.employmentType
+      : [...natural.filters.employmentType],
+    experienceLevel: parsed.experienceLevel.length
+      ? parsed.experienceLevel
+      : [...natural.filters.experienceLevel],
+    workArrangement: parsed.workArrangement.length
+      ? parsed.workArrangement
+      : [...natural.filters.workArrangement],
     careerPath: parsed.careerPath,
-    salaryMin: parsed.salaryMin,
-    salaryMax: parsed.salaryMax,
+    salaryMin: parsed.salaryMin ?? natural.filters.salaryMin,
+    salaryMax: parsed.salaryMax ?? natural.filters.salaryMax,
     salaryNegotiable: parsed.salaryNegotiable,
-    salaryCurrency: parsed.salaryCurrency,
-    salaryPeriod: parsed.salaryPeriod,
-    postedWithinDays: parsed.postedWithinDays,
+    salaryCurrency:
+      parsed.salaryMin !== undefined || parsed.salaryMax !== undefined
+        ? parsed.salaryCurrency
+        : (natural.filters.salaryCurrency ?? parsed.salaryCurrency),
+    salaryPeriod:
+      parsed.salaryMin !== undefined || parsed.salaryMax !== undefined
+        ? parsed.salaryPeriod
+        : (natural.filters.salaryPeriod ?? parsed.salaryPeriod),
+    postedWithinDays:
+      parsed.postedWithinDays ?? natural.filters.postedWithinDays,
     sort: parsed.sort,
     cursor: parsed.cursor
       ? decodeJobCursor(parsed.cursor, parsed.sort)
@@ -223,11 +311,69 @@ function textBullets(value: string | null, maximum = 4) {
     .filter(Boolean)
     .slice(0, maximum);
 }
+
+function searchMatchReasons(
+  row: PublicJobRow,
+  criteria: NormalizedJobSearch,
+): NonNullable<JobCard["matchReasons"]> {
+  const title = normalizeSearchText(row.title, 200);
+  const titleTokens = criteria.normalizedQuery
+    .split(/\s+/u)
+    .map((token) => token.trim())
+    .filter(Boolean);
+  const reasons: NonNullable<JobCard["matchReasons"]> = [];
+  const add = (
+    kind: NonNullable<JobCard["matchReasons"]>[number]["kind"],
+    labelVi: string,
+    labelEn: string,
+  ) => {
+    if (reasons.some((reason) => reason.kind === kind)) return;
+    reasons.push({ kind, labelVi, labelEn });
+  };
+  if (
+    criteria.searchIntent?.titleCandidates?.length ||
+    (titleTokens.length && titleTokens.every((token) => title.includes(token)))
+  )
+    add("TITLE", "Khớp chức danh", "Title match");
+  const inferredSkills = (criteria.searchIntent?.skills ?? []).flatMap(
+    (skillId) =>
+      criteria.catalogIndex?.skills
+        .find((skill) => skill.skillId === skillId)
+        ?.phrases.map((phrase) => normalizeSearchText(phrase, 80)) ?? [],
+  );
+  const requestedSkills = new Set([
+    ...criteria.normalizedSkills,
+    ...inferredSkills,
+  ]);
+  if (
+    requestedSkills.size &&
+    row.skills.some((skill) =>
+      requestedSkills.has(normalizeSearchText(skill.displayName, 80)),
+    )
+  )
+    add("SKILL", "Khớp kỹ năng", "Skill match");
+  if (
+    criteria.normalizedLocation &&
+    normalizeSearchText(row.location, 160).includes(criteria.normalizedLocation)
+  )
+    add("LOCATION", "Khớp địa điểm", "Location match");
+  if (criteria.experienceLevel.includes(row.experienceLevel))
+    add("EXPERIENCE", "Khớp kinh nghiệm", "Experience match");
+  if (criteria.workArrangement.includes(row.workArrangement))
+    add(
+      "WORK_ARRANGEMENT",
+      "Khớp hình thức làm việc",
+      "Work arrangement match",
+    );
+  return reasons.slice(0, 3);
+}
+
 function card(
   row: PublicJobRow,
   actor: JobActor,
   now: Date,
   matchScore?: number,
+  searchCriteria?: NormalizedJobSearch,
 ): JobCard {
   const snapshot = approvedSnapshot(row);
   const authenticated = actor.kind === "user";
@@ -285,6 +431,9 @@ function card(
       experienceYears[row.experienceLevel] ??
       undefined,
     matchScore,
+    ...(searchCriteria
+      ? { matchReasons: searchMatchReasons(row, searchCriteria) }
+      : {}),
     actions: {
       authenticated,
       saved: row.savedBy.length > 0,
@@ -314,6 +463,8 @@ export class JobDiscoveryService {
   constructor(
     private readonly repository?: PublicJobRepository,
     private readonly profileService = new GetProfileAggregateService(),
+    private readonly catalogProvider: SearchCatalogProvider =
+      searchCatalogProvider,
   ) {}
 
   async search(raw: unknown, actor: JobActor, now = new Date()) {
@@ -326,9 +477,11 @@ export class JobDiscoveryService {
     now = new Date(),
     scope: Readonly<{ companyId?: string }> = {},
   ) {
+    const startedAt = performance.now();
     let criteria: NormalizedJobSearch;
     try {
-      criteria = parseJobSearchCriteria(raw);
+      const catalogSnapshot = await this.catalogProvider.getActiveSnapshot();
+      criteria = parseJobSearchCriteria(raw, catalogSnapshot.index);
     } catch (error) {
       if (error instanceof z.ZodError) throw validationError(error);
       if (error instanceof JobServiceError) throw error;
@@ -354,14 +507,40 @@ export class JobDiscoveryService {
       actor.kind === "user" ? actor.userId : null,
       now,
     );
+    if (criteria.searchInterpretation) {
+      emitSearchResolutionMetric({
+        context: "JOBS",
+        interpretation: criteria.searchInterpretation,
+        variantCount: criteria.searchVariants?.length ?? 1,
+        resultCount: result.total,
+        candidateCount: result.candidateCount,
+        projectionState: result.projectionState,
+        candidateCapReached: result.candidateCapReached,
+        durationMs: performance.now() - startedAt,
+      });
+    }
+    const searchRecovery =
+      result.total === 0
+        ? buildJobSearchRecovery(criteria, criteria.catalogIndex)
+        : undefined;
     return {
-      items: result.rows.map((row) => card(row, actor, now)),
+      items: result.rows.map((row) =>
+        card(row, actor, now, undefined, criteria),
+      ),
       total: result.total,
       nextCursor: result.nextCursor,
       page: criteria.page ?? 1,
       totalPages: Math.ceil(result.total / criteria.limit),
+      searchMetadata: {
+        resolverVersion: criteria.resolverVersion ?? SEARCH_RESOLVER_VERSION,
+        catalogVersion:
+          criteria.searchInterpretation?.catalogVersion ??
+          criteria.catalogIndex?.version ??
+          JOB_SEARCH_CATALOG_VERSION,
+      },
       criteria: {
-        q: criteria.normalizedQuery,
+        q: criteria.rawQuery ?? criteria.normalizedQuery,
+        searchMode: criteria.searchMode,
         searchBy: criteria.searchBy,
         location: criteria.normalizedLocation,
         district: criteria.normalizedDistricts,
@@ -381,9 +560,14 @@ export class JobDiscoveryService {
         page: criteria.page ?? 1,
         limit: criteria.limit,
       },
-      ...(criteria.searchInterpretation?.usedFallback
+      ...(criteria.searchInterpretation &&
+      (criteria.searchMode === "LITERAL" ||
+        criteria.searchInterpretation.reason !== "NONE" ||
+        Boolean(criteria.searchInterpretation.correction) ||
+        Boolean(criteria.searchInterpretation.structuredFilters?.length))
         ? { searchInterpretation: criteria.searchInterpretation }
         : {}),
+      ...(searchRecovery?.actions.length ? { searchRecovery } : {}),
     };
   }
 

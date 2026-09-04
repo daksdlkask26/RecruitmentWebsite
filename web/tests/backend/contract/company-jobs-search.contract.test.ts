@@ -8,6 +8,7 @@ describe("Company job search contract", () => {
   it("normalizes keyword/location query defaults", () => {
     expect(companyJobSearchQuerySchema.parse({})).toMatchObject({
       q: "",
+      searchMode: "SMART",
       location: "",
       page: 1,
       limit: 20,

@@ -335,6 +335,14 @@ export type ModerationPrivateNote = Prisma.ModerationPrivateNoteModel
  */
 export type JobPosting = Prisma.JobPostingModel
 /**
+ * Model JobSearchProjection
+ * *
+ *  * Queryable, versioned search profile for published job retrieval. Keep this
+ *  * separate from review JSON so search can use typed indexed fields without
+ *  * exposing or scanning the full moderation snapshot.
+ */
+export type JobSearchProjection = Prisma.JobSearchProjectionModel
+/**
  * Model JobPostReviewAggregate
  * 
  */
@@ -822,3 +830,50 @@ export type BackupRun = Prisma.BackupRunModel
  * 
  */
 export type ActivityLegalHold = Prisma.ActivityLegalHoldModel
+/**
+ * Model SearchCatalogVersion
+ * Versioned, admin-owned search taxonomy metadata. The compiled TypeScript
+ * catalog remains a safe bootstrap/fallback during rollout; published rows
+ * are the operational source for review and rollback workflows.
+ */
+export type SearchCatalogVersion = Prisma.SearchCatalogVersionModel
+/**
+ * Model SearchOccupation
+ * 
+ */
+export type SearchOccupation = Prisma.SearchOccupationModel
+/**
+ * Model SearchJobTitle
+ * 
+ */
+export type SearchJobTitle = Prisma.SearchJobTitleModel
+/**
+ * Model SearchJobTitleTranslation
+ * 
+ */
+export type SearchJobTitleTranslation = Prisma.SearchJobTitleTranslationModel
+/**
+ * Model SearchAlias
+ * 
+ */
+export type SearchAlias = Prisma.SearchAliasModel
+/**
+ * Model SearchFacet
+ * 
+ */
+export type SearchFacet = Prisma.SearchFacetModel
+/**
+ * Model SearchTitleFacet
+ * 
+ */
+export type SearchTitleFacet = Prisma.SearchTitleFacetModel
+/**
+ * Model SearchMappingReview
+ * 
+ */
+export type SearchMappingReview = Prisma.SearchMappingReviewModel
+/**
+ * Model SearchProjectionReconciliationRun
+ * 
+ */
+export type SearchProjectionReconciliationRun = Prisma.SearchProjectionReconciliationRunModel
