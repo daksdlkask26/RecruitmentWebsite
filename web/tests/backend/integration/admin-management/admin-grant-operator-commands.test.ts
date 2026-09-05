@@ -122,6 +122,7 @@ describe("administrator grant operator commands", () => {
         snapshot: { id: jobId, title: "Pending operator review fixture" },
         snapshotSchemaVersion: "test-v1",
         snapshotSha256: "a".repeat(64),
+        importedBaseline: true,
         assignedAdminUserId: userId,
         assignedAt: new Date(),
       },

@@ -219,6 +219,22 @@ describe("image-assisted job-search controls", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("preserves an unsent keyword when live filters update the URL", async () => {
+    window.history.replaceState(null, "", "/jobs");
+    render(<GlobalImageSearch taxonomy={taxonomy} />);
+
+    const searchField = screen.getByRole("combobox", {
+      name: "Search jobs, skills, or companies",
+    });
+    await waitFor(() => expect(searchField).toHaveValue(""));
+    fireEvent.change(searchField, { target: { value: "Platform Engineer" } });
+    window.history.replaceState(null, "", "/jobs?workArrangement=HYBRID");
+    window.dispatchEvent(new Event(JOB_SEARCH_CRITERIA_CHANGED_EVENT));
+
+    await waitFor(() => expect(searchField).toHaveValue("Platform Engineer"));
+    window.history.replaceState(null, "", "/jobs");
+  });
+
   it("keeps the complete image-search panel in Vietnamese when selected", () => {
     window.history.replaceState(null, "", "/jobs");
     render(

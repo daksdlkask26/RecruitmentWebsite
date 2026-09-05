@@ -40,7 +40,7 @@ test("browses, filters, opens public details, and remains usable at the project 
     .fill(fixture.jobs.active.title);
   if (!isMobile)
     await page.getByLabel("Work arrangement").selectOption("HYBRID");
-  await page.getByRole("button", { name: "Search jobs" }).click();
+  await page.getByRole("button", { name: "Search jobs", exact: true }).click();
   await expect(page).toHaveURL(/q=/u);
   await expect(
     page.getByRole("link", { name: fixture.jobs.active.title }),
