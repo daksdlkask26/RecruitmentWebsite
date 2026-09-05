@@ -23,6 +23,7 @@ jobs:
           --health-retries 20
     env:
       APP_ENV: test
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/web/.local/playwright-browsers
       NODE_OPTIONS: --max-old-space-size=4096
       NEXT_PUBLIC_APP_URL: http://localhost:3001
       DATABASE_URL: postgresql://smarthire:smarthire@localhost:5432/smarthire_test
@@ -98,8 +99,6 @@ jobs:
         run: npm run test:unit --workspace @smarthire/web
       - run: npm run build
       - name: Install Chromium for Search browser gates
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/web/.local/playwright-browsers
         run: npx playwright install --with-deps chromium
       - name: Start production server for Search browser gates
         shell: bash
