@@ -1247,6 +1247,8 @@ export function GlobalImageSearch({
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [selectedRoleTitles, setSelectedRoleTitles] = useState<string[]>([]);
   const [clientReady, setClientReady] = useState(false);
+  const queryRef = useRef("");
+  const locationQueryRef = useRef("");
   const cameraButton = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const search = useImageSearch({
@@ -1264,11 +1266,15 @@ export function GlobalImageSearch({
       : null;
 
   useEffect(() => {
-    const syncFromLocation = () => {
+    const syncFromLocation = (forceQuerySync: boolean) => {
       const nextCriteria = criteriaFromLocation();
       const params = new URL(window.location.href).searchParams;
       setCriteria(nextCriteria);
-      setQuery(nextCriteria.q);
+      if (forceQuerySync || queryRef.current === locationQueryRef.current) {
+        queryRef.current = nextCriteria.q;
+        setQuery(nextCriteria.q);
+      }
+      locationQueryRef.current = nextCriteria.q;
       setSelectedCategoryCode(
         canonicalIndustryCode(params.get("categoryFamily") ?? ""),
       );
@@ -1287,20 +1293,22 @@ export function GlobalImageSearch({
     // hydration commit. This also avoids React trying to reconcile a portal
     // whose target may be replaced by the persistent workspace shell.
     const frame = window.requestAnimationFrame(() => {
-      syncFromLocation();
+      syncFromLocation(true);
       setClientReady(true);
     });
-    window.addEventListener("popstate", syncFromLocation);
+    const handlePopState = () => syncFromLocation(true);
+    const handleCriteriaChange = () => syncFromLocation(false);
+    window.addEventListener("popstate", handlePopState);
     window.addEventListener(
       JOB_SEARCH_CRITERIA_CHANGED_EVENT,
-      syncFromLocation,
+      handleCriteriaChange,
     );
     return () => {
       window.cancelAnimationFrame(frame);
-      window.removeEventListener("popstate", syncFromLocation);
+      window.removeEventListener("popstate", handlePopState);
       window.removeEventListener(
         JOB_SEARCH_CRITERIA_CHANGED_EVENT,
-        syncFromLocation,
+        handleCriteriaChange,
       );
     };
   }, []);
@@ -1339,10 +1347,15 @@ export function GlobalImageSearch({
     navigateJobSearch(jobTextSearchHref(window.location.href, query));
   };
 
+  const updateQuery = (value: string) => {
+    queryRef.current = value;
+    setQuery(value);
+  };
+
   const selectJobSuggestion = (
     suggestion: Parameters<typeof localizedSuggestionLabel>[0],
   ) => {
-    setQuery(localizedSuggestionLabel(suggestion, locale));
+    updateQuery(localizedSuggestionLabel(suggestion, locale));
     suggestions.setOpen(false);
   };
 
@@ -1495,7 +1508,7 @@ export function GlobalImageSearch({
                     ? "Tìm công việc, kỹ năng hoặc công ty"
                     : "Search jobs, skills, or companies"
                 }
-                onChange={(event) => setQuery(event.currentTarget.value)}
+                onChange={(event) => updateQuery(event.currentTarget.value)}
                 onFocus={() => {
                   if (suggestions.suggestions.length) suggestions.setOpen(true);
                 }}
@@ -1525,7 +1538,7 @@ export function GlobalImageSearch({
                   {query.length > 0 ? (
                     <ClearFieldButton
                       label={vi ? "Xóa tìm kiếm" : "Clear search"}
-                      onClear={() => setQuery("")}
+                      onClear={() => updateQuery("")}
                     />
                   ) : null}
                 </span>

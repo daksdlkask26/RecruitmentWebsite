@@ -1481,6 +1481,12 @@
     max-width: none;
   }
 
+  .global-image-search .job-category-menu {
+    width: 48px;
+    max-width: 48px;
+    flex-basis: 48px;
+  }
+
   .global-image-search-panel {
     width: 100%;
     max-height: calc(100dvh - 76px);
