@@ -44,6 +44,9 @@ export default async function CvImportsPage() {
         titleAs="h1"
         titleId="workspace-page-title"
         className={styles.hero}
+        headClassName={styles.heroHead}
+        titleClassName={styles.heroTitle}
+        bodyClassName={styles.heroBody}
         rightSlot={
           <StatCard
             value={imports.items.length}

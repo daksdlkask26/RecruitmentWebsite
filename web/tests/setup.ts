@@ -1,7 +1,8 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { resolve } from "node:path";
-import { afterEach } from "vitest";
+import { afterEach, vi } from "vitest";
+import { assertRequestedTestDatabase } from "./helpers/test-database-guard";
 
 const cvTestEnvironment = {
   CV_STORAGE_ADAPTER: "filesystem",
@@ -28,8 +29,47 @@ const cvTestEnvironment = {
   CV_CANDIDATE_DELETE_RETENTION_HOURS: "24",
 } as const;
 
+// Vitest keeps a single worker process for the database-backed run. A suite
+// that mutates process.env (or uses vi.stubEnv) therefore used to change the
+// URLs and auth origins observed by later Route Handler suites. Capture the
+// worker baseline after vitest.config has loaded .env.local and restore it
+// after every test so order cannot change the contract under test.
+const baselineEnvironment = new Map(Object.entries(process.env));
+
+function restoreBaselineEnvironment() {
+  for (const key of Object.keys(process.env)) {
+    if (!baselineEnvironment.has(key)) delete process.env[key];
+  }
+  for (const [key, value] of baselineEnvironment) {
+    if (value === undefined) delete process.env[key];
+    else process.env[key] = value;
+  }
+}
+
 for (const [key, value] of Object.entries(cvTestEnvironment)) {
   process.env[key] ??= value;
 }
 
-afterEach(cleanup);
+// Any explicitly selected integration/compatibility suite is allowed to
+// reach Prisma only after proving that both connection URLs point at an
+// isolated test endpoint. Definitively DB-free unit/component suites remain
+// exempt; known identity units using real Prisma are marked in vitest.config.
+const dbBackedSuiteRequested = process.argv.some((argument) =>
+  /tests[\\/](?:backend[\\/](?:integration|compatibility)|system[\\/]e2e)(?:[\\/]|$)/u.test(
+    argument,
+  ),
+);
+if (
+  dbBackedSuiteRequested ||
+  process.env.SMART_HIRE_TEST_DATABASE_REQUIRED === "1"
+) {
+  assertRequestedTestDatabase();
+}
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+  restoreBaselineEnvironment();
+});

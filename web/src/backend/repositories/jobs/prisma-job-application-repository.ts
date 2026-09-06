@@ -1,5 +1,5 @@
 import "server-only";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { Prisma } from "@/backend/generated/prisma/client";
 import {
   ApplicationArtifactPromotionState,
@@ -28,7 +28,6 @@ import { NotificationRecipientPolicy } from "@/backend/notifications/notificatio
 import { createApplicationDocumentStorage } from "@/backend/applications/storage/factory";
 import type { ApplicationDocumentStoragePort } from "@/backend/applications/storage/application-document-storage";
 import { promoteCandidateCvForApplication } from "@/backend/services/profile/promote-candidate-cv-for-application";
-import { createCvWorkerStorage } from "@/backend/cv/workers/cv-worker-resources";
 
 type CandidateApplicationForm = {
   job: {
@@ -100,6 +99,42 @@ const outcome = (
   applicationAttemptNumber: row.applicationAttemptNumber,
 });
 
+type PromotedArtifact = Readonly<{
+  promotionId: string;
+  storageKey: string;
+  kind: ApplicationDocumentKind;
+  checksumSha256: string;
+}>;
+
+type DurableApplicationState = Readonly<{
+  id: string;
+  applicationDocuments: Array<{
+    storageKeyEncrypted: string;
+    contentDigestHmac: string;
+  }>;
+}>;
+
+type ArtifactReconciliation = "PRESERVED" | "CLEANED" | "UNKNOWN";
+
+type ApplicationSourceCv = Readonly<{
+  id: string;
+  candidateUserId: string;
+  fileName: string;
+  mimeType: string;
+  byteSize: number;
+  storageKey: string;
+  checksumSha256: string;
+  version: number;
+  confirmedAt: Date | null;
+  archivedAt: Date | null;
+}>;
+
+function applicationDocumentStorageKey(promotionId: string) {
+  return `application-document-${createHash("sha256")
+    .update(promotionId, "utf8")
+    .digest("hex")}`;
+}
+
 export class PrismaJobApplicationRepository implements ApplicationRepositoryPort {
   constructor(
     private readonly db: typeof prisma = prisma,
@@ -108,6 +143,274 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
 
   private documentStorage() {
     return this.applicationStorage ?? createApplicationDocumentStorage();
+  }
+
+  private markArtifactsOwned(input: {
+    directCv?: DirectApplicationCv;
+    directCoverLetter?: DirectApplicationCv;
+  }) {
+    input.directCv?.claimOwnership?.();
+    input.directCoverLetter?.claimOwnership?.();
+  }
+
+  private preserveArtifactsOnUnknown(input: {
+    directCv?: DirectApplicationCv;
+    directCoverLetter?: DirectApplicationCv;
+  }) {
+    input.directCv?.preserveOnUnknown?.();
+    input.directCoverLetter?.preserveOnUnknown?.();
+  }
+
+  /**
+   * A promotion is staged before the application transaction so a rollback or
+   * an unavailable database still leaves a durable cleanup record.  The
+   * ledger is intentionally conservative: a missing row or a failed read is
+   * an unknown outcome and therefore never authorizes object deletion.
+   */
+  private async stageArtifacts(
+    input: Parameters<ApplicationRepositoryPort["submit"]>[0],
+    artifacts: readonly PromotedArtifact[],
+  ) {
+    const staged: string[] = [];
+    try {
+      for (const artifact of artifacts) {
+        await this.db.applicationArtifactPromotion.create({
+          data: {
+            id: artifact.promotionId,
+            candidateUserId: input.candidateUserId,
+            jobPostingId: input.jobId,
+            kind: artifact.kind,
+            storagePurposeVersion: "application-document-v1",
+            storageKeyEncrypted: artifact.storageKey,
+            contentDigestSha256: artifact.checksumSha256,
+            state: ApplicationArtifactPromotionState.PROMOTED,
+            orphanDeleteAfter: new Date(
+              input.occurredAt.getTime() + 24 * 60 * 60 * 1000,
+            ),
+          },
+        });
+        staged.push(artifact.promotionId);
+      }
+      return staged;
+    } catch (error) {
+      this.preserveArtifactsOnUnknown(input);
+      throw error;
+    }
+  }
+
+  private async findDurableApplication(
+    input: Parameters<ApplicationRepositoryPort["submit"]>[0],
+    applicationId?: string,
+  ): Promise<DurableApplicationState | null> {
+    if (applicationId) {
+      return this.db.jobApplication.findUnique({
+        where: { id: applicationId },
+        select: {
+          id: true,
+          applicationDocuments: {
+            where: { deletedAt: null },
+            select: {
+              storageKeyEncrypted: true,
+              contentDigestHmac: true,
+            },
+          },
+        },
+      });
+    }
+    return this.db.jobApplication.findUnique({
+      where: {
+        candidateUserId_idempotencyKey: {
+          candidateUserId: input.candidateUserId,
+          idempotencyKey: input.idempotencyKey,
+        },
+      },
+      select: {
+        id: true,
+        applicationDocuments: {
+          where: { deletedAt: null },
+          select: {
+            storageKeyEncrypted: true,
+            contentDigestHmac: true,
+          },
+        },
+      },
+    });
+  }
+
+  private async reconcileArtifacts(
+    input: Parameters<ApplicationRepositoryPort["submit"]>[0],
+    artifacts: readonly PromotedArtifact[],
+    storage: ApplicationDocumentStoragePort | null,
+    options: { applicationId?: string; allowCleanup: boolean },
+  ): Promise<ArtifactReconciliation> {
+    if (!artifacts.length) return "CLEANED";
+    try {
+      const rows = await this.db.applicationArtifactPromotion.findMany({
+        where: { id: { in: artifacts.map((artifact) => artifact.promotionId) } },
+        select: {
+          id: true,
+          state: true,
+          jobApplicationId: true,
+          storageKeyEncrypted: true,
+          contentDigestSha256: true,
+        },
+      });
+      if (rows.length !== artifacts.length) {
+        this.preserveArtifactsOnUnknown(input);
+        return "UNKNOWN";
+      }
+      const application = await this.findDurableApplication(
+        input,
+        options.applicationId,
+      );
+      if (!application) {
+        if (!options.allowCleanup || !storage) {
+          this.preserveArtifactsOnUnknown(input);
+          return "UNKNOWN";
+        }
+        // A deterministic domain error means the transaction was rolled back.
+        // Before deleting, prove that no other application already references
+        // the locator; this protects a replay or a shared storage key.
+        for (const artifact of artifacts) {
+          const peer = await this.db.applicationDocument.findFirst({
+            where: {
+              storageKeyEncrypted: artifact.storageKey,
+              deletedAt: null,
+            },
+            select: { id: true },
+          });
+          if (peer) {
+            this.preserveArtifactsOnUnknown(input);
+            return "UNKNOWN";
+          }
+        }
+        let cleaned = 0;
+        for (const artifact of artifacts) {
+          const row = rows.find((candidate) => candidate.id === artifact.promotionId);
+          if (!row) {
+            this.preserveArtifactsOnUnknown(input);
+            return "UNKNOWN";
+          }
+          try {
+            await storage.delete(artifact.storageKey);
+            await this.db.applicationArtifactPromotion.update({
+              where: { id: row.id },
+              data: {
+                state: ApplicationArtifactPromotionState.DELETED,
+                deletedAt: input.occurredAt,
+                lastSafeFailureCode: null,
+                attemptCount: { increment: 1 },
+              },
+            });
+            cleaned += 1;
+          } catch {
+            await this.db.applicationArtifactPromotion.update({
+              where: { id: row.id },
+              data: {
+                state: ApplicationArtifactPromotionState.DELETE_FAILED,
+                attemptCount: { increment: 1 },
+                lastSafeFailureCode: "APPLICATION_STORAGE_DELETE_FAILED",
+              },
+            }).catch(() => undefined);
+            this.preserveArtifactsOnUnknown(input);
+            return "PRESERVED";
+          }
+        }
+        return cleaned === artifacts.length ? "CLEANED" : "PRESERVED";
+      }
+
+      let cleaned = 0;
+      for (const artifact of artifacts) {
+        const row = rows.find((candidate) => candidate.id === artifact.promotionId);
+        if (!row) {
+          this.preserveArtifactsOnUnknown(input);
+          return "UNKNOWN";
+        }
+        const ownedDocument = application.applicationDocuments.find(
+          (document) => document.storageKeyEncrypted === artifact.storageKey,
+        );
+        if (
+          row.state === ApplicationArtifactPromotionState.COMMITTED ||
+          row.jobApplicationId
+        ) {
+          if (
+            !row.contentDigestSha256 ||
+            row.contentDigestSha256 !== artifact.checksumSha256 ||
+            !ownedDocument ||
+            ownedDocument.contentDigestHmac !== artifact.checksumSha256
+          ) {
+            await this.db.applicationArtifactPromotion.update({
+              where: { id: row.id },
+              data: {
+                lastSafeFailureCode: "APPLICATION_ARTIFACT_DIGEST_MISMATCH",
+              },
+            });
+            this.preserveArtifactsOnUnknown(input);
+            return "UNKNOWN";
+          }
+          this.markArtifactsOwned(input);
+          continue;
+        }
+        if (ownedDocument) {
+          // A matching locator is only safe to retain when its digest also
+          // agrees.  A collision or changed digest is retained for manual
+          // reconciliation rather than being deleted.
+          if (
+            row.contentDigestSha256 !== artifact.checksumSha256 ||
+            ownedDocument.contentDigestHmac !== artifact.checksumSha256
+          ) {
+            await this.db.applicationArtifactPromotion.update({
+              where: { id: row.id },
+              data: { lastSafeFailureCode: "APPLICATION_ARTIFACT_DIGEST_MISMATCH" },
+            });
+            this.preserveArtifactsOnUnknown(input);
+            return "UNKNOWN";
+          }
+          await this.db.applicationArtifactPromotion.update({
+            where: { id: row.id },
+            data: {
+              state: ApplicationArtifactPromotionState.COMMITTED,
+              jobApplicationId: application.id,
+              lastSafeFailureCode: null,
+            },
+          });
+          this.markArtifactsOwned(input);
+          continue;
+        }
+        if (!options.allowCleanup || !storage) {
+          this.preserveArtifactsOnUnknown(input);
+          return "PRESERVED";
+        }
+        try {
+          await storage.delete(artifact.storageKey);
+          await this.db.applicationArtifactPromotion.update({
+            where: { id: row.id },
+            data: {
+              state: ApplicationArtifactPromotionState.DELETED,
+              deletedAt: input.occurredAt,
+              lastSafeFailureCode: null,
+              attemptCount: { increment: 1 },
+            },
+          });
+          cleaned += 1;
+        } catch {
+          await this.db.applicationArtifactPromotion.update({
+            where: { id: row.id },
+            data: {
+              state: ApplicationArtifactPromotionState.DELETE_FAILED,
+              attemptCount: { increment: 1 },
+              lastSafeFailureCode: "APPLICATION_STORAGE_DELETE_FAILED",
+            },
+          }).catch(() => undefined);
+          this.preserveArtifactsOnUnknown(input);
+          return "PRESERVED";
+        }
+      }
+      return cleaned === artifacts.length ? "CLEANED" : "PRESERVED";
+    } catch {
+      this.preserveArtifactsOnUnknown(input);
+      return "UNKNOWN";
+    }
   }
 
   async getCandidateForm(userId: string, jobId: string, now: Date) {
@@ -282,8 +585,16 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
           mediaType: string;
           byteLength: number;
           checksumSha256: string;
+      }
+      | undefined;
+    let sourceCvForPromotion:
+      | {
+          sourceCv: ApplicationSourceCv;
+          storage: ApplicationDocumentStoragePort;
         }
       | undefined;
+    let stagedPromotionIds: string[] = [];
+    let promotedArtifacts: PromotedArtifact[] = [];
     try {
       const existingByKey = await this.db.jobApplication.findUnique({
         where: {
@@ -339,38 +650,20 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
         sourceCv?.candidateUserId === input.candidateUserId
       ) {
         promotedStorage = this.documentStorage();
-        let stored: Awaited<ReturnType<ApplicationDocumentStoragePort["put"]>>;
-        if (sourceCv.storageKey.startsWith("candidate-cv-")) {
-          const promotion = await promoteCandidateCvForApplication(
-            sourceCv,
-            this.documentStorage(),
-            this.db,
-          );
-          if (!promotion) {
-            throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
-          }
-          promotedStorage = promotion.destination;
-          stored = promotion.stored;
-        } else {
-          const sourceStorage = createCvWorkerStorage();
-          await promotedStorage.assertReady();
-          await sourceStorage.assertReady();
-          stored = await promotedStorage.put({
-            expectedBytes: sourceCv.byteSize,
-            source: sourceStorage.open(sourceCv.storageKey, sourceCv.byteSize),
-          });
-        }
+        const promotionId = randomUUID();
         promotedApplicationDocument = {
-          promotionId: randomUUID(),
-          storageKey: stored.locator,
+          promotionId,
+          storageKey: applicationDocumentStorageKey(promotionId),
           fileName: sourceCv.fileName,
           mediaType: sourceCv.mimeType,
-          byteLength: stored.bytes,
+          byteLength: sourceCv.byteSize,
           checksumSha256: sourceCv.checksumSha256,
           sourceCvId: sourceCv.id,
           sourceCvVersion: sourceCv.version,
         };
+        sourceCvForPromotion = { sourceCv, storage: promotedStorage };
       } else if (input.directCv) {
+        promotedStorage = this.documentStorage();
         promotedApplicationDocument = {
           promotionId: randomUUID(),
           storageKey: input.directCv.storageKey,
@@ -383,6 +676,7 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
         };
       }
       if (input.directCoverLetter) {
+        promotedStorage ??= this.documentStorage();
         promotedCoverLetterDocument = {
           promotionId: randomUUID(),
           storageKey: input.directCoverLetter.storageKey,
@@ -392,6 +686,49 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
           checksumSha256: input.directCoverLetter.checksumSha256,
         };
       }
+      promotedArtifacts = [
+        ...(promotedApplicationDocument
+          ? [
+              {
+                promotionId: promotedApplicationDocument.promotionId,
+                storageKey: promotedApplicationDocument.storageKey,
+                kind: ApplicationDocumentKind.CV,
+                checksumSha256: promotedApplicationDocument.checksumSha256,
+              },
+            ]
+          : []),
+        ...(promotedCoverLetterDocument
+          ? [
+              {
+                promotionId: promotedCoverLetterDocument.promotionId,
+                storageKey: promotedCoverLetterDocument.storageKey,
+                kind: ApplicationDocumentKind.COVER_LETTER,
+                checksumSha256: promotedCoverLetterDocument.checksumSha256,
+              },
+            ]
+          : []),
+      ];
+      stagedPromotionIds = await this.stageArtifacts(input, promotedArtifacts);
+
+      // Materialize every object only after its durable promotion row exists.
+      // A lost storage response is then recoverable by the retention worker.
+      if (sourceCvForPromotion && promotedApplicationDocument) {
+        const promotion = await promoteCandidateCvForApplication(
+          sourceCvForPromotion.sourceCv,
+          sourceCvForPromotion.storage,
+          this.db,
+          { locator: promotedApplicationDocument.storageKey },
+        );
+        if (
+          !promotion ||
+          promotion.stored.locator !== promotedApplicationDocument.storageKey ||
+          promotion.stored.bytes !== promotedApplicationDocument.byteLength
+        ) {
+          throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
+        }
+      }
+      await input.directCv?.ensureStored?.();
+      await input.directCoverLetter?.ensureStored?.();
       const result = await this.db.$transaction(
         async (tx) => {
           const sameKey = await tx.jobApplication.findUnique({
@@ -602,9 +939,14 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
                     version: question.version,
                   })),
             },
-            input.directCoverLetter
-              ? { ...input.command, coverLetter: null }
-              : input.command,
+            {
+              ...input.command,
+              // The transport sentinel was checked before creating this CV.
+              // Domain validation must compare against the concrete owned row,
+              // not reject every freshly prepared application-cv-* identifier.
+              ...(input.directCv ? { cvId: cv.id } : {}),
+              ...(input.directCoverLetter ? { coverLetter: null } : {}),
+            },
             input.activeConsentVersion,
             input.occurredAt,
           );
@@ -642,7 +984,7 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
               candidateUserId: input.candidateUserId,
               jobPostingId: input.jobId,
               applicationAttemptNumber: nextApplicationAttemptNumber,
-              selectedCvId: input.command.cvId,
+              selectedCvId: cv.id,
               cvFileRef,
               contactSnapshot: input.command.contactSnapshot
                 ? (input.command.contactSnapshot as Prisma.InputJsonValue)
@@ -738,49 +1080,6 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
                     },
                   }
                 : {}),
-              ...(promotedApplicationDocument
-                ? {
-                    artifactPromotions: {
-                      create: [
-                        {
-                          id: promotedApplicationDocument.promotionId,
-                          candidate: { connect: { id: input.candidateUserId } },
-                          jobPosting: { connect: { id: input.jobId } },
-                          kind: ApplicationDocumentKind.CV,
-                          storagePurposeVersion: "application-document-v1",
-                          storageKeyEncrypted:
-                            promotedApplicationDocument.storageKey,
-                          state: ApplicationArtifactPromotionState.COMMITTED,
-                          orphanDeleteAfter: new Date(
-                            input.occurredAt.getTime() + 24 * 60 * 60 * 1000,
-                          ),
-                        },
-                        ...(promotedCoverLetterDocument
-                          ? [
-                              {
-                                id: promotedCoverLetterDocument.promotionId,
-                                candidate: {
-                                  connect: { id: input.candidateUserId },
-                                },
-                                jobPosting: { connect: { id: input.jobId } },
-                                kind: ApplicationDocumentKind.COVER_LETTER,
-                                storagePurposeVersion:
-                                  "application-document-v1",
-                                storageKeyEncrypted:
-                                  promotedCoverLetterDocument.storageKey,
-                                state:
-                                  ApplicationArtifactPromotionState.COMMITTED,
-                                orphanDeleteAfter: new Date(
-                                  input.occurredAt.getTime() +
-                                    24 * 60 * 60 * 1000,
-                                ),
-                              },
-                            ]
-                          : []),
-                      ],
-                    },
-                  }
-                : {}),
               answers: {
                 create: prepared.answers.map((answer) => ({
                   questionId: answer.questionId,
@@ -803,6 +1102,24 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
               },
             },
           });
+          if (stagedPromotionIds.length) {
+            const promoted = await tx.applicationArtifactPromotion.updateMany({
+              where: {
+                id: { in: stagedPromotionIds },
+                state: ApplicationArtifactPromotionState.PROMOTED,
+                jobApplicationId: null,
+              },
+              data: {
+                jobApplicationId: created.id,
+                state: ApplicationArtifactPromotionState.COMMITTED,
+              },
+            });
+            if (promoted.count !== stagedPromotionIds.length) {
+              throw new ApplicationRepositoryError(
+                "APPLICATION_ARTIFACT_PROMOTION_CONFLICT",
+              );
+            }
+          }
           if (input.command.aiAnalysisConsent) {
             const scoringOperation = await tx.scoringOperation.create({
               data: {
@@ -942,45 +1259,66 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
         },
         { isolationLevel: "Serializable" },
       );
-      if (!result.created && promotedApplicationDocument && promotedStorage) {
-        await promotedStorage
-          .delete(promotedApplicationDocument.storageKey)
-          .catch(() => undefined);
-      }
-      if (!result.created && promotedCoverLetterDocument && promotedStorage) {
-        await promotedStorage
-          .delete(promotedCoverLetterDocument.storageKey)
-          .catch(() => undefined);
+      if (result.created) {
+        // Marking the temporary request objects owned before returning also
+        // protects against a caller/projection error after the commit.
+        this.markArtifactsOwned(input);
+      } else if (promotedArtifacts.length) {
+        await this.reconcileArtifacts(input, promotedArtifacts, promotedStorage, {
+          applicationId: result.application.applicationId,
+          allowCleanup: true,
+        });
       }
       return result;
     } catch (error) {
-      if (promotedApplicationDocument && promotedStorage) {
-        await promotedStorage
-          .delete(promotedApplicationDocument.storageKey)
-          .catch(() => undefined);
-      }
-      if (promotedCoverLetterDocument && promotedStorage) {
-        await promotedStorage
-          .delete(promotedCoverLetterDocument.storageKey)
-          .catch(() => undefined);
-      }
-      if (error instanceof ApplicationRepositoryError) throw error;
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === "P2002"
       ) {
-        const existing = await this.db.jobApplication.findFirst({
-          where: {
-            candidateUserId: input.candidateUserId,
-            jobPostingId: input.jobId,
-            withdrawalOutcome: null,
-            stage: { not: "REJECTED" },
-          },
-          orderBy: [{ submittedAt: "desc" }, { id: "desc" }],
-        });
-        if (existing && isActiveApplication(existing))
+        let existing;
+        try {
+          existing = await this.db.jobApplication.findFirst({
+            where: {
+              candidateUserId: input.candidateUserId,
+              jobPostingId: input.jobId,
+              withdrawalOutcome: null,
+              stage: { not: "REJECTED" },
+            },
+            orderBy: [{ submittedAt: "desc" }, { id: "desc" }],
+          });
+        } catch {
+          this.preserveArtifactsOnUnknown(input);
+          throw error;
+        }
+        if (existing && isActiveApplication(existing)) {
+          if (promotedArtifacts.length) {
+            await this.reconcileArtifacts(
+              input,
+              promotedArtifacts,
+              promotedStorage,
+              { applicationId: existing.id, allowCleanup: true },
+            );
+          } else {
+            this.markArtifactsOwned(input);
+          }
           return { application: outcome(existing, false), created: false };
+        }
       }
+      // No cleanup is allowed merely because the transaction rejected.  A
+      // deterministic domain error proves rollback and may reconcile safely;
+      // every other outcome remains retained for the worker/reconciliation
+      // path.
+      if (promotedArtifacts.length) {
+        await this.reconcileArtifacts(
+          input,
+          promotedArtifacts,
+          promotedStorage,
+          { allowCleanup: error instanceof ApplicationRepositoryError },
+        );
+      } else if (!(error instanceof ApplicationRepositoryError)) {
+        this.preserveArtifactsOnUnknown(input);
+      }
+      if (error instanceof ApplicationRepositoryError) throw error;
       throw error;
     }
   }

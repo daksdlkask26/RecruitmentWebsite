@@ -21,6 +21,8 @@ export interface PrivateCvStorage {
   put(input: {
     source: AsyncIterable<Uint8Array>;
     expectedBytes: number;
+    /** Optional deterministic locator reserved by a durable ownership ledger. */
+    locator?: string;
   }): Promise<PrivateCvStorageItem>;
   open(locator: string, expectedBytes: number): AsyncIterable<Uint8Array>;
   delete(locator: string): Promise<Readonly<{ deleted: boolean }>>;

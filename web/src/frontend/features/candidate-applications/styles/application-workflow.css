@@ -2662,12 +2662,12 @@
   --app-blue-700: #2748d6;
   --app-ink: #101828;
   --app-ink-700: #344054;
-  --app-muted: #667085;
-  --app-muted-light: #98a2b3;
+  --app-muted: var(--sh-color-text-secondary);
+  --app-muted-light: var(--sh-color-text-secondary);
   --app-line: #e6e9f0;
   --app-line-soft: #eef0f5;
   --app-green: #12a150;
-  --app-green-700: #0c8a43;
+  --app-green-700: var(--sh-color-success);
   max-width: 1400px;
   padding: 28px clamp(20px, 3vw, 32px) 56px;
   color: var(--app-ink);

@@ -29,6 +29,7 @@ export async function promoteCandidateCvForApplication(
   sourceCv: CandidateCvSource,
   destination: ApplicationDocumentStoragePort,
   db: typeof prisma = prisma,
+  options: Readonly<{ locator?: string }> = {},
 ): Promise<Promotion | null> {
   const copyFromExistingApplication = async () => {
     const peer = await db.applicationDocument.findFirst({
@@ -50,6 +51,7 @@ export async function promoteCandidateCvForApplication(
     try {
       const stored = await destination.put({
         expectedBytes: peer.byteLength,
+        ...(options.locator ? { locator: options.locator } : {}),
         source: sourceStorage.open(peer.storageKeyEncrypted, peer.byteLength),
       });
       return { stored, destination };
@@ -127,6 +129,7 @@ export async function promoteCandidateCvForApplication(
     await destination.assertReady();
     const stored = await destination.put({
       expectedBytes: verified.plaintextBytes,
+      ...(options.locator ? { locator: options.locator } : {}),
       source: verified.open(),
     });
     return { stored, destination };

@@ -285,59 +285,72 @@ export class CvRetentionService {
     });
     let expired = 0;
     for (const candidate of candidates) {
-      const changed = await prisma.$transaction(async (transaction) => {
-        const upload = await lockUpload(
-          transaction,
-          candidate.accountId,
-          candidate.id,
-          false,
-        );
-        if (
-          upload.expiresAt > now ||
-          ["CONFIRMED", "CANCELLED", "DELETED", "EXPIRED"].includes(
-            upload.status,
+      let changed = false;
+      try {
+        changed = await prisma.$transaction(async (transaction) => {
+          const upload = await lockUpload(
+            transaction,
+            candidate.accountId,
+            candidate.id,
+            false,
+          );
+          if (
+            upload.expiresAt > now ||
+            ["CONFIRMED", "CANCELLED", "DELETED", "EXPIRED"].includes(
+              upload.status,
+            )
           )
-        )
-          return false;
-        const inaccessibleAt = now;
-        const deleteAfter = upload.expiresAt;
-        await cancelWork(transaction, upload.id, now, "IMPORT_EXPIRED");
-        await scheduleContentPurge(
-          transaction,
-          upload,
-          inaccessibleAt,
-          deleteAfter,
-          "EXPIRED",
-        );
-        await releaseRemainingReservation(transaction, upload, now);
-        await transaction.cvUpload.update({
-          where: { id: upload.id },
-          data: {
-            status: "EXPIRED",
-            failureCode: "IMPORT_EXPIRED",
-            contentInaccessibleAt: inaccessibleAt,
+            return false;
+          const inaccessibleAt = now;
+          const deleteAfter = upload.expiresAt;
+          await cancelWork(transaction, upload.id, now, "IMPORT_EXPIRED");
+          await scheduleContentPurge(
+            transaction,
+            upload,
+            inaccessibleAt,
             deleteAfter,
-          },
-          select: { id: true },
-        });
-        await transaction.auditEvent.createMany({
-          data: [
-            {
-              id: `cv_expire_${upload.id}`.slice(0, 80),
-              occurredAt: now,
-              actorType: "system",
-              action: "cv_import.expired",
-              targetType: "cv_import",
-              targetId: upload.id,
-              result: "SUCCESS",
-              correlationId: `cv_expire_${upload.id}`.slice(0, 128),
-              context: { state: "EXPIRED" },
+            "EXPIRED",
+          );
+          await releaseRemainingReservation(transaction, upload, now);
+          await transaction.cvUpload.update({
+            where: { id: upload.id },
+            data: {
+              status: "EXPIRED",
+              failureCode: "IMPORT_EXPIRED",
+              contentInaccessibleAt: inaccessibleAt,
+              deleteAfter,
             },
-          ],
-          skipDuplicates: true,
+            select: { id: true },
+          });
+          await transaction.auditEvent.createMany({
+            data: [
+              {
+                id: `cv_expire_${upload.id}`.slice(0, 80),
+                occurredAt: now,
+                actorType: "system",
+                action: "cv_import.expired",
+                targetType: "cv_import",
+                targetId: upload.id,
+                result: "SUCCESS",
+                correlationId: `cv_expire_${upload.id}`.slice(0, 128),
+                context: { state: "EXPIRED" },
+              },
+            ],
+            skipDuplicates: true,
+          });
+          return true;
         });
-        return true;
-      });
+      } catch (error) {
+        // A worker may observe a candidate between the initial scan and its
+        // row lock. Another retention/delete worker winning that race is a
+        // normal no-op; an explicit user deletion still surfaces NOT_FOUND
+        // through deleteOwnedImport above.
+        if (
+          !(error instanceof CvImportServiceError) ||
+          error.code !== "CV_IMPORT_NOT_FOUND"
+        )
+          throw error;
+      }
       if (changed) expired += 1;
     }
     return expired;

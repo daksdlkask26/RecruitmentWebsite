@@ -43,7 +43,7 @@ describe("Home locale provider", () => {
     expect(screen.getByText("vi")).toBeInTheDocument();
     expect(screen.getByLabelText("Từ khóa")).toHaveValue("frontend");
     expect(screen.getByLabelText("Địa điểm")).toHaveValue("Hà Nội");
-    expect(window.localStorage).toHaveLength(0);
+    expect(window.localStorage.getItem("smarthire.home.locale")).toBe("vi");
     expect(window.sessionStorage).toHaveLength(0);
   });
 });

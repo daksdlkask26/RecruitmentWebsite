@@ -1,7 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
+import { assertTestDatabaseEnvironment } from "../../../helpers/test-database-guard";
 import { prisma } from "@/backend/database/prisma";
 import { SessionService } from "@/backend/services/session/session-service";
+
+assertTestDatabaseEnvironment();
+
 async function user() {
   return prisma.userAccount.create({
     data: {

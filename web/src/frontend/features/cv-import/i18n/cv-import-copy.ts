@@ -390,7 +390,7 @@ export const cvCopy = (locale: CvLocale) =>
           ready: "Ready to upload a CV.",
           file: "CV file",
           fileGuidance: "PDF, DOC, or DOCX, maximum 5 MB (5,000,000 bytes).",
-          chooseParser: "Parser for this upload",
+          chooseParser: "Choose a parser for this upload",
           parserGuidance:
             "Every CV is processed by OpenAI after security scanning, text extraction, and your consent.",
           deterministic: "SmartHire deterministic",

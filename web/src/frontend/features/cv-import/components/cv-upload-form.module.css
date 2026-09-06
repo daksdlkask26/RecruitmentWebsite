@@ -118,9 +118,12 @@
   padding: var(--sh-space-4);
   border: 1px solid var(--sh-color-border-default);
   border-radius: var(--sh-radius-md);
+  color: var(--sh-color-text-primary);
   background: var(--sh-color-surface-card);
+  font: inherit;
+  text-align: start;
   box-shadow: var(--sh-shadow-control);
-  cursor: default;
+  cursor: pointer;
   transition:
     border-color 180ms ease,
     background-color 180ms ease,
@@ -136,20 +139,22 @@
     var(--sh-shadow-control);
 }
 
+.parserOption:not(:disabled):hover {
+  border-color: var(--sh-color-brand-primary);
+  transform: translateY(-1px);
+}
+
+.parserOption:focus-visible {
+  outline: 2px solid var(--sh-color-border-focus);
+  outline-offset: 2px;
+}
+
 .parserOption[data-disabled="true"] {
   color: var(--sh-color-disabled-text);
   background: var(--sh-color-disabled-bg);
   box-shadow: none;
   cursor: not-allowed;
   opacity: 0.72;
-}
-
-.parserOption[data-disabled="false"] {
-  border-color: var(--sh-color-brand-primary);
-  background: var(--sh-color-info-bg);
-  box-shadow:
-    0 0 0 2px var(--sh-color-brand-soft),
-    var(--sh-shadow-control);
 }
 
 .parserOption input {
@@ -199,6 +204,10 @@
   font-size: var(--sh-font-size-caption);
   font-weight: var(--sh-font-weight-regular);
   line-height: var(--sh-line-height-caption);
+}
+
+.parserOption[data-selected="true"] .parserCopy small {
+  color: var(--sh-color-text-secondary);
 }
 
 .parserBadge {

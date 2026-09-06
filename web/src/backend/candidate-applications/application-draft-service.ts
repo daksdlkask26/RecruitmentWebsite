@@ -1201,6 +1201,10 @@ export class ApplicationDraftService {
           "This application draft changed in another tab. Refresh it and try again.",
         );
       }
+      // `updateMany` is the ownership boundary. A later read/projection may
+      // fail after the row has committed, so the newly stored object must be
+      // retained for review/reconciliation instead of being deleted here.
+      persisted = true;
       const updated = await draftRow(this.db, actor.userId, draft.jobPostingId);
       if (!updated) {
         throw new CandidateApplicationError(
@@ -1212,7 +1216,6 @@ export class ApplicationDraftService {
       // The database now points at the new object. Keep the object if a later
       // projection/response step fails; deleting it here would leave a
       // dangling coverLetterDraft that can never pass review validation.
-      persisted = true;
       const previous = storedCoverLetter(draft.coverLetterDraft);
       if (previous)
         await storage.delete(previous.file.storageKey).catch(() => undefined);

@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { HomePageView } from "@/frontend/features/home/components/home-page-view";
 import { HomeAccountMenu } from "@/frontend/features/home/components/home-account-menu";
 import { candidateViewer, homeModel } from "../../../helpers/home/home-fixtures";
+import { HomeTestHarness } from "../../../helpers/home/home-test-harness";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn(), refresh: vi.fn(), push: vi.fn() }),
@@ -19,7 +19,7 @@ const labels = {
 
 describe("Home account presentation", () => {
   it("shows guest authentication actions and no private shortcuts", () => {
-    render(<HomePageView model={homeModel()} />);
+    render(<HomeTestHarness model={homeModel()} />);
     expect(screen.getAllByRole("link", { name: "Log in" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: "Sign up" }).length).toBeGreaterThan(0);
     expect(screen.queryByText("My Dashboard")).not.toBeInTheDocument();
@@ -42,7 +42,13 @@ describe("Home account presentation", () => {
 
   it("keeps long authenticated names accessible", () => {
     const name = "Nguyễn An với một tên hiển thị rất dài";
-    render(<HomePageView model={homeModel({ viewer: { ...candidateViewer, displayName: name } })} />);
+    render(
+      <HomeTestHarness
+        model={homeModel({
+          viewer: { ...candidateViewer, displayName: name },
+        })}
+      />,
+    );
     expect(screen.getAllByText(name).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("button", { name: "Log out" }).length).toBeGreaterThan(0);
   });

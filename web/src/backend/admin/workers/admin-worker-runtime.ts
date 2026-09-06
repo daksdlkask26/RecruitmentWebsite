@@ -16,6 +16,7 @@ export type AdminWorkerLoop = {
     | "job-post-lifecycle"
     | "job-review-retention"
     | "team-application-retention"
+    | "candidate-cv-artifact-reconciliation"
     | "backup";
   intervalMs: number;
   run(now: Date): Promise<unknown>;

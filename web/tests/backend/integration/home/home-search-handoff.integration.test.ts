@@ -33,7 +33,9 @@ describe("Home search to existing Job Discovery handoff", () => {
     );
     expect(result.items).toEqual([]);
     expect(result.criteria).toMatchObject({
-      q: "frontend",
+      // The response preserves the candidate's editable casing while the
+      // repository receives normalized search variants internally.
+      q: "Frontend",
       location: "ha noi",
       workArrangement: [],
       employmentType: [],

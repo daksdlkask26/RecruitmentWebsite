@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
 import { prisma } from "@/backend/database/prisma";
+import { assertTestDatabaseEnvironment } from "./test-database-guard";
 
 type CredentialFixtureInput = {
   email: string;
@@ -16,6 +17,7 @@ type CredentialFixtureInput = {
  * RegisterAccountService and its transactional domain workflow.
  */
 export async function createCredentialFixture(input: CredentialFixtureInput) {
+  assertTestDatabaseEnvironment();
   const userId = randomUUID();
   const normalizedEmail = input.email.trim().toLowerCase();
   const password = await hashPassword(input.password);

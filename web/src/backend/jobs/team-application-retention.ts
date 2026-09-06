@@ -92,6 +92,20 @@ export async function runTeamApplicationRetentionCycle(
           data: { cvDeletedAt: now, cvDeletionFailureCode: null },
         });
         if (changed.count !== 1) return;
+        await tx.candidateCvArtifactPromotion.updateMany({
+          where: {
+            scope: "TEAM_APPLICATION",
+            targetId: row.id,
+            state: { in: ["PROMOTED", "COMMITTED", "DELETE_FAILED"] },
+            deletedAt: null,
+          },
+          data: {
+            state: "DELETED",
+            deletedAt: now,
+            lastSafeFailureCode: null,
+            attemptCount: { increment: 1 },
+          },
+        });
         await tx.auditEvent.create({
           data: {
             actorType: "system",

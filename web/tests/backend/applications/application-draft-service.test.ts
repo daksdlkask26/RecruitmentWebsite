@@ -19,6 +19,7 @@ vi.mock("@/backend/services/profile/candidate-cv-library", () => ({
 import { ApplicationDraftService } from "@/backend/candidate-applications/application-draft-service";
 
 const now = new Date("2026-08-18T08:00:00.000Z");
+const validPdfBytes = new TextEncoder().encode("%PDF-1.7\n");
 
 function draftRow(overrides: Record<string, unknown> = {}) {
   return {
@@ -42,7 +43,7 @@ describe("ApplicationDraftService cover-letter persistence", () => {
     storage.assertReady.mockResolvedValue(undefined);
     storage.put.mockResolvedValue({
       locator: "new-cover-letter-locator",
-      bytes: 3,
+      bytes: validPdfBytes.byteLength,
       storagePurposeVersion: "application-document-v1",
     });
     storage.delete.mockResolvedValue({ deleted: true });
@@ -73,7 +74,7 @@ describe("ApplicationDraftService cover-letter persistence", () => {
         { userId: "candidate-1", sessionId: "session-1" },
         "draft-1",
         1,
-        new File([Uint8Array.of(1, 2, 3)], "cover.pdf", {
+        new File([validPdfBytes], "cover.pdf", {
           type: "application/pdf",
         }),
         now,

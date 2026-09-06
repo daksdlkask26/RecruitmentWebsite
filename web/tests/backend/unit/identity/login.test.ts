@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
+import { assertTestDatabaseEnvironment } from "../../../helpers/test-database-guard";
 import { prisma } from "@/backend/database/prisma";
 import { TokenProtector } from "@/backend/security/security-token/security-tokens";
 import { BetterAuthGateway } from "@/backend/auth/better-auth/better-auth-gateway";
@@ -8,6 +9,9 @@ import {
   LoginWithPasswordService,
   GENERIC_LOGIN_ERROR,
 } from "@/backend/services/identity/login-with-password";
+
+assertTestDatabaseEnvironment();
+
 async function account(
   state: "ACTIVE" | "PENDING_VERIFICATION" | "SUSPENDED" | "DELETED",
 ) {

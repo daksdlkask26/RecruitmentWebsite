@@ -21,8 +21,10 @@ export function InfoRow({
   if (asDefinition) {
     return (
       <div className={classes} data-value-tone={valueTone}>
-        {icon ? <span className="sh-info-row__icon">{icon}</span> : null}
-        <dt className="sh-info-row__label">{label}</dt>
+        <dt className="sh-info-row__label">
+          {icon ? <span className="sh-info-row__icon">{icon}</span> : null}
+          <span className="sh-info-row__label-text">{label}</span>
+        </dt>
         <dd className={valueClasses}>{value}</dd>
       </div>
     );

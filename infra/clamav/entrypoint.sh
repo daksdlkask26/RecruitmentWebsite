@@ -59,6 +59,15 @@ start_freshclam() {
   freshclam_pid=$!
 }
 
+has_signature_database() {
+  [ -s "${DATABASE_DIR}/main.cvd" ] ||
+    [ -s "${DATABASE_DIR}/main.cld" ] ||
+    [ -s "${DATABASE_DIR}/daily.cvd" ] ||
+    [ -s "${DATABASE_DIR}/daily.cld" ] ||
+    [ -s "${DATABASE_DIR}/bytecode.cvd" ] ||
+    [ -s "${DATABASE_DIR}/bytecode.cld" ]
+}
+
 ensure_freshclam() {
   if is_running "${freshclam_pid}"; then
     return
@@ -75,11 +84,15 @@ ensure_freshclam() {
 trap shutdown INT TERM
 trap cleanup EXIT
 
-if ! freshclam \
-  --stdout \
-  --user=clamav \
-  --config-file="${FRESHCLAM_CONFIG}"; then
-  echo "Initial signature refresh failed; FreshClam will keep retrying in the background." >&2
+if has_signature_database; then
+  echo "ClamAV signatures already cached; skipping initial refresh."
+else
+  if ! freshclam \
+    --stdout \
+    --user=clamav \
+    --config-file="${FRESHCLAM_CONFIG}"; then
+    echo "Initial signature refresh failed; FreshClam will keep retrying in the background." >&2
+  fi
 fi
 
 start_freshclam

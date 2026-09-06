@@ -6,7 +6,6 @@ import { RatingRow } from "@/frontend/components/ui/rating-row";
 import { RelatedJobRow } from "@/frontend/components/ui/related-job-row";
 import type { JobCard, JobDetail } from "@/shared/contracts/jobs/discovery";
 import { formatSalary } from "@/shared/utils/jobs/job-display";
-import companyCatalog from "../../../../../data/companies/companies.json";
 import { CompanyAvatar } from "./company-avatar";
 import { JobMetaIcon, type JobMetaIconName } from "./job-meta-icon";
 import { ReportJobDialog } from "./report-job-dialog";
@@ -22,58 +21,28 @@ function companyWithMeta(company: JobDetail["company"]): CompanyWithMeta {
   return company as CompanyWithMeta;
 }
 
-type CompanyFixture = (typeof companyCatalog)[number];
-
 function nonEmpty(value: string | null | undefined) {
   return value?.trim() ? value : null;
 }
 
-function companyKey(value: string | null | undefined) {
-  return (value ?? "")
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/gu, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/gu, "-")
-    .replace(/^-+|-+$/gu, "");
-}
-
-function companyFixtureFor(
-  company: CompanyWithMeta,
-): CompanyFixture | undefined {
-  const keys = new Set(
-    [company.slug, company.displayName].map(companyKey).filter(Boolean),
-  );
-  return companyCatalog.find(
-    (entry) =>
-      keys.has(companyKey(entry.slug)) || keys.has(companyKey(entry.name)),
-  );
-}
-
 function resolveSidebarCompany(company: CompanyWithMeta): CompanyWithMeta {
-  const fixture = companyFixtureFor(company);
-
+  // Job detail data is database-backed. Keep this client component independent
+  // from the removed static catalogue so a valid job never fails to render
+  // because an optional local fixture file is absent from a deployment image.
   return {
     ...company,
-    displayName: nonEmpty(company.displayName) ?? fixture?.name ?? "Company",
+    displayName: nonEmpty(company.displayName) ?? "Company",
     logoUrl:
       nonEmpty(company.logoUrl) ??
       nonEmpty(company.logo) ??
-      nonEmpty(fixture?.logo) ??
       null,
-    websiteUrl:
-      nonEmpty(company.websiteUrl) ?? nonEmpty(fixture?.website) ?? null,
-    publicDescription:
-      nonEmpty(company.publicDescription) ??
-      nonEmpty(fixture?.description) ??
-      null,
-    publicLocation:
-      nonEmpty(company.publicLocation) ?? nonEmpty(fixture?.address) ?? null,
-    size: nonEmpty(company.size) ?? nonEmpty(fixture?.size) ?? undefined,
-    industry:
-      nonEmpty(company.industry) ?? nonEmpty(fixture?.industry) ?? undefined,
-    address:
-      nonEmpty(company.address) ?? nonEmpty(fixture?.address) ?? undefined,
-    rating: company.rating ?? fixture?.rating,
+    websiteUrl: nonEmpty(company.websiteUrl) ?? null,
+    publicDescription: nonEmpty(company.publicDescription) ?? null,
+    publicLocation: nonEmpty(company.publicLocation) ?? null,
+    size: nonEmpty(company.size) ?? undefined,
+    industry: nonEmpty(company.industry) ?? undefined,
+    address: nonEmpty(company.address) ?? undefined,
+    rating: company.rating,
   };
 }
 

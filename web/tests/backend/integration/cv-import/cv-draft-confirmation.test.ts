@@ -8,6 +8,7 @@ import { getCvImportResource } from "@/backend/services/cv-import/cv-import-proj
 import {
   cleanupReviewAccounts,
   cvReviewFixtureNow,
+  cvReviewFixtureSha256,
   seedReviewDraft,
 } from "../../../helpers/cv-review-fixture";
 
@@ -93,9 +94,14 @@ describe.sequential("atomic CV draft confirmation", () => {
       candidateUserId: seeded.accountId,
       displayName: "candidate-cv.pdf",
       fileName: "candidate-cv.pdf",
-      storageKey: "candidate-cv-" + seeded.uploadId,
-      checksumSha256: "11".repeat(32),
+      checksumSha256: cvReviewFixtureSha256,
     });
+    // Confirmation replaces the temporary bridge with a private storage
+    // locator; retaining the bridge would make later profile reads unsafe.
+    expect(savedCv.rows[0].storageKey).not.toBe(
+      "candidate-cv-" + seeded.uploadId,
+    );
+    expect(savedCv.rows[0].storageKey).toMatch(/^[A-Za-z0-9_-]{32,128}$/u);
     expect(savedCv.rows[0].confirmedAt).toEqual(
       new Date(first.receipt.confirmedAt),
     );

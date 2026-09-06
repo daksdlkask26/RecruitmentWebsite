@@ -22,8 +22,9 @@ import { CvProcessingNotice } from "./cv-processing-notice";
 import styles from "./cv-upload-form.module.css";
 
 const acceptedExtensions = new Set(["pdf", "doc", "docx"]);
-
-const subscribeToHydration = () => () => undefined;
+const subscribeToHydration = () => () => {};
+const getClientHydration = () => true;
+const getServerHydration = () => false;
 
 export function CvUploadForm({
   csrfProof,
@@ -41,15 +42,17 @@ export function CvUploadForm({
   const locale = useWorkspaceLocale();
   const copy = cvCopy(locale);
   const [file, setFile] = useState<File | null>(null);
-  const [parserClass] = useState<CvParserClass | null>(
-    parserAvailability.external ? "EXTERNAL_OPENAI" : null,
-  );
+  const [parserClass, setParserClass] = useState<CvParserClass | null>(() => {
+    if (parserAvailability.deterministic) return "DETERMINISTIC_INTERNAL";
+    if (parserAvailability.external) return "EXTERNAL_OPENAI";
+    return null;
+  });
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState(copy.upload.ready);
   const hydrated = useSyncExternalStore(
     subscribeToHydration,
-    () => true,
-    () => false,
+    getClientHydration,
+    getServerHydration,
   );
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -139,14 +142,6 @@ export function CvUploadForm({
           ? "Hiện không có bộ phân tích CV khả dụng."
           : "No CV parser is currently available.",
       );
-    if (parserClass !== "EXTERNAL_OPENAI") {
-      return showError(
-        locale === "vi"
-          ? "Lần nhập CV mới chỉ hỗ trợ bộ phân tích OpenAI bên ngoài."
-          : "New CV imports only support the External OpenAI parser.",
-      );
-    }
-
     setBusy(true);
     setError(null);
     setMessage(locale === "vi" ? "Đang tải CV…" : "Uploading CV…");
@@ -211,9 +206,34 @@ export function CvUploadForm({
       </div>
       <fieldset className={styles.parserFieldset}>
         <legend>{copy.upload.chooseParser}</legend>
-        <p className={styles.parserGuidance}>{copy.upload.parserGuidance}</p>
-        <div className={styles.parserOptions}>
-          <div
+        <p className={styles.parserGuidance}>
+          {parserClass === "DETERMINISTIC_INTERNAL"
+            ? copy.upload.deterministicHint
+            : copy.upload.parserGuidance}
+        </p>
+        <div className={styles.parserOptions} role="radiogroup">
+          {parserAvailability.deterministic ? (
+            <button
+              type="button"
+              className={styles.parserOption}
+              data-selected={parserClass === "DETERMINISTIC_INTERNAL"}
+              role="radio"
+              aria-checked={parserClass === "DETERMINISTIC_INTERNAL"}
+              aria-label={copy.upload.deterministic}
+              onClick={() => setParserClass("DETERMINISTIC_INTERNAL")}
+            >
+              <span className={styles.parserMark} aria-hidden="true">
+                SH
+              </span>
+              <span className={styles.parserCopy}>
+                <strong>{copy.upload.deterministic}</strong>
+                <small>{copy.upload.deterministicHint}</small>
+              </span>
+              <span className={styles.parserBadge}>{copy.upload.local}</span>
+            </button>
+          ) : null}
+          <button
+            type="button"
             className={styles.parserOption}
             data-selected={parserClass === "EXTERNAL_OPENAI"}
             data-disabled={!parserAvailability.external}
@@ -221,7 +241,9 @@ export function CvUploadForm({
             aria-checked={parserClass === "EXTERNAL_OPENAI"}
             aria-disabled={!parserAvailability.external}
             tabIndex={parserAvailability.external ? 0 : -1}
+            disabled={!parserAvailability.external}
             aria-label={copy.upload.external}
+            onClick={() => setParserClass("EXTERNAL_OPENAI")}
           >
             <span className={styles.parserMark} aria-hidden="true">
               AI
@@ -235,7 +257,7 @@ export function CvUploadForm({
                 ? copy.upload.required
                 : copy.upload.notConfigured}
             </span>
-          </div>
+          </button>
         </div>
       </fieldset>
       <div className={styles.actions}>

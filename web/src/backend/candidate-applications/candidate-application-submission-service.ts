@@ -6,6 +6,7 @@ import {
   type CandidateActor,
 } from "@/backend/services/jobs/job-types";
 import { JobApplicationService } from "@/backend/services/jobs/job-application-service";
+import type { PreparedDirectApplicationCv } from "@/backend/services/jobs/prepare-direct-application-cv";
 import {
   applicationSubmitCommandSchema,
   candidatePersonalInfoSchema,
@@ -109,18 +110,7 @@ export class CandidateApplicationSubmissionService {
       );
     }
 
-    let preparedCoverLetter:
-      | {
-          id: string;
-          displayName: string;
-          fileName: string;
-          mimeType: string;
-          byteSize: number;
-          storageKey: string;
-          checksumSha256: string;
-          cleanup(): Promise<void>;
-        }
-      | undefined;
+    let preparedCoverLetter: PreparedDirectApplicationCv | undefined;
     let coverLetter: unknown = null;
     const rawCoverLetter = draft.coverLetterDraft;
     const rawCoverKind =
@@ -149,6 +139,8 @@ export class CandidateApplicationSubmissionService {
         // ApplicationDocument. Never delete it on an idempotent/concurrent
         // replay: the winning transaction may already reference this same
         // locator as the submitted cover letter.
+        claimOwnership: () => undefined,
+        preserveOnUnknown: () => undefined,
         cleanup: async () => undefined,
       };
       coverLetter = {

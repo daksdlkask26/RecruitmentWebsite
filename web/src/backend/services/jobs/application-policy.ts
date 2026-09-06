@@ -11,6 +11,11 @@ export type DirectApplicationCv = Readonly<{
   byteSize: number;
   storageKey: string;
   checksumSha256: string;
+  /** Optional lifecycle hooks supplied by a request-scoped temporary upload. */
+  claimOwnership?: () => void;
+  preserveOnUnknown?: () => void;
+  /** Completes a deferred object write after its ownership ledger is staged. */
+  ensureStored?: () => Promise<void>;
 }>;
 
 export class ApplicationRepositoryError extends Error {

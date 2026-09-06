@@ -2,7 +2,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { render, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { HomePageView } from "@/frontend/features/home/components/home-page-view";
+import { HomeTestHarness } from "../../helpers/home/home-test-harness";
 import {
   companySpotlight,
   employerViewer,
@@ -16,7 +16,7 @@ vi.mock("next/navigation", () => ({
 describe("rendered Home privacy", () => {
   it("keeps Guest and expired HTML free of identity, session, profile, membership, and personal recommendation data", () => {
     const html = renderToStaticMarkup(
-      React.createElement(HomePageView, { model: homeModel() }),
+      React.createElement(HomeTestHarness, { model: homeModel() }),
     );
     expect(html).not.toMatch(
       /csrf-proof|private-proof|@example|My Applications|Saved Jobs|profileSignals|Personal match estimate|membership|token/iu,
@@ -32,7 +32,7 @@ describe("rendered Home privacy", () => {
     ];
     const model = homeModel({ viewer: employerViewer, companies });
     const html = renderToStaticMarkup(
-      React.createElement(HomePageView, {
+      React.createElement(HomeTestHarness, {
         model,
       }),
     );
@@ -43,7 +43,7 @@ describe("rendered Home privacy", () => {
       "This example does not use your profile or a live job.",
     );
     const { container } = render(
-      React.createElement(HomePageView, {
+      React.createElement(HomeTestHarness, {
         model: homeModel({ viewer: employerViewer, companies }),
       }),
     );

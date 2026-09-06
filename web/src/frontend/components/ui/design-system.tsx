@@ -11,6 +11,9 @@ export type PanelProps = {
   accentBorder?: "blue" | "teal";
   showDivider?: boolean;
   className?: string;
+  headClassName?: string;
+  titleClassName?: string;
+  bodyClassName?: string;
   titleId?: string;
   titleAs?: "h1" | "h2";
   as?: "article" | "section" | "header" | "div";
@@ -25,6 +28,9 @@ export function Panel({
   accentBorder,
   showDivider = true,
   className = "",
+  headClassName = "",
+  titleClassName = "",
+  bodyClassName = "",
   titleId,
   titleAs = "h2",
   as = "section",
@@ -40,17 +46,24 @@ export function Panel({
       aria-labelledby={titleId}
       {...props}
     >
-      <div className="sh-panel__head">
+      <div className={["sh-panel__head", headClassName].filter(Boolean).join(" ")}>
         <div className="sh-panel__heading">
           <p className="sh-panel__eyebrow">{eyebrow}</p>
-          <Title className="sh-panel__title" id={titleId}>
+          <Title
+            className={["sh-panel__title", titleClassName]
+              .filter(Boolean)
+              .join(" ")}
+            id={titleId}
+          >
             {title}
           </Title>
         </div>
         {rightSlot ? <div className="sh-panel__right">{rightSlot}</div> : null}
       </div>
       {showDivider ? <hr className="sh-panel__divider" /> : null}
-      <div className="sh-panel__body">{children}</div>
+      <div className={["sh-panel__body", bodyClassName].filter(Boolean).join(" ")}>
+        {children}
+      </div>
     </Component>
   );
 }

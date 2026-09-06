@@ -16,16 +16,16 @@
     var(--sh-profile-primary-light) 150%
   );
 }
-.hero :global(.sh-panel__head) {
+.heroHead {
   margin: 0;
 }
-.hero :global(.sh-panel__title) {
+.heroTitle {
   max-width: 680px;
   font-size: clamp(28px, 4vw, 40px);
   line-height: 1.18;
   letter-spacing: -0.035em;
 }
-.hero :global(.sh-panel__body) {
+.heroBody {
   grid-column: 1;
 }
 .lede {
@@ -51,7 +51,7 @@
   .hero {
     grid-template-columns: 1fr;
   }
-  .hero :global(.sh-panel__body) {
+  .heroBody {
     grid-column: auto;
   }
   .workflow {

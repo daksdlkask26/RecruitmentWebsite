@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { HomePageView } from "@/frontend/features/home/components/home-page-view";
 import {
   candidateViewer,
   employerViewer,
   homeModel,
   personalMatch,
 } from "../../../helpers/home/home-fixtures";
+import { HomeTestHarness } from "../../../helpers/home/home-test-harness";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
@@ -31,7 +31,7 @@ describe("HomePageView shared shell", () => {
     ["employer", homeModel({ viewer: employerViewer })],
     ["expired session", homeModel({ viewer: { kind: "guest" } })],
   ])("keeps the same ordered Home sections for %s", (_name, model) => {
-    const { container } = render(<HomePageView model={model} />);
+    const { container } = render(<HomeTestHarness model={model} />);
     const headings = [...container.querySelectorAll("h2")].map((node) =>
       node.textContent?.trim(),
     );
@@ -53,7 +53,7 @@ describe("HomePageView shared shell", () => {
       { ...homeModel().spotlights.items[0]!, slug: "company-three" },
     ];
     const { container } = render(
-      <HomePageView model={homeModel({ companies })} />,
+      <HomeTestHarness model={homeModel({ companies })} />,
     );
     const headings = [...container.querySelectorAll("h2")].map((node) =>
       node.textContent?.trim(),
@@ -65,14 +65,14 @@ describe("HomePageView shared shell", () => {
   });
 
   it("keeps private account slots conditional without duplicating the page", () => {
-    const { rerender } = render(<HomePageView model={homeModel()} />);
+    const { rerender } = render(<HomeTestHarness model={homeModel()} />);
     expect(
       screen.getAllByRole("link", { name: "Log in" }).length,
     ).toBeGreaterThan(0);
     expect(screen.queryByText("My Applications")).not.toBeInTheDocument();
 
     rerender(
-      <HomePageView
+      <HomeTestHarness
         model={homeModel({ viewer: candidateViewer, match: personalMatch() })}
       />,
     );

@@ -12,6 +12,11 @@ if (process.env.MESSAGING_E2E_READY === "0") {
   process.exit(0);
 }
 
+const { assertTestDatabaseEnvironment } = await import(
+  "../tests/helpers/test-database-guard.ts"
+);
+assertTestDatabaseEnvironment();
+
 const { hashPassword } = await import("better-auth/crypto");
 const { prisma } = await import("../src/backend/database/prisma.ts");
 const { cleanupMessagingFixture, seedMessagingFixture } = await import(

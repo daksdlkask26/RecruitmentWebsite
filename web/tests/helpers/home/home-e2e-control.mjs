@@ -6,6 +6,9 @@ loadEnvironment({ path: resolve(process.cwd(), ".env.local"), quiet: true });
 
 const [command, encoded = "bnVsbA"] = process.argv.slice(2);
 const payload = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8"));
+const { assertTestDatabaseEnvironment } =
+  await import("../test-database-guard.ts");
+assertTestDatabaseEnvironment();
 const { prisma } = await import("../../../src/backend/database/prisma.ts");
 const { createJobBoardDatabaseFixture, deleteJobBoardDatabaseFixture } =
   await import("../job-board-database-fixture.ts");

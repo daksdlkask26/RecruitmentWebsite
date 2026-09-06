@@ -185,10 +185,14 @@ export class S3PrivateCvStorage implements PrivateCvStorage {
   async put(input: {
     source: AsyncIterable<Uint8Array>;
     expectedBytes: number;
+    locator?: string;
   }): Promise<PrivateCvStorageItem> {
     this.requireReady();
     assertStorageByteCount(input.expectedBytes);
-    const locator = this.locatorFactory();
+    const locator = input.locator ?? this.locatorFactory();
+    if (!locatorPattern.test(locator)) {
+      throw new CvStorageError("CV_STORAGE_LOCATOR_INVALID");
+    }
     const key = this.objectKey(locator);
     let received = 0;
     const counted = async function* () {

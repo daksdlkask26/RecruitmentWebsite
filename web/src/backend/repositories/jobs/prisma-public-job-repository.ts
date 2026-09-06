@@ -29,7 +29,11 @@ import {
   classifySearchToken,
   escapePostgresRegex,
 } from "@/backend/services/search/search-token-policy";
-import { careerPathSearchTerms } from "@/shared/contracts/jobs/career-paths";
+import {
+  careerPathSearchTerms,
+  careerPathSlugs,
+  type CareerPathSlug,
+} from "@/shared/contracts/jobs/career-paths";
 import {
   candidateVisibleJobSql,
   candidateVisibleJobWhere,
@@ -1163,6 +1167,9 @@ export interface PublicJobRepository {
     actorUserId: string | null,
     now: Date,
   ): Promise<PublicJobRow[]>;
+  countCareerPathJobs?(
+    now: Date,
+  ): Promise<readonly { slug: CareerPathSlug; openJobCount: number }[]>;
   findPublicRecommendationCandidates?(
     actorUserId: string | null,
     now: Date,
@@ -1761,6 +1768,39 @@ export class PrismaPublicJobRepository implements PublicJobRepository {
       candidateCapReached: ranked.candidateCapReached,
       nextCursor: ranked.nextCursor,
     };
+  }
+
+  /**
+   * Home shows the same career-path counts as /jobs?careerPath=... .
+   * Counting each path through the full search service caused one ranked
+   * query, one entity projection, and one catalog lookup per path. Keep the
+   * visibility policy identical while evaluating all counters in one query.
+   */
+  async countCareerPathJobs(now: Date) {
+    const values = careerPathSlugs.flatMap((slug) =>
+      careerPathSearchTerms[slug].map((term) => Prisma.sql`(${slug}, ${term})`),
+    );
+    const rows = await prisma.$queryRaw<
+      Array<{ slug: string; openJobCount: number }>
+    >(Prisma.sql`
+      WITH career_paths("slug", "term") AS (
+        VALUES ${Prisma.join(values, ", ")}
+      )
+      SELECT career_paths."slug" AS "slug",
+             COUNT(DISTINCT j."id")::int AS "openJobCount"
+      FROM career_paths
+      JOIN "JobPosting" j
+        ON ${candidateVisibleJobSql(now)}
+       AND j."searchDocumentNormalized" LIKE '%' || career_paths."term" || '%'
+      GROUP BY career_paths."slug"
+    `);
+    const counts = new Map(
+      rows.map((row) => [row.slug as CareerPathSlug, Number(row.openJobCount)]),
+    );
+    return careerPathSlugs.map((slug) => ({
+      slug,
+      openJobCount: counts.get(slug) ?? 0,
+    }));
   }
 
   async findPublicBySlug(slug: string, actorUserId: string | null, now: Date) {

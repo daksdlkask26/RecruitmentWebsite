@@ -1,6 +1,12 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { prisma } from "@/backend/database/prisma";
-import { AdminMessagingReportReviewService } from "@/backend/admin/messaging-reports/admin-messaging-report-review-service";
+import { assertRequestedTestDatabase } from "../../helpers/test-database-guard";
+
+assertRequestedTestDatabase();
+
+const { prisma } = await import("@/backend/database/prisma");
+const { AdminMessagingReportReviewService } = await import(
+  "@/backend/admin/messaging-reports/admin-messaging-report-review-service"
+);
 
 const suffix = crypto.randomUUID();
 const reporterId = `report-perf-reporter-${suffix}`;

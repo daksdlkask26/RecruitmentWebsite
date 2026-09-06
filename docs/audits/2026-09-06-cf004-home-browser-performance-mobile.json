@@ -1,0 +1,34 @@
+{
+  "project": "home-mobile-390x844",
+  "environment": "production-build-next-start",
+  "externalConditions": "next build output served by next start; isolated test database",
+  "warmup": {
+    "routes": [
+      "/",
+      "/jobs?q=typescript"
+    ],
+    "perVisitor": [
+      "/jobs?q=typescript"
+    ],
+    "excludedFromSamples": true
+  },
+  "startedAt": "2026-09-06T11:39:53.276Z",
+  "durationMs": 22582,
+  "datasetSize": 1002,
+  "concurrentVisitors": 10,
+  "measuredSamples": {
+    "home": 100,
+    "search": 100
+  },
+  "method": "nearest-rank P95 over browser-observed navigation-to-visible samples",
+  "home": {
+    "p95Ms": 1762.5316000000003,
+    "maximumMs": 1803.5692000000008
+  },
+  "search": {
+    "p95Ms": 1359.0108,
+    "maximumMs": 1750.0239999999994
+  },
+  "errorRate": 0,
+  "errors": []
+}

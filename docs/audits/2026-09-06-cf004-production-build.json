@@ -1,0 +1,17 @@
+{
+    "schemaVersion":  "candidate-first-cf004-production-build-v1",
+    "generatedAt":  "2026-09-06T09:55:04.3573021Z",
+    "status":  "PASS",
+    "command":  "npm run build --workspace @smarthire/web",
+    "nextVersion":  "16.3.0",
+    "bundler":  "Turbopack",
+    "compiled":  "PASS",
+    "typescript":  "PASS",
+    "staticPages":  115,
+    "routeInventory":  "115 pages/routes generated",
+    "warnings":  [
+                     "Dynamic filesystem access in src/backend/repositories/jobs/job-catalogue-repository-factory.ts traces the whole project.",
+                     "Dynamic filesystem access in src/backend/storage/business-evidence/filesystem.ts traces the whole project."
+                 ],
+    "interpretation":  "Build is valid for production-mode browser measurement; warnings are deployment-size/performance risks and remain tracked for CF-004."
+}
