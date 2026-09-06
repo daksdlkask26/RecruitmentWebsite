@@ -165,6 +165,7 @@ export class JobApplicationService {
     let directCv: PreparedDirectApplicationCv | undefined;
     let directCoverLetter: PreparedDirectApplicationCv | undefined =
       preparedDirectCoverLetter;
+    let repositoryAttempted = false;
     try {
       const command = applicationSubmissionSchema.parse(raw);
       const key = idempotencyKeySchema.parse(idempotencyKey);
@@ -178,7 +179,9 @@ export class JobApplicationService {
         try {
           directCv = await (
             await import("./prepare-direct-application-cv")
-          ).prepareDirectApplicationCv(directCvSource);
+          ).prepareDirectApplicationCv(directCvSource, {
+            deferStorage: true,
+          });
         } catch {
           throw new JobServiceError(400, {
             code: "APPLICATION_CV_INELIGIBLE",
@@ -216,7 +219,9 @@ export class JobApplicationService {
           try {
             directCoverLetter = await (
               await import("./prepare-direct-application-cv")
-            ).prepareDirectApplicationCv(directCoverLetterSource);
+            ).prepareDirectApplicationCv(directCoverLetterSource, {
+              deferStorage: true,
+            });
           } catch {
             throw new JobServiceError(400, {
               code: "APPLICATION_COVER_LETTER_INELIGIBLE",
@@ -227,6 +232,7 @@ export class JobApplicationService {
           }
         }
       }
+      repositoryAttempted = true;
       const result = await (
         await this.repo()
       ).submit({
@@ -247,13 +253,24 @@ export class JobApplicationService {
       if (!result.created) await directCv?.cleanup();
       if (!result.created) await directCoverLetter?.cleanup();
       if (result.created) {
+        directCv?.claimOwnership();
+        directCoverLetter?.claimOwnership();
         await recordApplication(actor.userId, jobId).catch(() => undefined);
       }
       return { ...result.application, created: result.created };
     } catch (error) {
-      if (directCv) await directCv.cleanup().catch(() => undefined);
-      if (directCoverLetter)
-        await directCoverLetter.cleanup().catch(() => undefined);
+      // Before the repository call, cleanup is deterministic.  Once a
+      // database transaction has been attempted, only a typed domain failure
+      // proves rollback; transport/serialization/database failures retain the
+      // upload for the durable promotion reconciliation path.
+      if (!repositoryAttempted || error instanceof ApplicationRepositoryError) {
+        if (directCv) await directCv.cleanup().catch(() => undefined);
+        if (directCoverLetter)
+          await directCoverLetter.cleanup().catch(() => undefined);
+      } else {
+        directCv?.preserveOnUnknown();
+        directCoverLetter?.preserveOnUnknown();
+      }
       await (this.audit ?? new PrismaAuditRepository())
         .append({
           occurredAt: now,

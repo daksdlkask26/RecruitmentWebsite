@@ -1887,6 +1887,40 @@ export type EnumApplicationArtifactPromotionStateWithAggregatesFilter<$PrismaMod
   _max?: Prisma.NestedEnumApplicationArtifactPromotionStateFilter<$PrismaModel>
 }
 
+export type EnumCandidateCvArtifactPromotionScopeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CandidateCvArtifactPromotionScope | Prisma.EnumCandidateCvArtifactPromotionScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.CandidateCvArtifactPromotionScope[] | Prisma.ListEnumCandidateCvArtifactPromotionScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CandidateCvArtifactPromotionScope[] | Prisma.ListEnumCandidateCvArtifactPromotionScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCandidateCvArtifactPromotionScopeFilter<$PrismaModel> | $Enums.CandidateCvArtifactPromotionScope
+}
+
+export type EnumCandidateCvArtifactPromotionStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CandidateCvArtifactPromotionState | Prisma.EnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CandidateCvArtifactPromotionState[] | Prisma.ListEnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CandidateCvArtifactPromotionState[] | Prisma.ListEnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCandidateCvArtifactPromotionStateFilter<$PrismaModel> | $Enums.CandidateCvArtifactPromotionState
+}
+
+export type EnumCandidateCvArtifactPromotionScopeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CandidateCvArtifactPromotionScope | Prisma.EnumCandidateCvArtifactPromotionScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.CandidateCvArtifactPromotionScope[] | Prisma.ListEnumCandidateCvArtifactPromotionScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CandidateCvArtifactPromotionScope[] | Prisma.ListEnumCandidateCvArtifactPromotionScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCandidateCvArtifactPromotionScopeWithAggregatesFilter<$PrismaModel> | $Enums.CandidateCvArtifactPromotionScope
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCandidateCvArtifactPromotionScopeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCandidateCvArtifactPromotionScopeFilter<$PrismaModel>
+}
+
+export type EnumCandidateCvArtifactPromotionStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CandidateCvArtifactPromotionState | Prisma.EnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CandidateCvArtifactPromotionState[] | Prisma.ListEnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CandidateCvArtifactPromotionState[] | Prisma.ListEnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCandidateCvArtifactPromotionStateWithAggregatesFilter<$PrismaModel> | $Enums.CandidateCvArtifactPromotionState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCandidateCvArtifactPromotionStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCandidateCvArtifactPromotionStateFilter<$PrismaModel>
+}
+
 export type EnumProfessionalConnectionStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.ProfessionalConnectionStatus | Prisma.EnumProfessionalConnectionStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ProfessionalConnectionStatus[] | Prisma.ListEnumProfessionalConnectionStatusFieldRefInput<$PrismaModel>
@@ -4947,6 +4981,40 @@ export type NestedEnumApplicationArtifactPromotionStateWithAggregatesFilter<$Pri
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumApplicationArtifactPromotionStateFilter<$PrismaModel>
   _max?: Prisma.NestedEnumApplicationArtifactPromotionStateFilter<$PrismaModel>
+}
+
+export type NestedEnumCandidateCvArtifactPromotionScopeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CandidateCvArtifactPromotionScope | Prisma.EnumCandidateCvArtifactPromotionScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.CandidateCvArtifactPromotionScope[] | Prisma.ListEnumCandidateCvArtifactPromotionScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CandidateCvArtifactPromotionScope[] | Prisma.ListEnumCandidateCvArtifactPromotionScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCandidateCvArtifactPromotionScopeFilter<$PrismaModel> | $Enums.CandidateCvArtifactPromotionScope
+}
+
+export type NestedEnumCandidateCvArtifactPromotionStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CandidateCvArtifactPromotionState | Prisma.EnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CandidateCvArtifactPromotionState[] | Prisma.ListEnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CandidateCvArtifactPromotionState[] | Prisma.ListEnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCandidateCvArtifactPromotionStateFilter<$PrismaModel> | $Enums.CandidateCvArtifactPromotionState
+}
+
+export type NestedEnumCandidateCvArtifactPromotionScopeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CandidateCvArtifactPromotionScope | Prisma.EnumCandidateCvArtifactPromotionScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.CandidateCvArtifactPromotionScope[] | Prisma.ListEnumCandidateCvArtifactPromotionScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CandidateCvArtifactPromotionScope[] | Prisma.ListEnumCandidateCvArtifactPromotionScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCandidateCvArtifactPromotionScopeWithAggregatesFilter<$PrismaModel> | $Enums.CandidateCvArtifactPromotionScope
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCandidateCvArtifactPromotionScopeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCandidateCvArtifactPromotionScopeFilter<$PrismaModel>
+}
+
+export type NestedEnumCandidateCvArtifactPromotionStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CandidateCvArtifactPromotionState | Prisma.EnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CandidateCvArtifactPromotionState[] | Prisma.ListEnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CandidateCvArtifactPromotionState[] | Prisma.ListEnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCandidateCvArtifactPromotionStateWithAggregatesFilter<$PrismaModel> | $Enums.CandidateCvArtifactPromotionState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCandidateCvArtifactPromotionStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCandidateCvArtifactPromotionStateFilter<$PrismaModel>
 }
 
 export type NestedEnumProfessionalConnectionStatusFilter<$PrismaModel = never> = {

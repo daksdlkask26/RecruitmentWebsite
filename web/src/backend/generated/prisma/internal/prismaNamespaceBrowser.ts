@@ -142,6 +142,7 @@ export const ModelName = {
   ApplicationDocument: 'ApplicationDocument',
   ApplicationCoverLetterText: 'ApplicationCoverLetterText',
   ApplicationArtifactPromotion: 'ApplicationArtifactPromotion',
+  CandidateCvArtifactPromotion: 'CandidateCvArtifactPromotion',
   ApplicationDocumentLegalHold: 'ApplicationDocumentLegalHold',
   ProfessionalConnection: 'ProfessionalConnection',
   ProfessionalConnectionProposal: 'ProfessionalConnectionProposal',
@@ -1961,6 +1962,7 @@ export const ApplicationArtifactPromotionScalarFieldEnum = {
   kind: 'kind',
   storagePurposeVersion: 'storagePurposeVersion',
   storageKeyEncrypted: 'storageKeyEncrypted',
+  contentDigestSha256: 'contentDigestSha256',
   state: 'state',
   orphanDeleteAfter: 'orphanDeleteAfter',
   leaseOwner: 'leaseOwner',
@@ -1973,6 +1975,26 @@ export const ApplicationArtifactPromotionScalarFieldEnum = {
 } as const
 
 export type ApplicationArtifactPromotionScalarFieldEnum = (typeof ApplicationArtifactPromotionScalarFieldEnum)[keyof typeof ApplicationArtifactPromotionScalarFieldEnum]
+
+
+export const CandidateCvArtifactPromotionScalarFieldEnum = {
+  id: 'id',
+  candidateUserId: 'candidateUserId',
+  scope: 'scope',
+  targetId: 'targetId',
+  storageKey: 'storageKey',
+  contentDigestSha256: 'contentDigestSha256',
+  byteSize: 'byteSize',
+  state: 'state',
+  orphanDeleteAfter: 'orphanDeleteAfter',
+  attemptCount: 'attemptCount',
+  lastSafeFailureCode: 'lastSafeFailureCode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type CandidateCvArtifactPromotionScalarFieldEnum = (typeof CandidateCvArtifactPromotionScalarFieldEnum)[keyof typeof CandidateCvArtifactPromotionScalarFieldEnum]
 
 
 export const ApplicationDocumentLegalHoldScalarFieldEnum = {

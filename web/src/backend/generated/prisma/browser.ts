@@ -482,6 +482,15 @@ export type ApplicationCoverLetterText = Prisma.ApplicationCoverLetterTextModel
  */
 export type ApplicationArtifactPromotion = Prisma.ApplicationArtifactPromotionModel
 /**
+ * Model CandidateCvArtifactPromotion
+ * Durable ownership boundary for CVs that are materialized into the profile
+ * library or attached to a Team Application. `targetId` is intentionally
+ * generic because it is known before either target transaction starts, while
+ * the target row itself may not exist yet. Reconciliation verifies the target
+ * row, storage locator, owner and digest before claiming or deleting bytes.
+ */
+export type CandidateCvArtifactPromotion = Prisma.CandidateCvArtifactPromotionModel
+/**
  * Model ApplicationDocumentLegalHold
  * 
  */

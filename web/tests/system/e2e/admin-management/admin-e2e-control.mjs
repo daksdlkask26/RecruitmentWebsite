@@ -18,6 +18,10 @@ registerHooks({
     return nextResolve(specifier, context);
   },
 });
+const { assertRequestedTestDatabase } = await import(
+  "../../../helpers/test-database-guard.ts"
+);
+assertRequestedTestDatabase();
 
 async function recordReliabilityEvidence(record) {
   const path = process.env.ADMIN_E2E_RELIABILITY_EVIDENCE;

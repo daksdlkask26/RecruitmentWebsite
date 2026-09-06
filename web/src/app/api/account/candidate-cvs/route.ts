@@ -85,6 +85,7 @@ export async function POST(request: Request) {
     }
     const prepared = await prepareDirectApplicationCv(
       await sourceFrom(await request.formData()),
+      { deferStorage: true },
     );
     const saved = await saveDirectCandidateCv(
       current.userId,

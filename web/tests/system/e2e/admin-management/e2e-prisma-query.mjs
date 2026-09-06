@@ -1,9 +1,26 @@
 import { resolve } from "node:path";
+import { registerHooks } from "node:module";
+import { pathToFileURL } from "node:url";
 import { config as loadEnvironment } from "dotenv";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../../../src/backend/generated/prisma/client.ts";
 
 loadEnvironment({ path: resolve(process.cwd(), ".env.local"), quiet: true });
+const serverOnlyMarker = pathToFileURL(
+  resolve(process.cwd(), "scripts/server-only-marker.mjs"),
+).href;
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    if (specifier === "server-only") {
+      return { url: serverOnlyMarker, shortCircuit: true };
+    }
+    return nextResolve(specifier, context);
+  },
+});
+const { assertRequestedTestDatabase } = await import(
+  "../../../helpers/test-database-guard.ts"
+);
+assertRequestedTestDatabase();
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl)
   throw new Error("DATABASE_URL is required for admin E2E assertions");

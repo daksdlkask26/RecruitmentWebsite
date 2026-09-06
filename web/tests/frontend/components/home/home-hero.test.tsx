@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { HomePageView } from "@/frontend/features/home/components/home-page-view";
 import {
   candidateViewer,
   employerViewer,
   homeModel,
 } from "../../../helpers/home/home-fixtures";
+import { HomeTestHarness } from "../../../helpers/home/home-test-harness";
 
 const navigation = vi.hoisted(() => ({
   push: vi.fn(),
@@ -18,7 +18,7 @@ describe("Home Hero", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("renders the AI CV proposition, concise search, and role CTAs", () => {
-    const { container } = render(<HomePageView model={homeModel()} />);
+    const { container } = render(<HomeTestHarness model={homeModel()} />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       /AI understands your CV/u,
     );
@@ -50,7 +50,7 @@ describe("Home Hero", () => {
   });
 
   it("submits only the concise discovery parameters", () => {
-    render(<HomePageView model={homeModel()} />);
+    render(<HomeTestHarness model={homeModel()} />);
     fireEvent.change(screen.getByLabelText("Keyword"), {
       target: { value: "frontend" },
     });
@@ -71,7 +71,7 @@ describe("Home Hero", () => {
 
   it("uses the profile route after login and only resolved recruiter destinations", () => {
     const { rerender } = render(
-      <HomePageView model={homeModel({ viewer: candidateViewer })} />,
+      <HomeTestHarness model={homeModel({ viewer: candidateViewer })} />,
     );
     expect(
       screen.getAllByRole("link", { name: "Create Profile" })[0],
@@ -84,7 +84,7 @@ describe("Home Hero", () => {
     ).not.toBeInTheDocument();
 
     rerender(
-      <HomePageView
+      <HomeTestHarness
         model={homeModel({
           viewer: {
             ...candidateViewer,
@@ -102,7 +102,7 @@ describe("Home Hero", () => {
       screen.getByRole("link", { name: /For employers/u }),
     ).toHaveAttribute("href", "/dashboard/employer-verification");
 
-    rerender(<HomePageView model={homeModel({ viewer: employerViewer })} />);
+    rerender(<HomeTestHarness model={homeModel({ viewer: employerViewer })} />);
     expect(
       screen.getByRole("link", { name: /For employers/u }),
     ).toHaveAttribute("href", "/recruiter/job-postings");

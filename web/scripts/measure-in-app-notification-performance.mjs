@@ -3,6 +3,11 @@ import { config } from "dotenv";
 
 config({ path: new URL("../.env.local", import.meta.url), quiet: true });
 
+const { assertTestDatabaseEnvironment } = await import(
+  "../tests/helpers/test-database-guard.ts"
+);
+assertTestDatabaseEnvironment();
+
 const { prisma } = await import("../src/backend/database/prisma.ts");
 const { PrismaNotificationRepository } =
   await import("../src/backend/repositories/notifications/prisma-notification-repository.ts");

@@ -38,12 +38,15 @@ export async function prepareTeamApplicationCv(file: File) {
     if (validated.kind !== "PDF" && validated.kind !== "DOCX") {
       throw new TeamApplicationCvError("TEAM_CV_FILE_TYPE_INVALID");
     }
-    return await prepareDirectApplicationCv({
-      fileName: validated.fileName,
-      mimeType: validated.mimeType,
-      byteSize: validated.byteSize,
-      source: validated.source,
-    });
+    return await prepareDirectApplicationCv(
+      {
+        fileName: validated.fileName,
+        mimeType: validated.mimeType,
+        byteSize: validated.byteSize,
+        source: validated.source,
+      },
+      { deferStorage: true },
+    );
   } catch (error) {
     if (error instanceof TeamApplicationCvError) throw error;
     if (isCvFileValidationError(error)) {

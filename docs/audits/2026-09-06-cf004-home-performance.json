@@ -1,0 +1,206 @@
+{
+  "schemaVersion": "candidate-first-cf004-home-performance-v1",
+  "generatedAt": "2026-09-06T04:37:11.448Z",
+  "commit": "607117854c0aeaf7127306ec4f5933f93d3d1ee0",
+  "environment": {
+    "node": "v24.18.0",
+    "platform": "win32",
+    "arch": "x64",
+    "cpuCount": 22,
+    "database": "smarthire_candidate_first_test",
+    "poolMax": 10,
+    "sampleCount": 20,
+    "concurrentWidth": 10
+  },
+  "seed": {
+    "namespace": "3299713c-4206-41f1-ac65-51f5d827db7b",
+    "companyId": "company-3299713c-4206-41f1-ac65-51f5d827db7b",
+    "createdJobs": 1000,
+    "activePublicJobsInNamespace": 1002,
+    "cleanup": "deleteJobBoardDatabaseFixture plus namespace job delete"
+  },
+  "roles": {
+    "guest": {
+      "sequential": {
+        "latency": {
+          "samples": 20,
+          "p50Ms": 44.745999999999185,
+          "p95Ms": 53.59479999999985,
+          "p99Ms": 54.020400000000336,
+          "maxMs": 54.020400000000336
+        },
+        "queryCount": {
+          "samples": 20,
+          "p50Ms": 46,
+          "p95Ms": 46,
+          "p99Ms": 46,
+          "maxMs": 46
+        },
+        "queryDuration": {
+          "samples": 20,
+          "p50Ms": 278.02710000000116,
+          "p95Ms": 354.6607999999942,
+          "p99Ms": 380.6082000000006,
+          "maxMs": 380.6082000000006
+        },
+        "poolWaitMs": {
+          "samples": 20,
+          "p50Ms": 58.83739999999489,
+          "p95Ms": 66.86620000000221,
+          "p99Ms": 82.02999999999793,
+          "maxMs": 82.02999999999793
+        },
+        "errors": 0
+      },
+      "concurrent": {
+        "width": 10,
+        "batchLatency": {
+          "samples": 10,
+          "p50Ms": 273.89960000000065,
+          "p95Ms": 290.08950000000004,
+          "p99Ms": 290.08950000000004,
+          "maxMs": 290.08950000000004
+        },
+        "peakPoolWaiting": {
+          "samples": 10,
+          "p50Ms": 196,
+          "p95Ms": 198,
+          "p99Ms": 198,
+          "maxMs": 198
+        },
+        "poolWaitMs": {
+          "samples": 4410,
+          "p50Ms": 43.268199999998615,
+          "p95Ms": 58.4968000000008,
+          "p99Ms": 62.169700000000375,
+          "maxMs": 66.89919999999984
+        },
+        "queryEvents": 4420,
+        "errorCount": 0
+      }
+    },
+    "candidate": {
+      "sequential": {
+        "latency": {
+          "samples": 20,
+          "p50Ms": 279.6829999999991,
+          "p95Ms": 309.26420000000144,
+          "p99Ms": 322.6460999999981,
+          "maxMs": 322.6460999999981
+        },
+        "queryCount": {
+          "samples": 20,
+          "p50Ms": 93,
+          "p95Ms": 93,
+          "p99Ms": 93,
+          "maxMs": 93
+        },
+        "queryDuration": {
+          "samples": 20,
+          "p50Ms": 735.6669999999958,
+          "p95Ms": 894.250200000004,
+          "p99Ms": 1268.415299999997,
+          "maxMs": 1268.415299999997
+        },
+        "poolWaitMs": {
+          "samples": 20,
+          "p50Ms": 280.7972000000045,
+          "p95Ms": 414.0784999999996,
+          "p99Ms": 737.4156999999941,
+          "maxMs": 737.4156999999941
+        },
+        "errors": 0
+      },
+      "concurrent": {
+        "width": 10,
+        "batchLatency": {
+          "samples": 10,
+          "p50Ms": 2366.5689999999995,
+          "p95Ms": 2463.8451999999997,
+          "p99Ms": 2463.8451999999997,
+          "maxMs": 2463.8451999999997
+        },
+        "peakPoolWaiting": {
+          "samples": 10,
+          "p50Ms": 403,
+          "p95Ms": 410,
+          "p99Ms": 410,
+          "maxMs": 410
+        },
+        "poolWaitMs": {
+          "samples": 9110,
+          "p50Ms": 64.27020000000266,
+          "p95Ms": 137.10020000000077,
+          "p99Ms": 167.52070000000094,
+          "maxMs": 926.4972999999954
+        },
+        "queryEvents": 9120,
+        "errorCount": 0
+      }
+    },
+    "employer": {
+      "sequential": {
+        "latency": {
+          "samples": 20,
+          "p50Ms": 275.53429999999935,
+          "p95Ms": 326.3954999999987,
+          "p99Ms": 398.22669999999925,
+          "maxMs": 398.22669999999925
+        },
+        "queryCount": {
+          "samples": 20,
+          "p50Ms": 93,
+          "p95Ms": 93,
+          "p99Ms": 93,
+          "maxMs": 93
+        },
+        "queryDuration": {
+          "samples": 20,
+          "p50Ms": 681.7373999999545,
+          "p95Ms": 1247.2527000000046,
+          "p99Ms": 2678.9894000000495,
+          "maxMs": 2678.9894000000495
+        },
+        "poolWaitMs": {
+          "samples": 20,
+          "p50Ms": 260.57099999997445,
+          "p95Ms": 665.197400000041,
+          "p99Ms": 1549.9783000000461,
+          "maxMs": 1549.9783000000461
+        },
+        "errors": 0
+      },
+      "concurrent": {
+        "width": 10,
+        "batchLatency": {
+          "samples": 10,
+          "p50Ms": 2292.7286999999997,
+          "p95Ms": 2380.1028000000006,
+          "p99Ms": 2380.1028000000006,
+          "maxMs": 2380.1028000000006
+        },
+        "peakPoolWaiting": {
+          "samples": 10,
+          "p50Ms": 406,
+          "p95Ms": 410,
+          "p99Ms": 410,
+          "maxMs": 410
+        },
+        "poolWaitMs": {
+          "samples": 9110,
+          "p50Ms": 53.78469999999652,
+          "p95Ms": 117.07099999999627,
+          "p99Ms": 150.86219999999594,
+          "maxMs": 218.4939000000013
+        },
+        "queryEvents": 9120,
+        "errorCount": 0
+      }
+    }
+  },
+  "limitations": [
+    "Pool wait is measured at the pg.Pool checkout boundary with an isolated test pool.",
+    "Browser navigation timing is recorded separately by the Home Playwright performance spec.",
+    "No shared or production database was mutated."
+  ]
+}

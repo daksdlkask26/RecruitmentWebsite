@@ -451,7 +451,7 @@
 }
 .recruitment-messaging__empty {
   margin: 0;
-  color: #66758f;
+  color: var(--sh-color-text-secondary);
   padding: 1rem;
   text-align: center;
 }
@@ -850,7 +850,7 @@
   grid-column: 1;
   grid-row: 2;
   min-width: 0;
-  color: #71809a;
+  color: var(--sh-color-text-secondary);
   font-size: 0.75rem;
   line-height: 1.25;
 }

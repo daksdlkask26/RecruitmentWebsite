@@ -42,7 +42,9 @@ describe("CV import status route identity", () => {
     );
     expect(route).toContain('export const dynamic = "force-dynamic"');
     expect(list).toContain("/profile/cv-imports/${item.uploadId}");
-    expect(status).toContain('current.status === "REVIEW_READY"');
-    expect(status).toContain("current.draft?.reviewUrl");
+    expect(status).toContain('availableActions.includes("REVIEW")');
+    expect(status).toContain(
+      "/profile/cv-imports/${current.uploadId}/review",
+    );
   });
 });

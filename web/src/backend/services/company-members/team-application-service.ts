@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/backend/database/prisma";
+import { randomUUID } from "node:crypto";
 import { Prisma } from "@/backend/generated/prisma/client";
 import { createInAppNotification } from "@/backend/notifications/notification-service";
 import {
@@ -13,6 +14,13 @@ import {
 } from "@/shared/contracts/company-members/team-applications";
 import type { PreparedDirectApplicationCv } from "@/backend/services/jobs/prepare-direct-application-cv";
 import { teamApplicationCvDeleteAfter } from "./team-application-retention-policy";
+import {
+  CANDIDATE_CV_ARTIFACT_SCOPE,
+  markCandidateCvArtifactCommitted,
+  markCandidateCvArtifactDeleted,
+  markCandidateCvArtifactFailure,
+  stageCandidateCvArtifact,
+} from "@/backend/cv/candidate-cv-artifact-promotion";
 
 const supportedRoles = ["HR_MANAGER", "RECRUITER"] as const;
 
@@ -141,10 +149,29 @@ export class TeamApplicationService {
     occurredAt = new Date(),
   ) {
     let cleaned = false;
+    let transactionAttempted = false;
+    let promotionId: string | null = null;
+    let stageFailed = false;
+    let storageOutcomeUnknown = false;
     const cleanup = async () => {
       if (cleaned) return;
-      cleaned = true;
       await prepared.cleanup();
+      cleaned = true;
+    };
+    const cleanupStagedArtifact = async () => {
+      try {
+        await cleanup();
+        if (promotionId)
+          await markCandidateCvArtifactDeleted(promotionId, occurredAt);
+      } catch {
+        prepared.preserveOnUnknown?.();
+        if (promotionId) {
+          await markCandidateCvArtifactFailure(
+            promotionId,
+            "CANDIDATE_CV_ARTIFACT_CLEANUP_FAILED",
+          );
+        }
+      }
     };
     try {
       const account = await prisma.userAccount.findUnique({
@@ -174,6 +201,38 @@ export class TeamApplicationService {
         return { created: false as const, application: status };
       }
 
+      const applicationId = randomUUID();
+      promotionId = await stageCandidateCvArtifact({
+        candidateUserId,
+        scope: CANDIDATE_CV_ARTIFACT_SCOPE.TEAM_APPLICATION,
+        targetId: applicationId,
+        storageKey: prepared.storageKey,
+        contentDigestSha256: prepared.checksumSha256,
+        byteSize: prepared.byteSize,
+        occurredAt,
+      }).catch((error) => {
+        stageFailed = true;
+        throw error;
+      });
+      // The durable Team Application promotion is staged before the object is
+      // materialized. A storage response lost after this point is therefore
+      // recoverable by the reconciliation worker instead of becoming an
+      // untracked upload.
+      try {
+        await prepared.ensureStored?.();
+      } catch (error) {
+        // cleanup() intentionally does nothing for an UNKNOWN object. Its
+        // resolution is not proof of deletion: leave the staged ledger for
+        // reconciliation even if recording this failure also loses its reply.
+        storageOutcomeUnknown = true;
+        prepared.preserveOnUnknown?.();
+        await markCandidateCvArtifactFailure(
+          promotionId,
+          "CANDIDATE_CV_ARTIFACT_STORAGE_WRITE_UNKNOWN",
+        );
+        throw error;
+      }
+      transactionAttempted = true;
       const createdId = await prisma.$transaction(async (tx) => {
         const company = await tx.company.findFirst({
           where: {
@@ -230,6 +289,7 @@ export class TeamApplicationService {
 
         const application = await tx.teamApplication.create({
           data: {
+            id: applicationId,
             candidateUserId,
             companyId,
             teamOpportunityId: opportunity.id,
@@ -278,28 +338,52 @@ export class TeamApplicationService {
         return application.id;
       });
 
+      // The transaction has committed the application row and its CV locator.
+      // From this point onward route/projection failures must not delete the
+      // artifact; retention/reconciliation owns it instead.
+      prepared.claimOwnership();
+      if (promotionId) await markCandidateCvArtifactCommitted(promotionId);
+
       const result = await this.getCandidate(candidateUserId, createdId);
       return { created: true as const, application: result };
     } catch (error) {
+      if (storageOutcomeUnknown) throw error;
       if (
         (error instanceof TeamApplicationCommandError &&
           error.code === "TEAM_APPLICATION_DUPLICATE") ||
         (error instanceof Prisma.PrismaClientKnownRequestError &&
           error.code === "P2002")
       ) {
-        await cleanup();
-        const existing = await prisma.teamApplication.findFirst({
-          where: { activeKey: activeKey(candidateUserId, companyId, role) },
-          select: { id: true },
-        });
+        let existing: { id: string } | null;
+        try {
+          existing = await prisma.teamApplication.findFirst({
+            where: { activeKey: activeKey(candidateUserId, companyId, role) },
+            select: { id: true },
+          });
+        } catch {
+          prepared.preserveOnUnknown?.();
+          throw error;
+        }
         if (existing) {
+          await cleanupStagedArtifact();
           return {
             created: false as const,
             application: await this.getCandidate(candidateUserId, existing.id),
           };
         }
+        prepared.preserveOnUnknown?.();
+        throw error;
       }
-      await cleanup();
+      if (stageFailed) {
+        prepared.preserveOnUnknown?.();
+      } else if (
+        !transactionAttempted ||
+        error instanceof TeamApplicationCommandError
+      ) {
+        await cleanupStagedArtifact();
+      } else {
+        prepared.preserveOnUnknown?.();
+      }
       throw error;
     }
   }

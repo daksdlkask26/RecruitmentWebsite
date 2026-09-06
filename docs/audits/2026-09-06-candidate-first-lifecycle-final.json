@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "candidate-first-lifecycle-v2",
+  "generatedAt": "2026-09-06T01:17:52.523Z",
+  "isolatedDatabase": "smarthire_candidate_first_test",
+  "sequential": [
+    {
+      "suffix": "6adb63f0-eac3-401f-9093-59b5e7543689",
+      "companyId": "company-6adb63f0-eac3-401f-9093-59b5e7543689",
+      "userIds": [
+        "job-candidate-first-post-shared-skill-a-a-6adb63f0-eac3-401f-9093-59b5e7543689",
+        "job-candidate-first-post-shared-skill-a-b-6adb63f0-eac3-401f-9093-59b5e7543689"
+      ],
+      "create": "PASS",
+      "delete": "PASS",
+      "storageDeleted": 0,
+      "storageCleanupError": null
+    },
+    {
+      "suffix": "cd93d68c-643c-43a6-a867-47caff83facf",
+      "companyId": "company-cd93d68c-643c-43a6-a867-47caff83facf",
+      "userIds": [
+        "job-candidate-first-post-shared-skill-b-a-cd93d68c-643c-43a6-a867-47caff83facf",
+        "job-candidate-first-post-shared-skill-b-b-cd93d68c-643c-43a6-a867-47caff83facf"
+      ],
+      "create": "PASS",
+      "delete": "PASS",
+      "storageDeleted": 0,
+      "storageCleanupError": null
+    }
+  ],
+  "concurrent": [
+    {
+      "suffix": "74db0883-c7c8-4271-9dbc-652df323ad52",
+      "companyId": "company-74db0883-c7c8-4271-9dbc-652df323ad52",
+      "userIds": [
+        "job-candidate-first-post-shared-concurrent-a-a-74db0883-c7c8-4271-9dbc-652df323ad52",
+        "job-candidate-first-post-shared-concurrent-a-b-74db0883-c7c8-4271-9dbc-652df323ad52"
+      ],
+      "create": "PASS",
+      "delete": "PASS",
+      "storageDeleted": 0,
+      "storageCleanupError": null
+    },
+    {
+      "suffix": "b87b0043-412e-49ca-94ae-cbface54d3ca",
+      "companyId": "company-b87b0043-412e-49ca-94ae-cbface54d3ca",
+      "userIds": [
+        "job-candidate-first-post-shared-concurrent-b-a-b87b0043-412e-49ca-94ae-cbface54d3ca",
+        "job-candidate-first-post-shared-concurrent-b-b-b87b0043-412e-49ca-94ae-cbface54d3ca"
+      ],
+      "create": "PASS",
+      "delete": "PASS",
+      "storageDeleted": 0,
+      "storageCleanupError": null
+    }
+  ],
+  "residue": {
+    "company": 0,
+    "users": 0,
+    "candidateCv": 0,
+    "jobPosting": 0,
+    "jobApplication": 0,
+    "companyMembership": 0,
+    "recruitmentThread": 0,
+    "inAppNotification": 0,
+    "applicationArtifactPromotion": 0
+  },
+  "residueTotal": 0
+}

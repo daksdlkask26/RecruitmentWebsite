@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { prisma } from "@/backend/database/prisma";
 import { normalizeSearchText } from "@/backend/services/jobs/search-normalization";
+import { assertTestDatabaseEnvironment } from "./test-database-guard";
 
 export type JobBoardDatabaseFixture = Awaited<
   ReturnType<typeof createJobBoardDatabaseFixture>
@@ -11,13 +12,22 @@ export type JobBoardDatabaseFixtureOptions = Readonly<{
 const checksum = (value: string) =>
   createHash("sha256").update(value, "utf8").digest("hex");
 
-export async function createJobBoardDatabaseFixture(
-  label = "job-board",
+type JobBoardFixtureNamespace = Readonly<{
+  company: Readonly<{ id: string }>;
+  userIds: string[];
+  suffix: string;
+  /** Skill rows this fixture actually created; shared rows are never owned. */
+  createdSkillIds?: readonly string[];
+}>;
+
+async function createJobBoardDatabaseFixtureUnsafe(
   now = new Date("2026-08-01T08:00:00.000Z"),
   options: JobBoardDatabaseFixtureOptions = {},
+  namespace: Readonly<{ suffix: string; userIds: string[] }>,
 ) {
-  const suffix = randomUUID();
-  const userIds = [`job-${label}-a-${suffix}`, `job-${label}-b-${suffix}`];
+  assertTestDatabaseEnvironment();
+  const { suffix, userIds } = namespace;
+  const createdSkillIds: string[] = [];
   const company = await prisma.company.create({
     data: {
       id: `company-${suffix}`,
@@ -91,6 +101,7 @@ export async function createJobBoardDatabaseFixture(
           normalizedName: "typescript",
         },
       });
+      createdSkillIds.push(skill.id);
     } catch (error) {
       skill = await prisma.skill.findUnique({
         where: { normalizedName: "typescript" },
@@ -113,6 +124,7 @@ export async function createJobBoardDatabaseFixture(
             normalizedName: "python",
           },
         });
+        createdSkillIds.push(pythonSkill.id);
       } catch (error) {
         pythonSkill = await prisma.skill.findUnique({
           where: { normalizedName: "python" },
@@ -278,7 +290,7 @@ export async function createJobBoardDatabaseFixture(
         seoSpecialist: await createJob({
           key: "seo-specialist",
           title: "SEO Specialist",
-          location: "Há»“ ChÃ­ Minh",
+          location: "Hồ Chí Minh",
           status: "ACTIVE",
           publishedAt: new Date(now.getTime() - 2 * 60 * 60_000),
           applicationDeadline: new Date(now.getTime() + 14 * 24 * 60 * 60_000),
@@ -290,7 +302,7 @@ export async function createJobBoardDatabaseFixture(
         seoExecutive: await createJob({
           key: "seo-executive",
           title: "SEO Executive",
-          location: "Há»“ ChÃ­ Minh",
+          location: "Hồ Chí Minh",
           status: "ACTIVE",
           publishedAt: new Date(now.getTime() - 3 * 60 * 60_000),
           applicationDeadline: new Date(now.getTime() + 14 * 24 * 60 * 60_000),
@@ -302,7 +314,7 @@ export async function createJobBoardDatabaseFixture(
         electronicsEngineer: await createJob({
           key: "electronics-engineer",
           title: "Electronics Engineer",
-          location: "Há»“ ChÃ­ Minh",
+          location: "Hồ Chí Minh",
           status: "ACTIVE",
           publishedAt: new Date(now.getTime() - 60 * 60_000),
           applicationDeadline: new Date(now.getTime() + 14 * 24 * 60 * 60_000),
@@ -334,12 +346,45 @@ export async function createJobBoardDatabaseFixture(
     ),
     jobs,
     rankingJobs,
+    createdSkillIds,
   };
 }
 
-export async function deleteJobBoardDatabaseFixture(
-  fixture: Pick<JobBoardDatabaseFixture, "company" | "userIds" | "suffix">,
+export async function createJobBoardDatabaseFixture(
+  label = "job-board",
+  now = new Date("2026-08-01T08:00:00.000Z"),
+  options: JobBoardDatabaseFixtureOptions = {},
 ) {
+  assertTestDatabaseEnvironment();
+  const suffix = randomUUID();
+  const userIds = [`job-${label}-a-${suffix}`, `job-${label}-b-${suffix}`];
+  try {
+    return await createJobBoardDatabaseFixtureUnsafe(now, options, {
+      suffix,
+      userIds,
+    });
+  } catch (error) {
+    try {
+      await deleteJobBoardDatabaseFixture({
+        company: { id: `company-${suffix}` },
+        userIds,
+        suffix,
+      });
+    } catch (cleanupError) {
+      throw new AggregateError(
+        [error, cleanupError],
+        `Job-board fixture creation and rollback both failed for ${suffix}`,
+        { cause: cleanupError },
+      );
+    }
+    throw error;
+  }
+}
+
+export async function deleteJobBoardDatabaseFixture(
+  fixture: JobBoardFixtureNamespace,
+) {
+  assertTestDatabaseEnvironment();
   const jobIds = (
     await prisma.jobPosting.findMany({
       where: { companyId: fixture.company.id },
@@ -352,6 +397,12 @@ export async function deleteJobBoardDatabaseFixture(
       select: { id: true },
     })
   ).map((application) => application.id);
+  const threadIds = (
+    await prisma.recruitmentThread.findMany({
+      where: { applicationId: { in: applicationIds } },
+      select: { id: true },
+    })
+  ).map((thread) => thread.id);
   await prisma.recruitmentNotificationWork.deleteMany({
     where: { applicationId: { in: applicationIds } },
   });
@@ -370,9 +421,45 @@ export async function deleteJobBoardDatabaseFixture(
   await prisma.applicationAnswer.deleteMany({
     where: { applicationId: { in: applicationIds } },
   });
+  await prisma.applicationArtifactPromotion.deleteMany({
+    where: {
+      OR: [
+        { jobPostingId: { in: jobIds } },
+        { jobApplicationId: { in: applicationIds } },
+      ],
+    },
+  });
+  await prisma.inAppNotification.deleteMany({
+    where: {
+      OR: [
+        { recipientUserId: { in: fixture.userIds } },
+        { contextId: { in: applicationIds } },
+      ],
+    },
+  });
+  await prisma.recruitmentMessage.deleteMany({
+    where: {
+      OR: [
+        { threadId: { in: threadIds } },
+        { senderUserId: { in: fixture.userIds } },
+      ],
+    },
+  });
+  await prisma.recruitmentThread.deleteMany({
+    where: { id: { in: threadIds } },
+  });
+  await prisma.jobApplicationAttemptCounter.deleteMany({
+    where: {
+      candidateUserId: { in: fixture.userIds },
+      jobPostingId: { in: jobIds },
+    },
+  });
   await prisma.jobApplication.deleteMany({
     where: { id: { in: applicationIds } },
   });
+  // AuditEvent is database-enforced append-only. Keep immutable evidence and
+  // remove only mutable fixture rows below; attempting to delete audit rows
+  // makes teardown fail after an otherwise successful integration test.
   await prisma.jobReport.deleteMany({
     where: { jobPostingId: { in: jobIds } },
   });
@@ -386,12 +473,99 @@ export async function deleteJobBoardDatabaseFixture(
   await prisma.jobPostingSkill.deleteMany({
     where: { jobPostingId: { in: jobIds } },
   });
-  await prisma.applicationArtifactPromotion.deleteMany({
-    where: { jobPostingId: { in: jobIds } },
-  });
   await prisma.jobPosting.deleteMany({ where: { id: { in: jobIds } } });
+  // Candidate-first CV rows are protected by database immutability triggers
+  // once a scan, extraction, parse, or confirmation reaches a terminal state.
+  // Test teardown is the one explicitly authorized retention operation: remove
+  // the complete per-account CV graph in one transaction with the isolated
+  // retention mode enabled. This keeps production deletion semantics intact
+  // while preventing a failed cleanup from leaving fixture users behind.
+  await prisma.$transaction(async (transaction) => {
+    await transaction.$executeRaw`
+      SELECT set_config('smarthire.cv_retention_mode', 'on', true)
+    `;
+    const uploads = await transaction.cvUpload.findMany({
+      where: { accountId: { in: fixture.userIds } },
+      select: { id: true },
+    });
+    const uploadIds = uploads.map((upload) => upload.id);
+    if (uploadIds.length) {
+      await transaction.cvImportConfirmation.deleteMany({
+        where: { uploadId: { in: uploadIds } },
+      });
+      await transaction.cvProcessingConsent.deleteMany({
+        where: { uploadId: { in: uploadIds } },
+      });
+      await transaction.cvRetryRequest.deleteMany({
+        where: { uploadId: { in: uploadIds } },
+      });
+      await transaction.cvDraft.deleteMany({
+        where: { uploadId: { in: uploadIds } },
+      });
+      await transaction.cvParseJob.deleteMany({
+        where: { uploadId: { in: uploadIds } },
+      });
+      await transaction.cvExtraction.deleteMany({
+        where: { uploadId: { in: uploadIds } },
+      });
+      await transaction.cvScanAssessment.deleteMany({
+        where: { uploadId: { in: uploadIds } },
+      });
+      await transaction.cvStoredArtifact.deleteMany({
+        where: { uploadId: { in: uploadIds } },
+      });
+      await transaction.cvUpload.deleteMany({
+        where: { id: { in: uploadIds } },
+      });
+    }
+    await transaction.cvAccountQuota.deleteMany({
+      where: { accountId: { in: fixture.userIds } },
+    });
+  });
+  const candidateSkillIds = [
+    ...(fixture.createdSkillIds ?? []),
+    ...(!fixture.createdSkillIds
+      ? [`skill-${fixture.suffix}`, `skill-python-${fixture.suffix}`]
+      : []),
+  ];
+  if (candidateSkillIds.length) {
+    // A concurrent fixture may have won the normalized-name race and still
+    // reference a skill created by this fixture.  Re-check every relation
+    // immediately before deletion; a shared/global skill is never removed.
+    const [jobSkillRefs, profileSkillRefs] = await Promise.all([
+      prisma.jobPostingSkill.findMany({
+        where: { skillId: { in: candidateSkillIds } },
+        select: { skillId: true },
+      }),
+      prisma.candidateProfileSkill.findMany({
+        where: { skillId: { in: candidateSkillIds } },
+        select: { skillId: true },
+      }),
+    ]);
+    const referencedSkillIds = new Set([
+      ...jobSkillRefs.map((row) => row.skillId),
+      ...profileSkillRefs.map((row) => row.skillId),
+    ]);
+    const unreferencedSkillIds = candidateSkillIds.filter(
+      (skillId) => !referencedSkillIds.has(skillId),
+    );
+    if (unreferencedSkillIds.length) {
+      await prisma.skill.deleteMany({
+        where: { id: { in: unreferencedSkillIds } },
+      });
+    }
+  }
+  await prisma.companyMembership.deleteMany({
+    where: {
+      companyId: fixture.company.id,
+      userId: { in: fixture.userIds },
+    },
+  });
   await prisma.company.deleteMany({ where: { id: fixture.company.id } });
   await prisma.candidateIdentity.deleteMany({
+    where: { userId: { in: fixture.userIds } },
+  });
+  await prisma.authProviderAccount.deleteMany({
     where: { userId: { in: fixture.userIds } },
   });
   await prisma.userAccount.deleteMany({

@@ -16,8 +16,23 @@ export type DirectApplicationCvSource = Readonly<{
 }>;
 
 export type PreparedDirectApplicationCv = DirectApplicationCv & {
+  /**
+   * Moves the temporary upload across the database commit boundary. Once
+   * claimed, request cleanup is deliberately a no-op; retention owns the
+   * artifact from that point onward.
+   */
+  claimOwnership(): void;
+  /** Keep the object when the database outcome cannot be proven. */
+  preserveOnUnknown(): void;
+  /** Complete a deferred object write after its ownership ledger is staged. */
+  ensureStored?(): Promise<void>;
   cleanup(): Promise<void>;
 };
+
+export type PrepareDirectApplicationCvOptions = Readonly<{
+  /** Reserve the deterministic locator but defer the object write. */
+  deferStorage?: boolean;
+}>;
 
 function safeFileName(value: string) {
   const normalized = value
@@ -30,6 +45,7 @@ function safeFileName(value: string) {
 
 export async function prepareDirectApplicationCv(
   input: DirectApplicationCvSource,
+  options: PrepareDirectApplicationCvOptions = {},
 ): Promise<PreparedDirectApplicationCv> {
   if (
     !Number.isSafeInteger(input.byteSize) ||
@@ -61,27 +77,92 @@ export async function prepareDirectApplicationCv(
     declaredMimeType: input.mimeType,
   });
 
-  const storage = createCvWorkerStorage();
-  await storage.assertReady();
-  const hash = createHash("sha256");
-  const stored = await storage.put({
-    expectedBytes: bytes.byteLength,
-    source: (async function* () {
-      hash.update(bytes);
-      yield bytes;
-    })(),
-  });
   const fileName = safeFileName(input.fileName);
+  const id = "application-cv-" + randomUUID();
+  // A request can reserve this locator in the ownership ledger before any
+  // storage write. It is unique per prepared upload and valid for both local
+  // filesystem and S3 locator policies.
+  const plannedStorageKey =
+    "application-cv-" + createHash("sha256").update(id, "utf8").digest("hex");
+  const checksumSha256 = createHash("sha256").update(bytes).digest("hex");
+  const storage = createCvWorkerStorage();
+  const deferStorage = options.deferStorage === true;
+  let storageKey = plannedStorageKey;
+  let stored = false;
+  let storageAttempted = false;
+  let storagePromise: Promise<void> | null = null;
+  let ownership: "TEMPORARY" | "OWNED" | "UNKNOWN" = "TEMPORARY";
+  let cleanupPromise: Promise<void> | null = null;
+
+  const ensureStored = async () => {
+    if (stored) return;
+    if (!storagePromise) {
+      storagePromise = (async () => {
+        await storage.assertReady();
+        storageAttempted = true;
+        try {
+          const result = await storage.put({
+            expectedBytes: bytes.byteLength,
+            ...(deferStorage ? { locator: plannedStorageKey } : {}),
+            source: (async function* () {
+              yield bytes;
+            })(),
+          });
+          if (deferStorage && result.locator !== plannedStorageKey) {
+            throw new Error("APPLICATION_STORAGE_LOCATOR_MISMATCH");
+          }
+          if (result.bytes !== bytes.byteLength) {
+            throw new Error("APPLICATION_STORAGE_LENGTH_MISMATCH");
+          }
+          storageKey = result.locator;
+          stored = true;
+        } catch (error) {
+          // A storage write can have committed before its response was lost.
+          // Keep the object and the already-staged ledger row discoverable.
+          if (storageAttempted) ownership = "UNKNOWN";
+          throw error;
+        }
+      })().catch((error) => {
+        storagePromise = null;
+        throw error;
+      });
+    }
+    await storagePromise;
+  };
+
+  if (!deferStorage) await ensureStored();
+
   const prepared = {
-    id: "application-cv-" + randomUUID(),
+    id,
     displayName: fileName,
     fileName,
     mimeType: detected.mimeType,
     byteSize: detected.byteSize,
-    storageKey: stored.locator,
-    checksumSha256: hash.digest("hex"),
+    get storageKey() {
+      return storageKey;
+    },
+    checksumSha256,
+    ensureStored,
+    claimOwnership() {
+      ownership = "OWNED";
+    },
+    preserveOnUnknown() {
+      ownership = "UNKNOWN";
+    },
     async cleanup() {
-      await storage.delete(stored.locator);
+      if (ownership !== "TEMPORARY" || !stored) return;
+      if (!cleanupPromise) {
+        cleanupPromise = storage
+          .delete(storageKey)
+          .then(() => undefined)
+          .catch((error) => {
+            // A failed cleanup must remain retryable, while a successful one is
+            // shared by all duplicate cleanup calls.
+            cleanupPromise = null;
+            throw error;
+          });
+      }
+      await cleanupPromise;
     },
   } satisfies PreparedDirectApplicationCv;
   return Object.freeze(prepared);

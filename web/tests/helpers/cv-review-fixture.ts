@@ -1,7 +1,23 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
+import { PassThrough } from "node:stream";
 import type { PoolClient } from "pg";
+import { cvConfiguration } from "@/backend/cv/config";
+import {
+  createCvWorkerCryptor,
+  createCvWorkerStorage,
+} from "@/backend/cv/workers/cv-worker-resources";
 
-export const cvReviewFixtureNow = new Date("2026-08-01T08:00:00.000Z");
+// Keep the disposable review source valid for the current test clock. The
+// service intentionally evaluates expiry with `new Date()`, so a fixture that
+// expired in the previous audit run would fail before exercising draft/CAS
+// behavior. Individual tests still advance this controlled clock to prove
+// expiry and retention boundaries.
+export const cvReviewFixtureNow = new Date("2026-12-01T08:00:00.000Z");
+const cvReviewFixtureBytes = Buffer.from("%PDF-1.7\n", "utf8");
+export const cvReviewFixtureSha256 = createHash("sha256")
+  .update(cvReviewFixtureBytes)
+  .digest("hex");
+const fixtureSourceLocators = new Set<string>();
 
 export const cvReviewFixtureProposals = {
   scalars: [
@@ -95,6 +111,31 @@ export async function seedReviewDraft(
   };
   const now = cvReviewFixtureNow;
   const email = `${suffix}@example.invalid`;
+  const storage = createCvWorkerStorage();
+  await storage.assertReady();
+  const cryptor = createCvWorkerCryptor();
+  const ciphertext = new PassThrough();
+  const storedPromise = storage.put({
+    source: ciphertext,
+    // AES-GCM does not add ciphertext bytes for this streaming format.
+    expectedBytes: cvReviewFixtureBytes.byteLength,
+  });
+  const envelope = await cryptor.encrypt({
+    plaintext: (async function* () {
+      yield cvReviewFixtureBytes;
+    })(),
+    ciphertext,
+    context: {
+      accountId: ids.accountId,
+      uploadId: ids.uploadId,
+      artifactId: ids.sourceId,
+      kind: "SOURCE_DOCUMENT",
+    },
+  });
+  ciphertext.end();
+  const stored = await storedPromise;
+  cryptor.destroy();
+  fixtureSourceLocators.add(String(stored.locator));
   if (!options.existingAccount) {
     await client.query(
       `INSERT INTO "user" ("id", "name", "email", "normalizedEmail", "emailVerified", "state", "stateChangedAt", "createdAt", "updatedAt")
@@ -124,10 +165,17 @@ export async function seedReviewDraft(
       "quotaReservationRemaining", "sourceSha256", "idempotencyDigest", "createBindingDigest",
       "contentReceivedAt", "expiresAt", "createdAt", "updatedAt"
     ) VALUES ($1, $2, $3, 'PDF', 'DETERMINISTIC_INTERNAL', 'REVIEW_READY',
-      'application/pdf', 1, 1, 524289, 0, decode(repeat('11', 32), 'hex'),
+      'application/pdf', $5, $5, $5 + 524288, 0, decode($6, 'hex'),
       decode(repeat('12', 32), 'hex'), decode(repeat('13', 32), 'hex'), $4::timestamp(3),
       $4::timestamp(3) + interval '30 days', $4::timestamp(3), $4::timestamp(3))`,
-    [ids.uploadId, ids.accountId, ids.profileId, now],
+    [
+      ids.uploadId,
+      ids.accountId,
+      ids.profileId,
+      now,
+      cvReviewFixtureBytes.byteLength,
+      cvReviewFixtureSha256,
+    ],
   );
   await client.query(
     `INSERT INTO "CvStoredArtifact" (
@@ -135,16 +183,22 @@ export async function seedReviewDraft(
       "encryptionKeyVersion", "encryptionIv", "authenticationTag", "plaintextBytes",
       "ciphertextBytes", "plaintextSha256", "availableAt", "createdAt", "updatedAt"
     ) VALUES
-      ($1, $2, $3, 'SOURCE_DOCUMENT', 'AVAILABLE', 'fixture', $4, 1, decode(repeat('14', 12), 'hex'), decode(repeat('15', 16), 'hex'), 1, 1, decode(repeat('11', 32), 'hex'), $7, $7, $7),
-      ($5, $2, $3, 'EXTRACTED_TEXT', 'AVAILABLE', 'fixture', $6, 1, decode(repeat('16', 12), 'hex'), decode(repeat('17', 16), 'hex'), 1, 1, decode(repeat('18', 32), 'hex'), $7, $7, $7)`,
+      ($1, $2, $3, 'SOURCE_DOCUMENT', 'AVAILABLE', $4, $5, $6, $7, $8, $9, $9, decode($10, 'hex'), $11, $11, $11),
+      ($12, $2, $3, 'EXTRACTED_TEXT', 'AVAILABLE', 'fixture', $13, 1, decode(repeat('16', 12), 'hex'), decode(repeat('17', 16), 'hex'), 1, 1, decode(repeat('18', 32), 'hex'), $11, $11, $11)`,
     [
       ids.sourceId,
       ids.uploadId,
       ids.accountId,
-      `fixture/${ids.sourceId}`,
+      cvConfiguration.storage.adapter,
+      stored.locator,
+      envelope.keyVersion,
+      envelope.iv,
+      envelope.authenticationTag,
+      envelope.plaintextBytes,
+      cvReviewFixtureSha256,
+      now,
       ids.outputId,
       `fixture/${ids.outputId}`,
-      now,
     ],
   );
   await client.query(
@@ -199,7 +253,6 @@ export async function cleanupReviewAccounts(
   client: PoolClient,
   accountIds: string[],
 ) {
-  if (!accountIds.length) return;
   await client.query("BEGIN");
   try {
     await client.query(
@@ -221,6 +274,13 @@ export async function cleanupReviewAccounts(
       accountIds,
     ]);
     await client.query("COMMIT");
+    if (fixtureSourceLocators.size) {
+      const storage = createCvWorkerStorage();
+      await storage.assertReady();
+      for (const locator of fixtureSourceLocators)
+        await storage.delete(locator).catch(() => undefined);
+      fixtureSourceLocators.clear();
+    }
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;

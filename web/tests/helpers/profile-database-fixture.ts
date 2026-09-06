@@ -1,10 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/backend/database/prisma";
+import { assertTestDatabaseEnvironment } from "./test-database-guard";
 
 export async function createProfileDatabaseAccount(
   label: string,
   options: { state?: "ACTIVE" | "SUSPENDED"; withSession?: boolean } = {},
 ) {
+  assertTestDatabaseEnvironment();
   const suffix = randomUUID();
   const userId = `profile-${label}-${suffix}`;
   const email = `profile-${label}-${suffix}@example.test`;
@@ -46,6 +48,7 @@ export async function createProfileDatabaseAccount(
 }
 
 export async function deleteProfileDatabaseAccounts(userIds: string[]) {
+  assertTestDatabaseEnvironment();
   await prisma.emailOutbox.deleteMany({ where: { userId: { in: userIds } } });
   await prisma.candidateIdentity.deleteMany({
     where: { userId: { in: userIds } },

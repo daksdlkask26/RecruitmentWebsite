@@ -13,7 +13,7 @@ import {
 const repositoryRoot = resolve(process.cwd(), "..");
 
 function docker(args: string[]) {
-  return spawnSync("docker", args, {
+  return spawnSync(process.env.CF003_DOCKER_BIN ?? "docker", args, {
     cwd: repositoryRoot,
     encoding: "utf8",
     windowsHide: true,
@@ -168,9 +168,8 @@ describe("ClamAV Unix-socket boundary", () => {
 
       const probe = docker([
         "compose",
-        "run",
-        "--rm",
-        "--no-deps",
+        "exec",
+        "-T",
         "cv-worker",
         "node",
         "scripts/run-cv-worker.mjs",

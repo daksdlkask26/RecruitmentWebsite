@@ -7,6 +7,7 @@ const {
   applicationFindMany,
   transaction,
   txApplicationUpdateMany,
+  txPromotionUpdateMany,
   auditCreate,
   storageAssertReady,
   storageDelete,
@@ -16,6 +17,7 @@ const {
   applicationFindMany: vi.fn(),
   transaction: vi.fn(),
   txApplicationUpdateMany: vi.fn(),
+  txPromotionUpdateMany: vi.fn(),
   auditCreate: vi.fn(),
   storageAssertReady: vi.fn(),
   storageDelete: vi.fn(),
@@ -23,6 +25,7 @@ const {
 
 const tx = {
   teamApplication: { updateMany: txApplicationUpdateMany },
+  candidateCvArtifactPromotion: { updateMany: txPromotionUpdateMany },
   auditEvent: { create: auditCreate },
 };
 
@@ -49,6 +52,7 @@ describe("Team Application CV retention worker", () => {
     invitationUpdateMany.mockResolvedValue({ count: 0 });
     applicationUpdateMany.mockResolvedValue({ count: 0 });
     txApplicationUpdateMany.mockResolvedValue({ count: 1 });
+    txPromotionUpdateMany.mockResolvedValue({ count: 1 });
     auditCreate.mockResolvedValue({});
     transaction.mockImplementation(
       async (callback: (value: typeof tx) => unknown) => callback(tx),

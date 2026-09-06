@@ -1,0 +1,61 @@
+{
+    "schemaVersion":  2,
+    "generatedAt":  "2026-09-06T09:34:58.447Z",
+    "startedAt":  "2026-09-06T09:34:58.398Z",
+    "evidenceClass":  "shared-service-live",
+    "status":  "PASS",
+    "transport":  "unix",
+    "engine":  "1.4.5",
+    "socketPath":  "/run/clamav/clamd.sock",
+    "readiness":  {
+                      "status":  "PASS",
+                      "durationMs":  25.72,
+                      "signatureFresh":  true
+                  },
+    "scanCases":  [
+                      {
+                          "name":  "synthetic-pdf",
+                          "expected":  "CLEAN",
+                          "actual":  "CLEAN",
+                          "durationMs":  6.25,
+                          "engineVersion":  "1.4.5"
+                      },
+                      {
+                          "name":  "eicar-test-string",
+                          "expected":  "INFECTED",
+                          "actual":  "INFECTED",
+                          "failureCode":  "MALWARE_DETECTED",
+                          "durationMs":  14.94
+                      }
+                  ],
+    "signature":  {
+                      "engineVersion":  "1.4.5",
+                      "signatureVersion":  "28115",
+                      "publishedAt":  "2026-09-06T06:26:06.000Z"
+                  },
+    "topology":  {
+                     "workerContainer":  "smarthire-cv-worker-1",
+                     "clamavContainer":  "smarthire-clamav-1",
+                     "database":  "shared-smarthire-runtime",
+                     "storage":  "shared-cv-private-storage"
+                 },
+    "limitations":  [
+                        "The EICAR string is a harmless industry test signature and is not real malware."
+                    ],
+    "signatureRefresh":  {
+                             "command":  "freshclam --version",
+                             "engineVersion":  "1.4.5",
+                             "signatureVersion":  "28115",
+                             "status":  "PASS"
+                         },
+    "workerProbe":  {
+                        "container":  "smarthire-cv-worker-1",
+                        "status":  "PASS"
+                    },
+    "liveBoundaryTest":  {
+                             "suite":  "clamav-socket-boundary.test.ts",
+                             "tests":  4,
+                             "passed":  4,
+                             "status":  "PASS"
+                         }
+}

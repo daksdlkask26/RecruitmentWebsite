@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-06T07:22:27.562Z",
+  "status": "PASS_WITH_LIMITATION",
+  "scope": "CF-004 / CF-803 restore rehearsal on an isolated Candidate-first database",
+  "source": {
+    "endpoint": {
+      "host": "127.0.0.1",
+      "port": "55432",
+      "database": "smarthire_candidate_first_test",
+      "schema": "public"
+    },
+    "guard": "PASS",
+    "database": "smarthire_candidate_first_test",
+    "fixture": {
+      "suffix": "944dd1a0-607b-49b8-b96c-2d77e701540f",
+      "applicationId": "application-backup-restore-944dd1a0-607b-49b8-b96c-2d77e701540f",
+      "candidateCvId": "cv-backup-restore-944dd1a0-607b-49b8-b96c-2d77e701540f",
+      "applicationDocumentId": "document-backup-restore-944dd1a0-607b-49b8-b96c-2d77e701540f",
+      "promotionId": "promotion-backup-restore-944dd1a0-607b-49b8-b96c-2d77e701540f",
+      "cvBytes": 82,
+      "applicationDocumentBytes": 100,
+      "cvChecksumSha256": "b9b151f6c19624f45e0fd0fad491e9655cddf6d4d684d7484045fcaca846e3b4",
+      "applicationDocumentChecksumSha256": "bdb2d5d8ff1b124b970218462b65da952427c25459a60134689c447f1f8a276b"
+    }
+  },
+  "dump": {
+    "status": "PASS",
+    "format": "custom",
+    "noOwner": true,
+    "noPrivileges": true,
+    "bytes": 1183585,
+    "sha256": "2a128b06c94cdb377e403809a9520eb2d8176eb2551052a363364babbe5f5b85"
+  },
+  "restore": {
+    "database": "smarthire_candidate_first_restore_test_mtphi3cd",
+    "durationMs": 7840,
+    "status": "PASS",
+    "rowChecks": {
+      "candidateCv": true,
+      "application": true,
+      "applicationDocument": true,
+      "durablePromotion": true
+    },
+    "rows": {
+      "candidateCv": 1,
+      "application": 1,
+      "applicationDocument": 1,
+      "durablePromotion": 1
+    }
+  },
+  "artifacts": {
+    "sourceRoot": "D:\\HCMUS\\PROJECT\\web\\.local\\candidate-first-backup-source",
+    "restoredRoot": "D:\\HCMUS\\PROJECT\\web\\.local\\candidate-first-backup-restored",
+    "mode": "separate-manifest-copy-rehearsal",
+    "cv": {
+      "exists": true,
+      "bytes": 82,
+      "sha256": "b9b151f6c19624f45e0fd0fad491e9655cddf6d4d684d7484045fcaca846e3b4",
+      "matchesDatabaseChecksum": true
+    },
+    "applicationDocument": {
+      "exists": true,
+      "bytes": 100,
+      "sha256": "bdb2d5d8ff1b124b970218462b65da952427c25459a60134689c447f1f8a276b",
+      "matchesDatabaseDigest": true
+    },
+    "status": "PASS"
+  },
+  "cleanup": {
+    "sourceFixture": "PASS",
+    "restoreDatabase": "PASS",
+    "temporaryFiles": "PASS"
+  },
+  "limitations": [
+    "The production BackupService currently emits an encrypted PostgreSQL dump; CV/application object storage is not bundled by that service.",
+    "This rehearsal copies the object manifest payload to a separate restore root to prove digest/openability, so it is evidence for the runbook and not proof of an automated object-storage backup.",
+    "RPO/RTO are measured for this local Docker rehearsal and must be re-baselined in the deployment topology."
+  ],
+  "rpo": {
+    "measured": "local rehearsal only",
+    "sourceSnapshotSeconds": 0
+  },
+  "rto": {
+    "measuredMs": 7840,
+    "scope": "database restore plus local object copy"
+  }
+}

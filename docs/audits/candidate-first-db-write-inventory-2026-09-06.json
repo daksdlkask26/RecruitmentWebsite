@@ -1,0 +1,1045 @@
+{
+  "schemaVersion": "candidate-first-db-write-inventory-v1",
+  "generatedAt": "2026-09-06T07:27:19.287Z",
+  "repository": {
+    "branch": "audit_improvement",
+    "commit": "60711785",
+    "codegraph": {
+      "files": 2744,
+      "nodes": 216720,
+      "edges": 424205,
+      "status": "up-to-date"
+    }
+  },
+  "policy": {
+    "sharedDatabase": "never mutate smarthire",
+    "isolatedDatabase": "smarthire_candidate_first_test",
+    "dbBackedTests": "both DATABASE_URL and DIRECT_URL must match the guard",
+    "dbFreeUnit": "no URL required"
+  },
+  "entries": [
+    {
+      "path": "web/tests/performance/admin-management/messaging-report-review.performance.test.ts",
+      "scope": "test",
+      "databaseAccess": "persistent-write",
+      "guard": "direct assertRequestedTestDatabase before Prisma use",
+      "evidence": "userAccount/messagingConversation/messagingReport fixture and teardown",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/security/admin-management/account-session-rationale-privacy.test.ts",
+      "scope": "test",
+      "databaseAccess": "persistent-write",
+      "guard": "direct assertRequestedTestDatabase",
+      "evidence": "privilegedActionRationale transaction and retention cleanup",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/system/e2e/admin-management/admin-e2e-control.mjs",
+      "scope": "e2e-control",
+      "databaseAccess": "persistent-write",
+      "guard": "direct assertRequestedTestDatabase before Prisma import",
+      "evidence": "admin, search review, verification, messaging fixtures and cleanup",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/system/e2e/admin-management/e2e-prisma-query.mjs",
+      "scope": "e2e-control",
+      "databaseAccess": "read-only",
+      "guard": "direct assertRequestedTestDatabase before PrismaClient",
+      "evidence": "post-step assertions",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/system/e2e/job-board/job-actions.spec.ts",
+      "scope": "e2e",
+      "databaseAccess": "persistent-write",
+      "guard": "createJobBoardDatabaseFixture -> assertTestDatabaseEnvironment",
+      "evidence": "authProviderAccount create",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/helpers/job-board-database-fixture.ts",
+      "scope": "fixture",
+      "databaseAccess": "persistent-write",
+      "guard": "direct guard, isolated namespace and rollback",
+      "evidence": "candidate/job/company/application fixture",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/helpers/candidate-first-database-fixture.ts",
+      "scope": "fixture",
+      "databaseAccess": "persistent-write",
+      "guard": "delegated job-board guard, isolated namespace and rollback",
+      "evidence": "Candidate journey fixture",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/helpers/home/home-e2e-control.mjs",
+      "scope": "e2e-control",
+      "databaseAccess": "persistent-write",
+      "guard": "direct assertTestDatabaseEnvironment before Prisma import",
+      "evidence": "Home fixture setup/cleanup",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/helpers/recruitment-pipeline-kanban/recruitment-pipeline-kanban-e2e-control.mjs",
+      "scope": "e2e-control",
+      "databaseAccess": "persistent-write",
+      "guard": "direct assertTestDatabaseEnvironment before Prisma import",
+      "evidence": "pipeline fixture setup/cleanup",
+      "status": "covered"
+    },
+    {
+      "path": "web/scripts/run-messaging-e2e.mjs",
+      "scope": "e2e-control",
+      "databaseAccess": "persistent-write",
+      "guard": "direct assertTestDatabaseEnvironment before Prisma import",
+      "evidence": "messaging fixture auth account",
+      "status": "covered"
+    },
+    {
+      "path": "web/scripts/measure-in-app-notification-performance.mjs",
+      "scope": "performance-script",
+      "databaseAccess": "persistent-write",
+      "guard": "direct assertTestDatabaseEnvironment before Prisma import",
+      "evidence": "5000 notification fixture and teardown",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/backend/scoring/application-scoring-service.test.ts",
+      "scope": "test",
+      "databaseAccess": "mocked",
+      "guard": "unit path intentionally DB-free",
+      "evidence": "mock Prisma delegate",
+      "status": "covered-as-db-free"
+    },
+    {
+      "path": "web/tests/backend/scoring/prisma-scoring-repository.test.ts",
+      "scope": "test",
+      "databaseAccess": "mocked",
+      "guard": "unit path intentionally DB-free",
+      "evidence": "injected mock database",
+      "status": "covered-as-db-free"
+    },
+    {
+      "path": "web/tests/backend/scoring/scoring-work-processor.test.ts",
+      "scope": "test",
+      "databaseAccess": "mocked",
+      "guard": "unit path intentionally DB-free",
+      "evidence": "vi.mock Prisma",
+      "status": "covered-as-db-free"
+    },
+    {
+      "path": "web/scripts/backfill-job-search-normalization.ts",
+      "scope": "operational-script",
+      "databaseAccess": "persistent-write",
+      "guard": "operator/production script; Candidate test guard not applicable",
+      "evidence": "jobPosting update",
+      "status": "inventory-only"
+    },
+    {
+      "path": "web/scripts/backfill-job-post-review-search.ts",
+      "scope": "operational-script",
+      "databaseAccess": "persistent-write",
+      "guard": "operator/production script; Candidate test guard not applicable",
+      "evidence": "jobPostReviewVersion update",
+      "status": "inventory-only"
+    },
+    {
+      "path": "web/scripts/migrate-in-app-notification-legacy-data.mjs",
+      "scope": "operational-script",
+      "databaseAccess": "persistent-write",
+      "guard": "operator/production script; Candidate test guard not applicable",
+      "evidence": "legacy notification migration",
+      "status": "inventory-only"
+    },
+    {
+      "path": "web/scripts/provision-platform-administrator.mjs",
+      "scope": "operational-script",
+      "databaseAccess": "persistent-write",
+      "guard": "operator/production script; Candidate test guard not applicable",
+      "evidence": "administrator grant/session writes",
+      "status": "inventory-only"
+    },
+    {
+      "path": "web/scripts/revoke-platform-administrator.mjs",
+      "scope": "operational-script",
+      "databaseAccess": "persistent-write",
+      "guard": "operator/production script; Candidate test guard not applicable",
+      "evidence": "administrator revoke writes",
+      "status": "inventory-only"
+    },
+    {
+      "path": "web/scripts/repair-application-documents.ts",
+      "scope": "operational-script",
+      "databaseAccess": "persistent-write",
+      "guard": "operator/production script; Candidate test guard not applicable",
+      "evidence": "applicationDocument repair writes",
+      "status": "inventory-only"
+    },
+    {
+      "path": "web/scripts/seed-development-jobs.ts",
+      "scope": "operational-script",
+      "databaseAccess": "persistent-write",
+      "guard": "development seeder; explicit isolated target required for audit use",
+      "evidence": "company/job/skill upserts",
+      "status": "inventory-only"
+    },
+    {
+      "path": "web/tests/setup.ts",
+      "scope": "test-harness",
+      "databaseAccess": "gate",
+      "guard": "requires both matching URLs for database-backed paths",
+      "evidence": "integration/compatibility/system/e2e marker",
+      "status": "covered"
+    },
+    {
+      "path": "web/vitest.config.ts",
+      "scope": "test-harness",
+      "databaseAccess": "gate",
+      "guard": "pathless/full run fails closed; explicit unit remains DB-free",
+      "evidence": "SMART_HIRE_TEST_DATABASE_REQUIRED propagation",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/backend/unit/identity/login.test.ts",
+      "scope": "unit-db-backed",
+      "databaseAccess": "persistent-write",
+      "guard": "direct assertTestDatabaseEnvironment plus vitest explicit-path marker",
+      "evidence": "PrismaRegistrationRepository and user/session state fixture",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/backend/unit/identity/session-service.test.ts",
+      "scope": "unit-db-backed",
+      "databaseAccess": "persistent-write",
+      "guard": "direct assertTestDatabaseEnvironment plus vitest explicit-path marker",
+      "evidence": "userAccount/session create and update fixture",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/helpers/notifications/admin-notification-cleanup.ts",
+      "scope": "fixture-helper",
+      "databaseAccess": "persistent-write",
+      "guard": "assertTestDatabaseEnvironment at helper entry",
+      "evidence": "inAppNotification deleteMany",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/helpers/notifications/job-post-review-notification-cleanup.ts",
+      "scope": "fixture-helper",
+      "databaseAccess": "persistent-write",
+      "guard": "assertTestDatabaseEnvironment at helper entry",
+      "evidence": "inAppNotification deleteMany",
+      "status": "covered"
+    },
+    {
+      "path": "web/tests/backend/unit/applications/application-retention-worker.test.ts",
+      "scope": "unit",
+      "databaseAccess": "mocked",
+      "guard": "unit path intentionally DB-free",
+      "evidence": "orphan promotion reconciliation and fail-safe storage cleanup mocks",
+      "status": "covered-as-db-free"
+    }
+  ],
+  "checks": [
+    {
+      "name": "wrong-development-db",
+      "command": "vitest run tests/backend/integration/jobs/job-application.test.ts",
+      "result": "fail-closed TEST_DATABASE_NAME_UNSAFE before tests or connection"
+    },
+    {
+      "name": "matching-isolated-endpoints",
+      "result": "pass via test-database-guard unit"
+    },
+    {
+      "name": "performance-write-path",
+      "result": "direct guard added"
+    },
+    {
+      "name": "security-write-path",
+      "result": "direct guard added"
+    },
+    {
+      "name": "scoring-path",
+      "result": "three scoring suites use mocks and remain DB-free"
+    },
+    {
+      "name": "real-prisma-unit-paths",
+      "result": "login.test.ts and session-service.test.ts explicitly guarded; mock-only scoring/unit paths remain DB-free"
+    }
+  ],
+  "limitations": [
+    "Operational migration/backfill scripts are inventoried but retain production/operator semantics; they were not run against the shared database.",
+    "CI disposable-database provisioning and production-like storage failure injection remain unverified.",
+    "The two Candidate-first operator scripts added in the 2026-09-06 continuation are guarded and included in the refreshed count."
+  ],
+  "staticDiscovery": {
+    "command": "rg -l --glob *.ts --glob *.tsx --glob *.mjs Prisma delegate write methods or $transaction under web/tests and web/scripts",
+    "writeLikeReferenceFiles": 124,
+    "references": [
+      {
+        "path": "web/scripts/backfill-job-taxonomy.ts",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/backfill-job-search-normalization.ts",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/bootstrap-search-catalog.ts",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/backfill-job-post-review-search.ts",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/applications/recruiter-application-decision-service.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/evaluate-cv-manual-baseline.mjs",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/applications/application-draft-service.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/security/admin-management/account-session-rationale-privacy.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "direct guard before Prisma import",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/architecture/home-localization-boundary.test.ts",
+        "classification": "static-or-unclassified-reference",
+        "guard": "manual review required",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/architecture/cv-import-boundaries.test.ts",
+        "classification": "static-or-unclassified-reference",
+        "guard": "manual review required",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/admin-management/administrator-provisioning-script.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/architecture/ocr-image-search-boundaries.test.ts",
+        "classification": "static-or-unclassified-reference",
+        "guard": "manual review required",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/helpers/recruitment-pipeline-kanban/recruitment-pipeline-kanban-e2e-control.mjs",
+        "classification": "runtime-db-write",
+        "guard": "fixture/helper guard at entry or delegated guarded fixture",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/helpers/profile-database-fixture.ts",
+        "classification": "runtime-db-write",
+        "guard": "fixture/helper guard at entry or delegated guarded fixture",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/scoring/scoring-worker.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/helpers/notifications/job-post-review-notification-cleanup.ts",
+        "classification": "runtime-db-write",
+        "guard": "fixture/helper guard at entry or delegated guarded fixture",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/helpers/notifications/admin-notification-cleanup.ts",
+        "classification": "runtime-db-write",
+        "guard": "fixture/helper guard at entry or delegated guarded fixture",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/helpers/job-board-database-fixture.ts",
+        "classification": "runtime-db-write",
+        "guard": "fixture/helper guard at entry or delegated guarded fixture",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/helpers/home/home-e2e-control.mjs",
+        "classification": "runtime-db-write",
+        "guard": "fixture/helper guard at entry or delegated guarded fixture",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/scoring/application-scoring-service.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/helpers/credential-fixture.ts",
+        "classification": "runtime-db-write",
+        "guard": "fixture/helper guard at entry or delegated guarded fixture",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/security/profile-account-redaction.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/system/e2e/job-board/job-actions.spec.ts",
+        "classification": "runtime-db-write",
+        "guard": "E2E helper/direct guard",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/helpers/candidate-first-database-fixture.ts",
+        "classification": "runtime-db-write",
+        "guard": "fixture/helper guard at entry or delegated guarded fixture",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/verify-admin-user-management-migration.mjs",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/performance/admin-management/messaging-report-review.performance.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "direct guard before Prisma import",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/system/e2e/admin-management/admin-e2e-control.mjs",
+        "classification": "runtime-db-write",
+        "guard": "E2E helper/direct guard",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/migrate-in-app-notification-legacy-data.mjs",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/identity/session-service.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "direct assertTestDatabaseEnvironment plus explicit Vitest DB-backed marker",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/inspect-image-search.mjs",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/support/support-repository.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/seed-development-jobs.ts",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/generate-search-title-translation-manifest.ts",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/security/workflow-security-wiring.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/security/profile-account-authorization-matrix.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/identity/login.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "direct assertTestDatabaseEnvironment plus explicit Vitest DB-backed marker",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/search/search-catalog-admin-lifecycle.integration.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/measure-in-app-notification-performance.mjs",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/identity/account-recovery-secret-safety.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/refresh-search-catalog-draft.ts",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/revoke-platform-administrator.mjs",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/reconcile-search-mapping-review-queue.ts",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/profile/profile-section-save.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/profile/profile-concurrency.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/repair-application-documents.ts",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/reconcile-job-search-profile.ts",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/run-messaging-e2e.mjs",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/scripts/provision-platform-administrator.mjs",
+        "classification": "operator-script-or-static-reference",
+        "guard": "operator-only; not executed by audit",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/search/job-search-profile.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/email/outbox-worker.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/audit/profile-account-audit-outbox.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/audit/append-only-enforcement.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/image-search/image-search-authorization.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/image-search/search-retention-deletion.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/image-search/image-search-admission.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/notifications/notification-retention.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/image-search/image-admission-and-decode.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/image-search/image-search-result-consumption.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/db/profile-account-constraints.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/notifications/notification-failure-isolation.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/image-search/image-search-pipeline.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/image-search/image-search-fallback.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/notifications/admin-actionable-notification-fanout.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/image-search/external-consent-races.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/db/identity-constraints.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/employer-verification/company-email-challenge.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/employer-verification/registry-lookup.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/employer-verification/business-verification-retention.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/employer-verification/enriched-submission.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/cv-import/cv-route-session-boundary.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/connections/proposal-consent-lifecycle.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/compatibility/better-auth-1.6.25.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/account-recovery-login-block.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/account-recovery-route.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/backup-code-login-challenge.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/better-auth-session-creation.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/email-address-claim-coordination.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/messaging/fixtures.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/company-team-applications/team-application-service.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/company-team-applications/membership-creation.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/auth/totp-enrollment.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/auth/require-recent-auth.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/auth/better-auth-totp-storage.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/verification-enriched-detail.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/auth/better-auth-backup-code-concurrency.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/forgot-password-route.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/verification-decisions.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/full-account-recovery.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/security-notification-work.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/auth/backup-code-fixture.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/recruiter-entitlement.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/moderation-review.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/password-reset-repository.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/moderation-report-admission.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/jobs/job-application.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/messaging-report-review.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/dashboard-snapshot.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/pre-auth-challenge.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/company-membership-lifecycle.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/jobs/application-stage-tracking.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/admin-worker-resilience.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/admin-session-policy.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/admin-grant-operator-commands.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/admin-authentication-flow.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/reset-password-failure-injection.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/admin-management/admin-account-commands.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/jobs/application-capacity-promotion.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/auth/session-credential.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/reset-password.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/totp-login-challenge.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/account/password-change-security-effects.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/identity/verification.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/jobs/prisma-job-application-repository-ownership.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/jobs/recruiter-capacity-service.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/account/email-change-verification.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/jobs/recruiter-job-posting-data.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/account/email-change-concurrency.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/job-post-reviews/job-post-review-retention.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/integration/account/account-preferences.test.ts",
+        "classification": "runtime-db-write",
+        "guard": "Vitest global/setup path guard requires matching isolated endpoints",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/frontend/architecture/root-layout-script.test.ts",
+        "classification": "static-or-unclassified-reference",
+        "guard": "manual review required",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/frontend/accessibility/workspace-theme-colors.accessibility.test.ts",
+        "classification": "static-or-unclassified-reference",
+        "guard": "manual review required",
+        "evidence": "write-like Prisma delegate or transaction reference"
+      },
+      {
+        "path": "web/tests/backend/unit/applications/application-retention-worker.test.ts",
+        "classification": "mocked-or-static-reference",
+        "guard": "DB-free mock/static contract; no persistent runtime write",
+        "evidence": "write-like Prisma delegate reference is a hoisted mock only"
+      },
+      {
+        "path": "web/scripts/measure-candidate-first-home-performance.mjs",
+        "classification": "operator-script-or-static-reference",
+        "guard": "assertTestDatabaseEnvironment before Prisma import; namespace fixture cleanup",
+        "evidence": "1000 active public job seed, query/pool measurement and teardown"
+      },
+      {
+        "path": "web/scripts/verify-candidate-first-backup-restore.mjs",
+        "classification": "operator-script-or-static-reference",
+        "guard": "assertTestDatabaseEnvironment after host endpoint normalization; source/restore DB names fail closed",
+        "evidence": "isolated fixture, CandidateCv/JobApplication/ApplicationDocument/Promotion writes and cleanup"
+      }
+    ],
+    "interpretation": "The list is intentionally write-like: mocked delegates and static contract strings are marked separately. Runtime database writes are guarded by integration/compatibility setup, explicit performance/security guards, guarded fixtures, or the two explicitly marked identity units.",
+    "actualRuntimeCoverage": {
+      "backendIntegrationAndCompatibility": 69,
+      "performanceSecurity": 2,
+      "systemE2E": 2,
+      "guardedHelpers": 8,
+      "explicitUnitPrisma": 2,
+      "mockedOrStatic": 21,
+      "operatorScripts": 20
+    }
+  },
+  "database": {
+    "writeLikeReferenceFiles": 124,
+    "runtimeGuardCoverage": {
+      "mockedOrStatic": 21,
+      "operatorScripts": 20
+    }
+  }
+}

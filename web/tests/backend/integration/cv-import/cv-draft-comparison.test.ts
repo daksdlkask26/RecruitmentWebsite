@@ -71,6 +71,10 @@ describe.sequential("owned CV draft comparison", () => {
     expect(
       await repository.getOwnedComparison("foreign-account", seeded.draftId),
     ).toBeNull();
+    await pool.query(
+      `UPDATE "CvDraft" SET "expiresAt" = $2 WHERE "id" = $1`,
+      [seeded.draftId, new Date("2026-08-31T00:00:00.000Z")],
+    );
     expect(
       await repository.getOwnedComparison(
         seeded.accountId,

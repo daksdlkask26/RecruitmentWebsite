@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { HomePageView } from "@/frontend/features/home/components/home-page-view";
 import {
   candidateViewer,
   employerViewer,
   homeModel,
 } from "../../../helpers/home/home-fixtures";
+import { HomeTestHarness } from "../../../helpers/home/home-test-harness";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
@@ -13,7 +13,7 @@ vi.mock("next/navigation", () => ({
 
 describe("Home destination map", () => {
   it("smoothly centres a fitting in-page section and top-aligns a longer one", () => {
-    const { container } = render(<HomePageView model={homeModel()} />);
+    const { container } = render(<HomeTestHarness model={homeModel()} />);
     const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
     const howItWorks = container.querySelector("#how-it-works") as HTMLElement;
     const companies = container.querySelector("#companies-hiring") as HTMLElement;
@@ -62,7 +62,7 @@ describe("Home destination map", () => {
   });
 
   it("uses only existing public routes and matching in-page anchors", () => {
-    const { container } = render(<HomePageView model={homeModel()} />);
+    const { container } = render(<HomeTestHarness model={homeModel()} />);
     for (const id of [
       "career-paths",
       "jobs",
@@ -118,7 +118,7 @@ describe("Home destination map", () => {
 
   it("maps candidate shortcuts/profile and preserves recruiter authority separately", () => {
     const { container, rerender } = render(
-      <HomePageView model={homeModel({ viewer: candidateViewer })} />,
+      <HomeTestHarness model={homeModel({ viewer: candidateViewer })} />,
     );
     expect(container.querySelector(".home-header-actions .home-shortcuts")).toBeNull();
 
@@ -141,7 +141,7 @@ describe("Home destination map", () => {
       "href",
       "/profile",
     );
-    rerender(<HomePageView model={homeModel({ viewer: employerViewer })} />);
+    rerender(<HomeTestHarness model={homeModel({ viewer: employerViewer })} />);
     expect(
       screen.getAllByRole("link", { name: "Post a Job" })[0],
     ).toHaveAttribute("href", "/recruiter/job-postings");

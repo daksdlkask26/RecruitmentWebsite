@@ -1248,6 +1248,7 @@ model UserAccount {
   connectionNotifications        ProfessionalConnectionNotification[]    @relation("ConnectionNotificationRecipient")
   inAppNotifications             InAppNotification[]                     @relation("InAppNotificationRecipient")
   applicationArtifactPromotions  ApplicationArtifactPromotion[]            @relation("ApplicationArtifactPromotionCandidate")
+  candidateCvArtifactPromotions  CandidateCvArtifactPromotion[]            @relation("CandidateCvArtifactPromotionCandidate")
   applicationLegalHoldsIssued    ApplicationDocumentLegalHold[]            @relation("ApplicationLegalHoldIssuer")
   scoringOperationsRequested     ScoringOperation[]                         @relation("ScoringOperationRequester")
   manualPrioritiesSet            ManualApplicationPriority[]                @relation("ManualPriorityActor")
@@ -3301,6 +3302,9 @@ model ApplicationArtifactPromotion {
   kind                  ApplicationDocumentKind
   storagePurposeVersion String                             @default("application-document-v1")
   storageKeyEncrypted   String
+  /// SHA-256 of the plaintext bytes. Nullable only for legacy rows created
+  /// before the digest column existed; every new promotion must populate it.
+  contentDigestSha256   String?                            @db.Char(64)
   state                 ApplicationArtifactPromotionState @default(PROMOTED)
   orphanDeleteAfter     DateTime
   leaseOwner            String?
@@ -3317,6 +3321,46 @@ model ApplicationArtifactPromotion {
   @@index([state, orphanDeleteAfter])
   @@index([jobApplicationId, kind])
   @@index([leaseExpiresAt])
+}
+
+enum CandidateCvArtifactPromotionScope {
+  PROFILE_CV
+  TEAM_APPLICATION
+}
+
+enum CandidateCvArtifactPromotionState {
+  PROMOTED
+  COMMITTED
+  DELETED
+  DELETE_FAILED
+}
+
+/// Durable ownership boundary for CVs that are materialized into the profile
+/// library or attached to a Team Application. `targetId` is intentionally
+/// generic because it is known before either target transaction starts, while
+/// the target row itself may not exist yet. Reconciliation verifies the target
+/// row, storage locator, owner and digest before claiming or deleting bytes.
+model CandidateCvArtifactPromotion {
+  id                  String                                  @id @default(cuid())
+  candidateUserId     String
+  scope               CandidateCvArtifactPromotionScope
+  targetId            String
+  storageKey          String
+  contentDigestSha256 String                                  @db.Char(64)
+  byteSize            Int
+  state               CandidateCvArtifactPromotionState      @default(PROMOTED)
+  orphanDeleteAfter   DateTime
+  attemptCount        Int                                     @default(0)
+  lastSafeFailureCode String?
+  createdAt           DateTime                                @default(now())
+  updatedAt           DateTime                                @updatedAt
+  deletedAt           DateTime?
+  candidate           UserAccount                             @relation("CandidateCvArtifactPromotionCandidate", fields: [candidateUserId], references: [id], onDelete: Restrict)
+
+  @@unique([scope, targetId])
+  @@index([state, orphanDeleteAfter])
+  @@index([storageKey])
+  @@index([candidateUserId, scope, createdAt])
 }
 
 model ApplicationDocumentLegalHold {

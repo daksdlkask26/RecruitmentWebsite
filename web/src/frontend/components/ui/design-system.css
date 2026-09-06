@@ -138,9 +138,16 @@
 }
 
 .sh-info-row__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sh-space-3);
   min-width: 0;
   color: var(--sh-profile-text-muted);
   font-size: 13.5px;
+}
+
+.sh-info-row__label-text {
+  min-width: 0;
 }
 
 .sh-info-row__value {
@@ -498,12 +505,12 @@
 }
 
 .sh-status-pill[data-tone="success"] {
-  color: var(--sh-profile-teal-dark);
-  background: var(--sh-profile-teal-light);
+  color: var(--sh-color-success);
+  background: var(--sh-color-success-bg);
 }
 .sh-status-pill[data-tone="warning"] {
-  color: var(--sh-profile-amber);
-  background: var(--sh-profile-amber-light);
+  color: var(--sh-color-warning);
+  background: var(--sh-color-warning-bg);
 }
 .sh-status-pill[data-tone="info"] {
   color: var(--sh-profile-primary);

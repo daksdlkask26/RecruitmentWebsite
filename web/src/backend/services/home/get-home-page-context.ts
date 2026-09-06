@@ -20,6 +20,7 @@ import {
   PrismaHomePublicCompanyRepository,
   type HomePublicCompanyRow,
 } from "@/backend/repositories/home/prisma-home-public-company-repository";
+import { PrismaPublicJobRepository } from "@/backend/repositories/jobs/prisma-public-job-repository";
 import { illustrativeSmartMatch } from "@/frontend/features/home/home-display-data";
 import type {
   EmployerSpotlight,
@@ -92,7 +93,11 @@ const defaultDependencies = (): HomeContextDependencies => ({
     new JobDiscoveryService().listRecommendationCandidates(actor),
   privateMatchScores: listPrivateMatchHomeScores,
   careerPaths: async (actor) => {
-    const service = new JobDiscoveryService();
+    const repository = new PrismaPublicJobRepository();
+    if (repository.countCareerPathJobs) {
+      return repository.countCareerPathJobs(new Date());
+    }
+    const service = new JobDiscoveryService(repository);
     return Promise.all(
       careerPathSlugs.map(async (slug) => {
         const result = await service.search(

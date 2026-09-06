@@ -38,7 +38,24 @@ export async function openHomeNavigationIfCompact(page: Page) {
 }
 
 export async function setHomeLocale(page: Page, locale: "en" | "vi") {
+  // The selector is server-rendered before the Home client hydrates. Waiting
+  // for the initial request burst prevents selectOption from changing only the
+  // native value without dispatching React's locale handler.
+  await page.waitForLoadState("networkidle");
   await page
     .getByLabel(/^(?:Home language|Ngôn ngữ trang chủ)$/u)
     .selectOption(locale);
+  // The native control changes before React's external-store subscriber has
+  // committed the translated tree. The root layout always starts with
+  // `lang="en"`, so wait for the selector's translated accessible name rather
+  // than the document attribute.
+  const languageSelect = page.getByRole("combobox").first();
+  if (locale === "en") {
+    await expect(languageSelect).toHaveAttribute("aria-label", "Home language");
+  } else {
+    await expect(languageSelect).not.toHaveAttribute(
+      "aria-label",
+      "Home language",
+    );
+  }
 }

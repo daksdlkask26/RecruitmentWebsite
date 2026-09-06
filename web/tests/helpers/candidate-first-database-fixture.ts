@@ -1,0 +1,255 @@
+import { createHash } from "node:crypto";
+import { hashPassword } from "better-auth/crypto";
+import { prisma } from "@/backend/database/prisma";
+import {
+  createJobBoardDatabaseFixture,
+  deleteJobBoardDatabaseFixture,
+} from "./job-board-database-fixture";
+
+export type CandidateFirstDatabaseFixture = Awaited<
+  ReturnType<typeof createCandidateFirstDatabaseFixture>
+>;
+
+const password = "Candidate-first fixture 2026!";
+
+function digest(value: string) {
+  return createHash("sha256").update(value, "utf8").digest("hex");
+}
+
+/**
+ * Disposable, self-contained data for the first Candidate journey.  The
+ * underlying job-board fixture gives us two accounts, profiles, confirmed
+ * CVs, a verified company and public jobs; this layer adds the persisted
+ * application, notification and assigned recruitment message the smoke flow
+ * needs to exercise read projections.
+ */
+export async function createCandidateFirstDatabaseFixture(
+  label = "candidate-first",
+  now = new Date("2026-09-05T08:00:00.000Z"),
+) {
+  const databaseFixture = await createJobBoardDatabaseFixture(
+    `candidate-first-${label}`,
+    now,
+  );
+  try {
+    const candidateUserId = databaseFixture.userIds[0]!;
+    const employerUserId = databaseFixture.userIds[1]!;
+    const job = databaseFixture.jobs.active;
+    const confirmedCvId = databaseFixture.confirmedCvIds[0]!;
+    const applicationId = `application-candidate-first-${databaseFixture.suffix}`;
+    const membershipId = `membership-candidate-first-${databaseFixture.suffix}`;
+    const threadId = `thread-candidate-first-${databaseFixture.suffix}`;
+    const messageId = `message-candidate-first-${databaseFixture.suffix}`;
+    const notificationId = `notification-candidate-first-${databaseFixture.suffix}`;
+    const applicationKey = `candidate-first-${databaseFixture.suffix}`;
+    const correlationId = `candidate-first-correlation-${databaseFixture.suffix}`;
+    const cv = await prisma.candidateCv.findUniqueOrThrow({
+      where: { id: confirmedCvId },
+    });
+    const candidate = await prisma.userAccount.findUniqueOrThrow({
+      where: { id: candidateUserId },
+      select: { email: true },
+    });
+
+    await prisma.authProviderAccount.create({
+      data: {
+        id: `account-candidate-first-${databaseFixture.suffix}`,
+        accountId: candidateUserId,
+        providerId: "credential",
+        userId: candidateUserId,
+        password: await hashPassword(password),
+      },
+    });
+    const membership = await prisma.companyMembership.create({
+      data: {
+        id: membershipId,
+        companyId: databaseFixture.company.id,
+        userId: employerUserId,
+        role: "OWNER",
+        priorApprovedRole: "OWNER",
+        status: "ACTIVE",
+      },
+    });
+
+    await prisma.jobApplication.create({
+      data: {
+        id: applicationId,
+        candidateUserId,
+        jobPostingId: job.id,
+        applicationAttemptNumber: 1,
+        selectedCvId: cv.id,
+        cvFileRef: cv.storageKey,
+        contactSnapshot: {
+          fullName: "Job Candidate 1",
+          email: `job-candidate-1-${databaseFixture.suffix}@example.test`,
+        },
+        aiAnalysisConsent: false,
+        scoringStatus: "NOT_REQUESTED",
+        stage: "APPLIED",
+        stageVersion: 1,
+        lastStageChangedAt: now,
+        profileSnapshot: {
+          name: "Job Candidate 1",
+          headline: "TypeScript Engineer",
+          location: "Ho Chi Minh City",
+        },
+        cvSnapshot: {
+          cvId: cv.id,
+          cvVersion: cv.version,
+          displayName: cv.displayName,
+          fileName: cv.fileName,
+          mimeType: cv.mimeType,
+          byteSize: cv.byteSize,
+          storageKey: cv.storageKey,
+          checksumSha256: cv.checksumSha256,
+        },
+        jobSnapshot: {
+          jobId: job.id,
+          slug: job.slug,
+          title: job.title,
+          companyName: databaseFixture.company.displayName,
+          location: job.location,
+        },
+        consentVersion: "2026-09-01",
+        consentedAt: now,
+        idempotencyKey: applicationKey,
+        submissionBindingDigest: digest(
+          `${candidateUserId}:${job.id}:${applicationKey}`,
+        ),
+        submittedAt: now,
+        contactConsent: {
+          create: {
+            sharedAt: null,
+            withdrawnAt: now,
+            version: 1,
+          },
+        },
+        stageEvents: {
+          create: {
+            id: `stage-event-candidate-first-${databaseFixture.suffix}`,
+            fromStage: null,
+            toStage: "APPLIED",
+            actorUserId: candidateUserId,
+            actorType: "CANDIDATE",
+            candidateVisible: true,
+            occurredAt: now,
+            applicationVersion: 1,
+            idempotencyKey: `stage-event-${applicationKey}`,
+          },
+        },
+        intake: {
+          create: {
+            state: "SENT_TO_RECRUITER",
+            progressPercent: 100,
+            receivedAt: now,
+            checkingStartedAt: now,
+            sentAt: now,
+            version: 1,
+            updatedAt: now,
+          },
+        },
+        notificationPreference: {
+          create: {
+            emailEnabled: true,
+            inAppEnabled: true,
+            version: 1,
+            updatedAt: now,
+          },
+        },
+        publicUpdates: {
+          create: {
+            id: `public-update-candidate-first-${databaseFixture.suffix}`,
+            kind: "SUBMITTED",
+            publicStage: "APPLICATION_SUBMITTED",
+            title: "Application submitted",
+            effectiveAt: now,
+            deduplicationKey: `public-update-${applicationKey}`,
+          },
+        },
+      },
+    });
+
+    await prisma.recruitmentThread.create({
+      data: {
+        id: threadId,
+        applicationId,
+        companyId: databaseFixture.company.id,
+        jobPostingId: job.id,
+        candidateUserId,
+        assignedMembershipId: membership.id,
+        state: "OPEN",
+        nextMessageSequence: 2,
+        lastMessageSequence: 1,
+        lastMessageAt: now,
+      },
+    });
+    await prisma.recruitmentMessage.create({
+      data: {
+        id: messageId,
+        threadId,
+        sequence: 1,
+        senderUserId: employerUserId,
+        senderMembershipId: membership.id,
+        clientOperationId: `fixture-message-${databaseFixture.suffix}`,
+        content: "Thanks for applying. We will review your profile shortly.",
+        createdAt: now,
+      },
+    });
+    await prisma.inAppNotification.create({
+      data: {
+        id: notificationId,
+        recipientUserId: candidateUserId,
+        kind: "APPLICATION_SUBMITTED",
+        category: "APPLICATION",
+        severity: "LOW",
+        audience: "USER",
+        recipientRole: "CANDIDATE",
+        title: "Application submitted",
+        summary: "Your application was submitted successfully.",
+        href: `/jobs/applied/${applicationId}`,
+        contextType: "APPLICATION",
+        contextId: applicationId,
+        deduplicationKey: `notification-${applicationKey}`,
+        correlationId,
+        occurrenceCount: 1,
+        createdAt: now,
+        lastOccurredAt: now,
+        expiresAt: new Date(now.getTime() + 30 * 24 * 60 * 60_000),
+      },
+    });
+
+    return {
+      ...databaseFixture,
+      candidateUserId,
+      employerUserId,
+      candidateEmail: candidate.email,
+      candidatePassword: password,
+      confirmedCvId,
+      applicationId,
+      membershipId,
+      threadId,
+      messageId,
+      notificationId,
+    };
+  } catch (error) {
+    try {
+      await deleteJobBoardDatabaseFixture(databaseFixture);
+    } catch (cleanupError) {
+      throw new AggregateError(
+        [error, cleanupError],
+        `Candidate-first fixture creation and rollback both failed for ${databaseFixture.suffix}`,
+        { cause: cleanupError },
+      );
+    }
+    throw error;
+  }
+}
+
+export async function deleteCandidateFirstDatabaseFixture(
+  fixture: Pick<
+    CandidateFirstDatabaseFixture,
+    "company" | "userIds" | "suffix"
+  >,
+) {
+  await deleteJobBoardDatabaseFixture(fixture);
+}

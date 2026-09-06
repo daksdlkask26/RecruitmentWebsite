@@ -30,6 +30,7 @@ export class S3ApplicationDocumentStorage
   async put(input: {
     source: AsyncIterable<Uint8Array>;
     expectedBytes: number;
+    locator?: string;
   }) {
     try {
       const stored = await this.storage.put(input);

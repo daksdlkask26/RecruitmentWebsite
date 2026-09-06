@@ -1,0 +1,770 @@
+{
+  "auditedCommit": "60711785",
+  "date": "2026-09-05",
+  "scope": "Read-only audit; source code and database data were not modified.",
+  "inventory": {
+    "sourceFiles": 1494,
+    "sourceLines": 308055,
+    "apiRoutes": 216,
+    "pages": 81,
+    "testFiles": 856,
+    "prismaModels": 164,
+    "migrations": 88
+  },
+  "checks": {
+    "typescript": "pass; tsc --noEmit --incremental false",
+    "eslint": "pass; eslint . --no-cache",
+    "prismaValidate": "pass",
+    "migrationSequence": "pass",
+    "gitDiffCheck": "pass"
+  },
+  "databaseReadOnly": {
+    "version": "PostgreSQL 16.12",
+    "timezone": "Etc/UTC",
+    "size": "423 MB",
+    "migrationsCompleted": 88,
+    "incompleteMigrations": 0,
+    "jobs": 51950,
+    "companies": 182,
+    "jobApplications": 0,
+    "teamApplications": 0,
+    "backupRuns": 0,
+    "legalHoldApplicationForeignKey": "ON DELETE CASCADE",
+    "customTriggersOnCompanyApplicationLegalHold": []
+  },
+  "vitest": {
+    "initial": {
+      "files": 122,
+      "passedFiles": 104,
+      "failedFiles": 18,
+      "tests": 610,
+      "passedTests": 575,
+      "failedTests": 35,
+      "durationSeconds": 241.09
+    },
+    "databaseConnection": "Overridden to loopback port 1; no live database writes.",
+    "excluded": "tests/architecture/custom-server-runtime-boundaries.test.ts",
+    "rerun": {
+      "exit": 1,
+      "files": 18,
+      "passed": 73,
+      "failed": 35,
+      "failedSuites": [
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/architecture/candidate-application-private-match-boundaries.test.ts",
+          "failures": [
+            {
+              "title": "private CV match isolation does not expose private-check discovery terms in employer modules",
+              "message": "AssertionError: expected [ Array(1) ] to deeply equal []\n    at D:/HCMUS/PROJECT/web/tests/architecture/private-cv-match-boundaries.test.ts:62:24\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/architecture/cv-import-status-route.test.ts",
+          "failures": [
+            {
+              "title": "CV import status route identity uses the persisted uploadId for pending and completed imports",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport { useCallback…' to contain 'current.status === \"REVIEW_READY\"'\n    at D:/HCMUS/PROJECT/web/tests/architecture/cv-import-status-route.test.ts:45:20\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/architecture/cv-import-style-boundaries.test.ts",
+          "failures": [
+            {
+              "title": "Feature 004 stylesheet ownership allows only optional adjacent same-basename CSS Modules",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport { InfoBanner …' to contain 'cv-processing-notice.module.css'\n    at D:/HCMUS/PROJECT/web/tests/architecture/cv-import-style-boundaries.test.ts:33:45\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/architecture/in-app-notification-boundaries.test.ts",
+          "failures": [
+            {
+              "title": "in-app notification architecture does not add a notification socket transport or alter email templates",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport {\\n  useInfin…' to contain '4_000'\n    at D:/HCMUS/PROJECT/web/tests/architecture/in-app-notification-boundaries.test.ts:31:24\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/architecture/job-post-management-boundaries.test.ts",
+          "failures": [
+            {
+              "title": "job post management architecture boundaries keeps persistence in a server-only repository and public reads fail closed",
+              "message": "AssertionError: expected 'import \"server-only\";\\nimport { Prism…' to contain 'verificationState\" = \\'ACTIVE\\''\n    at D:/HCMUS/PROJECT/web/tests/architecture/job-post-management-boundaries.test.ts:31:30\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/architecture/layer-boundaries.test.ts",
+          "failures": [
+            {
+              "title": "application layers keeps App Router modules free of direct data providers",
+              "message": "AssertionError: expected 'import { redirect } from \"next/naviga…' not to match /@prisma\\…/client|from [\"']resend[\"']|@\\\n    at D:/HCMUS/PROJECT/web/tests/architecture/layer-boundaries.test.ts:28:48\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+            },
+            {
+              "title": "application layers keeps client state and effects in frontend features",
+              "message": "AssertionError: expected '\"use client\";\\n\\nexport default funct…' not to match /[\"']use client[\"']|useState\\(|useEffe…/\n    at D:/HCMUS/PROJECT/web/tests/architecture/layer-boundaries.test.ts:37:48\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+            },
+            {
+              "title": "application layers keeps the global stylesheet as an ordered import manifest",
+              "message": "AssertionError: expected [ '@import \"tailwindcss\";', …(16) ] to deeply equal [ '@import \"tailwindcss\";', …(2) ]\n    at D:/HCMUS/PROJECT/web/tests/architecture/layer-boundaries.test.ts:54:19\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+            },
+            {
+              "title": "application layers keeps route transitions and data providers scoped to consumers",
+              "message": "AssertionError: expected 'import type { Metadata } from \"next\";…' not to contain 'AppProviders'\n    at D:/HCMUS/PROJECT/web/tests/architecture/layer-boundaries.test.ts:75:28\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+            },
+            {
+              "title": "application layers marks sanitizer, cryptography, database, and mail-provider modules as server-only",
+              "message": "AssertionError: src\\backend\\image-search\\storage\\filesystem.ts: expected 'import { randomUUID } from \"node:cryp…' to match /^import [\"']server-only[\"'];/u\n    at D:/HCMUS/PROJECT/web/tests/architecture/layer-boundaries.test.ts:94:30\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+            },
+            {
+              "title": "application layers enforces account transport-service-repository direction",
+              "message": "AssertionError: src\\backend\\repositories\\applications\\prisma-application-repository.ts: expected 'import \"server-only\";\\n\\nimport { cre…' not to match /@\\/(?:app|backend\\/ser…/(?:app|backend\\\n    at D:/HCMUS/PROJECT/web/tests/architecture/layer-boundaries.test.ts:116:54\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/architecture/ocr-image-search-boundaries.test.ts",
+          "failures": [
+            {
+              "title": "Feature 005 architecture boundaries mounts job search inside supported headers instead of the root or authentication shell",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport { CsrfProofPr…' to contain '<GlobalImageSearch'\n    at D:/HCMUS/PROJECT/web/tests/architecture/ocr-image-search-boundaries.test.ts:68:24\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/architecture/private-cv-match-boundaries.test.ts",
+          "failures": [
+            {
+              "title": "private CV match isolation does not expose private-check discovery terms in employer modules",
+              "message": "AssertionError: expected [ Array(1) ] to deeply equal []\n    at D:/HCMUS/PROJECT/web/tests/architecture/private-cv-match-boundaries.test.ts:62:24\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/architecture/applications/application-boundaries.test.ts",
+          "failures": [
+            {
+              "title": "submitted candidate boundaries keeps ranking and score behavior out of the Group 1 list",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport { useState } …' to match /Scores are not part of this view/\n    at D:/HCMUS/PROJECT/web/tests/architecture/applications/application-boundaries.test.ts:13:20\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/frontend/accessibility/password-change.accessibility.test.tsx",
+          "failures": [
+            {
+              "title": "password-change accessibility shows a saved security state until the user chooses to edit",
+              "message": "TestingLibraryElementError: Unable to find an accessible element with the role \"button\" and name \"Cancel\"\n\nHere are the accessible roles:\n\n  region:"
+            },
+            {
+              "title": "password-change accessibility labels all fields, permits paste, exposes autocomplete, and toggles each field's visibility",
+              "message": "TestingLibraryElementError: Unable to find a label with the text of: Current password\n\nIgnored nodes: comments, script, style\n\u001b[36m<body\u001b[39m\n  \u001b[33mstyle\u001b[39m=\u001b[32m\"\"\u001b[39m"
+            },
+            {
+              "title": "password-change accessibility retains all values and focuses a persistent error summary",
+              "message": "TestingLibraryElementError: Unable to find a label with the text of: Current password\n\nIgnored nodes: comments, script, style\n\u001b[36m<body\u001b[39m\n  \u001b[33mstyle\u001b[39m=\u001b[32m\"\"\u001b[39m"
+            },
+            {
+              "title": "password-change accessibility announces account lock/retry metadata and prevents another submit",
+              "message": "TestingLibraryElementError: Unable to find a label with the text of: Current password\n\nIgnored nodes: comments, script, style\n\u001b[36m<body\u001b[39m\n  \u001b[33mstyle\u001b[39m=\u001b[32m\"\"\u001b[39m"
+            },
+            {
+              "title": "password-change accessibility sends CSRF/idempotency once, announces success, and clears secrets",
+              "message": "TestingLibraryElementError: Unable to find a label with the text of: Current password\n\nIgnored nodes: comments, script, style\n\u001b[36m<body\u001b[39m\n  \u001b[33mstyle\u001b[39m=\u001b[32m\"\"\u001b[39m"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/frontend/accessibility/workspace-theme-colors.accessibility.test.ts",
+          "failures": [
+            {
+              "title": "candidate and recruiter workspace theme colors keeps recruiter-only palettes scoped and token based",
+              "message": "AssertionError: expected '/*\\r\\n * Recruitment pipeline present…' to contain '.recruiter-pipeline-page {\\n  --ink: …'\n    at D:/HCMUS/PROJECT/web/tests/frontend/accessibility/workspace-theme-colors.accessibility.test.ts:32:22\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/frontend/accessibility/applications/recruitment-pipeline-board.accessibility.test.tsx",
+          "failures": [
+            {
+              "title": "pipeline accessibility boundary provides labelled list/kanban switching, columns, load-more, and non-color state copy",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport { CandidateRa…' to match /aria-label=.*view/i\n    at D:/HCMUS/PROJECT/web/tests/frontend/accessibility/applications/recruitment-pipeline-board.accessibility.test.tsx:8:23\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/frontend/accessibility/employer-verification/employer-verification.accessibility.test.tsx",
+          "failures": [
+            {
+              "title": "employer verification accessibility keeps semantic sections, labelled fields, and text status cues",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport {\\n  useCallb…' to contain 'aria-label=\"Verify company email\"'\n    at D:/HCMUS/PROJECT/web/tests/frontend/accessibility/employer-verification/employer-verification.accessibility.test.tsx:17:18\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/frontend/accessibility/cv-import/cv-upload.accessibility.test.tsx",
+          "failures": [
+            {
+              "title": "CV upload accessibility has labelled controls, keyboard submission, live feedback, and an error summary",
+              "message": "TestingLibraryElementError: Unable to find an accessible element with the role \"group\" and name `/choose a parser/i`\n\nHere are the accessible roles:\n\n  note:"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/frontend/accessibility/home/home-accessibility.test.tsx",
+          "failures": [
+            {
+              "title": "Home accessibility has landmarks, labelled controls, headings, and no serious axe violations for candidate personal match",
+              "message": "Error: No QueryClient set, use QueryClientProvider to set one\n    at useQueryClient (file:///D:/HCMUS/PROJECT/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:15:11)\n    at useNotificationRefreshEvents (D:/HCMUS/PROJECT/web/src/frontend/features/notifications/client/use-notifications.ts:45:23)\n    at useNotificationUnreadCount (D:/HCMUS/PROJECT/web/src/frontend/features/notifications/client/use-notifications.ts:76:3)\n    at NotificationCenterContent (D:/HCMUS/PROJECT/web/src/frontend/features/notifications/components/notification-center.tsx:39:17)"
+            },
+            {
+              "title": "Home accessibility has landmarks, labelled controls, headings, and no serious axe violations for employer",
+              "message": "Error: No QueryClient set, use QueryClientProvider to set one\n    at useQueryClient (file:///D:/HCMUS/PROJECT/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:15:11)\n    at useNotificationRefreshEvents (D:/HCMUS/PROJECT/web/src/frontend/features/notifications/client/use-notifications.ts:45:23)\n    at useNotificationUnreadCount (D:/HCMUS/PROJECT/web/src/frontend/features/notifications/client/use-notifications.ts:76:3)\n    at NotificationCenterContent (D:/HCMUS/PROJECT/web/src/frontend/features/notifications/components/notification-center.tsx:39:17)"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/frontend/accessibility/job-post-reviews/recruiter-outcome.accessibility.test.tsx",
+          "failures": [
+            {
+              "title": "Recruiter Outcome Accessibility Outcome Announcement (FR-022, FR-029, SC-008) pending replacement announced to screen readers",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport Link from \"ne…' to match /locked while an Administrator reviews/i\n    at D:/HCMUS/PROJECT/web/tests/frontend/accessibility/job-post-reviews/recruiter-outcome.accessibility.test.tsx:71:35\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            },
+            {
+              "title": "Recruiter Outcome Accessibility Rejection Reason Semantic Structure (FR-023, FR-029, SC-008) reason code mapped to human-readable text",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport Link from \"ne…' to match /INCOMPLETE_OR_UNCLEAR.*incomplete/i\n    at D:/HCMUS/PROJECT/web/tests/frontend/accessibility/job-post-reviews/recruiter-outcome.accessibility.test.tsx:99:35\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            },
+            {
+              "title": "Recruiter Outcome Accessibility Keyboard Revise Workflow (FR-024, FR-029, SC-008) revise action has descriptive label",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport Link from \"ne…' to match /Revise rejected job posting/i\n    at D:/HCMUS/PROJECT/web/tests/frontend/accessibility/job-post-reviews/recruiter-outcome.accessibility.test.tsx:139:35\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            },
+            {
+              "title": "Recruiter Outcome Accessibility Keyboard Revise Workflow (FR-024, FR-029, SC-008) enter key activates revise",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport Link from \"ne…' to match /Revise posting/i\n    at D:/HCMUS/PROJECT/web/tests/frontend/accessibility/job-post-reviews/recruiter-outcome.accessibility.test.tsx:147:35\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            },
+            {
+              "title": "Recruiter Outcome Accessibility Keyboard Resubmit Workflow (FR-024, FR-029, SC-008) resubmit button keyboard accessible",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport {\\n  useCallb…' to match /Revise & resubmit|Submit for approval/i\n    at D:/HCMUS/PROJECT/web/tests/frontend/accessibility/job-post-reviews/recruiter-outcome.accessibility.test.tsx:162:31\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            },
+            {
+              "title": "Recruiter Outcome Accessibility Confirmation Dialog Handling (FR-029, SC-008) confirmation prompt is descriptive",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport {\\n  useCallb…' to match /window\\.confirm\\(/i\n    at D:/HCMUS/PROJECT/web/tests/frontend/accessibility/job-post-reviews/recruiter-outcome.accessibility.test.tsx:221:31\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            },
+            {
+              "title": "Recruiter Outcome Accessibility Screen Reader State Communication (FR-029, SC-008) read-only pending lock announced",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport Link from \"ne…' to match /locked while an Administrator reviews/i\n    at D:/HCMUS/PROJECT/web/tests/frontend/accessibility/job-post-reviews/recruiter-outcome.accessibility.test.tsx:295:35\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            },
+            {
+              "title": "Recruiter Outcome Accessibility Loading State Accessibility (FR-029, SC-008) loading state uses proper aria-busy",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport Link from \"ne…' to match /aria-busy=\"true\"|aria-live.*loading/i\n    at D:/HCMUS/PROJECT/web/tests/frontend/accessibility/job-post-reviews/recruiter-outcome.accessibility.test.tsx:310:25\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/frontend/accessibility/job-post-reviews/recruiter-submission.accessibility.test.tsx",
+          "failures": [
+            {
+              "title": "Recruiter review submission accessibility uses live semantic state and non-color pending lock cues",
+              "message": "AssertionError: expected '\"use client\";\\n\\nimport Link from \"ne…' to contain 'locked while an Administrator reviews…'\n    at D:/HCMUS/PROJECT/web/tests/frontend/accessibility/job-post-reviews/recruiter-submission.accessibility.test.tsx:15:24\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///D:/HCMUS/PROJECT/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20"
+            }
+          ]
+        },
+        {
+          "file": "D:/HCMUS/PROJECT/web/tests/frontend/accessibility/notifications/notification-center.accessibility.test.tsx",
+          "failures": [
+            {
+              "title": "notification center accessibility exposes a named disclosure with unread count",
+              "message": "Error: No QueryClient set, use QueryClientProvider to set one\n    at useQueryClient (file:///D:/HCMUS/PROJECT/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:15:11)\n    at useNotificationRefreshEvents (D:/HCMUS/PROJECT/web/src/frontend/features/notifications/client/use-notifications.ts:45:23)\n    at useNotificationUnreadCount (D:/HCMUS/PROJECT/web/src/frontend/features/notifications/client/use-notifications.ts:76:3)\n    at NotificationCenterContent (D:/HCMUS/PROJECT/web/src/frontend/features/notifications/components/notification-center.tsx:39:17)"
+            }
+          ]
+        }
+      ],
+      "stderr": "Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package\nNot implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package\n"
+    }
+  },
+  "isolatedFaultSimulations": [
+    {
+      "case": "health with failed database query",
+      "observed": "status=ok; admissionReady=false"
+    },
+    {
+      "case": "export audit append fails after succeed",
+      "observed": "database state SUCCEEDED; artifact deleted"
+    },
+    {
+      "case": "team submission read fails after transaction commit",
+      "observed": "transaction committed; CV cleanup invoked"
+    },
+    {
+      "case": "expired backup lease",
+      "observed": "only QUEUED queried; LEASED with activeKey remains; ready=true, processed=false"
+    },
+    {
+      "case": "parseBoundedJson without Content-Length",
+      "observed": "262144 bytes consumed for limit 1024 before status 413"
+    },
+    {
+      "case": "recruiter POST with mocked valid session, foreign Origin, text/plain and no CSRF token",
+      "observed": "create service called; HTTP 201"
+    }
+  ],
+  "dependencyAudit": {
+    "auditReportVersion": 2,
+    "vulnerabilities": {
+      "@xmldom/xmldom": {
+        "name": "@xmldom/xmldom",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1158518,
+            "name": "@xmldom/xmldom",
+            "dependency": "@xmldom/xmldom",
+            "title": "xmldom: XML fragment injection via invalid EntityReference.nodeName during requireWellFormed serialization",
+            "url": "https://github.com/advisories/GHSA-6gmq-8vp8-gcm6",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-116"
+            ],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": ">=0.7.0 <=0.8.14"
+          }
+        ],
+        "effects": [],
+        "range": "<=0.8.14",
+        "nodes": [
+          "node_modules/@xmldom/xmldom"
+        ],
+        "fixAvailable": true
+      },
+      "decode-uri-component": {
+        "name": "decode-uri-component",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1147955,
+            "name": "decode-uri-component",
+            "dependency": "decode-uri-component",
+            "title": "decode-uri-component: Denial of service via exponential decoding of malformed percent-encoded input",
+            "url": "https://github.com/advisories/GHSA-vcc3-ghjq-m6fr",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-400",
+              "CWE-405",
+              "CWE-407",
+              "CWE-1176"
+            ],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": "<=0.4.2"
+          }
+        ],
+        "effects": [
+          "query-string"
+        ],
+        "range": "<=0.4.2",
+        "nodes": [
+          "node_modules/decode-uri-component"
+        ],
+        "fixAvailable": {
+          "name": "react-admin",
+          "version": "3.0.2",
+          "isSemVerMajor": true
+        }
+      },
+      "exceljs": {
+        "name": "exceljs",
+        "severity": "moderate",
+        "isDirect": true,
+        "via": [
+          "uuid"
+        ],
+        "effects": [],
+        "range": ">=3.5.0",
+        "nodes": [
+          "node_modules/exceljs"
+        ],
+        "fixAvailable": {
+          "name": "exceljs",
+          "version": "3.4.0",
+          "isSemVerMajor": true
+        }
+      },
+      "fast-uri": {
+        "name": "fast-uri",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1158521,
+            "name": "fast-uri",
+            "dependency": "fast-uri",
+            "title": "fast-uri vulnerable to host confusion via skipped IDN canonicalization on scheme-relative references",
+            "url": "https://github.com/advisories/GHSA-5jgf-p345-68v8",
+            "severity": "high",
+            "cwe": [
+              "CWE-436"
+            ],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+            },
+            "range": ">=3.1.3 <3.1.6"
+          },
+          {
+            "source": 1158524,
+            "name": "fast-uri",
+            "dependency": "fast-uri",
+            "title": "fast-uri vulnerable to server-side request forgery via malformed IPv6 normalization",
+            "url": "https://github.com/advisories/GHSA-f65p-4m7j-42xc",
+            "severity": "high",
+            "cwe": [
+              "CWE-20",
+              "CWE-918"
+            ],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+            },
+            "range": ">=3.0.0 <3.1.6"
+          },
+          {
+            "source": 1158527,
+            "name": "fast-uri",
+            "dependency": "fast-uri",
+            "title": "fast-uri vulnerable to server-side request forgery via repeated hostname percent-decoding",
+            "url": "https://github.com/advisories/GHSA-fph4-wmhf-6fwf",
+            "severity": "high",
+            "cwe": [
+              "CWE-174",
+              "CWE-918"
+            ],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+            },
+            "range": ">=3.1.2 <3.1.6"
+          },
+          {
+            "source": 1158530,
+            "name": "fast-uri",
+            "dependency": "fast-uri",
+            "title": "fast-uri vulnerable to host confusion via percent-encoded scheme normalization",
+            "url": "https://github.com/advisories/GHSA-jqff-g426-hqxp",
+            "severity": "high",
+            "cwe": [
+              "CWE-177"
+            ],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+            },
+            "range": ">=3.0.0 <3.1.6"
+          }
+        ],
+        "effects": [],
+        "range": "3.0.0 - 3.1.5",
+        "nodes": [
+          "node_modules/fast-uri"
+        ],
+        "fixAvailable": true
+      },
+      "mysql2": {
+        "name": "mysql2",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1153173,
+            "name": "mysql2",
+            "dependency": "mysql2",
+            "title": "MySQL2: Auth Plugin Downgrade to mysql_clear_password Leaks Plaintext Credentials",
+            "url": "https://github.com/advisories/GHSA-3f6p-5ww8-9rcr",
+            "severity": "high",
+            "cwe": [
+              "CWE-522"
+            ],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": "<3.22.0"
+          },
+          {
+            "source": 1158532,
+            "name": "mysql2",
+            "dependency": "mysql2",
+            "title": "MySQL2: Unbounded zlib inflate in compressed MySQL protocol handler allows decompression-bomb DoS",
+            "url": "https://github.com/advisories/GHSA-rgwj-5xj2-c3m3",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-409"
+            ],
+            "cvss": {
+              "score": 5.9,
+              "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": "<=3.23.0"
+          }
+        ],
+        "effects": [
+          "prisma"
+        ],
+        "range": "<=3.23.0",
+        "nodes": [
+          "node_modules/mysql2"
+        ],
+        "fixAvailable": {
+          "name": "prisma",
+          "version": "6.19.3",
+          "isSemVerMajor": true
+        }
+      },
+      "prisma": {
+        "name": "prisma",
+        "severity": "moderate",
+        "isDirect": true,
+        "via": [
+          "mysql2"
+        ],
+        "effects": [],
+        "range": ">=6.20.0-dev.1",
+        "nodes": [
+          "node_modules/prisma"
+        ],
+        "fixAvailable": {
+          "name": "prisma",
+          "version": "6.19.3",
+          "isSemVerMajor": true
+        }
+      },
+      "query-string": {
+        "name": "query-string",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          "decode-uri-component"
+        ],
+        "effects": [
+          "ra-core",
+          "ra-ui-materialui"
+        ],
+        "range": "5.0.0 - 9.4.1",
+        "nodes": [
+          "node_modules/query-string"
+        ],
+        "fixAvailable": {
+          "name": "react-admin",
+          "version": "3.0.2",
+          "isSemVerMajor": true
+        }
+      },
+      "ra-core": {
+        "name": "ra-core",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          "query-string"
+        ],
+        "effects": [
+          "ra-i18n-polyglot",
+          "ra-language-english",
+          "ra-ui-materialui",
+          "react-admin"
+        ],
+        "range": "*",
+        "nodes": [
+          "node_modules/ra-core"
+        ],
+        "fixAvailable": {
+          "name": "react-admin",
+          "version": "3.0.2",
+          "isSemVerMajor": true
+        }
+      },
+      "ra-i18n-polyglot": {
+        "name": "ra-i18n-polyglot",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          "ra-core"
+        ],
+        "effects": [
+          "react-admin"
+        ],
+        "range": "*",
+        "nodes": [
+          "node_modules/ra-i18n-polyglot"
+        ],
+        "fixAvailable": {
+          "name": "react-admin",
+          "version": "3.0.2",
+          "isSemVerMajor": true
+        }
+      },
+      "ra-language-english": {
+        "name": "ra-language-english",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          "ra-core"
+        ],
+        "effects": [
+          "react-admin"
+        ],
+        "range": ">=3.4.0",
+        "nodes": [
+          "node_modules/ra-language-english"
+        ],
+        "fixAvailable": {
+          "name": "react-admin",
+          "version": "3.0.2",
+          "isSemVerMajor": true
+        }
+      },
+      "ra-ui-materialui": {
+        "name": "ra-ui-materialui",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          "query-string",
+          "ra-core"
+        ],
+        "effects": [
+          "react-admin"
+        ],
+        "range": "*",
+        "nodes": [
+          "node_modules/react-admin/node_modules/ra-ui-materialui"
+        ],
+        "fixAvailable": {
+          "name": "react-admin",
+          "version": "3.0.2",
+          "isSemVerMajor": true
+        }
+      },
+      "react-admin": {
+        "name": "react-admin",
+        "severity": "moderate",
+        "isDirect": true,
+        "via": [
+          "ra-core",
+          "ra-i18n-polyglot",
+          "ra-language-english",
+          "ra-ui-materialui"
+        ],
+        "effects": [],
+        "range": ">=2.0.0-RC1",
+        "nodes": [
+          "node_modules/react-admin"
+        ],
+        "fixAvailable": {
+          "name": "react-admin",
+          "version": "3.0.2",
+          "isSemVerMajor": true
+        }
+      },
+      "sanitize-html": {
+        "name": "sanitize-html",
+        "severity": "moderate",
+        "isDirect": true,
+        "via": [
+          {
+            "source": 1153195,
+            "name": "sanitize-html",
+            "dependency": "sanitize-html",
+            "title": "ApostropheCMS: Stored XSS via SVG SMIL URI-list scheme-policy bypass",
+            "url": "https://github.com/advisories/GHSA-g8qq-57p8-ggw5",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-79"
+            ],
+            "cvss": {
+              "score": 5.4,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:N"
+            },
+            "range": ">=1.9.0 <=2.17.6"
+          }
+        ],
+        "effects": [],
+        "range": "1.9.0 - 2.17.6",
+        "nodes": [
+          "node_modules/sanitize-html"
+        ],
+        "fixAvailable": {
+          "name": "sanitize-html",
+          "version": "2.17.7",
+          "isSemVerMajor": false
+        }
+      },
+      "uuid": {
+        "name": "uuid",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1119441,
+            "name": "uuid",
+            "dependency": "uuid",
+            "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+            "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-787",
+              "CWE-1285"
+            ],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+            },
+            "range": "<11.1.1"
+          }
+        ],
+        "effects": [
+          "exceljs"
+        ],
+        "range": "<11.1.1",
+        "nodes": [
+          "node_modules/uuid"
+        ],
+        "fixAvailable": {
+          "name": "exceljs",
+          "version": "3.4.0",
+          "isSemVerMajor": true
+        }
+      }
+    },
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 12,
+        "high": 2,
+        "critical": 0,
+        "total": 14
+      },
+      "dependencies": {
+        "prod": 718,
+        "dev": 164,
+        "optional": 129,
+        "peer": 8,
+        "peerOptional": 0,
+        "total": 996
+      }
+    }
+  },
+  "limitations": [
+    "No live browser screenshots: Chrome DevTools profile was occupied and CUA reported no browsers.",
+    "No production build, live end-to-end mutations, load/stress/chaos tests, external AI/email calls, or restore drill.",
+    "Dependency findings do not establish runtime exploitability.",
+    "No Python interpreter available for OCR tests."
+  ]
+}

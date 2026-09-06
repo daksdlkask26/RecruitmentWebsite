@@ -42,6 +42,7 @@ export type ApplicationArtifactPromotionMinAggregateOutputType = {
   kind: $Enums.ApplicationDocumentKind | null
   storagePurposeVersion: string | null
   storageKeyEncrypted: string | null
+  contentDigestSha256: string | null
   state: $Enums.ApplicationArtifactPromotionState | null
   orphanDeleteAfter: Date | null
   leaseOwner: string | null
@@ -61,6 +62,7 @@ export type ApplicationArtifactPromotionMaxAggregateOutputType = {
   kind: $Enums.ApplicationDocumentKind | null
   storagePurposeVersion: string | null
   storageKeyEncrypted: string | null
+  contentDigestSha256: string | null
   state: $Enums.ApplicationArtifactPromotionState | null
   orphanDeleteAfter: Date | null
   leaseOwner: string | null
@@ -80,6 +82,7 @@ export type ApplicationArtifactPromotionCountAggregateOutputType = {
   kind: number
   storagePurposeVersion: number
   storageKeyEncrypted: number
+  contentDigestSha256: number
   state: number
   orphanDeleteAfter: number
   leaseOwner: number
@@ -109,6 +112,7 @@ export type ApplicationArtifactPromotionMinAggregateInputType = {
   kind?: true
   storagePurposeVersion?: true
   storageKeyEncrypted?: true
+  contentDigestSha256?: true
   state?: true
   orphanDeleteAfter?: true
   leaseOwner?: true
@@ -128,6 +132,7 @@ export type ApplicationArtifactPromotionMaxAggregateInputType = {
   kind?: true
   storagePurposeVersion?: true
   storageKeyEncrypted?: true
+  contentDigestSha256?: true
   state?: true
   orphanDeleteAfter?: true
   leaseOwner?: true
@@ -147,6 +152,7 @@ export type ApplicationArtifactPromotionCountAggregateInputType = {
   kind?: true
   storagePurposeVersion?: true
   storageKeyEncrypted?: true
+  contentDigestSha256?: true
   state?: true
   orphanDeleteAfter?: true
   leaseOwner?: true
@@ -253,6 +259,7 @@ export type ApplicationArtifactPromotionGroupByOutputType = {
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion: string
   storageKeyEncrypted: string
+  contentDigestSha256: string | null
   state: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date
   leaseOwner: string | null
@@ -295,6 +302,7 @@ export type ApplicationArtifactPromotionWhereInput = {
   kind?: Prisma.EnumApplicationDocumentKindFilter<"ApplicationArtifactPromotion"> | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFilter<"ApplicationArtifactPromotion"> | string
   storageKeyEncrypted?: Prisma.StringFilter<"ApplicationArtifactPromotion"> | string
+  contentDigestSha256?: Prisma.StringNullableFilter<"ApplicationArtifactPromotion"> | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFilter<"ApplicationArtifactPromotion"> | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFilter<"ApplicationArtifactPromotion"> | Date | string
   leaseOwner?: Prisma.StringNullableFilter<"ApplicationArtifactPromotion"> | string | null
@@ -317,6 +325,7 @@ export type ApplicationArtifactPromotionOrderByWithRelationInput = {
   kind?: Prisma.SortOrder
   storagePurposeVersion?: Prisma.SortOrder
   storageKeyEncrypted?: Prisma.SortOrder
+  contentDigestSha256?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrder
   orphanDeleteAfter?: Prisma.SortOrder
   leaseOwner?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -342,6 +351,7 @@ export type ApplicationArtifactPromotionWhereUniqueInput = Prisma.AtLeast<{
   kind?: Prisma.EnumApplicationDocumentKindFilter<"ApplicationArtifactPromotion"> | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFilter<"ApplicationArtifactPromotion"> | string
   storageKeyEncrypted?: Prisma.StringFilter<"ApplicationArtifactPromotion"> | string
+  contentDigestSha256?: Prisma.StringNullableFilter<"ApplicationArtifactPromotion"> | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFilter<"ApplicationArtifactPromotion"> | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFilter<"ApplicationArtifactPromotion"> | Date | string
   leaseOwner?: Prisma.StringNullableFilter<"ApplicationArtifactPromotion"> | string | null
@@ -364,6 +374,7 @@ export type ApplicationArtifactPromotionOrderByWithAggregationInput = {
   kind?: Prisma.SortOrder
   storagePurposeVersion?: Prisma.SortOrder
   storageKeyEncrypted?: Prisma.SortOrder
+  contentDigestSha256?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrder
   orphanDeleteAfter?: Prisma.SortOrder
   leaseOwner?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -391,6 +402,7 @@ export type ApplicationArtifactPromotionScalarWhereWithAggregatesInput = {
   kind?: Prisma.EnumApplicationDocumentKindWithAggregatesFilter<"ApplicationArtifactPromotion"> | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringWithAggregatesFilter<"ApplicationArtifactPromotion"> | string
   storageKeyEncrypted?: Prisma.StringWithAggregatesFilter<"ApplicationArtifactPromotion"> | string
+  contentDigestSha256?: Prisma.StringNullableWithAggregatesFilter<"ApplicationArtifactPromotion"> | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateWithAggregatesFilter<"ApplicationArtifactPromotion"> | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeWithAggregatesFilter<"ApplicationArtifactPromotion"> | Date | string
   leaseOwner?: Prisma.StringNullableWithAggregatesFilter<"ApplicationArtifactPromotion"> | string | null
@@ -407,6 +419,7 @@ export type ApplicationArtifactPromotionCreateInput = {
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion?: string
   storageKeyEncrypted: string
+  contentDigestSha256?: string | null
   state?: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date | string
   leaseOwner?: string | null
@@ -429,6 +442,7 @@ export type ApplicationArtifactPromotionUncheckedCreateInput = {
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion?: string
   storageKeyEncrypted: string
+  contentDigestSha256?: string | null
   state?: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date | string
   leaseOwner?: string | null
@@ -445,6 +459,7 @@ export type ApplicationArtifactPromotionUpdateInput = {
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -467,6 +482,7 @@ export type ApplicationArtifactPromotionUncheckedUpdateInput = {
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -486,6 +502,7 @@ export type ApplicationArtifactPromotionCreateManyInput = {
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion?: string
   storageKeyEncrypted: string
+  contentDigestSha256?: string | null
   state?: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date | string
   leaseOwner?: string | null
@@ -502,6 +519,7 @@ export type ApplicationArtifactPromotionUpdateManyMutationInput = {
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -521,6 +539,7 @@ export type ApplicationArtifactPromotionUncheckedUpdateManyInput = {
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -550,6 +569,7 @@ export type ApplicationArtifactPromotionCountOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   storagePurposeVersion?: Prisma.SortOrder
   storageKeyEncrypted?: Prisma.SortOrder
+  contentDigestSha256?: Prisma.SortOrder
   state?: Prisma.SortOrder
   orphanDeleteAfter?: Prisma.SortOrder
   leaseOwner?: Prisma.SortOrder
@@ -573,6 +593,7 @@ export type ApplicationArtifactPromotionMaxOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   storagePurposeVersion?: Prisma.SortOrder
   storageKeyEncrypted?: Prisma.SortOrder
+  contentDigestSha256?: Prisma.SortOrder
   state?: Prisma.SortOrder
   orphanDeleteAfter?: Prisma.SortOrder
   leaseOwner?: Prisma.SortOrder
@@ -592,6 +613,7 @@ export type ApplicationArtifactPromotionMinOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   storagePurposeVersion?: Prisma.SortOrder
   storageKeyEncrypted?: Prisma.SortOrder
+  contentDigestSha256?: Prisma.SortOrder
   state?: Prisma.SortOrder
   orphanDeleteAfter?: Prisma.SortOrder
   leaseOwner?: Prisma.SortOrder
@@ -742,6 +764,7 @@ export type ApplicationArtifactPromotionCreateWithoutCandidateInput = {
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion?: string
   storageKeyEncrypted: string
+  contentDigestSha256?: string | null
   state?: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date | string
   leaseOwner?: string | null
@@ -762,6 +785,7 @@ export type ApplicationArtifactPromotionUncheckedCreateWithoutCandidateInput = {
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion?: string
   storageKeyEncrypted: string
+  contentDigestSha256?: string | null
   state?: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date | string
   leaseOwner?: string | null
@@ -810,6 +834,7 @@ export type ApplicationArtifactPromotionScalarWhereInput = {
   kind?: Prisma.EnumApplicationDocumentKindFilter<"ApplicationArtifactPromotion"> | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFilter<"ApplicationArtifactPromotion"> | string
   storageKeyEncrypted?: Prisma.StringFilter<"ApplicationArtifactPromotion"> | string
+  contentDigestSha256?: Prisma.StringNullableFilter<"ApplicationArtifactPromotion"> | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFilter<"ApplicationArtifactPromotion"> | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFilter<"ApplicationArtifactPromotion"> | Date | string
   leaseOwner?: Prisma.StringNullableFilter<"ApplicationArtifactPromotion"> | string | null
@@ -826,6 +851,7 @@ export type ApplicationArtifactPromotionCreateWithoutJobPostingInput = {
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion?: string
   storageKeyEncrypted: string
+  contentDigestSha256?: string | null
   state?: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date | string
   leaseOwner?: string | null
@@ -846,6 +872,7 @@ export type ApplicationArtifactPromotionUncheckedCreateWithoutJobPostingInput = 
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion?: string
   storageKeyEncrypted: string
+  contentDigestSha256?: string | null
   state?: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date | string
   leaseOwner?: string | null
@@ -888,6 +915,7 @@ export type ApplicationArtifactPromotionCreateWithoutApplicationInput = {
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion?: string
   storageKeyEncrypted: string
+  contentDigestSha256?: string | null
   state?: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date | string
   leaseOwner?: string | null
@@ -908,6 +936,7 @@ export type ApplicationArtifactPromotionUncheckedCreateWithoutApplicationInput =
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion?: string
   storageKeyEncrypted: string
+  contentDigestSha256?: string | null
   state?: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date | string
   leaseOwner?: string | null
@@ -952,6 +981,7 @@ export type ApplicationArtifactPromotionCreateManyCandidateInput = {
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion?: string
   storageKeyEncrypted: string
+  contentDigestSha256?: string | null
   state?: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date | string
   leaseOwner?: string | null
@@ -968,6 +998,7 @@ export type ApplicationArtifactPromotionUpdateWithoutCandidateInput = {
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -988,6 +1019,7 @@ export type ApplicationArtifactPromotionUncheckedUpdateWithoutCandidateInput = {
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1006,6 +1038,7 @@ export type ApplicationArtifactPromotionUncheckedUpdateManyWithoutCandidateInput
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1024,6 +1057,7 @@ export type ApplicationArtifactPromotionCreateManyJobPostingInput = {
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion?: string
   storageKeyEncrypted: string
+  contentDigestSha256?: string | null
   state?: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date | string
   leaseOwner?: string | null
@@ -1040,6 +1074,7 @@ export type ApplicationArtifactPromotionUpdateWithoutJobPostingInput = {
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1060,6 +1095,7 @@ export type ApplicationArtifactPromotionUncheckedUpdateWithoutJobPostingInput = 
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1078,6 +1114,7 @@ export type ApplicationArtifactPromotionUncheckedUpdateManyWithoutJobPostingInpu
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1096,6 +1133,7 @@ export type ApplicationArtifactPromotionCreateManyApplicationInput = {
   kind: $Enums.ApplicationDocumentKind
   storagePurposeVersion?: string
   storageKeyEncrypted: string
+  contentDigestSha256?: string | null
   state?: $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter: Date | string
   leaseOwner?: string | null
@@ -1112,6 +1150,7 @@ export type ApplicationArtifactPromotionUpdateWithoutApplicationInput = {
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1132,6 +1171,7 @@ export type ApplicationArtifactPromotionUncheckedUpdateWithoutApplicationInput =
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1150,6 +1190,7 @@ export type ApplicationArtifactPromotionUncheckedUpdateManyWithoutApplicationInp
   kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
   storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
   storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  contentDigestSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumApplicationArtifactPromotionStateFieldUpdateOperationsInput | $Enums.ApplicationArtifactPromotionState
   orphanDeleteAfter?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1171,6 +1212,7 @@ export type ApplicationArtifactPromotionSelect<ExtArgs extends runtime.Types.Ext
   kind?: boolean
   storagePurposeVersion?: boolean
   storageKeyEncrypted?: boolean
+  contentDigestSha256?: boolean
   state?: boolean
   orphanDeleteAfter?: boolean
   leaseOwner?: boolean
@@ -1193,6 +1235,7 @@ export type ApplicationArtifactPromotionSelectCreateManyAndReturn<ExtArgs extend
   kind?: boolean
   storagePurposeVersion?: boolean
   storageKeyEncrypted?: boolean
+  contentDigestSha256?: boolean
   state?: boolean
   orphanDeleteAfter?: boolean
   leaseOwner?: boolean
@@ -1215,6 +1258,7 @@ export type ApplicationArtifactPromotionSelectUpdateManyAndReturn<ExtArgs extend
   kind?: boolean
   storagePurposeVersion?: boolean
   storageKeyEncrypted?: boolean
+  contentDigestSha256?: boolean
   state?: boolean
   orphanDeleteAfter?: boolean
   leaseOwner?: boolean
@@ -1237,6 +1281,7 @@ export type ApplicationArtifactPromotionSelectScalar = {
   kind?: boolean
   storagePurposeVersion?: boolean
   storageKeyEncrypted?: boolean
+  contentDigestSha256?: boolean
   state?: boolean
   orphanDeleteAfter?: boolean
   leaseOwner?: boolean
@@ -1248,7 +1293,7 @@ export type ApplicationArtifactPromotionSelectScalar = {
   deletedAt?: boolean
 }
 
-export type ApplicationArtifactPromotionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "candidateUserId" | "jobPostingId" | "jobApplicationId" | "kind" | "storagePurposeVersion" | "storageKeyEncrypted" | "state" | "orphanDeleteAfter" | "leaseOwner" | "leaseExpiresAt" | "attemptCount" | "lastSafeFailureCode" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["applicationArtifactPromotion"]>
+export type ApplicationArtifactPromotionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "candidateUserId" | "jobPostingId" | "jobApplicationId" | "kind" | "storagePurposeVersion" | "storageKeyEncrypted" | "contentDigestSha256" | "state" | "orphanDeleteAfter" | "leaseOwner" | "leaseExpiresAt" | "attemptCount" | "lastSafeFailureCode" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["applicationArtifactPromotion"]>
 export type ApplicationArtifactPromotionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   candidate?: boolean | Prisma.UserAccountDefaultArgs<ExtArgs>
   jobPosting?: boolean | Prisma.JobPostingDefaultArgs<ExtArgs>
@@ -1280,6 +1325,11 @@ export type $ApplicationArtifactPromotionPayload<ExtArgs extends runtime.Types.E
     kind: $Enums.ApplicationDocumentKind
     storagePurposeVersion: string
     storageKeyEncrypted: string
+    /**
+     * SHA-256 of the plaintext bytes. Nullable only for legacy rows created
+     * before the digest column existed; every new promotion must populate it.
+     */
+    contentDigestSha256: string | null
     state: $Enums.ApplicationArtifactPromotionState
     orphanDeleteAfter: Date
     leaseOwner: string | null
@@ -1722,6 +1772,7 @@ export interface ApplicationArtifactPromotionFieldRefs {
   readonly kind: Prisma.FieldRef<"ApplicationArtifactPromotion", 'ApplicationDocumentKind'>
   readonly storagePurposeVersion: Prisma.FieldRef<"ApplicationArtifactPromotion", 'String'>
   readonly storageKeyEncrypted: Prisma.FieldRef<"ApplicationArtifactPromotion", 'String'>
+  readonly contentDigestSha256: Prisma.FieldRef<"ApplicationArtifactPromotion", 'String'>
   readonly state: Prisma.FieldRef<"ApplicationArtifactPromotion", 'ApplicationArtifactPromotionState'>
   readonly orphanDeleteAfter: Prisma.FieldRef<"ApplicationArtifactPromotion", 'DateTime'>
   readonly leaseOwner: Prisma.FieldRef<"ApplicationArtifactPromotion", 'String'>

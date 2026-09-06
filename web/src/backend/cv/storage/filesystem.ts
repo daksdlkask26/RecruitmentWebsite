@@ -94,10 +94,14 @@ export class FilesystemPrivateCvStorage implements PrivateCvStorage {
   async put(input: {
     source: AsyncIterable<Uint8Array>;
     expectedBytes: number;
+    locator?: string;
   }): Promise<PrivateCvStorageItem> {
     assertStorageByteCount(input.expectedBytes);
     const root = this.requireReadyRoot();
-    const locator = randomBytes(32).toString("base64url");
+    const locator = input.locator ?? randomBytes(32).toString("base64url");
+    if (!locatorPattern.test(locator)) {
+      throw new CvStorageError("CV_STORAGE_LOCATOR_INVALID");
+    }
     const finalPath = this.pathFor(locator);
     const temporaryPath = join(root, `.${locator}.partial`);
     const handle = await open(temporaryPath, "wx", 0o600).catch(() => {

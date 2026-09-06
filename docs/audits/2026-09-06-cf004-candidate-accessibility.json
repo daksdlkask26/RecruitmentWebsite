@@ -1,0 +1,376 @@
+{
+  "schemaVersion": "candidate-first-cf004-accessibility-v1",
+  "generatedAt": "2026-09-06T10:20:43.491Z",
+  "mode": "LOCAL_CHROMIUM",
+  "axeImpactThreshold": [
+    "serious",
+    "critical"
+  ],
+  "dimensions": {
+    "viewports": [
+      {
+        "name": "mobile-320",
+        "width": 320,
+        "height": 720
+      },
+      {
+        "name": "mobile-375",
+        "width": 375,
+        "height": 812
+      },
+      {
+        "name": "tablet-768",
+        "width": 768,
+        "height": 1024
+      },
+      {
+        "name": "desktop-1280",
+        "width": 1280,
+        "height": 800
+      }
+    ],
+    "zoom": [
+      "100%",
+      "200%"
+    ]
+  },
+  "results": [
+    {
+      "route": "/",
+      "viewport": {
+        "name": "mobile-320",
+        "width": 320,
+        "height": 720
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/profile",
+      "viewport": {
+        "name": "mobile-320",
+        "width": 320,
+        "height": 720
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/profile/cv-imports",
+      "viewport": {
+        "name": "mobile-320",
+        "width": 320,
+        "height": 720
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/jobs/applied",
+      "viewport": {
+        "name": "mobile-320",
+        "width": 320,
+        "height": 720
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/jobs/applied/application-candidate-first-d884d24e-38ff-4dd2-91c2-14bf8a2bb22a",
+      "viewport": {
+        "name": "mobile-320",
+        "width": 320,
+        "height": 720
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/jobs/applied/application-candidate-first-d884d24e-38ff-4dd2-91c2-14bf8a2bb22a/messages",
+      "viewport": {
+        "name": "mobile-320",
+        "width": 320,
+        "height": 720
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/",
+      "viewport": {
+        "name": "mobile-375",
+        "width": 375,
+        "height": 812
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/profile",
+      "viewport": {
+        "name": "mobile-375",
+        "width": 375,
+        "height": 812
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/profile/cv-imports",
+      "viewport": {
+        "name": "mobile-375",
+        "width": 375,
+        "height": 812
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/jobs/applied",
+      "viewport": {
+        "name": "mobile-375",
+        "width": 375,
+        "height": 812
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/jobs/applied/application-candidate-first-d884d24e-38ff-4dd2-91c2-14bf8a2bb22a",
+      "viewport": {
+        "name": "mobile-375",
+        "width": 375,
+        "height": 812
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/jobs/applied/application-candidate-first-d884d24e-38ff-4dd2-91c2-14bf8a2bb22a/messages",
+      "viewport": {
+        "name": "mobile-375",
+        "width": 375,
+        "height": 812
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/",
+      "viewport": {
+        "name": "tablet-768",
+        "width": 768,
+        "height": 1024
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/profile",
+      "viewport": {
+        "name": "tablet-768",
+        "width": 768,
+        "height": 1024
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/profile/cv-imports",
+      "viewport": {
+        "name": "tablet-768",
+        "width": 768,
+        "height": 1024
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/jobs/applied",
+      "viewport": {
+        "name": "tablet-768",
+        "width": 768,
+        "height": 1024
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/jobs/applied/application-candidate-first-d884d24e-38ff-4dd2-91c2-14bf8a2bb22a",
+      "viewport": {
+        "name": "tablet-768",
+        "width": 768,
+        "height": 1024
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/jobs/applied/application-candidate-first-d884d24e-38ff-4dd2-91c2-14bf8a2bb22a/messages",
+      "viewport": {
+        "name": "tablet-768",
+        "width": 768,
+        "height": 1024
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/",
+      "viewport": {
+        "name": "desktop-1280",
+        "width": 1280,
+        "height": 800
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/profile",
+      "viewport": {
+        "name": "desktop-1280",
+        "width": 1280,
+        "height": 800
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/profile/cv-imports",
+      "viewport": {
+        "name": "desktop-1280",
+        "width": 1280,
+        "height": 800
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/jobs/applied",
+      "viewport": {
+        "name": "desktop-1280",
+        "width": 1280,
+        "height": 800
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/jobs/applied/application-candidate-first-d884d24e-38ff-4dd2-91c2-14bf8a2bb22a",
+      "viewport": {
+        "name": "desktop-1280",
+        "width": 1280,
+        "height": 800
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/jobs/applied/application-candidate-first-d884d24e-38ff-4dd2-91c2-14bf8a2bb22a/messages",
+      "viewport": {
+        "name": "desktop-1280",
+        "width": 1280,
+        "height": 800
+      },
+      "zoom": "100%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/profile",
+      "viewport": {
+        "name": "zoom-640",
+        "width": 640,
+        "height": 720
+      },
+      "zoom": "200%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    }
+  ],
+  "summary": {
+    "totalCases": 25,
+    "passed": 25,
+    "failed": 0,
+    "seriousOrCriticalAxeViolations": 0,
+    "horizontalOverflowCases": 0
+  },
+  "limitations": [
+    "Axe runs on the authenticated Candidate pages listed in this file.",
+    "200% is a Chromium CDP page scale factor and is verified through visualViewport.scale; no CSS zoom is injected.",
+    "Manual screen-reader and color-contrast review remains separate from this automated gate."
+  ]
+}

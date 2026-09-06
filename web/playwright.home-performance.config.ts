@@ -1,5 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
+const productionServer = process.env.PLAYWRIGHT_PRODUCTION === "1";
+
 export default defineConfig({
   testDir: "./tests/performance/home",
   testMatch: /.*\.spec\.ts/u,
@@ -8,7 +10,7 @@ export default defineConfig({
   timeout: 30 * 60_000,
   expect: { timeout: 15_000 },
   webServer: {
-    command: "npm run dev",
+    command: productionServer ? "npm run start" : "npm run dev",
     url: "http://localhost:3001",
     reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === "1",
   },

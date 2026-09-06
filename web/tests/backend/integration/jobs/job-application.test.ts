@@ -89,7 +89,7 @@ describe.skipIf(!databaseAvailable)("transactional job application", () => {
       await prisma.recruitmentNotificationWork.count({
         where: { applicationId: first.application.applicationId },
       }),
-    ).toBe(0);
+    ).toBe(1);
     expect(
       await prisma.inAppNotification.count({
         where: {

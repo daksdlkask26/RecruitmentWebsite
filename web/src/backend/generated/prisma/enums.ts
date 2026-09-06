@@ -1614,3 +1614,21 @@ export const ImageSearchAdmissionSubject = {
 } as const
 
 export type ImageSearchAdmissionSubject = (typeof ImageSearchAdmissionSubject)[keyof typeof ImageSearchAdmissionSubject]
+
+
+export const CandidateCvArtifactPromotionScope = {
+  PROFILE_CV: 'PROFILE_CV',
+  TEAM_APPLICATION: 'TEAM_APPLICATION'
+} as const
+
+export type CandidateCvArtifactPromotionScope = (typeof CandidateCvArtifactPromotionScope)[keyof typeof CandidateCvArtifactPromotionScope]
+
+
+export const CandidateCvArtifactPromotionState = {
+  PROMOTED: 'PROMOTED',
+  COMMITTED: 'COMMITTED',
+  DELETED: 'DELETED',
+  DELETE_FAILED: 'DELETE_FAILED'
+} as const
+
+export type CandidateCvArtifactPromotionState = (typeof CandidateCvArtifactPromotionState)[keyof typeof CandidateCvArtifactPromotionState]

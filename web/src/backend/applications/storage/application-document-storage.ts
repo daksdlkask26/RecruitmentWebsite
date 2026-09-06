@@ -16,6 +16,8 @@ export type ApplicationDocumentStoragePort = Readonly<{
   put(input: {
     source: AsyncIterable<Uint8Array>;
     expectedBytes: number;
+    /** Optional deterministic locator reserved before the object is written. */
+    locator?: string;
   }): Promise<ApplicationStoredObject>;
   open(locator: string, expectedBytes: number): AsyncIterable<Uint8Array>;
   delete(locator: string): Promise<Readonly<{ deleted: boolean }>>;

@@ -1,7 +1,15 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { prisma } from "@/backend/database/prisma";
-import { PrivilegedRationaleService } from "@/backend/admin/rationales/privileged-rationale-service";
-import { runRationaleRetentionCycle } from "@/backend/admin/workers/rationale-retention-loop";
+import { assertRequestedTestDatabase } from "../../helpers/test-database-guard";
+
+assertRequestedTestDatabase();
+
+const { prisma } = await import("@/backend/database/prisma");
+const { PrivilegedRationaleService } = await import(
+  "@/backend/admin/rationales/privileged-rationale-service"
+);
+const { runRationaleRetentionCycle } = await import(
+  "@/backend/admin/workers/rationale-retention-loop"
+);
 
 describe("privileged rationale retention", () => {
   const correlations: string[] = [];

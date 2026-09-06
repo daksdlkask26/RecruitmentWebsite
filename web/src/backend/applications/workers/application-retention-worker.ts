@@ -6,6 +6,165 @@ import { createApplicationDocumentStorage } from "../storage/factory";
 const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
 const ORPHAN_DEADLINE = 24 * 60 * 60 * 1000;
 
+type PromotionRow = Readonly<{
+  id: string;
+  candidateUserId: string;
+  jobPostingId: string;
+  jobApplicationId: string | null;
+  storageKeyEncrypted: string;
+  contentDigestSha256: string | null;
+}>;
+
+async function markPromotionUnknown(
+  id: string,
+  code: string,
+) {
+  await prisma.applicationArtifactPromotion
+    .update({
+      where: { id },
+      data: {
+        state: "DELETE_FAILED",
+        attemptCount: { increment: 1 },
+        lastSafeFailureCode: code,
+      },
+    })
+    .catch(() => undefined);
+}
+
+async function reconcileOrphanPromotion(
+  orphan: PromotionRow,
+  now: Date,
+  storage: ReturnType<typeof createApplicationDocumentStorage>,
+) {
+  // A promotion row can be left in PROMOTED when the application transaction
+  // committed but the acknowledgement was lost. Prove ownership from the
+  // durable application row before considering deletion.
+  if (orphan.jobApplicationId) {
+    let application: {
+      id: string;
+      applicationDocuments: Array<{ contentDigestHmac: string }>;
+    } | null;
+    try {
+      application = await prisma.jobApplication.findFirst({
+        where: {
+          id: orphan.jobApplicationId,
+          candidateUserId: orphan.candidateUserId,
+          jobPostingId: orphan.jobPostingId,
+        },
+        select: {
+          id: true,
+          applicationDocuments: {
+            where: {
+              storageKeyEncrypted: orphan.storageKeyEncrypted,
+              deletedAt: null,
+            },
+            select: { contentDigestHmac: true },
+          },
+        },
+      });
+    } catch {
+      await markPromotionUnknown(
+        orphan.id,
+        "APPLICATION_ARTIFACT_RECONCILIATION_UNKNOWN",
+      );
+      return "PRESERVED" as const;
+    }
+    if (application) {
+      const document = application.applicationDocuments[0];
+      if (!document) {
+        await markPromotionUnknown(
+          orphan.id,
+          "APPLICATION_ARTIFACT_DOCUMENT_MISSING",
+        );
+        return "PRESERVED" as const;
+      }
+      if (
+        !orphan.contentDigestSha256 ||
+        document.contentDigestHmac !== orphan.contentDigestSha256
+      ) {
+        await markPromotionUnknown(
+          orphan.id,
+          "APPLICATION_ARTIFACT_DIGEST_MISMATCH",
+        );
+        return "PRESERVED" as const;
+      }
+      await prisma.applicationArtifactPromotion.update({
+        where: { id: orphan.id },
+        data: {
+          state: "COMMITTED",
+          lastSafeFailureCode: null,
+        },
+      });
+      return "COMMITTED" as const;
+    }
+  }
+
+  let linkedDocument: {
+    jobApplicationId: string;
+    application: { candidateUserId: string; jobPostingId: string };
+    contentDigestHmac: string;
+  } | null;
+  try {
+    linkedDocument = await prisma.applicationDocument.findFirst({
+      where: {
+        storageKeyEncrypted: orphan.storageKeyEncrypted,
+        deletedAt: null,
+      },
+      select: {
+        jobApplicationId: true,
+        contentDigestHmac: true,
+        application: { select: { candidateUserId: true, jobPostingId: true } },
+      },
+    });
+  } catch {
+    await markPromotionUnknown(
+      orphan.id,
+      "APPLICATION_ARTIFACT_RECONCILIATION_UNKNOWN",
+    );
+    return "PRESERVED" as const;
+  }
+  if (linkedDocument) {
+    const sameScope =
+      linkedDocument.application.candidateUserId === orphan.candidateUserId &&
+      linkedDocument.application.jobPostingId === orphan.jobPostingId;
+    if (sameScope && orphan.contentDigestSha256 === linkedDocument.contentDigestHmac) {
+      await prisma.applicationArtifactPromotion.update({
+        where: { id: orphan.id },
+        data: {
+          state: "COMMITTED",
+          jobApplicationId: linkedDocument.jobApplicationId,
+          lastSafeFailureCode: null,
+        },
+      });
+      return "COMMITTED" as const;
+    }
+    if (sameScope) {
+      await markPromotionUnknown(
+        orphan.id,
+        "APPLICATION_ARTIFACT_DIGEST_MISMATCH",
+      );
+      return "PRESERVED" as const;
+    }
+    await markPromotionUnknown(
+      orphan.id,
+      "APPLICATION_ARTIFACT_LOCATOR_CONFLICT",
+    );
+    return "PRESERVED" as const;
+  }
+
+  await storage.delete(orphan.storageKeyEncrypted);
+  await prisma.applicationArtifactPromotion.update({
+    where: { id: orphan.id },
+    data: {
+      state: "DELETED",
+      deletedAt: now,
+      lastSafeFailureCode: null,
+      attemptCount: { increment: 1 },
+    },
+  });
+  return "DELETED" as const;
+}
+
 export async function runApplicationRetentionCycle(
   now = new Date(),
   limit = 100,
@@ -100,26 +259,25 @@ export async function runApplicationRetentionCycle(
     },
     orderBy: [{ orphanDeleteAfter: "asc" }, { id: "asc" }],
     take: limit,
-    select: { id: true, storageKeyEncrypted: true },
+    select: {
+      id: true,
+      candidateUserId: true,
+      jobPostingId: true,
+      jobApplicationId: true,
+      storageKeyEncrypted: true,
+      contentDigestSha256: true,
+    },
   });
   let orphansDeleted = 0;
   for (const orphan of orphanRows) {
     try {
-      await storage.delete(orphan.storageKeyEncrypted);
-      await prisma.applicationArtifactPromotion.update({
-        where: { id: orphan.id },
-        data: { state: "DELETED", deletedAt: now },
-      });
-      orphansDeleted++;
+      const outcome = await reconcileOrphanPromotion(orphan, now, storage);
+      if (outcome === "DELETED") orphansDeleted++;
     } catch {
-      await prisma.applicationArtifactPromotion.update({
-        where: { id: orphan.id },
-        data: {
-          state: "DELETE_FAILED",
-          attemptCount: { increment: 1 },
-          lastSafeFailureCode: "APPLICATION_STORAGE_DELETE_FAILED",
-        },
-      }).catch(() => undefined);
+      await markPromotionUnknown(
+        orphan.id,
+        "APPLICATION_STORAGE_DELETE_FAILED",
+      );
     }
   }
   return { claimed: documents.length, deleted, orphans: orphanRows.length, orphansDeleted };
