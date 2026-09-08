@@ -49,6 +49,8 @@ export type TeamApplicationMinAggregateOutputType = {
   cvByteSize: number | null
   cvStorageKey: string | null
   cvChecksumSha256: string | null
+  cvSourceArtifactId: string | null
+  cvScanAssessmentId: string | null
   activeKey: string | null
   status: $Enums.TeamApplicationStatus | null
   rejectionReason: string | null
@@ -79,6 +81,8 @@ export type TeamApplicationMaxAggregateOutputType = {
   cvByteSize: number | null
   cvStorageKey: string | null
   cvChecksumSha256: string | null
+  cvSourceArtifactId: string | null
+  cvScanAssessmentId: string | null
   activeKey: string | null
   status: $Enums.TeamApplicationStatus | null
   rejectionReason: string | null
@@ -109,6 +113,8 @@ export type TeamApplicationCountAggregateOutputType = {
   cvByteSize: number
   cvStorageKey: number
   cvChecksumSha256: number
+  cvSourceArtifactId: number
+  cvScanAssessmentId: number
   activeKey: number
   status: number
   rejectionReason: number
@@ -151,6 +157,8 @@ export type TeamApplicationMinAggregateInputType = {
   cvByteSize?: true
   cvStorageKey?: true
   cvChecksumSha256?: true
+  cvSourceArtifactId?: true
+  cvScanAssessmentId?: true
   activeKey?: true
   status?: true
   rejectionReason?: true
@@ -181,6 +189,8 @@ export type TeamApplicationMaxAggregateInputType = {
   cvByteSize?: true
   cvStorageKey?: true
   cvChecksumSha256?: true
+  cvSourceArtifactId?: true
+  cvScanAssessmentId?: true
   activeKey?: true
   status?: true
   rejectionReason?: true
@@ -211,6 +221,8 @@ export type TeamApplicationCountAggregateInputType = {
   cvByteSize?: true
   cvStorageKey?: true
   cvChecksumSha256?: true
+  cvSourceArtifactId?: true
+  cvScanAssessmentId?: true
   activeKey?: true
   status?: true
   rejectionReason?: true
@@ -328,6 +340,8 @@ export type TeamApplicationGroupByOutputType = {
   cvByteSize: number
   cvStorageKey: string
   cvChecksumSha256: string
+  cvSourceArtifactId: string | null
+  cvScanAssessmentId: string | null
   activeKey: string | null
   status: $Enums.TeamApplicationStatus
   rejectionReason: string | null
@@ -381,6 +395,8 @@ export type TeamApplicationWhereInput = {
   cvByteSize?: Prisma.IntFilter<"TeamApplication"> | number
   cvStorageKey?: Prisma.StringFilter<"TeamApplication"> | string
   cvChecksumSha256?: Prisma.StringFilter<"TeamApplication"> | string
+  cvSourceArtifactId?: Prisma.StringNullableFilter<"TeamApplication"> | string | null
+  cvScanAssessmentId?: Prisma.StringNullableFilter<"TeamApplication"> | string | null
   activeKey?: Prisma.StringNullableFilter<"TeamApplication"> | string | null
   status?: Prisma.EnumTeamApplicationStatusFilter<"TeamApplication"> | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.StringNullableFilter<"TeamApplication"> | string | null
@@ -401,6 +417,8 @@ export type TeamApplicationWhereInput = {
   opportunity?: Prisma.XOR<Prisma.TeamOpportunityScalarRelationFilter, Prisma.TeamOpportunityWhereInput>
   invitation?: Prisma.XOR<Prisma.CompanyInvitationNullableScalarRelationFilter, Prisma.CompanyInvitationWhereInput> | null
   decidedBy?: Prisma.XOR<Prisma.UserAccountNullableScalarRelationFilter, Prisma.UserAccountWhereInput> | null
+  cvSourceArtifact?: Prisma.XOR<Prisma.CvStoredArtifactNullableScalarRelationFilter, Prisma.CvStoredArtifactWhereInput> | null
+  cvScanAssessment?: Prisma.XOR<Prisma.CvScanAssessmentNullableScalarRelationFilter, Prisma.CvScanAssessmentWhereInput> | null
 }
 
 export type TeamApplicationOrderByWithRelationInput = {
@@ -416,6 +434,8 @@ export type TeamApplicationOrderByWithRelationInput = {
   cvByteSize?: Prisma.SortOrder
   cvStorageKey?: Prisma.SortOrder
   cvChecksumSha256?: Prisma.SortOrder
+  cvSourceArtifactId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cvScanAssessmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   activeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -436,6 +456,8 @@ export type TeamApplicationOrderByWithRelationInput = {
   opportunity?: Prisma.TeamOpportunityOrderByWithRelationInput
   invitation?: Prisma.CompanyInvitationOrderByWithRelationInput
   decidedBy?: Prisma.UserAccountOrderByWithRelationInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactOrderByWithRelationInput
+  cvScanAssessment?: Prisma.CvScanAssessmentOrderByWithRelationInput
 }
 
 export type TeamApplicationWhereUniqueInput = Prisma.AtLeast<{
@@ -455,6 +477,8 @@ export type TeamApplicationWhereUniqueInput = Prisma.AtLeast<{
   cvMimeType?: Prisma.StringFilter<"TeamApplication"> | string
   cvByteSize?: Prisma.IntFilter<"TeamApplication"> | number
   cvChecksumSha256?: Prisma.StringFilter<"TeamApplication"> | string
+  cvSourceArtifactId?: Prisma.StringNullableFilter<"TeamApplication"> | string | null
+  cvScanAssessmentId?: Prisma.StringNullableFilter<"TeamApplication"> | string | null
   status?: Prisma.EnumTeamApplicationStatusFilter<"TeamApplication"> | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.StringNullableFilter<"TeamApplication"> | string | null
   submittedAt?: Prisma.DateTimeFilter<"TeamApplication"> | Date | string
@@ -474,6 +498,8 @@ export type TeamApplicationWhereUniqueInput = Prisma.AtLeast<{
   opportunity?: Prisma.XOR<Prisma.TeamOpportunityScalarRelationFilter, Prisma.TeamOpportunityWhereInput>
   invitation?: Prisma.XOR<Prisma.CompanyInvitationNullableScalarRelationFilter, Prisma.CompanyInvitationWhereInput> | null
   decidedBy?: Prisma.XOR<Prisma.UserAccountNullableScalarRelationFilter, Prisma.UserAccountWhereInput> | null
+  cvSourceArtifact?: Prisma.XOR<Prisma.CvStoredArtifactNullableScalarRelationFilter, Prisma.CvStoredArtifactWhereInput> | null
+  cvScanAssessment?: Prisma.XOR<Prisma.CvScanAssessmentNullableScalarRelationFilter, Prisma.CvScanAssessmentWhereInput> | null
 }, "id" | "cvStorageKey" | "activeKey">
 
 export type TeamApplicationOrderByWithAggregationInput = {
@@ -489,6 +515,8 @@ export type TeamApplicationOrderByWithAggregationInput = {
   cvByteSize?: Prisma.SortOrder
   cvStorageKey?: Prisma.SortOrder
   cvChecksumSha256?: Prisma.SortOrder
+  cvSourceArtifactId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cvScanAssessmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   activeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -527,6 +555,8 @@ export type TeamApplicationScalarWhereWithAggregatesInput = {
   cvByteSize?: Prisma.IntWithAggregatesFilter<"TeamApplication"> | number
   cvStorageKey?: Prisma.StringWithAggregatesFilter<"TeamApplication"> | string
   cvChecksumSha256?: Prisma.StringWithAggregatesFilter<"TeamApplication"> | string
+  cvSourceArtifactId?: Prisma.StringNullableWithAggregatesFilter<"TeamApplication"> | string | null
+  cvScanAssessmentId?: Prisma.StringNullableWithAggregatesFilter<"TeamApplication"> | string | null
   activeKey?: Prisma.StringNullableWithAggregatesFilter<"TeamApplication"> | string | null
   status?: Prisma.EnumTeamApplicationStatusWithAggregatesFilter<"TeamApplication"> | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.StringNullableWithAggregatesFilter<"TeamApplication"> | string | null
@@ -573,6 +603,8 @@ export type TeamApplicationCreateInput = {
   opportunity: Prisma.TeamOpportunityCreateNestedOneWithoutApplicationsInput
   invitation?: Prisma.CompanyInvitationCreateNestedOneWithoutTeamApplicationInput
   decidedBy?: Prisma.UserAccountCreateNestedOneWithoutTeamApplicationDecisionsInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutTeamApplicationsInput
+  cvScanAssessment?: Prisma.CvScanAssessmentCreateNestedOneWithoutTeamApplicationsInput
 }
 
 export type TeamApplicationUncheckedCreateInput = {
@@ -588,6 +620,8 @@ export type TeamApplicationUncheckedCreateInput = {
   cvByteSize: number
   cvStorageKey: string
   cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  cvScanAssessmentId?: string | null
   activeKey?: string | null
   status?: $Enums.TeamApplicationStatus
   rejectionReason?: string | null
@@ -635,6 +669,8 @@ export type TeamApplicationUpdateInput = {
   opportunity?: Prisma.TeamOpportunityUpdateOneRequiredWithoutApplicationsNestedInput
   invitation?: Prisma.CompanyInvitationUpdateOneWithoutTeamApplicationNestedInput
   decidedBy?: Prisma.UserAccountUpdateOneWithoutTeamApplicationDecisionsNestedInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutTeamApplicationsNestedInput
+  cvScanAssessment?: Prisma.CvScanAssessmentUpdateOneWithoutTeamApplicationsNestedInput
 }
 
 export type TeamApplicationUncheckedUpdateInput = {
@@ -650,6 +686,8 @@ export type TeamApplicationUncheckedUpdateInput = {
   cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
   cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
   cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -681,6 +719,8 @@ export type TeamApplicationCreateManyInput = {
   cvByteSize: number
   cvStorageKey: string
   cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  cvScanAssessmentId?: string | null
   activeKey?: string | null
   status?: $Enums.TeamApplicationStatus
   rejectionReason?: string | null
@@ -737,6 +777,8 @@ export type TeamApplicationUncheckedUpdateManyInput = {
   cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
   cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
   cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -782,6 +824,8 @@ export type TeamApplicationCountOrderByAggregateInput = {
   cvByteSize?: Prisma.SortOrder
   cvStorageKey?: Prisma.SortOrder
   cvChecksumSha256?: Prisma.SortOrder
+  cvSourceArtifactId?: Prisma.SortOrder
+  cvScanAssessmentId?: Prisma.SortOrder
   activeKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
@@ -817,6 +861,8 @@ export type TeamApplicationMaxOrderByAggregateInput = {
   cvByteSize?: Prisma.SortOrder
   cvStorageKey?: Prisma.SortOrder
   cvChecksumSha256?: Prisma.SortOrder
+  cvSourceArtifactId?: Prisma.SortOrder
+  cvScanAssessmentId?: Prisma.SortOrder
   activeKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
@@ -847,6 +893,8 @@ export type TeamApplicationMinOrderByAggregateInput = {
   cvByteSize?: Prisma.SortOrder
   cvStorageKey?: Prisma.SortOrder
   cvChecksumSha256?: Prisma.SortOrder
+  cvSourceArtifactId?: Prisma.SortOrder
+  cvScanAssessmentId?: Prisma.SortOrder
   activeKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
@@ -1057,6 +1105,90 @@ export type EnumTeamApplicationStatusFieldUpdateOperationsInput = {
   set?: $Enums.TeamApplicationStatus
 }
 
+export type TeamApplicationCreateNestedManyWithoutCvSourceArtifactInput = {
+  create?: Prisma.XOR<Prisma.TeamApplicationCreateWithoutCvSourceArtifactInput, Prisma.TeamApplicationUncheckedCreateWithoutCvSourceArtifactInput> | Prisma.TeamApplicationCreateWithoutCvSourceArtifactInput[] | Prisma.TeamApplicationUncheckedCreateWithoutCvSourceArtifactInput[]
+  connectOrCreate?: Prisma.TeamApplicationCreateOrConnectWithoutCvSourceArtifactInput | Prisma.TeamApplicationCreateOrConnectWithoutCvSourceArtifactInput[]
+  createMany?: Prisma.TeamApplicationCreateManyCvSourceArtifactInputEnvelope
+  connect?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+}
+
+export type TeamApplicationUncheckedCreateNestedManyWithoutCvSourceArtifactInput = {
+  create?: Prisma.XOR<Prisma.TeamApplicationCreateWithoutCvSourceArtifactInput, Prisma.TeamApplicationUncheckedCreateWithoutCvSourceArtifactInput> | Prisma.TeamApplicationCreateWithoutCvSourceArtifactInput[] | Prisma.TeamApplicationUncheckedCreateWithoutCvSourceArtifactInput[]
+  connectOrCreate?: Prisma.TeamApplicationCreateOrConnectWithoutCvSourceArtifactInput | Prisma.TeamApplicationCreateOrConnectWithoutCvSourceArtifactInput[]
+  createMany?: Prisma.TeamApplicationCreateManyCvSourceArtifactInputEnvelope
+  connect?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+}
+
+export type TeamApplicationUpdateManyWithoutCvSourceArtifactNestedInput = {
+  create?: Prisma.XOR<Prisma.TeamApplicationCreateWithoutCvSourceArtifactInput, Prisma.TeamApplicationUncheckedCreateWithoutCvSourceArtifactInput> | Prisma.TeamApplicationCreateWithoutCvSourceArtifactInput[] | Prisma.TeamApplicationUncheckedCreateWithoutCvSourceArtifactInput[]
+  connectOrCreate?: Prisma.TeamApplicationCreateOrConnectWithoutCvSourceArtifactInput | Prisma.TeamApplicationCreateOrConnectWithoutCvSourceArtifactInput[]
+  upsert?: Prisma.TeamApplicationUpsertWithWhereUniqueWithoutCvSourceArtifactInput | Prisma.TeamApplicationUpsertWithWhereUniqueWithoutCvSourceArtifactInput[]
+  createMany?: Prisma.TeamApplicationCreateManyCvSourceArtifactInputEnvelope
+  set?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  disconnect?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  delete?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  connect?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  update?: Prisma.TeamApplicationUpdateWithWhereUniqueWithoutCvSourceArtifactInput | Prisma.TeamApplicationUpdateWithWhereUniqueWithoutCvSourceArtifactInput[]
+  updateMany?: Prisma.TeamApplicationUpdateManyWithWhereWithoutCvSourceArtifactInput | Prisma.TeamApplicationUpdateManyWithWhereWithoutCvSourceArtifactInput[]
+  deleteMany?: Prisma.TeamApplicationScalarWhereInput | Prisma.TeamApplicationScalarWhereInput[]
+}
+
+export type TeamApplicationUncheckedUpdateManyWithoutCvSourceArtifactNestedInput = {
+  create?: Prisma.XOR<Prisma.TeamApplicationCreateWithoutCvSourceArtifactInput, Prisma.TeamApplicationUncheckedCreateWithoutCvSourceArtifactInput> | Prisma.TeamApplicationCreateWithoutCvSourceArtifactInput[] | Prisma.TeamApplicationUncheckedCreateWithoutCvSourceArtifactInput[]
+  connectOrCreate?: Prisma.TeamApplicationCreateOrConnectWithoutCvSourceArtifactInput | Prisma.TeamApplicationCreateOrConnectWithoutCvSourceArtifactInput[]
+  upsert?: Prisma.TeamApplicationUpsertWithWhereUniqueWithoutCvSourceArtifactInput | Prisma.TeamApplicationUpsertWithWhereUniqueWithoutCvSourceArtifactInput[]
+  createMany?: Prisma.TeamApplicationCreateManyCvSourceArtifactInputEnvelope
+  set?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  disconnect?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  delete?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  connect?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  update?: Prisma.TeamApplicationUpdateWithWhereUniqueWithoutCvSourceArtifactInput | Prisma.TeamApplicationUpdateWithWhereUniqueWithoutCvSourceArtifactInput[]
+  updateMany?: Prisma.TeamApplicationUpdateManyWithWhereWithoutCvSourceArtifactInput | Prisma.TeamApplicationUpdateManyWithWhereWithoutCvSourceArtifactInput[]
+  deleteMany?: Prisma.TeamApplicationScalarWhereInput | Prisma.TeamApplicationScalarWhereInput[]
+}
+
+export type TeamApplicationCreateNestedManyWithoutCvScanAssessmentInput = {
+  create?: Prisma.XOR<Prisma.TeamApplicationCreateWithoutCvScanAssessmentInput, Prisma.TeamApplicationUncheckedCreateWithoutCvScanAssessmentInput> | Prisma.TeamApplicationCreateWithoutCvScanAssessmentInput[] | Prisma.TeamApplicationUncheckedCreateWithoutCvScanAssessmentInput[]
+  connectOrCreate?: Prisma.TeamApplicationCreateOrConnectWithoutCvScanAssessmentInput | Prisma.TeamApplicationCreateOrConnectWithoutCvScanAssessmentInput[]
+  createMany?: Prisma.TeamApplicationCreateManyCvScanAssessmentInputEnvelope
+  connect?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+}
+
+export type TeamApplicationUncheckedCreateNestedManyWithoutCvScanAssessmentInput = {
+  create?: Prisma.XOR<Prisma.TeamApplicationCreateWithoutCvScanAssessmentInput, Prisma.TeamApplicationUncheckedCreateWithoutCvScanAssessmentInput> | Prisma.TeamApplicationCreateWithoutCvScanAssessmentInput[] | Prisma.TeamApplicationUncheckedCreateWithoutCvScanAssessmentInput[]
+  connectOrCreate?: Prisma.TeamApplicationCreateOrConnectWithoutCvScanAssessmentInput | Prisma.TeamApplicationCreateOrConnectWithoutCvScanAssessmentInput[]
+  createMany?: Prisma.TeamApplicationCreateManyCvScanAssessmentInputEnvelope
+  connect?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+}
+
+export type TeamApplicationUpdateManyWithoutCvScanAssessmentNestedInput = {
+  create?: Prisma.XOR<Prisma.TeamApplicationCreateWithoutCvScanAssessmentInput, Prisma.TeamApplicationUncheckedCreateWithoutCvScanAssessmentInput> | Prisma.TeamApplicationCreateWithoutCvScanAssessmentInput[] | Prisma.TeamApplicationUncheckedCreateWithoutCvScanAssessmentInput[]
+  connectOrCreate?: Prisma.TeamApplicationCreateOrConnectWithoutCvScanAssessmentInput | Prisma.TeamApplicationCreateOrConnectWithoutCvScanAssessmentInput[]
+  upsert?: Prisma.TeamApplicationUpsertWithWhereUniqueWithoutCvScanAssessmentInput | Prisma.TeamApplicationUpsertWithWhereUniqueWithoutCvScanAssessmentInput[]
+  createMany?: Prisma.TeamApplicationCreateManyCvScanAssessmentInputEnvelope
+  set?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  disconnect?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  delete?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  connect?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  update?: Prisma.TeamApplicationUpdateWithWhereUniqueWithoutCvScanAssessmentInput | Prisma.TeamApplicationUpdateWithWhereUniqueWithoutCvScanAssessmentInput[]
+  updateMany?: Prisma.TeamApplicationUpdateManyWithWhereWithoutCvScanAssessmentInput | Prisma.TeamApplicationUpdateManyWithWhereWithoutCvScanAssessmentInput[]
+  deleteMany?: Prisma.TeamApplicationScalarWhereInput | Prisma.TeamApplicationScalarWhereInput[]
+}
+
+export type TeamApplicationUncheckedUpdateManyWithoutCvScanAssessmentNestedInput = {
+  create?: Prisma.XOR<Prisma.TeamApplicationCreateWithoutCvScanAssessmentInput, Prisma.TeamApplicationUncheckedCreateWithoutCvScanAssessmentInput> | Prisma.TeamApplicationCreateWithoutCvScanAssessmentInput[] | Prisma.TeamApplicationUncheckedCreateWithoutCvScanAssessmentInput[]
+  connectOrCreate?: Prisma.TeamApplicationCreateOrConnectWithoutCvScanAssessmentInput | Prisma.TeamApplicationCreateOrConnectWithoutCvScanAssessmentInput[]
+  upsert?: Prisma.TeamApplicationUpsertWithWhereUniqueWithoutCvScanAssessmentInput | Prisma.TeamApplicationUpsertWithWhereUniqueWithoutCvScanAssessmentInput[]
+  createMany?: Prisma.TeamApplicationCreateManyCvScanAssessmentInputEnvelope
+  set?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  disconnect?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  delete?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  connect?: Prisma.TeamApplicationWhereUniqueInput | Prisma.TeamApplicationWhereUniqueInput[]
+  update?: Prisma.TeamApplicationUpdateWithWhereUniqueWithoutCvScanAssessmentInput | Prisma.TeamApplicationUpdateWithWhereUniqueWithoutCvScanAssessmentInput[]
+  updateMany?: Prisma.TeamApplicationUpdateManyWithWhereWithoutCvScanAssessmentInput | Prisma.TeamApplicationUpdateManyWithWhereWithoutCvScanAssessmentInput[]
+  deleteMany?: Prisma.TeamApplicationScalarWhereInput | Prisma.TeamApplicationScalarWhereInput[]
+}
+
 export type TeamApplicationCreateWithoutDecidedByInput = {
   id?: string
   appliedRole: $Enums.CompanyMembershipRole
@@ -1085,6 +1217,8 @@ export type TeamApplicationCreateWithoutDecidedByInput = {
   company: Prisma.CompanyCreateNestedOneWithoutTeamApplicationsInput
   opportunity: Prisma.TeamOpportunityCreateNestedOneWithoutApplicationsInput
   invitation?: Prisma.CompanyInvitationCreateNestedOneWithoutTeamApplicationInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutTeamApplicationsInput
+  cvScanAssessment?: Prisma.CvScanAssessmentCreateNestedOneWithoutTeamApplicationsInput
 }
 
 export type TeamApplicationUncheckedCreateWithoutDecidedByInput = {
@@ -1100,6 +1234,8 @@ export type TeamApplicationUncheckedCreateWithoutDecidedByInput = {
   cvByteSize: number
   cvStorageKey: string
   cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  cvScanAssessmentId?: string | null
   activeKey?: string | null
   status?: $Enums.TeamApplicationStatus
   rejectionReason?: string | null
@@ -1159,6 +1295,8 @@ export type TeamApplicationScalarWhereInput = {
   cvByteSize?: Prisma.IntFilter<"TeamApplication"> | number
   cvStorageKey?: Prisma.StringFilter<"TeamApplication"> | string
   cvChecksumSha256?: Prisma.StringFilter<"TeamApplication"> | string
+  cvSourceArtifactId?: Prisma.StringNullableFilter<"TeamApplication"> | string | null
+  cvScanAssessmentId?: Prisma.StringNullableFilter<"TeamApplication"> | string | null
   activeKey?: Prisma.StringNullableFilter<"TeamApplication"> | string | null
   status?: Prisma.EnumTeamApplicationStatusFilter<"TeamApplication"> | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.StringNullableFilter<"TeamApplication"> | string | null
@@ -1204,6 +1342,8 @@ export type TeamApplicationCreateWithoutCandidateInput = {
   opportunity: Prisma.TeamOpportunityCreateNestedOneWithoutApplicationsInput
   invitation?: Prisma.CompanyInvitationCreateNestedOneWithoutTeamApplicationInput
   decidedBy?: Prisma.UserAccountCreateNestedOneWithoutTeamApplicationDecisionsInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutTeamApplicationsInput
+  cvScanAssessment?: Prisma.CvScanAssessmentCreateNestedOneWithoutTeamApplicationsInput
 }
 
 export type TeamApplicationUncheckedCreateWithoutCandidateInput = {
@@ -1218,6 +1358,8 @@ export type TeamApplicationUncheckedCreateWithoutCandidateInput = {
   cvByteSize: number
   cvStorageKey: string
   cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  cvScanAssessmentId?: string | null
   activeKey?: string | null
   status?: $Enums.TeamApplicationStatus
   rejectionReason?: string | null
@@ -1290,6 +1432,8 @@ export type TeamApplicationCreateWithoutCompanyInput = {
   opportunity: Prisma.TeamOpportunityCreateNestedOneWithoutApplicationsInput
   invitation?: Prisma.CompanyInvitationCreateNestedOneWithoutTeamApplicationInput
   decidedBy?: Prisma.UserAccountCreateNestedOneWithoutTeamApplicationDecisionsInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutTeamApplicationsInput
+  cvScanAssessment?: Prisma.CvScanAssessmentCreateNestedOneWithoutTeamApplicationsInput
 }
 
 export type TeamApplicationUncheckedCreateWithoutCompanyInput = {
@@ -1304,6 +1448,8 @@ export type TeamApplicationUncheckedCreateWithoutCompanyInput = {
   cvByteSize: number
   cvStorageKey: string
   cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  cvScanAssessmentId?: string | null
   activeKey?: string | null
   status?: $Enums.TeamApplicationStatus
   rejectionReason?: string | null
@@ -1376,6 +1522,8 @@ export type TeamApplicationCreateWithoutInvitationInput = {
   company: Prisma.CompanyCreateNestedOneWithoutTeamApplicationsInput
   opportunity: Prisma.TeamOpportunityCreateNestedOneWithoutApplicationsInput
   decidedBy?: Prisma.UserAccountCreateNestedOneWithoutTeamApplicationDecisionsInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutTeamApplicationsInput
+  cvScanAssessment?: Prisma.CvScanAssessmentCreateNestedOneWithoutTeamApplicationsInput
 }
 
 export type TeamApplicationUncheckedCreateWithoutInvitationInput = {
@@ -1391,6 +1539,8 @@ export type TeamApplicationUncheckedCreateWithoutInvitationInput = {
   cvByteSize: number
   cvStorageKey: string
   cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  cvScanAssessmentId?: string | null
   activeKey?: string | null
   status?: $Enums.TeamApplicationStatus
   rejectionReason?: string | null
@@ -1452,6 +1602,8 @@ export type TeamApplicationUpdateWithoutInvitationInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutTeamApplicationsNestedInput
   opportunity?: Prisma.TeamOpportunityUpdateOneRequiredWithoutApplicationsNestedInput
   decidedBy?: Prisma.UserAccountUpdateOneWithoutTeamApplicationDecisionsNestedInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutTeamApplicationsNestedInput
+  cvScanAssessment?: Prisma.CvScanAssessmentUpdateOneWithoutTeamApplicationsNestedInput
 }
 
 export type TeamApplicationUncheckedUpdateWithoutInvitationInput = {
@@ -1467,6 +1619,8 @@ export type TeamApplicationUncheckedUpdateWithoutInvitationInput = {
   cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
   cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
   cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1512,6 +1666,8 @@ export type TeamApplicationCreateWithoutOpportunityInput = {
   company: Prisma.CompanyCreateNestedOneWithoutTeamApplicationsInput
   invitation?: Prisma.CompanyInvitationCreateNestedOneWithoutTeamApplicationInput
   decidedBy?: Prisma.UserAccountCreateNestedOneWithoutTeamApplicationDecisionsInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutTeamApplicationsInput
+  cvScanAssessment?: Prisma.CvScanAssessmentCreateNestedOneWithoutTeamApplicationsInput
 }
 
 export type TeamApplicationUncheckedCreateWithoutOpportunityInput = {
@@ -1526,6 +1682,8 @@ export type TeamApplicationUncheckedCreateWithoutOpportunityInput = {
   cvByteSize: number
   cvStorageKey: string
   cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  cvScanAssessmentId?: string | null
   activeKey?: string | null
   status?: $Enums.TeamApplicationStatus
   rejectionReason?: string | null
@@ -1570,6 +1728,186 @@ export type TeamApplicationUpdateManyWithWhereWithoutOpportunityInput = {
   data: Prisma.XOR<Prisma.TeamApplicationUpdateManyMutationInput, Prisma.TeamApplicationUncheckedUpdateManyWithoutOpportunityInput>
 }
 
+export type TeamApplicationCreateWithoutCvSourceArtifactInput = {
+  id?: string
+  appliedRole: $Enums.CompanyMembershipRole
+  applicationEmail: string
+  cvDisplayName: string
+  cvFileName: string
+  cvMimeType: string
+  cvByteSize: number
+  cvStorageKey: string
+  cvChecksumSha256: string
+  activeKey?: string | null
+  status?: $Enums.TeamApplicationStatus
+  rejectionReason?: string | null
+  submittedAt?: Date | string
+  ownerFirstViewedAt?: Date | string | null
+  decidedAt?: Date | string | null
+  joinedAt?: Date | string | null
+  withdrawnAt?: Date | string | null
+  cvDeleteAfter?: Date | string | null
+  cvDeletedAt?: Date | string | null
+  cvDeletionFailureCode?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  candidate: Prisma.CandidateIdentityCreateNestedOneWithoutTeamApplicationsInput
+  company: Prisma.CompanyCreateNestedOneWithoutTeamApplicationsInput
+  opportunity: Prisma.TeamOpportunityCreateNestedOneWithoutApplicationsInput
+  invitation?: Prisma.CompanyInvitationCreateNestedOneWithoutTeamApplicationInput
+  decidedBy?: Prisma.UserAccountCreateNestedOneWithoutTeamApplicationDecisionsInput
+  cvScanAssessment?: Prisma.CvScanAssessmentCreateNestedOneWithoutTeamApplicationsInput
+}
+
+export type TeamApplicationUncheckedCreateWithoutCvSourceArtifactInput = {
+  id?: string
+  candidateUserId: string
+  companyId: string
+  teamOpportunityId: string
+  appliedRole: $Enums.CompanyMembershipRole
+  applicationEmail: string
+  cvDisplayName: string
+  cvFileName: string
+  cvMimeType: string
+  cvByteSize: number
+  cvStorageKey: string
+  cvChecksumSha256: string
+  cvScanAssessmentId?: string | null
+  activeKey?: string | null
+  status?: $Enums.TeamApplicationStatus
+  rejectionReason?: string | null
+  submittedAt?: Date | string
+  ownerFirstViewedAt?: Date | string | null
+  decidedAt?: Date | string | null
+  joinedAt?: Date | string | null
+  withdrawnAt?: Date | string | null
+  cvDeleteAfter?: Date | string | null
+  cvDeletedAt?: Date | string | null
+  cvDeletionFailureCode?: string | null
+  decidedByUserId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitation?: Prisma.CompanyInvitationUncheckedCreateNestedOneWithoutTeamApplicationInput
+}
+
+export type TeamApplicationCreateOrConnectWithoutCvSourceArtifactInput = {
+  where: Prisma.TeamApplicationWhereUniqueInput
+  create: Prisma.XOR<Prisma.TeamApplicationCreateWithoutCvSourceArtifactInput, Prisma.TeamApplicationUncheckedCreateWithoutCvSourceArtifactInput>
+}
+
+export type TeamApplicationCreateManyCvSourceArtifactInputEnvelope = {
+  data: Prisma.TeamApplicationCreateManyCvSourceArtifactInput | Prisma.TeamApplicationCreateManyCvSourceArtifactInput[]
+  skipDuplicates?: boolean
+}
+
+export type TeamApplicationUpsertWithWhereUniqueWithoutCvSourceArtifactInput = {
+  where: Prisma.TeamApplicationWhereUniqueInput
+  update: Prisma.XOR<Prisma.TeamApplicationUpdateWithoutCvSourceArtifactInput, Prisma.TeamApplicationUncheckedUpdateWithoutCvSourceArtifactInput>
+  create: Prisma.XOR<Prisma.TeamApplicationCreateWithoutCvSourceArtifactInput, Prisma.TeamApplicationUncheckedCreateWithoutCvSourceArtifactInput>
+}
+
+export type TeamApplicationUpdateWithWhereUniqueWithoutCvSourceArtifactInput = {
+  where: Prisma.TeamApplicationWhereUniqueInput
+  data: Prisma.XOR<Prisma.TeamApplicationUpdateWithoutCvSourceArtifactInput, Prisma.TeamApplicationUncheckedUpdateWithoutCvSourceArtifactInput>
+}
+
+export type TeamApplicationUpdateManyWithWhereWithoutCvSourceArtifactInput = {
+  where: Prisma.TeamApplicationScalarWhereInput
+  data: Prisma.XOR<Prisma.TeamApplicationUpdateManyMutationInput, Prisma.TeamApplicationUncheckedUpdateManyWithoutCvSourceArtifactInput>
+}
+
+export type TeamApplicationCreateWithoutCvScanAssessmentInput = {
+  id?: string
+  appliedRole: $Enums.CompanyMembershipRole
+  applicationEmail: string
+  cvDisplayName: string
+  cvFileName: string
+  cvMimeType: string
+  cvByteSize: number
+  cvStorageKey: string
+  cvChecksumSha256: string
+  activeKey?: string | null
+  status?: $Enums.TeamApplicationStatus
+  rejectionReason?: string | null
+  submittedAt?: Date | string
+  ownerFirstViewedAt?: Date | string | null
+  decidedAt?: Date | string | null
+  joinedAt?: Date | string | null
+  withdrawnAt?: Date | string | null
+  cvDeleteAfter?: Date | string | null
+  cvDeletedAt?: Date | string | null
+  cvDeletionFailureCode?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  candidate: Prisma.CandidateIdentityCreateNestedOneWithoutTeamApplicationsInput
+  company: Prisma.CompanyCreateNestedOneWithoutTeamApplicationsInput
+  opportunity: Prisma.TeamOpportunityCreateNestedOneWithoutApplicationsInput
+  invitation?: Prisma.CompanyInvitationCreateNestedOneWithoutTeamApplicationInput
+  decidedBy?: Prisma.UserAccountCreateNestedOneWithoutTeamApplicationDecisionsInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutTeamApplicationsInput
+}
+
+export type TeamApplicationUncheckedCreateWithoutCvScanAssessmentInput = {
+  id?: string
+  candidateUserId: string
+  companyId: string
+  teamOpportunityId: string
+  appliedRole: $Enums.CompanyMembershipRole
+  applicationEmail: string
+  cvDisplayName: string
+  cvFileName: string
+  cvMimeType: string
+  cvByteSize: number
+  cvStorageKey: string
+  cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  activeKey?: string | null
+  status?: $Enums.TeamApplicationStatus
+  rejectionReason?: string | null
+  submittedAt?: Date | string
+  ownerFirstViewedAt?: Date | string | null
+  decidedAt?: Date | string | null
+  joinedAt?: Date | string | null
+  withdrawnAt?: Date | string | null
+  cvDeleteAfter?: Date | string | null
+  cvDeletedAt?: Date | string | null
+  cvDeletionFailureCode?: string | null
+  decidedByUserId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invitation?: Prisma.CompanyInvitationUncheckedCreateNestedOneWithoutTeamApplicationInput
+}
+
+export type TeamApplicationCreateOrConnectWithoutCvScanAssessmentInput = {
+  where: Prisma.TeamApplicationWhereUniqueInput
+  create: Prisma.XOR<Prisma.TeamApplicationCreateWithoutCvScanAssessmentInput, Prisma.TeamApplicationUncheckedCreateWithoutCvScanAssessmentInput>
+}
+
+export type TeamApplicationCreateManyCvScanAssessmentInputEnvelope = {
+  data: Prisma.TeamApplicationCreateManyCvScanAssessmentInput | Prisma.TeamApplicationCreateManyCvScanAssessmentInput[]
+  skipDuplicates?: boolean
+}
+
+export type TeamApplicationUpsertWithWhereUniqueWithoutCvScanAssessmentInput = {
+  where: Prisma.TeamApplicationWhereUniqueInput
+  update: Prisma.XOR<Prisma.TeamApplicationUpdateWithoutCvScanAssessmentInput, Prisma.TeamApplicationUncheckedUpdateWithoutCvScanAssessmentInput>
+  create: Prisma.XOR<Prisma.TeamApplicationCreateWithoutCvScanAssessmentInput, Prisma.TeamApplicationUncheckedCreateWithoutCvScanAssessmentInput>
+}
+
+export type TeamApplicationUpdateWithWhereUniqueWithoutCvScanAssessmentInput = {
+  where: Prisma.TeamApplicationWhereUniqueInput
+  data: Prisma.XOR<Prisma.TeamApplicationUpdateWithoutCvScanAssessmentInput, Prisma.TeamApplicationUncheckedUpdateWithoutCvScanAssessmentInput>
+}
+
+export type TeamApplicationUpdateManyWithWhereWithoutCvScanAssessmentInput = {
+  where: Prisma.TeamApplicationScalarWhereInput
+  data: Prisma.XOR<Prisma.TeamApplicationUpdateManyMutationInput, Prisma.TeamApplicationUncheckedUpdateManyWithoutCvScanAssessmentInput>
+}
+
 export type TeamApplicationCreateManyDecidedByInput = {
   id?: string
   candidateUserId: string
@@ -1583,6 +1921,8 @@ export type TeamApplicationCreateManyDecidedByInput = {
   cvByteSize: number
   cvStorageKey: string
   cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  cvScanAssessmentId?: string | null
   activeKey?: string | null
   status?: $Enums.TeamApplicationStatus
   rejectionReason?: string | null
@@ -1627,6 +1967,8 @@ export type TeamApplicationUpdateWithoutDecidedByInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutTeamApplicationsNestedInput
   opportunity?: Prisma.TeamOpportunityUpdateOneRequiredWithoutApplicationsNestedInput
   invitation?: Prisma.CompanyInvitationUpdateOneWithoutTeamApplicationNestedInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutTeamApplicationsNestedInput
+  cvScanAssessment?: Prisma.CvScanAssessmentUpdateOneWithoutTeamApplicationsNestedInput
 }
 
 export type TeamApplicationUncheckedUpdateWithoutDecidedByInput = {
@@ -1642,6 +1984,8 @@ export type TeamApplicationUncheckedUpdateWithoutDecidedByInput = {
   cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
   cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
   cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1672,6 +2016,8 @@ export type TeamApplicationUncheckedUpdateManyWithoutDecidedByInput = {
   cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
   cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
   cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1700,6 +2046,8 @@ export type TeamApplicationCreateManyCandidateInput = {
   cvByteSize: number
   cvStorageKey: string
   cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  cvScanAssessmentId?: string | null
   activeKey?: string | null
   status?: $Enums.TeamApplicationStatus
   rejectionReason?: string | null
@@ -1745,6 +2093,8 @@ export type TeamApplicationUpdateWithoutCandidateInput = {
   opportunity?: Prisma.TeamOpportunityUpdateOneRequiredWithoutApplicationsNestedInput
   invitation?: Prisma.CompanyInvitationUpdateOneWithoutTeamApplicationNestedInput
   decidedBy?: Prisma.UserAccountUpdateOneWithoutTeamApplicationDecisionsNestedInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutTeamApplicationsNestedInput
+  cvScanAssessment?: Prisma.CvScanAssessmentUpdateOneWithoutTeamApplicationsNestedInput
 }
 
 export type TeamApplicationUncheckedUpdateWithoutCandidateInput = {
@@ -1759,6 +2109,8 @@ export type TeamApplicationUncheckedUpdateWithoutCandidateInput = {
   cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
   cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
   cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1789,6 +2141,8 @@ export type TeamApplicationUncheckedUpdateManyWithoutCandidateInput = {
   cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
   cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
   cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1818,6 +2172,8 @@ export type TeamApplicationCreateManyCompanyInput = {
   cvByteSize: number
   cvStorageKey: string
   cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  cvScanAssessmentId?: string | null
   activeKey?: string | null
   status?: $Enums.TeamApplicationStatus
   rejectionReason?: string | null
@@ -1863,6 +2219,8 @@ export type TeamApplicationUpdateWithoutCompanyInput = {
   opportunity?: Prisma.TeamOpportunityUpdateOneRequiredWithoutApplicationsNestedInput
   invitation?: Prisma.CompanyInvitationUpdateOneWithoutTeamApplicationNestedInput
   decidedBy?: Prisma.UserAccountUpdateOneWithoutTeamApplicationDecisionsNestedInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutTeamApplicationsNestedInput
+  cvScanAssessment?: Prisma.CvScanAssessmentUpdateOneWithoutTeamApplicationsNestedInput
 }
 
 export type TeamApplicationUncheckedUpdateWithoutCompanyInput = {
@@ -1877,6 +2235,8 @@ export type TeamApplicationUncheckedUpdateWithoutCompanyInput = {
   cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
   cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
   cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1907,6 +2267,8 @@ export type TeamApplicationUncheckedUpdateManyWithoutCompanyInput = {
   cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
   cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
   cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1936,6 +2298,8 @@ export type TeamApplicationCreateManyOpportunityInput = {
   cvByteSize: number
   cvStorageKey: string
   cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  cvScanAssessmentId?: string | null
   activeKey?: string | null
   status?: $Enums.TeamApplicationStatus
   rejectionReason?: string | null
@@ -1981,6 +2345,8 @@ export type TeamApplicationUpdateWithoutOpportunityInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutTeamApplicationsNestedInput
   invitation?: Prisma.CompanyInvitationUpdateOneWithoutTeamApplicationNestedInput
   decidedBy?: Prisma.UserAccountUpdateOneWithoutTeamApplicationDecisionsNestedInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutTeamApplicationsNestedInput
+  cvScanAssessment?: Prisma.CvScanAssessmentUpdateOneWithoutTeamApplicationsNestedInput
 }
 
 export type TeamApplicationUncheckedUpdateWithoutOpportunityInput = {
@@ -1995,6 +2361,8 @@ export type TeamApplicationUncheckedUpdateWithoutOpportunityInput = {
   cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
   cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
   cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2025,6 +2393,260 @@ export type TeamApplicationUncheckedUpdateManyWithoutOpportunityInput = {
   cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
   cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
   cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownerFirstViewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeletionFailureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type TeamApplicationCreateManyCvSourceArtifactInput = {
+  id?: string
+  candidateUserId: string
+  companyId: string
+  teamOpportunityId: string
+  appliedRole: $Enums.CompanyMembershipRole
+  applicationEmail: string
+  cvDisplayName: string
+  cvFileName: string
+  cvMimeType: string
+  cvByteSize: number
+  cvStorageKey: string
+  cvChecksumSha256: string
+  cvScanAssessmentId?: string | null
+  activeKey?: string | null
+  status?: $Enums.TeamApplicationStatus
+  rejectionReason?: string | null
+  submittedAt?: Date | string
+  ownerFirstViewedAt?: Date | string | null
+  decidedAt?: Date | string | null
+  joinedAt?: Date | string | null
+  withdrawnAt?: Date | string | null
+  cvDeleteAfter?: Date | string | null
+  cvDeletedAt?: Date | string | null
+  cvDeletionFailureCode?: string | null
+  decidedByUserId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type TeamApplicationUpdateWithoutCvSourceArtifactInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  appliedRole?: Prisma.EnumCompanyMembershipRoleFieldUpdateOperationsInput | $Enums.CompanyMembershipRole
+  applicationEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  cvDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  cvFileName?: Prisma.StringFieldUpdateOperationsInput | string
+  cvMimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
+  cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownerFirstViewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeletionFailureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  candidate?: Prisma.CandidateIdentityUpdateOneRequiredWithoutTeamApplicationsNestedInput
+  company?: Prisma.CompanyUpdateOneRequiredWithoutTeamApplicationsNestedInput
+  opportunity?: Prisma.TeamOpportunityUpdateOneRequiredWithoutApplicationsNestedInput
+  invitation?: Prisma.CompanyInvitationUpdateOneWithoutTeamApplicationNestedInput
+  decidedBy?: Prisma.UserAccountUpdateOneWithoutTeamApplicationDecisionsNestedInput
+  cvScanAssessment?: Prisma.CvScanAssessmentUpdateOneWithoutTeamApplicationsNestedInput
+}
+
+export type TeamApplicationUncheckedUpdateWithoutCvSourceArtifactInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  candidateUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamOpportunityId?: Prisma.StringFieldUpdateOperationsInput | string
+  appliedRole?: Prisma.EnumCompanyMembershipRoleFieldUpdateOperationsInput | $Enums.CompanyMembershipRole
+  applicationEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  cvDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  cvFileName?: Prisma.StringFieldUpdateOperationsInput | string
+  cvMimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
+  cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownerFirstViewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeletionFailureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitation?: Prisma.CompanyInvitationUncheckedUpdateOneWithoutTeamApplicationNestedInput
+}
+
+export type TeamApplicationUncheckedUpdateManyWithoutCvSourceArtifactInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  candidateUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamOpportunityId?: Prisma.StringFieldUpdateOperationsInput | string
+  appliedRole?: Prisma.EnumCompanyMembershipRoleFieldUpdateOperationsInput | $Enums.CompanyMembershipRole
+  applicationEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  cvDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  cvFileName?: Prisma.StringFieldUpdateOperationsInput | string
+  cvMimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
+  cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvScanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownerFirstViewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeletionFailureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type TeamApplicationCreateManyCvScanAssessmentInput = {
+  id?: string
+  candidateUserId: string
+  companyId: string
+  teamOpportunityId: string
+  appliedRole: $Enums.CompanyMembershipRole
+  applicationEmail: string
+  cvDisplayName: string
+  cvFileName: string
+  cvMimeType: string
+  cvByteSize: number
+  cvStorageKey: string
+  cvChecksumSha256: string
+  cvSourceArtifactId?: string | null
+  activeKey?: string | null
+  status?: $Enums.TeamApplicationStatus
+  rejectionReason?: string | null
+  submittedAt?: Date | string
+  ownerFirstViewedAt?: Date | string | null
+  decidedAt?: Date | string | null
+  joinedAt?: Date | string | null
+  withdrawnAt?: Date | string | null
+  cvDeleteAfter?: Date | string | null
+  cvDeletedAt?: Date | string | null
+  cvDeletionFailureCode?: string | null
+  decidedByUserId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type TeamApplicationUpdateWithoutCvScanAssessmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  appliedRole?: Prisma.EnumCompanyMembershipRoleFieldUpdateOperationsInput | $Enums.CompanyMembershipRole
+  applicationEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  cvDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  cvFileName?: Prisma.StringFieldUpdateOperationsInput | string
+  cvMimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
+  cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownerFirstViewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeletionFailureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  candidate?: Prisma.CandidateIdentityUpdateOneRequiredWithoutTeamApplicationsNestedInput
+  company?: Prisma.CompanyUpdateOneRequiredWithoutTeamApplicationsNestedInput
+  opportunity?: Prisma.TeamOpportunityUpdateOneRequiredWithoutApplicationsNestedInput
+  invitation?: Prisma.CompanyInvitationUpdateOneWithoutTeamApplicationNestedInput
+  decidedBy?: Prisma.UserAccountUpdateOneWithoutTeamApplicationDecisionsNestedInput
+  cvSourceArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutTeamApplicationsNestedInput
+}
+
+export type TeamApplicationUncheckedUpdateWithoutCvScanAssessmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  candidateUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamOpportunityId?: Prisma.StringFieldUpdateOperationsInput | string
+  appliedRole?: Prisma.EnumCompanyMembershipRoleFieldUpdateOperationsInput | $Enums.CompanyMembershipRole
+  applicationEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  cvDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  cvFileName?: Prisma.StringFieldUpdateOperationsInput | string
+  cvMimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
+  cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownerFirstViewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  withdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cvDeletionFailureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invitation?: Prisma.CompanyInvitationUncheckedUpdateOneWithoutTeamApplicationNestedInput
+}
+
+export type TeamApplicationUncheckedUpdateManyWithoutCvScanAssessmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  candidateUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamOpportunityId?: Prisma.StringFieldUpdateOperationsInput | string
+  appliedRole?: Prisma.EnumCompanyMembershipRoleFieldUpdateOperationsInput | $Enums.CompanyMembershipRole
+  applicationEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  cvDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  cvFileName?: Prisma.StringFieldUpdateOperationsInput | string
+  cvMimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  cvByteSize?: Prisma.IntFieldUpdateOperationsInput | number
+  cvStorageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cvChecksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
+  cvSourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTeamApplicationStatusFieldUpdateOperationsInput | $Enums.TeamApplicationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2057,6 +2679,8 @@ export type TeamApplicationSelect<ExtArgs extends runtime.Types.Extensions.Inter
   cvByteSize?: boolean
   cvStorageKey?: boolean
   cvChecksumSha256?: boolean
+  cvSourceArtifactId?: boolean
+  cvScanAssessmentId?: boolean
   activeKey?: boolean
   status?: boolean
   rejectionReason?: boolean
@@ -2077,6 +2701,8 @@ export type TeamApplicationSelect<ExtArgs extends runtime.Types.Extensions.Inter
   opportunity?: boolean | Prisma.TeamOpportunityDefaultArgs<ExtArgs>
   invitation?: boolean | Prisma.TeamApplication$invitationArgs<ExtArgs>
   decidedBy?: boolean | Prisma.TeamApplication$decidedByArgs<ExtArgs>
+  cvSourceArtifact?: boolean | Prisma.TeamApplication$cvSourceArtifactArgs<ExtArgs>
+  cvScanAssessment?: boolean | Prisma.TeamApplication$cvScanAssessmentArgs<ExtArgs>
 }, ExtArgs["result"]["teamApplication"]>
 
 export type TeamApplicationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2092,6 +2718,8 @@ export type TeamApplicationSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   cvByteSize?: boolean
   cvStorageKey?: boolean
   cvChecksumSha256?: boolean
+  cvSourceArtifactId?: boolean
+  cvScanAssessmentId?: boolean
   activeKey?: boolean
   status?: boolean
   rejectionReason?: boolean
@@ -2111,6 +2739,8 @@ export type TeamApplicationSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   opportunity?: boolean | Prisma.TeamOpportunityDefaultArgs<ExtArgs>
   decidedBy?: boolean | Prisma.TeamApplication$decidedByArgs<ExtArgs>
+  cvSourceArtifact?: boolean | Prisma.TeamApplication$cvSourceArtifactArgs<ExtArgs>
+  cvScanAssessment?: boolean | Prisma.TeamApplication$cvScanAssessmentArgs<ExtArgs>
 }, ExtArgs["result"]["teamApplication"]>
 
 export type TeamApplicationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2126,6 +2756,8 @@ export type TeamApplicationSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   cvByteSize?: boolean
   cvStorageKey?: boolean
   cvChecksumSha256?: boolean
+  cvSourceArtifactId?: boolean
+  cvScanAssessmentId?: boolean
   activeKey?: boolean
   status?: boolean
   rejectionReason?: boolean
@@ -2145,6 +2777,8 @@ export type TeamApplicationSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   opportunity?: boolean | Prisma.TeamOpportunityDefaultArgs<ExtArgs>
   decidedBy?: boolean | Prisma.TeamApplication$decidedByArgs<ExtArgs>
+  cvSourceArtifact?: boolean | Prisma.TeamApplication$cvSourceArtifactArgs<ExtArgs>
+  cvScanAssessment?: boolean | Prisma.TeamApplication$cvScanAssessmentArgs<ExtArgs>
 }, ExtArgs["result"]["teamApplication"]>
 
 export type TeamApplicationSelectScalar = {
@@ -2160,6 +2794,8 @@ export type TeamApplicationSelectScalar = {
   cvByteSize?: boolean
   cvStorageKey?: boolean
   cvChecksumSha256?: boolean
+  cvSourceArtifactId?: boolean
+  cvScanAssessmentId?: boolean
   activeKey?: boolean
   status?: boolean
   rejectionReason?: boolean
@@ -2177,25 +2813,31 @@ export type TeamApplicationSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TeamApplicationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "candidateUserId" | "companyId" | "teamOpportunityId" | "appliedRole" | "applicationEmail" | "cvDisplayName" | "cvFileName" | "cvMimeType" | "cvByteSize" | "cvStorageKey" | "cvChecksumSha256" | "activeKey" | "status" | "rejectionReason" | "submittedAt" | "ownerFirstViewedAt" | "decidedAt" | "joinedAt" | "withdrawnAt" | "cvDeleteAfter" | "cvDeletedAt" | "cvDeletionFailureCode" | "decidedByUserId" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["teamApplication"]>
+export type TeamApplicationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "candidateUserId" | "companyId" | "teamOpportunityId" | "appliedRole" | "applicationEmail" | "cvDisplayName" | "cvFileName" | "cvMimeType" | "cvByteSize" | "cvStorageKey" | "cvChecksumSha256" | "cvSourceArtifactId" | "cvScanAssessmentId" | "activeKey" | "status" | "rejectionReason" | "submittedAt" | "ownerFirstViewedAt" | "decidedAt" | "joinedAt" | "withdrawnAt" | "cvDeleteAfter" | "cvDeletedAt" | "cvDeletionFailureCode" | "decidedByUserId" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["teamApplication"]>
 export type TeamApplicationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   candidate?: boolean | Prisma.CandidateIdentityDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   opportunity?: boolean | Prisma.TeamOpportunityDefaultArgs<ExtArgs>
   invitation?: boolean | Prisma.TeamApplication$invitationArgs<ExtArgs>
   decidedBy?: boolean | Prisma.TeamApplication$decidedByArgs<ExtArgs>
+  cvSourceArtifact?: boolean | Prisma.TeamApplication$cvSourceArtifactArgs<ExtArgs>
+  cvScanAssessment?: boolean | Prisma.TeamApplication$cvScanAssessmentArgs<ExtArgs>
 }
 export type TeamApplicationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   candidate?: boolean | Prisma.CandidateIdentityDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   opportunity?: boolean | Prisma.TeamOpportunityDefaultArgs<ExtArgs>
   decidedBy?: boolean | Prisma.TeamApplication$decidedByArgs<ExtArgs>
+  cvSourceArtifact?: boolean | Prisma.TeamApplication$cvSourceArtifactArgs<ExtArgs>
+  cvScanAssessment?: boolean | Prisma.TeamApplication$cvScanAssessmentArgs<ExtArgs>
 }
 export type TeamApplicationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   candidate?: boolean | Prisma.CandidateIdentityDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   opportunity?: boolean | Prisma.TeamOpportunityDefaultArgs<ExtArgs>
   decidedBy?: boolean | Prisma.TeamApplication$decidedByArgs<ExtArgs>
+  cvSourceArtifact?: boolean | Prisma.TeamApplication$cvSourceArtifactArgs<ExtArgs>
+  cvScanAssessment?: boolean | Prisma.TeamApplication$cvScanAssessmentArgs<ExtArgs>
 }
 
 export type $TeamApplicationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2206,6 +2848,8 @@ export type $TeamApplicationPayload<ExtArgs extends runtime.Types.Extensions.Int
     opportunity: Prisma.$TeamOpportunityPayload<ExtArgs>
     invitation: Prisma.$CompanyInvitationPayload<ExtArgs> | null
     decidedBy: Prisma.$UserAccountPayload<ExtArgs> | null
+    cvSourceArtifact: Prisma.$CvStoredArtifactPayload<ExtArgs> | null
+    cvScanAssessment: Prisma.$CvScanAssessmentPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2220,6 +2864,8 @@ export type $TeamApplicationPayload<ExtArgs extends runtime.Types.Extensions.Int
     cvByteSize: number
     cvStorageKey: string
     cvChecksumSha256: string
+    cvSourceArtifactId: string | null
+    cvScanAssessmentId: string | null
     activeKey: string | null
     status: $Enums.TeamApplicationStatus
     rejectionReason: string | null
@@ -2634,6 +3280,8 @@ export interface Prisma__TeamApplicationClient<T, Null = never, ExtArgs extends 
   opportunity<T extends Prisma.TeamOpportunityDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamOpportunityDefaultArgs<ExtArgs>>): Prisma.Prisma__TeamOpportunityClient<runtime.Types.Result.GetResult<Prisma.$TeamOpportunityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   invitation<T extends Prisma.TeamApplication$invitationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamApplication$invitationArgs<ExtArgs>>): Prisma.Prisma__CompanyInvitationClient<runtime.Types.Result.GetResult<Prisma.$CompanyInvitationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   decidedBy<T extends Prisma.TeamApplication$decidedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamApplication$decidedByArgs<ExtArgs>>): Prisma.Prisma__UserAccountClient<runtime.Types.Result.GetResult<Prisma.$UserAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  cvSourceArtifact<T extends Prisma.TeamApplication$cvSourceArtifactArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamApplication$cvSourceArtifactArgs<ExtArgs>>): Prisma.Prisma__CvStoredArtifactClient<runtime.Types.Result.GetResult<Prisma.$CvStoredArtifactPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  cvScanAssessment<T extends Prisma.TeamApplication$cvScanAssessmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamApplication$cvScanAssessmentArgs<ExtArgs>>): Prisma.Prisma__CvScanAssessmentClient<runtime.Types.Result.GetResult<Prisma.$CvScanAssessmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2675,6 +3323,8 @@ export interface TeamApplicationFieldRefs {
   readonly cvByteSize: Prisma.FieldRef<"TeamApplication", 'Int'>
   readonly cvStorageKey: Prisma.FieldRef<"TeamApplication", 'String'>
   readonly cvChecksumSha256: Prisma.FieldRef<"TeamApplication", 'String'>
+  readonly cvSourceArtifactId: Prisma.FieldRef<"TeamApplication", 'String'>
+  readonly cvScanAssessmentId: Prisma.FieldRef<"TeamApplication", 'String'>
   readonly activeKey: Prisma.FieldRef<"TeamApplication", 'String'>
   readonly status: Prisma.FieldRef<"TeamApplication", 'TeamApplicationStatus'>
   readonly rejectionReason: Prisma.FieldRef<"TeamApplication", 'String'>
@@ -3126,6 +3776,44 @@ export type TeamApplication$decidedByArgs<ExtArgs extends runtime.Types.Extensio
    */
   include?: Prisma.UserAccountInclude<ExtArgs> | null
   where?: Prisma.UserAccountWhereInput
+}
+
+/**
+ * TeamApplication.cvSourceArtifact
+ */
+export type TeamApplication$cvSourceArtifactArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CvStoredArtifact
+   */
+  select?: Prisma.CvStoredArtifactSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CvStoredArtifact
+   */
+  omit?: Prisma.CvStoredArtifactOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CvStoredArtifactInclude<ExtArgs> | null
+  where?: Prisma.CvStoredArtifactWhereInput
+}
+
+/**
+ * TeamApplication.cvScanAssessment
+ */
+export type TeamApplication$cvScanAssessmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CvScanAssessment
+   */
+  select?: Prisma.CvScanAssessmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CvScanAssessment
+   */
+  omit?: Prisma.CvScanAssessmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CvScanAssessmentInclude<ExtArgs> | null
+  where?: Prisma.CvScanAssessmentWhereInput
 }
 
 /**

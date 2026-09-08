@@ -957,11 +957,24 @@ enum CvParserClass {
   EXTERNAL_OPENAI
 }
 
+enum CvUploadPurpose {
+  PROFILE_IMPORT
+  PROFILE_DIRECT
+  JOB_APPLICATION_DIRECT
+  TEAM_APPLICATION_DIRECT
+}
+
+enum CvProcessingMode {
+  IMPORT_AND_PARSE
+  SCAN_ONLY
+}
+
 enum CvUploadStatus {
   AWAITING_CONTENT
   VALIDATION_QUEUED
   SCAN_QUEUED
   SCANNING
+  SECURITY_CLEAN
   EXTRACTION_QUEUED
   EXTRACTING
   AWAITING_CONSENT
@@ -1981,6 +1994,8 @@ model TeamApplication {
   cvByteSize          Int
   cvStorageKey        String                @unique
   cvChecksumSha256    String                @db.Char(64)
+  cvSourceArtifactId  String?
+  cvScanAssessmentId  String?
   activeKey           String?               @unique
   status              TeamApplicationStatus @default(SUBMITTED)
   rejectionReason     String?               @db.VarChar(2000)
@@ -2001,10 +2016,14 @@ model TeamApplication {
   opportunity         TeamOpportunity       @relation(fields: [teamOpportunityId], references: [id], onDelete: Restrict)
   invitation          CompanyInvitation?    @relation("TeamApplicationInvitation")
   decidedBy           UserAccount?          @relation("TeamApplicationDecisionMaker", fields: [decidedByUserId], references: [id], onDelete: SetNull)
+  cvSourceArtifact    CvStoredArtifact?     @relation(fields: [cvSourceArtifactId], references: [id], onDelete: SetNull)
+  cvScanAssessment    CvScanAssessment?     @relation(fields: [cvScanAssessmentId], references: [id], onDelete: SetNull)
 
   @@index([companyId, status, submittedAt])
   @@index([candidateUserId, status, submittedAt])
   @@index([teamOpportunityId, status])
+  @@index([cvSourceArtifactId])
+  @@index([cvScanAssessmentId])
 }
 
 model CompanyTeamActivity {
@@ -2891,17 +2910,23 @@ model CandidateCv {
   byteSize        Int
   storageKey      String            @unique
   checksumSha256  String
+  sourceArtifactId String?
+  scanAssessmentId String?
   version         Int               @default(1)
   confirmedAt     DateTime?
   archivedAt      DateTime?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   candidate       CandidateIdentity @relation(fields: [candidateUserId], references: [userId], onDelete: Restrict)
+  sourceArtifact  CvStoredArtifact? @relation(fields: [sourceArtifactId], references: [id], onDelete: SetNull)
+  scanAssessment  CvScanAssessment? @relation(fields: [scanAssessmentId], references: [id], onDelete: SetNull)
   applications    JobApplication[]
   applicationDrafts CandidateApplicationDraft[] @relation("CandidateApplicationDraftCv")
   applicationDocuments ApplicationDocument[] @relation("ApplicationDocumentSourceCv")
 
   @@index([candidateUserId, confirmedAt, archivedAt])
+  @@index([sourceArtifactId])
+  @@index([scanAssessmentId])
 }
 
 /// Candidate-private CV match data deliberately has no relations to the
@@ -3268,6 +3293,8 @@ model ApplicationDocument {
   sourceCandidateCvId        String?
   sourceCandidateCvVersion   Int?
   safetyAssessmentId         String
+  sourceArtifactId           String?
+  scanAssessmentId           String?
   committedAt                DateTime?
   ordinaryAccessDeniedAt     DateTime?
   deleteAfter                DateTime?
@@ -3275,10 +3302,14 @@ model ApplicationDocument {
   createdAt                  DateTime                @default(now())
   application                JobApplication         @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
   sourceCandidateCv          CandidateCv?            @relation("ApplicationDocumentSourceCv", fields: [sourceCandidateCvId], references: [id], onDelete: SetNull)
+  sourceArtifact             CvStoredArtifact?       @relation(fields: [sourceArtifactId], references: [id], onDelete: SetNull)
+  scanAssessment             CvScanAssessment?       @relation(fields: [scanAssessmentId], references: [id], onDelete: SetNull)
 
   @@unique([jobApplicationId, kind])
   @@index([ordinaryAccessDeniedAt, deletedAt])
   @@index([deleteAfter, deletedAt])
+  @@index([sourceArtifactId])
+  @@index([scanAssessmentId])
 }
 
 model ApplicationCoverLetterText {
@@ -3872,6 +3903,9 @@ model CvUpload {
   id                         String                @id @default(cuid())
   accountId                  String
   profileId                  String
+  purpose                    CvUploadPurpose       @default(PROFILE_IMPORT)
+  processingMode             CvProcessingMode      @default(IMPORT_AND_PARSE)
+  policyVersion              String                @default("unified-cv-v1")
   documentKind               CvDocumentKind
   parserClass                CvParserClass
   status                     CvUploadStatus        @default(AWAITING_CONTENT)
@@ -3944,6 +3978,9 @@ model CvStoredArtifact {
   scanInputs            CvScanAssessment[] @relation("CvScanSourceArtifact")
   extractionInputs      CvExtraction[]     @relation("CvExtractionSourceArtifact")
   extractionOutput      CvExtraction?      @relation("CvExtractionOutputArtifact")
+  candidateCvs          CandidateCv[]
+  applicationDocuments  ApplicationDocument[]
+  teamApplications      TeamApplication[]
 
   @@unique([storageAdapter, storageLocator])
   @@index([uploadId, kind])
@@ -3957,6 +3994,7 @@ model CvScanAssessment {
   sourceArtifactId     String
   accountId            String
   attemptNumber        Int
+  policyVersion        String           @default("unified-cv-v1")
   candidateInitiated   Boolean          @default(false)
   status               CvScanStatus     @default(QUEUED)
   engineName           String?
@@ -3975,6 +4013,9 @@ model CvScanAssessment {
   extractions          CvExtraction[]
   priorRetryRequests   CvRetryRequest[] @relation("CvRetryPriorScan")
   newRetryRequests     CvRetryRequest[] @relation("CvRetryNewScan")
+  candidateCvs         CandidateCv[]
+  applicationDocuments ApplicationDocument[]
+  teamApplications     TeamApplication[]
 
   @@unique([uploadId, attemptNumber])
   @@index([status, leaseExpiresAt, createdAt], map: "CvScanAssessment_claim_idx")

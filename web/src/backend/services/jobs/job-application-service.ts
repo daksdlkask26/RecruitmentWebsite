@@ -17,15 +17,19 @@ import { JobServiceError, type CandidateActor } from "./job-types";
 import { recordApplication } from "./recruiter-job-posting-data";
 import { PrismaAuditRepository } from "@/backend/repositories/audit/prisma-audit-repository";
 import type {
-  DirectApplicationCvSource,
-  PreparedDirectApplicationCv,
-} from "./prepare-direct-application-cv";
+  DirectApplicationDocumentSource,
+  PreparedDirectApplicationDocument,
+} from "./prepare-direct-application-document";
 import { z } from "zod";
+import {
+  CandidateCvFinalizationError,
+  finalizeCandidateCvFromUpload,
+} from "@/backend/services/cv-admission/finalize-candidate-cv";
 
 function binding(
   command: ApplicationSubmission,
-  directCv?: PreparedDirectApplicationCv,
-  directCoverLetter?: PreparedDirectApplicationCv,
+  directCv?: PreparedDirectApplicationDocument,
+  directCoverLetter?: PreparedDirectApplicationDocument,
 ) {
   const stable = {
     ...command,
@@ -156,20 +160,19 @@ export class JobApplicationService {
     idempotencyKey: string,
     raw: unknown,
     now = new Date(),
-    directCvSource?: DirectApplicationCvSource,
-    directCoverLetterSource?: DirectApplicationCvSource,
+    directCvSource?: DirectApplicationDocumentSource,
+    directCoverLetterSource?: DirectApplicationDocumentSource,
     draftBinding?: { draftId: string; expectedRevision: number },
-    preparedDirectCoverLetter?: PreparedDirectApplicationCv,
+    preparedDirectCoverLetter?: PreparedDirectApplicationDocument,
   ) {
     const correlationId = randomUUID();
-    let directCv: PreparedDirectApplicationCv | undefined;
-    let directCoverLetter: PreparedDirectApplicationCv | undefined =
+    let directCoverLetter: PreparedDirectApplicationDocument | undefined =
       preparedDirectCoverLetter;
     let repositoryAttempted = false;
     try {
-      const command = applicationSubmissionSchema.parse(raw);
+      let command = applicationSubmissionSchema.parse(raw);
       const key = idempotencyKeySchema.parse(idempotencyKey);
-      if (directCvSource) {
+      if (command.cvUploadId) {
         if (command.cvId !== DIRECT_APPLICATION_CV_ID) {
           throw new JobServiceError(400, {
             code: "APPLICATION_CV_INELIGIBLE",
@@ -177,17 +180,32 @@ export class JobApplicationService {
           });
         }
         try {
-          directCv = await (
-            await import("./prepare-direct-application-cv")
-          ).prepareDirectApplicationCv(directCvSource, {
-            deferStorage: true,
+          const finalized = await finalizeCandidateCvFromUpload({
+            candidateUserId: actor.userId,
+            uploadId: command.cvUploadId,
+            expectedPurpose: "JOB_APPLICATION_DIRECT",
+            archive: true,
+            now,
           });
-        } catch {
-          throw new JobServiceError(400, {
-            code: "APPLICATION_CV_INELIGIBLE",
-            message: applicationFailureMessage("APPLICATION_CV_INELIGIBLE"),
-          });
+          command = { ...command, cvId: finalized.id };
+        } catch (error) {
+          if (error instanceof CandidateCvFinalizationError) {
+            throw new JobServiceError(409, {
+              code: "APPLICATION_CV_INELIGIBLE",
+              message: "The uploaded CV is not ready for application.",
+            });
+          }
+          throw error;
         }
+      }
+      if (directCvSource) {
+        // Direct CV bytes must enter through CvAdmissionService. Keep the
+        // positional argument temporarily for old callers, but fail closed so
+        // no production path can materialize an unscanned CV here.
+        throw new JobServiceError(400, {
+          code: "APPLICATION_CV_INELIGIBLE",
+          message: applicationFailureMessage("APPLICATION_CV_INELIGIBLE"),
+        });
       }
       if (
         directCoverLetterSource &&
@@ -218,8 +236,8 @@ export class JobApplicationService {
         if (directCoverLetterSource) {
           try {
             directCoverLetter = await (
-              await import("./prepare-direct-application-cv")
-            ).prepareDirectApplicationCv(directCoverLetterSource, {
+              await import("./prepare-direct-application-document")
+            ).prepareDirectApplicationDocument(directCoverLetterSource, {
               deferStorage: true,
             });
           } catch {
@@ -240,9 +258,9 @@ export class JobApplicationService {
         sessionId: actor.sessionId,
         jobId,
         idempotencyKey: key,
-        submissionBindingDigest: binding(command, directCv, directCoverLetter),
+        submissionBindingDigest: binding(command, undefined, directCoverLetter),
         command,
-        directCv,
+        directCv: undefined,
         directCoverLetter,
         activeConsentVersion: ACTIVE_APPLICATION_CONSENT_VERSION,
         occurredAt: now,
@@ -250,10 +268,8 @@ export class JobApplicationService {
         draftId: draftBinding?.draftId,
         expectedDraftRevision: draftBinding?.expectedRevision,
       });
-      if (!result.created) await directCv?.cleanup();
       if (!result.created) await directCoverLetter?.cleanup();
       if (result.created) {
-        directCv?.claimOwnership();
         directCoverLetter?.claimOwnership();
         await recordApplication(actor.userId, jobId).catch(() => undefined);
       }
@@ -264,11 +280,9 @@ export class JobApplicationService {
       // proves rollback; transport/serialization/database failures retain the
       // upload for the durable promotion reconciliation path.
       if (!repositoryAttempted || error instanceof ApplicationRepositoryError) {
-        if (directCv) await directCv.cleanup().catch(() => undefined);
         if (directCoverLetter)
           await directCoverLetter.cleanup().catch(() => undefined);
       } else {
-        directCv?.preserveOnUnknown();
         directCoverLetter?.preserveOnUnknown();
       }
       await (this.audit ?? new PrismaAuditRepository())

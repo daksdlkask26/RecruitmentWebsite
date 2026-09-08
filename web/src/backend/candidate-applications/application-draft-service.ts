@@ -24,6 +24,7 @@ import {
   MAX_APPLICATION_ATTEMPTS,
   MAX_APPLICATION_ATTEMPTS_MESSAGE,
 } from "@/shared/contracts/jobs/actions";
+import { CV_SECURITY_POLICY_VERSION } from "@/shared/contracts/cv-import/common";
 import {
   CV_MAX_FILE_BYTES,
   CvFileValidationError,
@@ -448,6 +449,32 @@ export async function validCv(
       archivedAt: null,
       byteSize: { gte: 1, lte: MAX_FILE_BYTES },
       mimeType: { in: [...supportedCvMimeTypes] },
+      sourceArtifactId: { not: null },
+      scanAssessmentId: { not: null },
+      sourceArtifact: {
+        is: {
+          kind: "SOURCE_DOCUMENT",
+          status: "AVAILABLE",
+          deletedAt: null,
+          contentInaccessibleAt: null,
+          upload: {
+            is: {
+              status: { in: ["SECURITY_CLEAN", "CONFIRMED"] },
+              purpose: { in: ["PROFILE_IMPORT", "PROFILE_DIRECT"] },
+              policyVersion: CV_SECURITY_POLICY_VERSION,
+              deletedAt: null,
+              contentInaccessibleAt: null,
+            },
+          },
+        },
+      },
+      scanAssessment: {
+        is: {
+          status: "CLEAN",
+          completedAt: { not: null },
+          policyVersion: CV_SECURITY_POLICY_VERSION,
+        },
+      },
     },
     select: {
       id: true,
@@ -459,10 +486,17 @@ export async function validCv(
       confirmedAt: true,
       checksumSha256: true,
       storageKey: true,
+      sourceArtifactId: true,
+      scanAssessmentId: true,
+      sourceArtifact: { select: { id: true } },
+      scanAssessment: { select: { id: true, sourceArtifactId: true } },
     },
   });
   if (
     !cv ||
+    cv.sourceArtifactId !== cv.sourceArtifact?.id ||
+    cv.scanAssessmentId !== cv.scanAssessment?.id ||
+    cv.scanAssessment?.sourceArtifactId !== cv.sourceArtifact?.id ||
     !fileDescriptor(cv) ||
     !/^[a-f0-9]{64}$/iu.test(cv.checksumSha256)
   ) {
@@ -655,6 +689,32 @@ export class ApplicationDraftService {
               archivedAt: null,
               byteSize: { gte: 1, lte: MAX_FILE_BYTES },
               mimeType: { in: [...supportedCvMimeTypes] },
+              sourceArtifactId: { not: null },
+              scanAssessmentId: { not: null },
+              sourceArtifact: {
+                is: {
+                  kind: "SOURCE_DOCUMENT",
+                  status: "AVAILABLE",
+                  deletedAt: null,
+                  contentInaccessibleAt: null,
+                  upload: {
+                    is: {
+                      status: { in: ["SECURITY_CLEAN", "CONFIRMED"] },
+                      purpose: { in: ["PROFILE_IMPORT", "PROFILE_DIRECT"] },
+                      policyVersion: CV_SECURITY_POLICY_VERSION,
+                      deletedAt: null,
+                      contentInaccessibleAt: null,
+                    },
+                  },
+                },
+              },
+              scanAssessment: {
+                is: {
+                  status: "CLEAN",
+                  completedAt: { not: null },
+                  policyVersion: CV_SECURITY_POLICY_VERSION,
+                },
+              },
             },
             orderBy: [{ confirmedAt: "desc" }, { id: "desc" }],
             select: { id: true },

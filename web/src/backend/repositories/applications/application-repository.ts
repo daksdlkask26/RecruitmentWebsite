@@ -30,6 +30,11 @@ export type ApplicationDocumentRecord = Readonly<{
   contentVersion?: string | null;
   applicationProfileSnapshot?: unknown;
   sourceCandidateCvId?: string | null;
+  sourceArtifactId?: string | null;
+  scanAssessmentId?: string | null;
+  scanStatus?: string | null;
+  uploadId?: string | null;
+  candidateUserId?: string | null;
 }>;
 
 export type RecruitmentPipelineRepositoryPort = Readonly<{

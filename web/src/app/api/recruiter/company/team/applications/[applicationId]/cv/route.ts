@@ -36,14 +36,33 @@ export async function GET(
       applicationId,
     );
     const iterator = result.stream[Symbol.asyncIterator]();
+    let disposed = false;
+    const dispose = async () => {
+      if (disposed) return;
+      disposed = true;
+      await result.dispose().catch(() => undefined);
+    };
     const stream = new ReadableStream<Uint8Array>({
       async pull(controller) {
-        const next = await iterator.next();
-        if (next.done) controller.close();
-        else controller.enqueue(next.value);
+        try {
+          const next = await iterator.next();
+          if (next.done) {
+            await dispose();
+            controller.close();
+          } else {
+            controller.enqueue(next.value);
+          }
+        } catch (error) {
+          await dispose();
+          controller.error(error);
+        }
       },
-      cancel() {
-        void iterator.return?.();
+      async cancel() {
+        try {
+          await iterator.return?.();
+        } finally {
+          await dispose();
+        }
       },
     });
     return new Response(stream, {

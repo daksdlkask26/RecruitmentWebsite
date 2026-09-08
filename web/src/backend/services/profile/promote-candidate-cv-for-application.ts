@@ -2,28 +2,30 @@ import "server-only";
 
 import { prisma } from "@/backend/database/prisma";
 import type { ApplicationDocumentStoragePort } from "@/backend/applications/storage/application-document-storage";
-import {
-  createCvWorkerCryptor,
-  createCvWorkerIntegrityReader,
-  createCvWorkerStorage,
-} from "@/backend/cv/workers/cv-worker-resources";
+import { OpenSafeCvArtifactService } from "@/backend/services/cv-admission/open-safe-cv-artifact-service";
 
 type CandidateCvSource = Readonly<{
   id: string;
   candidateUserId: string;
   byteSize: number;
   checksumSha256: string;
+  sourceArtifactId?: string | null;
+  scanAssessmentId?: string | null;
+  uploadId?: string | null;
 }>;
 
 type Promotion = Readonly<{
-  stored: Awaited<ReturnType<ApplicationDocumentStoragePort["put"]>>;
-  destination: ApplicationDocumentStoragePort;
+  artifactId: string;
+  assessmentId: string;
+  storageLocator: string;
+  byteLength: number;
+  checksumSha256: string;
 }>;
 
 /**
- * Promotes a confirmed profile CV into application-purpose storage. The
- * profile projection owns the import-artifact boundary; application writes
- * receive only the resulting durable locator and digest.
+ * Promotes a saved CandidateCv only after the shared safe-open service has
+ * rechecked ownership, clean evidence, envelope integrity, and the source
+ * digest. A materialized application copy is never its own security proof.
  */
 export async function promoteCandidateCvForApplication(
   sourceCv: CandidateCvSource,
@@ -31,109 +33,47 @@ export async function promoteCandidateCvForApplication(
   db: typeof prisma = prisma,
   options: Readonly<{ locator?: string }> = {},
 ): Promise<Promotion | null> {
-  const copyFromExistingApplication = async () => {
-    const peer = await db.applicationDocument.findFirst({
-      where: {
-        sourceCandidateCvId: sourceCv.id,
-        contentDigestHmac: sourceCv.checksumSha256,
-        byteLength: sourceCv.byteSize,
-        committedAt: { not: null },
-        deletedAt: null,
-        application: { candidateUserId: sourceCv.candidateUserId },
-      },
-      orderBy: { createdAt: "desc" },
-      select: { storageKeyEncrypted: true, byteLength: true },
-    });
-    if (!peer) return null;
-    const sourceStorage = destination;
-    await sourceStorage.assertReady();
-    await destination.assertReady();
-    try {
-      const stored = await destination.put({
-        expectedBytes: peer.byteLength,
-        ...(options.locator ? { locator: options.locator } : {}),
-        source: sourceStorage.open(peer.storageKeyEncrypted, peer.byteLength),
-      });
-      return { stored, destination };
-    } catch {
-      return null;
-    }
-  };
-
-  const uploadId = sourceCv.id.startsWith("candidate-cv-")
-    ? sourceCv.id.slice("candidate-cv-".length)
-    : null;
-  if (!uploadId) return copyFromExistingApplication();
-
-  const rows = await db.$queryRaw<
-    Array<{
-      id: string;
-      storageLocator: string;
-      encryptionKeyVersion: number;
-      encryptionIvHex: string;
-      authenticationTagHex: string;
-      plaintextBytes: number;
-      ciphertextBytes: number;
-      plaintextSha256Hex: string;
-    }>
-  >`
-    SELECT artifact."id",
-           artifact."storageLocator",
-           artifact."encryptionKeyVersion",
-           encode(artifact."encryptionIv", 'hex') AS "encryptionIvHex",
-           encode(artifact."authenticationTag", 'hex') AS "authenticationTagHex",
-           artifact."plaintextBytes",
-           artifact."ciphertextBytes",
-           encode(artifact."plaintextSha256", 'hex') AS "plaintextSha256Hex"
-      FROM "CvStoredArtifact" artifact
-     WHERE artifact."uploadId" = ${uploadId}
-       AND artifact."accountId" = ${sourceCv.candidateUserId}
-       AND artifact."kind" = 'SOURCE_DOCUMENT'
-       AND artifact."status" = 'AVAILABLE'
-       AND artifact."deletedAt" IS NULL
-     ORDER BY artifact."availableAt" DESC NULLS LAST, artifact."createdAt" DESC
-     LIMIT 1
-  `;
-  const artifact = rows[0];
+  void db;
+  void destination;
+  void options;
   if (
-    !artifact ||
-    artifact.plaintextBytes !== sourceCv.byteSize ||
-    artifact.plaintextSha256Hex !== sourceCv.checksumSha256
+    !sourceCv.sourceArtifactId ||
+    !sourceCv.scanAssessmentId ||
+    !sourceCv.uploadId
   ) {
-    return copyFromExistingApplication();
+    return null;
   }
 
-  const sourceStorage = createCvWorkerStorage();
-  await sourceStorage.assertReady();
-  const verified = await createCvWorkerIntegrityReader(
-    sourceStorage,
-    createCvWorkerCryptor(),
-  ).verify({
-    locator: artifact.storageLocator,
-    ciphertextBytes: artifact.ciphertextBytes,
-    plaintextBytes: artifact.plaintextBytes,
-    plaintextSha256: Buffer.from(artifact.plaintextSha256Hex, "hex"),
-    context: {
-      accountId: sourceCv.candidateUserId,
-      uploadId,
-      artifactId: artifact.id,
-      kind: "SOURCE_DOCUMENT",
-    },
-    envelope: {
-      keyVersion: artifact.encryptionKeyVersion,
-      iv: Buffer.from(artifact.encryptionIvHex, "hex"),
-      authenticationTag: Buffer.from(artifact.authenticationTagHex, "hex"),
-    },
-  });
+  let opened: Awaited<ReturnType<OpenSafeCvArtifactService["open"]>>;
   try {
-    await destination.assertReady();
-    const stored = await destination.put({
-      expectedBytes: verified.plaintextBytes,
-      ...(options.locator ? { locator: options.locator } : {}),
-      source: verified.open(),
+    opened = await new OpenSafeCvArtifactService().open({
+      candidateUserId: sourceCv.candidateUserId,
+      uploadId: sourceCv.uploadId,
+      artifactId: sourceCv.sourceArtifactId,
+      assessmentId: sourceCv.scanAssessmentId,
+      allowedPurposes: [
+        "PROFILE_IMPORT",
+        "PROFILE_DIRECT",
+        "JOB_APPLICATION_DIRECT",
+      ],
     });
-    return { stored, destination };
-  } finally {
-    await verified.dispose();
+  } catch {
+    return null;
   }
+  if (
+    opened.byteLength !== sourceCv.byteSize ||
+    opened.evidence.checksumSha256 !== sourceCv.checksumSha256.toLowerCase()
+  ) {
+    await opened.dispose();
+    return null;
+  }
+
+  await opened.dispose();
+  return Object.freeze({
+    artifactId: opened.evidence.artifactId,
+    assessmentId: opened.evidence.assessmentId,
+    storageLocator: opened.evidence.storageLocator,
+    byteLength: opened.byteLength,
+    checksumSha256: opened.evidence.checksumSha256,
+  });
 }

@@ -273,6 +273,13 @@ const englishCompanyCopy = {
   submitCvDescription:
     "Submit one CV for the Owner to review. This is separate from ordinary job applications and does not use scoring or a hiring pipeline.",
   cvRequirement: "PDF or DOCX only, up to exactly 5,000,000 bytes.",
+  cvScanning: "CV uploaded. We are checking it for safety...",
+  cvRetryable:
+    "The safety check could not finish. Retry it without uploading the file again.",
+  cvInfected: "This CV was blocked because the safety scan detected a threat.",
+  cvStatusError: "The CV could not pass the safety check.",
+  cvReady: "CV safety check passed. Finishing your application...",
+  retryCv: "Retry safety check",
   apply: (role: string) => `Apply as ${role}`,
   viewTeamApplications: "View Team Applications",
   trackTeamApplications:
@@ -334,6 +341,13 @@ const vietnameseCompanyCopy = {
   submitCvDescription:
     "Gửi một CV để Owner xem xét. Đây là quy trình riêng, không dùng chấm điểm hoặc pipeline tuyển dụng.",
   cvRequirement: "Chỉ PDF hoặc DOCX, tối đa 5.000.000 byte.",
+  cvScanning: "CV đã được tải lên. Đang kiểm tra an toàn...",
+  cvRetryable:
+    "Kiểm tra an toàn chưa hoàn tất. Bạn có thể thử lại mà không cần tải lại tệp.",
+  cvInfected: "CV bị chặn vì quá trình quét an toàn phát hiện mối đe dọa.",
+  cvStatusError: "CV không vượt qua kiểm tra an toàn.",
+  cvReady: "CV đã vượt qua kiểm tra an toàn. Đang hoàn tất hồ sơ...",
+  retryCv: "Thử lại kiểm tra an toàn",
   apply: (role: string) => `Ứng tuyển vị trí ${role}`,
   viewTeamApplications: "Xem ứng tuyển đội ngũ",
   trackTeamApplications: "Theo dõi hồ sơ ứng tuyển HR Manager hoặc Recruiter.",

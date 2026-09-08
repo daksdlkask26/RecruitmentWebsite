@@ -40,6 +40,7 @@ export type CvScanAssessmentMinAggregateOutputType = {
   sourceArtifactId: string | null
   accountId: string | null
   attemptNumber: number | null
+  policyVersion: string | null
   candidateInitiated: boolean | null
   status: $Enums.CvScanStatus | null
   engineName: string | null
@@ -60,6 +61,7 @@ export type CvScanAssessmentMaxAggregateOutputType = {
   sourceArtifactId: string | null
   accountId: string | null
   attemptNumber: number | null
+  policyVersion: string | null
   candidateInitiated: boolean | null
   status: $Enums.CvScanStatus | null
   engineName: string | null
@@ -80,6 +82,7 @@ export type CvScanAssessmentCountAggregateOutputType = {
   sourceArtifactId: number
   accountId: number
   attemptNumber: number
+  policyVersion: number
   candidateInitiated: number
   status: number
   engineName: number
@@ -110,6 +113,7 @@ export type CvScanAssessmentMinAggregateInputType = {
   sourceArtifactId?: true
   accountId?: true
   attemptNumber?: true
+  policyVersion?: true
   candidateInitiated?: true
   status?: true
   engineName?: true
@@ -130,6 +134,7 @@ export type CvScanAssessmentMaxAggregateInputType = {
   sourceArtifactId?: true
   accountId?: true
   attemptNumber?: true
+  policyVersion?: true
   candidateInitiated?: true
   status?: true
   engineName?: true
@@ -150,6 +155,7 @@ export type CvScanAssessmentCountAggregateInputType = {
   sourceArtifactId?: true
   accountId?: true
   attemptNumber?: true
+  policyVersion?: true
   candidateInitiated?: true
   status?: true
   engineName?: true
@@ -257,6 +263,7 @@ export type CvScanAssessmentGroupByOutputType = {
   sourceArtifactId: string
   accountId: string
   attemptNumber: number
+  policyVersion: string
   candidateInitiated: boolean
   status: $Enums.CvScanStatus
   engineName: string | null
@@ -300,6 +307,7 @@ export type CvScanAssessmentWhereInput = {
   sourceArtifactId?: Prisma.StringFilter<"CvScanAssessment"> | string
   accountId?: Prisma.StringFilter<"CvScanAssessment"> | string
   attemptNumber?: Prisma.IntFilter<"CvScanAssessment"> | number
+  policyVersion?: Prisma.StringFilter<"CvScanAssessment"> | string
   candidateInitiated?: Prisma.BoolFilter<"CvScanAssessment"> | boolean
   status?: Prisma.EnumCvScanStatusFilter<"CvScanAssessment"> | $Enums.CvScanStatus
   engineName?: Prisma.StringNullableFilter<"CvScanAssessment"> | string | null
@@ -318,6 +326,9 @@ export type CvScanAssessmentWhereInput = {
   extractions?: Prisma.CvExtractionListRelationFilter
   priorRetryRequests?: Prisma.CvRetryRequestListRelationFilter
   newRetryRequests?: Prisma.CvRetryRequestListRelationFilter
+  candidateCvs?: Prisma.CandidateCvListRelationFilter
+  applicationDocuments?: Prisma.ApplicationDocumentListRelationFilter
+  teamApplications?: Prisma.TeamApplicationListRelationFilter
 }
 
 export type CvScanAssessmentOrderByWithRelationInput = {
@@ -326,6 +337,7 @@ export type CvScanAssessmentOrderByWithRelationInput = {
   sourceArtifactId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   attemptNumber?: Prisma.SortOrder
+  policyVersion?: Prisma.SortOrder
   candidateInitiated?: Prisma.SortOrder
   status?: Prisma.SortOrder
   engineName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -344,6 +356,9 @@ export type CvScanAssessmentOrderByWithRelationInput = {
   extractions?: Prisma.CvExtractionOrderByRelationAggregateInput
   priorRetryRequests?: Prisma.CvRetryRequestOrderByRelationAggregateInput
   newRetryRequests?: Prisma.CvRetryRequestOrderByRelationAggregateInput
+  candidateCvs?: Prisma.CandidateCvOrderByRelationAggregateInput
+  applicationDocuments?: Prisma.ApplicationDocumentOrderByRelationAggregateInput
+  teamApplications?: Prisma.TeamApplicationOrderByRelationAggregateInput
 }
 
 export type CvScanAssessmentWhereUniqueInput = Prisma.AtLeast<{
@@ -356,6 +371,7 @@ export type CvScanAssessmentWhereUniqueInput = Prisma.AtLeast<{
   sourceArtifactId?: Prisma.StringFilter<"CvScanAssessment"> | string
   accountId?: Prisma.StringFilter<"CvScanAssessment"> | string
   attemptNumber?: Prisma.IntFilter<"CvScanAssessment"> | number
+  policyVersion?: Prisma.StringFilter<"CvScanAssessment"> | string
   candidateInitiated?: Prisma.BoolFilter<"CvScanAssessment"> | boolean
   status?: Prisma.EnumCvScanStatusFilter<"CvScanAssessment"> | $Enums.CvScanStatus
   engineName?: Prisma.StringNullableFilter<"CvScanAssessment"> | string | null
@@ -374,6 +390,9 @@ export type CvScanAssessmentWhereUniqueInput = Prisma.AtLeast<{
   extractions?: Prisma.CvExtractionListRelationFilter
   priorRetryRequests?: Prisma.CvRetryRequestListRelationFilter
   newRetryRequests?: Prisma.CvRetryRequestListRelationFilter
+  candidateCvs?: Prisma.CandidateCvListRelationFilter
+  applicationDocuments?: Prisma.ApplicationDocumentListRelationFilter
+  teamApplications?: Prisma.TeamApplicationListRelationFilter
 }, "id" | "uploadId_attemptNumber">
 
 export type CvScanAssessmentOrderByWithAggregationInput = {
@@ -382,6 +401,7 @@ export type CvScanAssessmentOrderByWithAggregationInput = {
   sourceArtifactId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   attemptNumber?: Prisma.SortOrder
+  policyVersion?: Prisma.SortOrder
   candidateInitiated?: Prisma.SortOrder
   status?: Prisma.SortOrder
   engineName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -410,6 +430,7 @@ export type CvScanAssessmentScalarWhereWithAggregatesInput = {
   sourceArtifactId?: Prisma.StringWithAggregatesFilter<"CvScanAssessment"> | string
   accountId?: Prisma.StringWithAggregatesFilter<"CvScanAssessment"> | string
   attemptNumber?: Prisma.IntWithAggregatesFilter<"CvScanAssessment"> | number
+  policyVersion?: Prisma.StringWithAggregatesFilter<"CvScanAssessment"> | string
   candidateInitiated?: Prisma.BoolWithAggregatesFilter<"CvScanAssessment"> | boolean
   status?: Prisma.EnumCvScanStatusWithAggregatesFilter<"CvScanAssessment"> | $Enums.CvScanStatus
   engineName?: Prisma.StringNullableWithAggregatesFilter<"CvScanAssessment"> | string | null
@@ -427,6 +448,7 @@ export type CvScanAssessmentScalarWhereWithAggregatesInput = {
 export type CvScanAssessmentCreateInput = {
   id?: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -445,6 +467,9 @@ export type CvScanAssessmentCreateInput = {
   extractions?: Prisma.CvExtractionCreateNestedManyWithoutScanAssessmentInput
   priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorScanAssessmentInput
   newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentUncheckedCreateInput = {
@@ -453,6 +478,7 @@ export type CvScanAssessmentUncheckedCreateInput = {
   sourceArtifactId: string
   accountId: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -468,11 +494,15 @@ export type CvScanAssessmentUncheckedCreateInput = {
   extractions?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutScanAssessmentInput
   priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorScanAssessmentInput
   newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -491,6 +521,9 @@ export type CvScanAssessmentUpdateInput = {
   extractions?: Prisma.CvExtractionUpdateManyWithoutScanAssessmentNestedInput
   priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorScanAssessmentNestedInput
   newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentUncheckedUpdateInput = {
@@ -499,6 +532,7 @@ export type CvScanAssessmentUncheckedUpdateInput = {
   sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -514,6 +548,9 @@ export type CvScanAssessmentUncheckedUpdateInput = {
   extractions?: Prisma.CvExtractionUncheckedUpdateManyWithoutScanAssessmentNestedInput
   priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorScanAssessmentNestedInput
   newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentCreateManyInput = {
@@ -522,6 +559,7 @@ export type CvScanAssessmentCreateManyInput = {
   sourceArtifactId: string
   accountId: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -539,6 +577,7 @@ export type CvScanAssessmentCreateManyInput = {
 export type CvScanAssessmentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -559,6 +598,7 @@ export type CvScanAssessmentUncheckedUpdateManyInput = {
   sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -583,6 +623,11 @@ export type CvScanAssessmentOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type CvScanAssessmentNullableScalarRelationFilter = {
+  is?: Prisma.CvScanAssessmentWhereInput | null
+  isNot?: Prisma.CvScanAssessmentWhereInput | null
+}
+
 export type CvScanAssessmentUploadIdAttemptNumberCompoundUniqueInput = {
   uploadId: string
   attemptNumber: number
@@ -594,6 +639,7 @@ export type CvScanAssessmentCountOrderByAggregateInput = {
   sourceArtifactId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   attemptNumber?: Prisma.SortOrder
+  policyVersion?: Prisma.SortOrder
   candidateInitiated?: Prisma.SortOrder
   status?: Prisma.SortOrder
   engineName?: Prisma.SortOrder
@@ -618,6 +664,7 @@ export type CvScanAssessmentMaxOrderByAggregateInput = {
   sourceArtifactId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   attemptNumber?: Prisma.SortOrder
+  policyVersion?: Prisma.SortOrder
   candidateInitiated?: Prisma.SortOrder
   status?: Prisma.SortOrder
   engineName?: Prisma.SortOrder
@@ -638,6 +685,7 @@ export type CvScanAssessmentMinOrderByAggregateInput = {
   sourceArtifactId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   attemptNumber?: Prisma.SortOrder
+  policyVersion?: Prisma.SortOrder
   candidateInitiated?: Prisma.SortOrder
   status?: Prisma.SortOrder
   engineName?: Prisma.SortOrder
@@ -659,11 +707,6 @@ export type CvScanAssessmentSumOrderByAggregateInput = {
 export type CvScanAssessmentScalarRelationFilter = {
   is?: Prisma.CvScanAssessmentWhereInput
   isNot?: Prisma.CvScanAssessmentWhereInput
-}
-
-export type CvScanAssessmentNullableScalarRelationFilter = {
-  is?: Prisma.CvScanAssessmentWhereInput | null
-  isNot?: Prisma.CvScanAssessmentWhereInput | null
 }
 
 export type CvScanAssessmentCreateNestedManyWithoutAccountInput = {
@@ -706,6 +749,54 @@ export type CvScanAssessmentUncheckedUpdateManyWithoutAccountNestedInput = {
   update?: Prisma.CvScanAssessmentUpdateWithWhereUniqueWithoutAccountInput | Prisma.CvScanAssessmentUpdateWithWhereUniqueWithoutAccountInput[]
   updateMany?: Prisma.CvScanAssessmentUpdateManyWithWhereWithoutAccountInput | Prisma.CvScanAssessmentUpdateManyWithWhereWithoutAccountInput[]
   deleteMany?: Prisma.CvScanAssessmentScalarWhereInput | Prisma.CvScanAssessmentScalarWhereInput[]
+}
+
+export type CvScanAssessmentCreateNestedOneWithoutTeamApplicationsInput = {
+  create?: Prisma.XOR<Prisma.CvScanAssessmentCreateWithoutTeamApplicationsInput, Prisma.CvScanAssessmentUncheckedCreateWithoutTeamApplicationsInput>
+  connectOrCreate?: Prisma.CvScanAssessmentCreateOrConnectWithoutTeamApplicationsInput
+  connect?: Prisma.CvScanAssessmentWhereUniqueInput
+}
+
+export type CvScanAssessmentUpdateOneWithoutTeamApplicationsNestedInput = {
+  create?: Prisma.XOR<Prisma.CvScanAssessmentCreateWithoutTeamApplicationsInput, Prisma.CvScanAssessmentUncheckedCreateWithoutTeamApplicationsInput>
+  connectOrCreate?: Prisma.CvScanAssessmentCreateOrConnectWithoutTeamApplicationsInput
+  upsert?: Prisma.CvScanAssessmentUpsertWithoutTeamApplicationsInput
+  disconnect?: Prisma.CvScanAssessmentWhereInput | boolean
+  delete?: Prisma.CvScanAssessmentWhereInput | boolean
+  connect?: Prisma.CvScanAssessmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CvScanAssessmentUpdateToOneWithWhereWithoutTeamApplicationsInput, Prisma.CvScanAssessmentUpdateWithoutTeamApplicationsInput>, Prisma.CvScanAssessmentUncheckedUpdateWithoutTeamApplicationsInput>
+}
+
+export type CvScanAssessmentCreateNestedOneWithoutCandidateCvsInput = {
+  create?: Prisma.XOR<Prisma.CvScanAssessmentCreateWithoutCandidateCvsInput, Prisma.CvScanAssessmentUncheckedCreateWithoutCandidateCvsInput>
+  connectOrCreate?: Prisma.CvScanAssessmentCreateOrConnectWithoutCandidateCvsInput
+  connect?: Prisma.CvScanAssessmentWhereUniqueInput
+}
+
+export type CvScanAssessmentUpdateOneWithoutCandidateCvsNestedInput = {
+  create?: Prisma.XOR<Prisma.CvScanAssessmentCreateWithoutCandidateCvsInput, Prisma.CvScanAssessmentUncheckedCreateWithoutCandidateCvsInput>
+  connectOrCreate?: Prisma.CvScanAssessmentCreateOrConnectWithoutCandidateCvsInput
+  upsert?: Prisma.CvScanAssessmentUpsertWithoutCandidateCvsInput
+  disconnect?: Prisma.CvScanAssessmentWhereInput | boolean
+  delete?: Prisma.CvScanAssessmentWhereInput | boolean
+  connect?: Prisma.CvScanAssessmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CvScanAssessmentUpdateToOneWithWhereWithoutCandidateCvsInput, Prisma.CvScanAssessmentUpdateWithoutCandidateCvsInput>, Prisma.CvScanAssessmentUncheckedUpdateWithoutCandidateCvsInput>
+}
+
+export type CvScanAssessmentCreateNestedOneWithoutApplicationDocumentsInput = {
+  create?: Prisma.XOR<Prisma.CvScanAssessmentCreateWithoutApplicationDocumentsInput, Prisma.CvScanAssessmentUncheckedCreateWithoutApplicationDocumentsInput>
+  connectOrCreate?: Prisma.CvScanAssessmentCreateOrConnectWithoutApplicationDocumentsInput
+  connect?: Prisma.CvScanAssessmentWhereUniqueInput
+}
+
+export type CvScanAssessmentUpdateOneWithoutApplicationDocumentsNestedInput = {
+  create?: Prisma.XOR<Prisma.CvScanAssessmentCreateWithoutApplicationDocumentsInput, Prisma.CvScanAssessmentUncheckedCreateWithoutApplicationDocumentsInput>
+  connectOrCreate?: Prisma.CvScanAssessmentCreateOrConnectWithoutApplicationDocumentsInput
+  upsert?: Prisma.CvScanAssessmentUpsertWithoutApplicationDocumentsInput
+  disconnect?: Prisma.CvScanAssessmentWhereInput | boolean
+  delete?: Prisma.CvScanAssessmentWhereInput | boolean
+  connect?: Prisma.CvScanAssessmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CvScanAssessmentUpdateToOneWithWhereWithoutApplicationDocumentsInput, Prisma.CvScanAssessmentUpdateWithoutApplicationDocumentsInput>, Prisma.CvScanAssessmentUncheckedUpdateWithoutApplicationDocumentsInput>
 }
 
 export type CvScanAssessmentCreateNestedManyWithoutUploadInput = {
@@ -845,6 +936,7 @@ export type CvScanAssessmentUpdateOneWithoutNewRetryRequestsNestedInput = {
 export type CvScanAssessmentCreateWithoutAccountInput = {
   id?: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -862,6 +954,9 @@ export type CvScanAssessmentCreateWithoutAccountInput = {
   extractions?: Prisma.CvExtractionCreateNestedManyWithoutScanAssessmentInput
   priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorScanAssessmentInput
   newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentUncheckedCreateWithoutAccountInput = {
@@ -869,6 +964,7 @@ export type CvScanAssessmentUncheckedCreateWithoutAccountInput = {
   uploadId: string
   sourceArtifactId: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -884,6 +980,9 @@ export type CvScanAssessmentUncheckedCreateWithoutAccountInput = {
   extractions?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutScanAssessmentInput
   priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorScanAssessmentInput
   newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentCreateOrConnectWithoutAccountInput = {
@@ -921,6 +1020,7 @@ export type CvScanAssessmentScalarWhereInput = {
   sourceArtifactId?: Prisma.StringFilter<"CvScanAssessment"> | string
   accountId?: Prisma.StringFilter<"CvScanAssessment"> | string
   attemptNumber?: Prisma.IntFilter<"CvScanAssessment"> | number
+  policyVersion?: Prisma.StringFilter<"CvScanAssessment"> | string
   candidateInitiated?: Prisma.BoolFilter<"CvScanAssessment"> | boolean
   status?: Prisma.EnumCvScanStatusFilter<"CvScanAssessment"> | $Enums.CvScanStatus
   engineName?: Prisma.StringNullableFilter<"CvScanAssessment"> | string | null
@@ -935,9 +1035,370 @@ export type CvScanAssessmentScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"CvScanAssessment"> | Date | string
 }
 
+export type CvScanAssessmentCreateWithoutTeamApplicationsInput = {
+  id?: string
+  attemptNumber: number
+  policyVersion?: string
+  candidateInitiated?: boolean
+  status?: $Enums.CvScanStatus
+  engineName?: string | null
+  engineVersion?: string | null
+  signatureVersion?: string | null
+  signaturePublishedAt?: Date | string | null
+  failureCode?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  upload: Prisma.CvUploadCreateNestedOneWithoutScanAssessmentsInput
+  sourceArtifact: Prisma.CvStoredArtifactCreateNestedOneWithoutScanInputsInput
+  account: Prisma.UserAccountCreateNestedOneWithoutCvScanAssessmentsInput
+  extractions?: Prisma.CvExtractionCreateNestedManyWithoutScanAssessmentInput
+  priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorScanAssessmentInput
+  newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutScanAssessmentInput
+}
+
+export type CvScanAssessmentUncheckedCreateWithoutTeamApplicationsInput = {
+  id?: string
+  uploadId: string
+  sourceArtifactId: string
+  accountId: string
+  attemptNumber: number
+  policyVersion?: string
+  candidateInitiated?: boolean
+  status?: $Enums.CvScanStatus
+  engineName?: string | null
+  engineVersion?: string | null
+  signatureVersion?: string | null
+  signaturePublishedAt?: Date | string | null
+  failureCode?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  extractions?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutScanAssessmentInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorScanAssessmentInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutScanAssessmentInput
+}
+
+export type CvScanAssessmentCreateOrConnectWithoutTeamApplicationsInput = {
+  where: Prisma.CvScanAssessmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.CvScanAssessmentCreateWithoutTeamApplicationsInput, Prisma.CvScanAssessmentUncheckedCreateWithoutTeamApplicationsInput>
+}
+
+export type CvScanAssessmentUpsertWithoutTeamApplicationsInput = {
+  update: Prisma.XOR<Prisma.CvScanAssessmentUpdateWithoutTeamApplicationsInput, Prisma.CvScanAssessmentUncheckedUpdateWithoutTeamApplicationsInput>
+  create: Prisma.XOR<Prisma.CvScanAssessmentCreateWithoutTeamApplicationsInput, Prisma.CvScanAssessmentUncheckedCreateWithoutTeamApplicationsInput>
+  where?: Prisma.CvScanAssessmentWhereInput
+}
+
+export type CvScanAssessmentUpdateToOneWithWhereWithoutTeamApplicationsInput = {
+  where?: Prisma.CvScanAssessmentWhereInput
+  data: Prisma.XOR<Prisma.CvScanAssessmentUpdateWithoutTeamApplicationsInput, Prisma.CvScanAssessmentUncheckedUpdateWithoutTeamApplicationsInput>
+}
+
+export type CvScanAssessmentUpdateWithoutTeamApplicationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
+  engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signaturePublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  upload?: Prisma.CvUploadUpdateOneRequiredWithoutScanAssessmentsNestedInput
+  sourceArtifact?: Prisma.CvStoredArtifactUpdateOneRequiredWithoutScanInputsNestedInput
+  account?: Prisma.UserAccountUpdateOneRequiredWithoutCvScanAssessmentsNestedInput
+  extractions?: Prisma.CvExtractionUpdateManyWithoutScanAssessmentNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorScanAssessmentNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutScanAssessmentNestedInput
+}
+
+export type CvScanAssessmentUncheckedUpdateWithoutTeamApplicationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
+  engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signaturePublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  extractions?: Prisma.CvExtractionUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorScanAssessmentNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutScanAssessmentNestedInput
+}
+
+export type CvScanAssessmentCreateWithoutCandidateCvsInput = {
+  id?: string
+  attemptNumber: number
+  policyVersion?: string
+  candidateInitiated?: boolean
+  status?: $Enums.CvScanStatus
+  engineName?: string | null
+  engineVersion?: string | null
+  signatureVersion?: string | null
+  signaturePublishedAt?: Date | string | null
+  failureCode?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  upload: Prisma.CvUploadCreateNestedOneWithoutScanAssessmentsInput
+  sourceArtifact: Prisma.CvStoredArtifactCreateNestedOneWithoutScanInputsInput
+  account: Prisma.UserAccountCreateNestedOneWithoutCvScanAssessmentsInput
+  extractions?: Prisma.CvExtractionCreateNestedManyWithoutScanAssessmentInput
+  priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorScanAssessmentInput
+  newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvScanAssessmentInput
+}
+
+export type CvScanAssessmentUncheckedCreateWithoutCandidateCvsInput = {
+  id?: string
+  uploadId: string
+  sourceArtifactId: string
+  accountId: string
+  attemptNumber: number
+  policyVersion?: string
+  candidateInitiated?: boolean
+  status?: $Enums.CvScanStatus
+  engineName?: string | null
+  engineVersion?: string | null
+  signatureVersion?: string | null
+  signaturePublishedAt?: Date | string | null
+  failureCode?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  extractions?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutScanAssessmentInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorScanAssessmentInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvScanAssessmentInput
+}
+
+export type CvScanAssessmentCreateOrConnectWithoutCandidateCvsInput = {
+  where: Prisma.CvScanAssessmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.CvScanAssessmentCreateWithoutCandidateCvsInput, Prisma.CvScanAssessmentUncheckedCreateWithoutCandidateCvsInput>
+}
+
+export type CvScanAssessmentUpsertWithoutCandidateCvsInput = {
+  update: Prisma.XOR<Prisma.CvScanAssessmentUpdateWithoutCandidateCvsInput, Prisma.CvScanAssessmentUncheckedUpdateWithoutCandidateCvsInput>
+  create: Prisma.XOR<Prisma.CvScanAssessmentCreateWithoutCandidateCvsInput, Prisma.CvScanAssessmentUncheckedCreateWithoutCandidateCvsInput>
+  where?: Prisma.CvScanAssessmentWhereInput
+}
+
+export type CvScanAssessmentUpdateToOneWithWhereWithoutCandidateCvsInput = {
+  where?: Prisma.CvScanAssessmentWhereInput
+  data: Prisma.XOR<Prisma.CvScanAssessmentUpdateWithoutCandidateCvsInput, Prisma.CvScanAssessmentUncheckedUpdateWithoutCandidateCvsInput>
+}
+
+export type CvScanAssessmentUpdateWithoutCandidateCvsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
+  engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signaturePublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  upload?: Prisma.CvUploadUpdateOneRequiredWithoutScanAssessmentsNestedInput
+  sourceArtifact?: Prisma.CvStoredArtifactUpdateOneRequiredWithoutScanInputsNestedInput
+  account?: Prisma.UserAccountUpdateOneRequiredWithoutCvScanAssessmentsNestedInput
+  extractions?: Prisma.CvExtractionUpdateManyWithoutScanAssessmentNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorScanAssessmentNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvScanAssessmentNestedInput
+}
+
+export type CvScanAssessmentUncheckedUpdateWithoutCandidateCvsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
+  engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signaturePublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  extractions?: Prisma.CvExtractionUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorScanAssessmentNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvScanAssessmentNestedInput
+}
+
+export type CvScanAssessmentCreateWithoutApplicationDocumentsInput = {
+  id?: string
+  attemptNumber: number
+  policyVersion?: string
+  candidateInitiated?: boolean
+  status?: $Enums.CvScanStatus
+  engineName?: string | null
+  engineVersion?: string | null
+  signatureVersion?: string | null
+  signaturePublishedAt?: Date | string | null
+  failureCode?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  upload: Prisma.CvUploadCreateNestedOneWithoutScanAssessmentsInput
+  sourceArtifact: Prisma.CvStoredArtifactCreateNestedOneWithoutScanInputsInput
+  account: Prisma.UserAccountCreateNestedOneWithoutCvScanAssessmentsInput
+  extractions?: Prisma.CvExtractionCreateNestedManyWithoutScanAssessmentInput
+  priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorScanAssessmentInput
+  newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvScanAssessmentInput
+}
+
+export type CvScanAssessmentUncheckedCreateWithoutApplicationDocumentsInput = {
+  id?: string
+  uploadId: string
+  sourceArtifactId: string
+  accountId: string
+  attemptNumber: number
+  policyVersion?: string
+  candidateInitiated?: boolean
+  status?: $Enums.CvScanStatus
+  engineName?: string | null
+  engineVersion?: string | null
+  signatureVersion?: string | null
+  signaturePublishedAt?: Date | string | null
+  failureCode?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  extractions?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutScanAssessmentInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorScanAssessmentInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvScanAssessmentInput
+}
+
+export type CvScanAssessmentCreateOrConnectWithoutApplicationDocumentsInput = {
+  where: Prisma.CvScanAssessmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.CvScanAssessmentCreateWithoutApplicationDocumentsInput, Prisma.CvScanAssessmentUncheckedCreateWithoutApplicationDocumentsInput>
+}
+
+export type CvScanAssessmentUpsertWithoutApplicationDocumentsInput = {
+  update: Prisma.XOR<Prisma.CvScanAssessmentUpdateWithoutApplicationDocumentsInput, Prisma.CvScanAssessmentUncheckedUpdateWithoutApplicationDocumentsInput>
+  create: Prisma.XOR<Prisma.CvScanAssessmentCreateWithoutApplicationDocumentsInput, Prisma.CvScanAssessmentUncheckedCreateWithoutApplicationDocumentsInput>
+  where?: Prisma.CvScanAssessmentWhereInput
+}
+
+export type CvScanAssessmentUpdateToOneWithWhereWithoutApplicationDocumentsInput = {
+  where?: Prisma.CvScanAssessmentWhereInput
+  data: Prisma.XOR<Prisma.CvScanAssessmentUpdateWithoutApplicationDocumentsInput, Prisma.CvScanAssessmentUncheckedUpdateWithoutApplicationDocumentsInput>
+}
+
+export type CvScanAssessmentUpdateWithoutApplicationDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
+  engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signaturePublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  upload?: Prisma.CvUploadUpdateOneRequiredWithoutScanAssessmentsNestedInput
+  sourceArtifact?: Prisma.CvStoredArtifactUpdateOneRequiredWithoutScanInputsNestedInput
+  account?: Prisma.UserAccountUpdateOneRequiredWithoutCvScanAssessmentsNestedInput
+  extractions?: Prisma.CvExtractionUpdateManyWithoutScanAssessmentNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorScanAssessmentNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvScanAssessmentNestedInput
+}
+
+export type CvScanAssessmentUncheckedUpdateWithoutApplicationDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
+  engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signaturePublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  extractions?: Prisma.CvExtractionUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorScanAssessmentNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvScanAssessmentNestedInput
+}
+
 export type CvScanAssessmentCreateWithoutUploadInput = {
   id?: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -955,6 +1416,9 @@ export type CvScanAssessmentCreateWithoutUploadInput = {
   extractions?: Prisma.CvExtractionCreateNestedManyWithoutScanAssessmentInput
   priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorScanAssessmentInput
   newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentUncheckedCreateWithoutUploadInput = {
@@ -962,6 +1426,7 @@ export type CvScanAssessmentUncheckedCreateWithoutUploadInput = {
   sourceArtifactId: string
   accountId: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -977,6 +1442,9 @@ export type CvScanAssessmentUncheckedCreateWithoutUploadInput = {
   extractions?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutScanAssessmentInput
   priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorScanAssessmentInput
   newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentCreateOrConnectWithoutUploadInput = {
@@ -1008,6 +1476,7 @@ export type CvScanAssessmentUpdateManyWithWhereWithoutUploadInput = {
 export type CvScanAssessmentCreateWithoutSourceArtifactInput = {
   id?: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -1025,6 +1494,9 @@ export type CvScanAssessmentCreateWithoutSourceArtifactInput = {
   extractions?: Prisma.CvExtractionCreateNestedManyWithoutScanAssessmentInput
   priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorScanAssessmentInput
   newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentUncheckedCreateWithoutSourceArtifactInput = {
@@ -1032,6 +1504,7 @@ export type CvScanAssessmentUncheckedCreateWithoutSourceArtifactInput = {
   uploadId: string
   accountId: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -1047,6 +1520,9 @@ export type CvScanAssessmentUncheckedCreateWithoutSourceArtifactInput = {
   extractions?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutScanAssessmentInput
   priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorScanAssessmentInput
   newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentCreateOrConnectWithoutSourceArtifactInput = {
@@ -1078,6 +1554,7 @@ export type CvScanAssessmentUpdateManyWithWhereWithoutSourceArtifactInput = {
 export type CvScanAssessmentCreateWithoutExtractionsInput = {
   id?: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -1095,6 +1572,9 @@ export type CvScanAssessmentCreateWithoutExtractionsInput = {
   account: Prisma.UserAccountCreateNestedOneWithoutCvScanAssessmentsInput
   priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorScanAssessmentInput
   newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentUncheckedCreateWithoutExtractionsInput = {
@@ -1103,6 +1583,7 @@ export type CvScanAssessmentUncheckedCreateWithoutExtractionsInput = {
   sourceArtifactId: string
   accountId: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -1117,6 +1598,9 @@ export type CvScanAssessmentUncheckedCreateWithoutExtractionsInput = {
   createdAt?: Date | string
   priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorScanAssessmentInput
   newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentCreateOrConnectWithoutExtractionsInput = {
@@ -1138,6 +1622,7 @@ export type CvScanAssessmentUpdateToOneWithWhereWithoutExtractionsInput = {
 export type CvScanAssessmentUpdateWithoutExtractionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1155,6 +1640,9 @@ export type CvScanAssessmentUpdateWithoutExtractionsInput = {
   account?: Prisma.UserAccountUpdateOneRequiredWithoutCvScanAssessmentsNestedInput
   priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorScanAssessmentNestedInput
   newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentUncheckedUpdateWithoutExtractionsInput = {
@@ -1163,6 +1651,7 @@ export type CvScanAssessmentUncheckedUpdateWithoutExtractionsInput = {
   sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1177,11 +1666,15 @@ export type CvScanAssessmentUncheckedUpdateWithoutExtractionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorScanAssessmentNestedInput
   newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentCreateWithoutPriorRetryRequestsInput = {
   id?: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -1199,6 +1692,9 @@ export type CvScanAssessmentCreateWithoutPriorRetryRequestsInput = {
   account: Prisma.UserAccountCreateNestedOneWithoutCvScanAssessmentsInput
   extractions?: Prisma.CvExtractionCreateNestedManyWithoutScanAssessmentInput
   newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentUncheckedCreateWithoutPriorRetryRequestsInput = {
@@ -1207,6 +1703,7 @@ export type CvScanAssessmentUncheckedCreateWithoutPriorRetryRequestsInput = {
   sourceArtifactId: string
   accountId: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -1221,6 +1718,9 @@ export type CvScanAssessmentUncheckedCreateWithoutPriorRetryRequestsInput = {
   createdAt?: Date | string
   extractions?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutScanAssessmentInput
   newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentCreateOrConnectWithoutPriorRetryRequestsInput = {
@@ -1231,6 +1731,7 @@ export type CvScanAssessmentCreateOrConnectWithoutPriorRetryRequestsInput = {
 export type CvScanAssessmentCreateWithoutNewRetryRequestsInput = {
   id?: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -1248,6 +1749,9 @@ export type CvScanAssessmentCreateWithoutNewRetryRequestsInput = {
   account: Prisma.UserAccountCreateNestedOneWithoutCvScanAssessmentsInput
   extractions?: Prisma.CvExtractionCreateNestedManyWithoutScanAssessmentInput
   priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentUncheckedCreateWithoutNewRetryRequestsInput = {
@@ -1256,6 +1760,7 @@ export type CvScanAssessmentUncheckedCreateWithoutNewRetryRequestsInput = {
   sourceArtifactId: string
   accountId: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -1270,6 +1775,9 @@ export type CvScanAssessmentUncheckedCreateWithoutNewRetryRequestsInput = {
   createdAt?: Date | string
   extractions?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutScanAssessmentInput
   priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorScanAssessmentInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutScanAssessmentInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutScanAssessmentInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvScanAssessmentInput
 }
 
 export type CvScanAssessmentCreateOrConnectWithoutNewRetryRequestsInput = {
@@ -1291,6 +1799,7 @@ export type CvScanAssessmentUpdateToOneWithWhereWithoutPriorRetryRequestsInput =
 export type CvScanAssessmentUpdateWithoutPriorRetryRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1308,6 +1817,9 @@ export type CvScanAssessmentUpdateWithoutPriorRetryRequestsInput = {
   account?: Prisma.UserAccountUpdateOneRequiredWithoutCvScanAssessmentsNestedInput
   extractions?: Prisma.CvExtractionUpdateManyWithoutScanAssessmentNestedInput
   newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentUncheckedUpdateWithoutPriorRetryRequestsInput = {
@@ -1316,6 +1828,7 @@ export type CvScanAssessmentUncheckedUpdateWithoutPriorRetryRequestsInput = {
   sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1330,6 +1843,9 @@ export type CvScanAssessmentUncheckedUpdateWithoutPriorRetryRequestsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   extractions?: Prisma.CvExtractionUncheckedUpdateManyWithoutScanAssessmentNestedInput
   newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentUpsertWithoutNewRetryRequestsInput = {
@@ -1346,6 +1862,7 @@ export type CvScanAssessmentUpdateToOneWithWhereWithoutNewRetryRequestsInput = {
 export type CvScanAssessmentUpdateWithoutNewRetryRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1363,6 +1880,9 @@ export type CvScanAssessmentUpdateWithoutNewRetryRequestsInput = {
   account?: Prisma.UserAccountUpdateOneRequiredWithoutCvScanAssessmentsNestedInput
   extractions?: Prisma.CvExtractionUpdateManyWithoutScanAssessmentNestedInput
   priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentUncheckedUpdateWithoutNewRetryRequestsInput = {
@@ -1371,6 +1891,7 @@ export type CvScanAssessmentUncheckedUpdateWithoutNewRetryRequestsInput = {
   sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1385,6 +1906,9 @@ export type CvScanAssessmentUncheckedUpdateWithoutNewRetryRequestsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   extractions?: Prisma.CvExtractionUncheckedUpdateManyWithoutScanAssessmentNestedInput
   priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentCreateManyAccountInput = {
@@ -1392,6 +1916,7 @@ export type CvScanAssessmentCreateManyAccountInput = {
   uploadId: string
   sourceArtifactId: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -1409,6 +1934,7 @@ export type CvScanAssessmentCreateManyAccountInput = {
 export type CvScanAssessmentUpdateWithoutAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1426,6 +1952,9 @@ export type CvScanAssessmentUpdateWithoutAccountInput = {
   extractions?: Prisma.CvExtractionUpdateManyWithoutScanAssessmentNestedInput
   priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorScanAssessmentNestedInput
   newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentUncheckedUpdateWithoutAccountInput = {
@@ -1433,6 +1962,7 @@ export type CvScanAssessmentUncheckedUpdateWithoutAccountInput = {
   uploadId?: Prisma.StringFieldUpdateOperationsInput | string
   sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1448,6 +1978,9 @@ export type CvScanAssessmentUncheckedUpdateWithoutAccountInput = {
   extractions?: Prisma.CvExtractionUncheckedUpdateManyWithoutScanAssessmentNestedInput
   priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorScanAssessmentNestedInput
   newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentUncheckedUpdateManyWithoutAccountInput = {
@@ -1455,6 +1988,7 @@ export type CvScanAssessmentUncheckedUpdateManyWithoutAccountInput = {
   uploadId?: Prisma.StringFieldUpdateOperationsInput | string
   sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1474,6 +2008,7 @@ export type CvScanAssessmentCreateManyUploadInput = {
   sourceArtifactId: string
   accountId: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -1491,6 +2026,7 @@ export type CvScanAssessmentCreateManyUploadInput = {
 export type CvScanAssessmentUpdateWithoutUploadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1508,6 +2044,9 @@ export type CvScanAssessmentUpdateWithoutUploadInput = {
   extractions?: Prisma.CvExtractionUpdateManyWithoutScanAssessmentNestedInput
   priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorScanAssessmentNestedInput
   newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentUncheckedUpdateWithoutUploadInput = {
@@ -1515,6 +2054,7 @@ export type CvScanAssessmentUncheckedUpdateWithoutUploadInput = {
   sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1530,6 +2070,9 @@ export type CvScanAssessmentUncheckedUpdateWithoutUploadInput = {
   extractions?: Prisma.CvExtractionUncheckedUpdateManyWithoutScanAssessmentNestedInput
   priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorScanAssessmentNestedInput
   newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentUncheckedUpdateManyWithoutUploadInput = {
@@ -1537,6 +2080,7 @@ export type CvScanAssessmentUncheckedUpdateManyWithoutUploadInput = {
   sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1556,6 +2100,7 @@ export type CvScanAssessmentCreateManySourceArtifactInput = {
   uploadId: string
   accountId: string
   attemptNumber: number
+  policyVersion?: string
   candidateInitiated?: boolean
   status?: $Enums.CvScanStatus
   engineName?: string | null
@@ -1573,6 +2118,7 @@ export type CvScanAssessmentCreateManySourceArtifactInput = {
 export type CvScanAssessmentUpdateWithoutSourceArtifactInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1590,6 +2136,9 @@ export type CvScanAssessmentUpdateWithoutSourceArtifactInput = {
   extractions?: Prisma.CvExtractionUpdateManyWithoutScanAssessmentNestedInput
   priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorScanAssessmentNestedInput
   newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentUncheckedUpdateWithoutSourceArtifactInput = {
@@ -1597,6 +2146,7 @@ export type CvScanAssessmentUncheckedUpdateWithoutSourceArtifactInput = {
   uploadId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1612,6 +2162,9 @@ export type CvScanAssessmentUncheckedUpdateWithoutSourceArtifactInput = {
   extractions?: Prisma.CvExtractionUncheckedUpdateManyWithoutScanAssessmentNestedInput
   priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorScanAssessmentNestedInput
   newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutScanAssessmentNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvScanAssessmentNestedInput
 }
 
 export type CvScanAssessmentUncheckedUpdateManyWithoutSourceArtifactInput = {
@@ -1619,6 +2172,7 @@ export type CvScanAssessmentUncheckedUpdateManyWithoutSourceArtifactInput = {
   uploadId?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   candidateInitiated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumCvScanStatusFieldUpdateOperationsInput | $Enums.CvScanStatus
   engineName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1642,12 +2196,18 @@ export type CvScanAssessmentCountOutputType = {
   extractions: number
   priorRetryRequests: number
   newRetryRequests: number
+  candidateCvs: number
+  applicationDocuments: number
+  teamApplications: number
 }
 
 export type CvScanAssessmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   extractions?: boolean | CvScanAssessmentCountOutputTypeCountExtractionsArgs
   priorRetryRequests?: boolean | CvScanAssessmentCountOutputTypeCountPriorRetryRequestsArgs
   newRetryRequests?: boolean | CvScanAssessmentCountOutputTypeCountNewRetryRequestsArgs
+  candidateCvs?: boolean | CvScanAssessmentCountOutputTypeCountCandidateCvsArgs
+  applicationDocuments?: boolean | CvScanAssessmentCountOutputTypeCountApplicationDocumentsArgs
+  teamApplications?: boolean | CvScanAssessmentCountOutputTypeCountTeamApplicationsArgs
 }
 
 /**
@@ -1681,6 +2241,27 @@ export type CvScanAssessmentCountOutputTypeCountNewRetryRequestsArgs<ExtArgs ext
   where?: Prisma.CvRetryRequestWhereInput
 }
 
+/**
+ * CvScanAssessmentCountOutputType without action
+ */
+export type CvScanAssessmentCountOutputTypeCountCandidateCvsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CandidateCvWhereInput
+}
+
+/**
+ * CvScanAssessmentCountOutputType without action
+ */
+export type CvScanAssessmentCountOutputTypeCountApplicationDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApplicationDocumentWhereInput
+}
+
+/**
+ * CvScanAssessmentCountOutputType without action
+ */
+export type CvScanAssessmentCountOutputTypeCountTeamApplicationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TeamApplicationWhereInput
+}
+
 
 export type CvScanAssessmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1688,6 +2269,7 @@ export type CvScanAssessmentSelect<ExtArgs extends runtime.Types.Extensions.Inte
   sourceArtifactId?: boolean
   accountId?: boolean
   attemptNumber?: boolean
+  policyVersion?: boolean
   candidateInitiated?: boolean
   status?: boolean
   engineName?: boolean
@@ -1706,6 +2288,9 @@ export type CvScanAssessmentSelect<ExtArgs extends runtime.Types.Extensions.Inte
   extractions?: boolean | Prisma.CvScanAssessment$extractionsArgs<ExtArgs>
   priorRetryRequests?: boolean | Prisma.CvScanAssessment$priorRetryRequestsArgs<ExtArgs>
   newRetryRequests?: boolean | Prisma.CvScanAssessment$newRetryRequestsArgs<ExtArgs>
+  candidateCvs?: boolean | Prisma.CvScanAssessment$candidateCvsArgs<ExtArgs>
+  applicationDocuments?: boolean | Prisma.CvScanAssessment$applicationDocumentsArgs<ExtArgs>
+  teamApplications?: boolean | Prisma.CvScanAssessment$teamApplicationsArgs<ExtArgs>
   _count?: boolean | Prisma.CvScanAssessmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["cvScanAssessment"]>
 
@@ -1715,6 +2300,7 @@ export type CvScanAssessmentSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   sourceArtifactId?: boolean
   accountId?: boolean
   attemptNumber?: boolean
+  policyVersion?: boolean
   candidateInitiated?: boolean
   status?: boolean
   engineName?: boolean
@@ -1738,6 +2324,7 @@ export type CvScanAssessmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   sourceArtifactId?: boolean
   accountId?: boolean
   attemptNumber?: boolean
+  policyVersion?: boolean
   candidateInitiated?: boolean
   status?: boolean
   engineName?: boolean
@@ -1761,6 +2348,7 @@ export type CvScanAssessmentSelectScalar = {
   sourceArtifactId?: boolean
   accountId?: boolean
   attemptNumber?: boolean
+  policyVersion?: boolean
   candidateInitiated?: boolean
   status?: boolean
   engineName?: boolean
@@ -1775,7 +2363,7 @@ export type CvScanAssessmentSelectScalar = {
   createdAt?: boolean
 }
 
-export type CvScanAssessmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uploadId" | "sourceArtifactId" | "accountId" | "attemptNumber" | "candidateInitiated" | "status" | "engineName" | "engineVersion" | "signatureVersion" | "signaturePublishedAt" | "failureCode" | "leaseOwner" | "leaseExpiresAt" | "startedAt" | "completedAt" | "createdAt", ExtArgs["result"]["cvScanAssessment"]>
+export type CvScanAssessmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uploadId" | "sourceArtifactId" | "accountId" | "attemptNumber" | "policyVersion" | "candidateInitiated" | "status" | "engineName" | "engineVersion" | "signatureVersion" | "signaturePublishedAt" | "failureCode" | "leaseOwner" | "leaseExpiresAt" | "startedAt" | "completedAt" | "createdAt", ExtArgs["result"]["cvScanAssessment"]>
 export type CvScanAssessmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   upload?: boolean | Prisma.CvUploadDefaultArgs<ExtArgs>
   sourceArtifact?: boolean | Prisma.CvStoredArtifactDefaultArgs<ExtArgs>
@@ -1783,6 +2371,9 @@ export type CvScanAssessmentInclude<ExtArgs extends runtime.Types.Extensions.Int
   extractions?: boolean | Prisma.CvScanAssessment$extractionsArgs<ExtArgs>
   priorRetryRequests?: boolean | Prisma.CvScanAssessment$priorRetryRequestsArgs<ExtArgs>
   newRetryRequests?: boolean | Prisma.CvScanAssessment$newRetryRequestsArgs<ExtArgs>
+  candidateCvs?: boolean | Prisma.CvScanAssessment$candidateCvsArgs<ExtArgs>
+  applicationDocuments?: boolean | Prisma.CvScanAssessment$applicationDocumentsArgs<ExtArgs>
+  teamApplications?: boolean | Prisma.CvScanAssessment$teamApplicationsArgs<ExtArgs>
   _count?: boolean | Prisma.CvScanAssessmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CvScanAssessmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1805,6 +2396,9 @@ export type $CvScanAssessmentPayload<ExtArgs extends runtime.Types.Extensions.In
     extractions: Prisma.$CvExtractionPayload<ExtArgs>[]
     priorRetryRequests: Prisma.$CvRetryRequestPayload<ExtArgs>[]
     newRetryRequests: Prisma.$CvRetryRequestPayload<ExtArgs>[]
+    candidateCvs: Prisma.$CandidateCvPayload<ExtArgs>[]
+    applicationDocuments: Prisma.$ApplicationDocumentPayload<ExtArgs>[]
+    teamApplications: Prisma.$TeamApplicationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1812,6 +2406,7 @@ export type $CvScanAssessmentPayload<ExtArgs extends runtime.Types.Extensions.In
     sourceArtifactId: string
     accountId: string
     attemptNumber: number
+    policyVersion: string
     candidateInitiated: boolean
     status: $Enums.CvScanStatus
     engineName: string | null
@@ -2224,6 +2819,9 @@ export interface Prisma__CvScanAssessmentClient<T, Null = never, ExtArgs extends
   extractions<T extends Prisma.CvScanAssessment$extractionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvScanAssessment$extractionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CvExtractionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   priorRetryRequests<T extends Prisma.CvScanAssessment$priorRetryRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvScanAssessment$priorRetryRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CvRetryRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   newRetryRequests<T extends Prisma.CvScanAssessment$newRetryRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvScanAssessment$newRetryRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CvRetryRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  candidateCvs<T extends Prisma.CvScanAssessment$candidateCvsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvScanAssessment$candidateCvsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CandidateCvPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  applicationDocuments<T extends Prisma.CvScanAssessment$applicationDocumentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvScanAssessment$applicationDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApplicationDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  teamApplications<T extends Prisma.CvScanAssessment$teamApplicationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvScanAssessment$teamApplicationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TeamApplicationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2258,6 +2856,7 @@ export interface CvScanAssessmentFieldRefs {
   readonly sourceArtifactId: Prisma.FieldRef<"CvScanAssessment", 'String'>
   readonly accountId: Prisma.FieldRef<"CvScanAssessment", 'String'>
   readonly attemptNumber: Prisma.FieldRef<"CvScanAssessment", 'Int'>
+  readonly policyVersion: Prisma.FieldRef<"CvScanAssessment", 'String'>
   readonly candidateInitiated: Prisma.FieldRef<"CvScanAssessment", 'Boolean'>
   readonly status: Prisma.FieldRef<"CvScanAssessment", 'CvScanStatus'>
   readonly engineName: Prisma.FieldRef<"CvScanAssessment", 'String'>
@@ -2740,6 +3339,78 @@ export type CvScanAssessment$newRetryRequestsArgs<ExtArgs extends runtime.Types.
   take?: number
   skip?: number
   distinct?: Prisma.CvRetryRequestScalarFieldEnum | Prisma.CvRetryRequestScalarFieldEnum[]
+}
+
+/**
+ * CvScanAssessment.candidateCvs
+ */
+export type CvScanAssessment$candidateCvsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CandidateCv
+   */
+  select?: Prisma.CandidateCvSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CandidateCv
+   */
+  omit?: Prisma.CandidateCvOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CandidateCvInclude<ExtArgs> | null
+  where?: Prisma.CandidateCvWhereInput
+  orderBy?: Prisma.CandidateCvOrderByWithRelationInput | Prisma.CandidateCvOrderByWithRelationInput[]
+  cursor?: Prisma.CandidateCvWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CandidateCvScalarFieldEnum | Prisma.CandidateCvScalarFieldEnum[]
+}
+
+/**
+ * CvScanAssessment.applicationDocuments
+ */
+export type CvScanAssessment$applicationDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApplicationDocument
+   */
+  select?: Prisma.ApplicationDocumentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApplicationDocument
+   */
+  omit?: Prisma.ApplicationDocumentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApplicationDocumentInclude<ExtArgs> | null
+  where?: Prisma.ApplicationDocumentWhereInput
+  orderBy?: Prisma.ApplicationDocumentOrderByWithRelationInput | Prisma.ApplicationDocumentOrderByWithRelationInput[]
+  cursor?: Prisma.ApplicationDocumentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApplicationDocumentScalarFieldEnum | Prisma.ApplicationDocumentScalarFieldEnum[]
+}
+
+/**
+ * CvScanAssessment.teamApplications
+ */
+export type CvScanAssessment$teamApplicationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TeamApplication
+   */
+  select?: Prisma.TeamApplicationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TeamApplication
+   */
+  omit?: Prisma.TeamApplicationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TeamApplicationInclude<ExtArgs> | null
+  where?: Prisma.TeamApplicationWhereInput
+  orderBy?: Prisma.TeamApplicationOrderByWithRelationInput | Prisma.TeamApplicationOrderByWithRelationInput[]
+  cursor?: Prisma.TeamApplicationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TeamApplicationScalarFieldEnum | Prisma.TeamApplicationScalarFieldEnum[]
 }
 
 /**

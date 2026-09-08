@@ -577,6 +577,18 @@ export class PrismaApplicationRepository
             mediaType: true,
             byteLength: true,
             storageKeyEncrypted: true,
+            sourceArtifactId: true,
+            scanAssessmentId: true,
+            sourceArtifact: {
+              select: {
+                uploadId: true,
+              },
+            },
+            scanAssessment: {
+              select: {
+                status: true,
+              },
+            },
           },
           take: 1,
         },
@@ -640,6 +652,11 @@ export class PrismaApplicationRepository
       contentVersion: document.contentDigestHmac,
       applicationProfileSnapshot: application.profileSnapshot,
       sourceCandidateCvId: document.sourceCandidateCvId,
+      sourceArtifactId: document.sourceArtifactId,
+      scanAssessmentId: document.scanAssessmentId,
+      scanStatus: document.scanAssessment?.status ?? null,
+      uploadId: document.sourceArtifact?.uploadId ?? null,
+      candidateUserId: application.candidateUserId,
     };
   }
 }

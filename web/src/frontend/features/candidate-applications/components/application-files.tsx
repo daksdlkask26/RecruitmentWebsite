@@ -92,8 +92,12 @@ export function ApplicationFiles({
   cvMode,
   coverMode,
   coverText,
-  pending,
-  error,
+   pending,
+   error,
+   cvStatusMessage,
+   cvRetryable,
+   retryCvLabel,
+   onCvRetry,
   onCvModeChange,
   onCvSelectionChange,
   onCvUpload,
@@ -113,8 +117,12 @@ export function ApplicationFiles({
   cvMode: CvMode;
   coverMode: CoverMode;
   coverText: string;
-  pending: string | null;
-  error: string | null;
+   pending: string | null;
+   error: string | null;
+   cvStatusMessage?: string | null;
+   cvRetryable?: boolean;
+   retryCvLabel?: string;
+   onCvRetry?: () => void;
   onCvModeChange: (mode: CvMode) => void;
   onCvSelectionChange: (cvId: string) => void;
   onCvUpload: (file: File) => void;
@@ -185,6 +193,21 @@ export function ApplicationFiles({
         <p className="candidate-application-error" role="alert">
           {error}
         </p>
+      ) : null}
+      {cvStatusMessage ? (
+        <p className="candidate-application-status" role="status" aria-live="polite">
+          {cvStatusMessage}
+        </p>
+      ) : null}
+      {cvRetryable && onCvRetry ? (
+        <button
+          className="application-files__button application-files__button--secondary"
+          type="button"
+          onClick={onCvRetry}
+          disabled={pending !== null}
+        >
+          {retryCvLabel}
+        </button>
       ) : null}
 
       <div className="application-files__grid">

@@ -2,6 +2,7 @@ import "server-only";
 
 import {
   CV_EXTRACTION_LIMITS,
+  DocumentExtractionError,
   IsolatedDocumentExtractor,
 } from "./extraction/document-extractor";
 import { extractDocx } from "./extraction/docx";
@@ -52,19 +53,41 @@ export function cvUploadContentValidationMessage(
   }
 }
 
-async function extractContent(kind: CvFileKind, source: Uint8Array) {
+async function extractContent(
+  kind: CvFileKind,
+  source: Uint8Array,
+  scanStatus:
+    | "QUEUED"
+    | "PROCESSING"
+    | "CLEAN"
+    | "INFECTED"
+    | "INDETERMINATE" = "QUEUED",
+) {
+  // This helper may perform document parsing and classification, so it is a
+  // post-scan operation. DOC has an in-process parser and the PDF/DOCX
+  // recovery path below can bypass the isolated extractor; guard both paths
+  // before selecting the document kind.
+  if (scanStatus !== "CLEAN") {
+    throw new DocumentExtractionError("CV_EXTRACTION_REQUIRES_CLEAN_SCAN");
+  }
   if (kind === "DOC") return extractLegacyDocText(source);
 
   const extractor = new IsolatedDocumentExtractor();
   try {
     return await extractor.extract({
       kind,
-      scanStatus: "CLEAN",
+      scanStatus,
       source,
     });
   } catch (error) {
+    if (
+      error instanceof DocumentExtractionError &&
+      error.code === "CV_EXTRACTION_REQUIRES_CLEAN_SCAN"
+    ) {
+      throw error;
+    }
     // The fallback remains bounded and applies the same active-content and
-    // archive limits. It protects the upload request from a child-process
+    // archive limits. It protects a post-CLEAN upload from a child-process
     // startup failure without turning extraction into an unbounded operation.
     const recovered =
       kind === "PDF"
@@ -79,10 +102,15 @@ export async function validateCvUploadContent(input: {
   bytes: Uint8Array;
   kind: CvFileKind;
   classifier?: CvClassificationPort;
+  scanStatus?: "QUEUED" | "PROCESSING" | "CLEAN" | "INFECTED" | "INDETERMINATE";
 }) {
   let extracted;
   try {
-    extracted = await extractContent(input.kind, input.bytes);
+    extracted = await extractContent(
+      input.kind,
+      input.bytes,
+      input.scanStatus ?? "QUEUED",
+    );
   } catch {
     throw new CvUploadContentValidationError("CV_TEXT_UNAVAILABLE");
   }

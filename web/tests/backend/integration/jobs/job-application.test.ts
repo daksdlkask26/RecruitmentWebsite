@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { DIRECT_APPLICATION_CV_ID } from "@/shared/contracts/jobs/actions";
+import { createCvWorkerStorage } from "@/backend/cv/workers/cv-worker-resources";
+import { seedCleanJobApplicationCv } from "../../../helpers/job-application-cv-fixture";
 
 const databaseAvailable = Boolean(process.env.DATABASE_URL);
 
@@ -12,6 +13,7 @@ describe.skipIf(!databaseAvailable)("transactional job application", () => {
   let repository: InstanceType<
     typeof import("@/backend/repositories/jobs/prisma-job-application-repository").PrismaJobApplicationRepository
   >;
+  let secureCv: Awaited<ReturnType<typeof seedCleanJobApplicationCv>>;
 
   beforeAll(async () => {
     fixture = await (
@@ -20,8 +22,18 @@ describe.skipIf(!databaseAvailable)("transactional job application", () => {
     repository = new (
       await import("@/backend/repositories/jobs/prisma-job-application-repository")
     ).PrismaJobApplicationRepository();
+    secureCv = await seedCleanJobApplicationCv({
+      candidateUserId: fixture.userIds[0]!,
+      now: fixture.now,
+      label: "transactional",
+    });
   });
   afterAll(async () => {
+    if (secureCv) {
+      const storage = createCvWorkerStorage();
+      await storage.assertReady();
+      await storage.delete(secureCv.storageLocator);
+    }
     if (fixture)
       await (
         await import("../../../helpers/job-board-database-fixture")
@@ -45,7 +57,7 @@ describe.skipIf(!databaseAvailable)("transactional job application", () => {
       idempotencyKey: "application-key-00000001",
       submissionBindingDigest: "b".repeat(64),
       command: {
-        cvId: DIRECT_APPLICATION_CV_ID,
+        cvId: secureCv.candidateCvId,
         answers: fixture.jobs.active.questions.map((question) => ({
           questionId: question.id,
           value: question.kind === "BOOLEAN" ? true : "Five years",
@@ -53,18 +65,6 @@ describe.skipIf(!databaseAvailable)("transactional job application", () => {
         coverLetter: null,
         consentVersion: "2026-08-01",
         consentAccepted: true as const,
-      },
-      // This test exercises the application transaction itself.  Supplying
-      // the already-prepared direct document keeps it independent from the
-      // private CV-storage fixture; saved-CV promotion has its own coverage.
-      directCv: {
-        id: DIRECT_APPLICATION_CV_ID,
-        displayName: "Confirmed CV",
-        fileName: "candidate.pdf",
-        mimeType: "application/pdf",
-        byteSize: 32_000,
-        storageKey: "test-direct-application-cv",
-        checksumSha256: "c".repeat(64),
       },
       activeConsentVersion: "2026-08-01",
       occurredAt: fixture.now,
@@ -135,5 +135,19 @@ describe.skipIf(!databaseAvailable)("transactional job application", () => {
         },
       }),
     ).toBe(1);
+    await expect(
+      prisma.applicationDocument.findUniqueOrThrow({
+        where: {
+          jobApplicationId_kind: {
+            jobApplicationId: first.application.applicationId,
+            kind: "CV",
+          },
+        },
+      }),
+    ).resolves.toMatchObject({
+      sourceArtifactId: secureCv.artifactId,
+      scanAssessmentId: secureCv.assessmentId,
+      safetyAssessmentId: secureCv.assessmentId,
+    });
   });
 });

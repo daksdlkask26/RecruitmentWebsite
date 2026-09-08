@@ -49,6 +49,8 @@ export type ApplicationDocumentMinAggregateOutputType = {
   sourceCandidateCvId: string | null
   sourceCandidateCvVersion: number | null
   safetyAssessmentId: string | null
+  sourceArtifactId: string | null
+  scanAssessmentId: string | null
   committedAt: Date | null
   ordinaryAccessDeniedAt: Date | null
   deleteAfter: Date | null
@@ -69,6 +71,8 @@ export type ApplicationDocumentMaxAggregateOutputType = {
   sourceCandidateCvId: string | null
   sourceCandidateCvVersion: number | null
   safetyAssessmentId: string | null
+  sourceArtifactId: string | null
+  scanAssessmentId: string | null
   committedAt: Date | null
   ordinaryAccessDeniedAt: Date | null
   deleteAfter: Date | null
@@ -89,6 +93,8 @@ export type ApplicationDocumentCountAggregateOutputType = {
   sourceCandidateCvId: number
   sourceCandidateCvVersion: number
   safetyAssessmentId: number
+  sourceArtifactId: number
+  scanAssessmentId: number
   committedAt: number
   ordinaryAccessDeniedAt: number
   deleteAfter: number
@@ -121,6 +127,8 @@ export type ApplicationDocumentMinAggregateInputType = {
   sourceCandidateCvId?: true
   sourceCandidateCvVersion?: true
   safetyAssessmentId?: true
+  sourceArtifactId?: true
+  scanAssessmentId?: true
   committedAt?: true
   ordinaryAccessDeniedAt?: true
   deleteAfter?: true
@@ -141,6 +149,8 @@ export type ApplicationDocumentMaxAggregateInputType = {
   sourceCandidateCvId?: true
   sourceCandidateCvVersion?: true
   safetyAssessmentId?: true
+  sourceArtifactId?: true
+  scanAssessmentId?: true
   committedAt?: true
   ordinaryAccessDeniedAt?: true
   deleteAfter?: true
@@ -161,6 +171,8 @@ export type ApplicationDocumentCountAggregateInputType = {
   sourceCandidateCvId?: true
   sourceCandidateCvVersion?: true
   safetyAssessmentId?: true
+  sourceArtifactId?: true
+  scanAssessmentId?: true
   committedAt?: true
   ordinaryAccessDeniedAt?: true
   deleteAfter?: true
@@ -268,6 +280,8 @@ export type ApplicationDocumentGroupByOutputType = {
   sourceCandidateCvId: string | null
   sourceCandidateCvVersion: number | null
   safetyAssessmentId: string
+  sourceArtifactId: string | null
+  scanAssessmentId: string | null
   committedAt: Date | null
   ordinaryAccessDeniedAt: Date | null
   deleteAfter: Date | null
@@ -311,6 +325,8 @@ export type ApplicationDocumentWhereInput = {
   sourceCandidateCvId?: Prisma.StringNullableFilter<"ApplicationDocument"> | string | null
   sourceCandidateCvVersion?: Prisma.IntNullableFilter<"ApplicationDocument"> | number | null
   safetyAssessmentId?: Prisma.StringFilter<"ApplicationDocument"> | string
+  sourceArtifactId?: Prisma.StringNullableFilter<"ApplicationDocument"> | string | null
+  scanAssessmentId?: Prisma.StringNullableFilter<"ApplicationDocument"> | string | null
   committedAt?: Prisma.DateTimeNullableFilter<"ApplicationDocument"> | Date | string | null
   ordinaryAccessDeniedAt?: Prisma.DateTimeNullableFilter<"ApplicationDocument"> | Date | string | null
   deleteAfter?: Prisma.DateTimeNullableFilter<"ApplicationDocument"> | Date | string | null
@@ -318,6 +334,8 @@ export type ApplicationDocumentWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ApplicationDocument"> | Date | string
   application?: Prisma.XOR<Prisma.JobApplicationScalarRelationFilter, Prisma.JobApplicationWhereInput>
   sourceCandidateCv?: Prisma.XOR<Prisma.CandidateCvNullableScalarRelationFilter, Prisma.CandidateCvWhereInput> | null
+  sourceArtifact?: Prisma.XOR<Prisma.CvStoredArtifactNullableScalarRelationFilter, Prisma.CvStoredArtifactWhereInput> | null
+  scanAssessment?: Prisma.XOR<Prisma.CvScanAssessmentNullableScalarRelationFilter, Prisma.CvScanAssessmentWhereInput> | null
 }
 
 export type ApplicationDocumentOrderByWithRelationInput = {
@@ -333,6 +351,8 @@ export type ApplicationDocumentOrderByWithRelationInput = {
   sourceCandidateCvId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceCandidateCvVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   safetyAssessmentId?: Prisma.SortOrder
+  sourceArtifactId?: Prisma.SortOrderInput | Prisma.SortOrder
+  scanAssessmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   committedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   ordinaryAccessDeniedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deleteAfter?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -340,6 +360,8 @@ export type ApplicationDocumentOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   application?: Prisma.JobApplicationOrderByWithRelationInput
   sourceCandidateCv?: Prisma.CandidateCvOrderByWithRelationInput
+  sourceArtifact?: Prisma.CvStoredArtifactOrderByWithRelationInput
+  scanAssessment?: Prisma.CvScanAssessmentOrderByWithRelationInput
 }
 
 export type ApplicationDocumentWhereUniqueInput = Prisma.AtLeast<{
@@ -359,6 +381,8 @@ export type ApplicationDocumentWhereUniqueInput = Prisma.AtLeast<{
   sourceCandidateCvId?: Prisma.StringNullableFilter<"ApplicationDocument"> | string | null
   sourceCandidateCvVersion?: Prisma.IntNullableFilter<"ApplicationDocument"> | number | null
   safetyAssessmentId?: Prisma.StringFilter<"ApplicationDocument"> | string
+  sourceArtifactId?: Prisma.StringNullableFilter<"ApplicationDocument"> | string | null
+  scanAssessmentId?: Prisma.StringNullableFilter<"ApplicationDocument"> | string | null
   committedAt?: Prisma.DateTimeNullableFilter<"ApplicationDocument"> | Date | string | null
   ordinaryAccessDeniedAt?: Prisma.DateTimeNullableFilter<"ApplicationDocument"> | Date | string | null
   deleteAfter?: Prisma.DateTimeNullableFilter<"ApplicationDocument"> | Date | string | null
@@ -366,6 +390,8 @@ export type ApplicationDocumentWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"ApplicationDocument"> | Date | string
   application?: Prisma.XOR<Prisma.JobApplicationScalarRelationFilter, Prisma.JobApplicationWhereInput>
   sourceCandidateCv?: Prisma.XOR<Prisma.CandidateCvNullableScalarRelationFilter, Prisma.CandidateCvWhereInput> | null
+  sourceArtifact?: Prisma.XOR<Prisma.CvStoredArtifactNullableScalarRelationFilter, Prisma.CvStoredArtifactWhereInput> | null
+  scanAssessment?: Prisma.XOR<Prisma.CvScanAssessmentNullableScalarRelationFilter, Prisma.CvScanAssessmentWhereInput> | null
 }, "id" | "jobApplicationId_kind">
 
 export type ApplicationDocumentOrderByWithAggregationInput = {
@@ -381,6 +407,8 @@ export type ApplicationDocumentOrderByWithAggregationInput = {
   sourceCandidateCvId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceCandidateCvVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   safetyAssessmentId?: Prisma.SortOrder
+  sourceArtifactId?: Prisma.SortOrderInput | Prisma.SortOrder
+  scanAssessmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   committedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   ordinaryAccessDeniedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deleteAfter?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -409,6 +437,8 @@ export type ApplicationDocumentScalarWhereWithAggregatesInput = {
   sourceCandidateCvId?: Prisma.StringNullableWithAggregatesFilter<"ApplicationDocument"> | string | null
   sourceCandidateCvVersion?: Prisma.IntNullableWithAggregatesFilter<"ApplicationDocument"> | number | null
   safetyAssessmentId?: Prisma.StringWithAggregatesFilter<"ApplicationDocument"> | string
+  sourceArtifactId?: Prisma.StringNullableWithAggregatesFilter<"ApplicationDocument"> | string | null
+  scanAssessmentId?: Prisma.StringNullableWithAggregatesFilter<"ApplicationDocument"> | string | null
   committedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ApplicationDocument"> | Date | string | null
   ordinaryAccessDeniedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ApplicationDocument"> | Date | string | null
   deleteAfter?: Prisma.DateTimeNullableWithAggregatesFilter<"ApplicationDocument"> | Date | string | null
@@ -434,6 +464,8 @@ export type ApplicationDocumentCreateInput = {
   createdAt?: Date | string
   application: Prisma.JobApplicationCreateNestedOneWithoutApplicationDocumentsInput
   sourceCandidateCv?: Prisma.CandidateCvCreateNestedOneWithoutApplicationDocumentsInput
+  sourceArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutApplicationDocumentsInput
+  scanAssessment?: Prisma.CvScanAssessmentCreateNestedOneWithoutApplicationDocumentsInput
 }
 
 export type ApplicationDocumentUncheckedCreateInput = {
@@ -449,6 +481,8 @@ export type ApplicationDocumentUncheckedCreateInput = {
   sourceCandidateCvId?: string | null
   sourceCandidateCvVersion?: number | null
   safetyAssessmentId: string
+  sourceArtifactId?: string | null
+  scanAssessmentId?: string | null
   committedAt?: Date | string | null
   ordinaryAccessDeniedAt?: Date | string | null
   deleteAfter?: Date | string | null
@@ -474,6 +508,8 @@ export type ApplicationDocumentUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   application?: Prisma.JobApplicationUpdateOneRequiredWithoutApplicationDocumentsNestedInput
   sourceCandidateCv?: Prisma.CandidateCvUpdateOneWithoutApplicationDocumentsNestedInput
+  sourceArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutApplicationDocumentsNestedInput
+  scanAssessment?: Prisma.CvScanAssessmentUpdateOneWithoutApplicationDocumentsNestedInput
 }
 
 export type ApplicationDocumentUncheckedUpdateInput = {
@@ -489,6 +525,8 @@ export type ApplicationDocumentUncheckedUpdateInput = {
   sourceCandidateCvId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceCandidateCvVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   safetyAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   committedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ordinaryAccessDeniedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -509,6 +547,8 @@ export type ApplicationDocumentCreateManyInput = {
   sourceCandidateCvId?: string | null
   sourceCandidateCvVersion?: number | null
   safetyAssessmentId: string
+  sourceArtifactId?: string | null
+  scanAssessmentId?: string | null
   committedAt?: Date | string | null
   ordinaryAccessDeniedAt?: Date | string | null
   deleteAfter?: Date | string | null
@@ -547,6 +587,8 @@ export type ApplicationDocumentUncheckedUpdateManyInput = {
   sourceCandidateCvId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceCandidateCvVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   safetyAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   committedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ordinaryAccessDeniedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -582,6 +624,8 @@ export type ApplicationDocumentCountOrderByAggregateInput = {
   sourceCandidateCvId?: Prisma.SortOrder
   sourceCandidateCvVersion?: Prisma.SortOrder
   safetyAssessmentId?: Prisma.SortOrder
+  sourceArtifactId?: Prisma.SortOrder
+  scanAssessmentId?: Prisma.SortOrder
   committedAt?: Prisma.SortOrder
   ordinaryAccessDeniedAt?: Prisma.SortOrder
   deleteAfter?: Prisma.SortOrder
@@ -607,6 +651,8 @@ export type ApplicationDocumentMaxOrderByAggregateInput = {
   sourceCandidateCvId?: Prisma.SortOrder
   sourceCandidateCvVersion?: Prisma.SortOrder
   safetyAssessmentId?: Prisma.SortOrder
+  sourceArtifactId?: Prisma.SortOrder
+  scanAssessmentId?: Prisma.SortOrder
   committedAt?: Prisma.SortOrder
   ordinaryAccessDeniedAt?: Prisma.SortOrder
   deleteAfter?: Prisma.SortOrder
@@ -627,6 +673,8 @@ export type ApplicationDocumentMinOrderByAggregateInput = {
   sourceCandidateCvId?: Prisma.SortOrder
   sourceCandidateCvVersion?: Prisma.SortOrder
   safetyAssessmentId?: Prisma.SortOrder
+  sourceArtifactId?: Prisma.SortOrder
+  scanAssessmentId?: Prisma.SortOrder
   committedAt?: Prisma.SortOrder
   ordinaryAccessDeniedAt?: Prisma.SortOrder
   deleteAfter?: Prisma.SortOrder
@@ -727,6 +775,90 @@ export type EnumApplicationDocumentKindFieldUpdateOperationsInput = {
   set?: $Enums.ApplicationDocumentKind
 }
 
+export type ApplicationDocumentCreateNestedManyWithoutSourceArtifactInput = {
+  create?: Prisma.XOR<Prisma.ApplicationDocumentCreateWithoutSourceArtifactInput, Prisma.ApplicationDocumentUncheckedCreateWithoutSourceArtifactInput> | Prisma.ApplicationDocumentCreateWithoutSourceArtifactInput[] | Prisma.ApplicationDocumentUncheckedCreateWithoutSourceArtifactInput[]
+  connectOrCreate?: Prisma.ApplicationDocumentCreateOrConnectWithoutSourceArtifactInput | Prisma.ApplicationDocumentCreateOrConnectWithoutSourceArtifactInput[]
+  createMany?: Prisma.ApplicationDocumentCreateManySourceArtifactInputEnvelope
+  connect?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+}
+
+export type ApplicationDocumentUncheckedCreateNestedManyWithoutSourceArtifactInput = {
+  create?: Prisma.XOR<Prisma.ApplicationDocumentCreateWithoutSourceArtifactInput, Prisma.ApplicationDocumentUncheckedCreateWithoutSourceArtifactInput> | Prisma.ApplicationDocumentCreateWithoutSourceArtifactInput[] | Prisma.ApplicationDocumentUncheckedCreateWithoutSourceArtifactInput[]
+  connectOrCreate?: Prisma.ApplicationDocumentCreateOrConnectWithoutSourceArtifactInput | Prisma.ApplicationDocumentCreateOrConnectWithoutSourceArtifactInput[]
+  createMany?: Prisma.ApplicationDocumentCreateManySourceArtifactInputEnvelope
+  connect?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+}
+
+export type ApplicationDocumentUpdateManyWithoutSourceArtifactNestedInput = {
+  create?: Prisma.XOR<Prisma.ApplicationDocumentCreateWithoutSourceArtifactInput, Prisma.ApplicationDocumentUncheckedCreateWithoutSourceArtifactInput> | Prisma.ApplicationDocumentCreateWithoutSourceArtifactInput[] | Prisma.ApplicationDocumentUncheckedCreateWithoutSourceArtifactInput[]
+  connectOrCreate?: Prisma.ApplicationDocumentCreateOrConnectWithoutSourceArtifactInput | Prisma.ApplicationDocumentCreateOrConnectWithoutSourceArtifactInput[]
+  upsert?: Prisma.ApplicationDocumentUpsertWithWhereUniqueWithoutSourceArtifactInput | Prisma.ApplicationDocumentUpsertWithWhereUniqueWithoutSourceArtifactInput[]
+  createMany?: Prisma.ApplicationDocumentCreateManySourceArtifactInputEnvelope
+  set?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  disconnect?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  delete?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  connect?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  update?: Prisma.ApplicationDocumentUpdateWithWhereUniqueWithoutSourceArtifactInput | Prisma.ApplicationDocumentUpdateWithWhereUniqueWithoutSourceArtifactInput[]
+  updateMany?: Prisma.ApplicationDocumentUpdateManyWithWhereWithoutSourceArtifactInput | Prisma.ApplicationDocumentUpdateManyWithWhereWithoutSourceArtifactInput[]
+  deleteMany?: Prisma.ApplicationDocumentScalarWhereInput | Prisma.ApplicationDocumentScalarWhereInput[]
+}
+
+export type ApplicationDocumentUncheckedUpdateManyWithoutSourceArtifactNestedInput = {
+  create?: Prisma.XOR<Prisma.ApplicationDocumentCreateWithoutSourceArtifactInput, Prisma.ApplicationDocumentUncheckedCreateWithoutSourceArtifactInput> | Prisma.ApplicationDocumentCreateWithoutSourceArtifactInput[] | Prisma.ApplicationDocumentUncheckedCreateWithoutSourceArtifactInput[]
+  connectOrCreate?: Prisma.ApplicationDocumentCreateOrConnectWithoutSourceArtifactInput | Prisma.ApplicationDocumentCreateOrConnectWithoutSourceArtifactInput[]
+  upsert?: Prisma.ApplicationDocumentUpsertWithWhereUniqueWithoutSourceArtifactInput | Prisma.ApplicationDocumentUpsertWithWhereUniqueWithoutSourceArtifactInput[]
+  createMany?: Prisma.ApplicationDocumentCreateManySourceArtifactInputEnvelope
+  set?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  disconnect?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  delete?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  connect?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  update?: Prisma.ApplicationDocumentUpdateWithWhereUniqueWithoutSourceArtifactInput | Prisma.ApplicationDocumentUpdateWithWhereUniqueWithoutSourceArtifactInput[]
+  updateMany?: Prisma.ApplicationDocumentUpdateManyWithWhereWithoutSourceArtifactInput | Prisma.ApplicationDocumentUpdateManyWithWhereWithoutSourceArtifactInput[]
+  deleteMany?: Prisma.ApplicationDocumentScalarWhereInput | Prisma.ApplicationDocumentScalarWhereInput[]
+}
+
+export type ApplicationDocumentCreateNestedManyWithoutScanAssessmentInput = {
+  create?: Prisma.XOR<Prisma.ApplicationDocumentCreateWithoutScanAssessmentInput, Prisma.ApplicationDocumentUncheckedCreateWithoutScanAssessmentInput> | Prisma.ApplicationDocumentCreateWithoutScanAssessmentInput[] | Prisma.ApplicationDocumentUncheckedCreateWithoutScanAssessmentInput[]
+  connectOrCreate?: Prisma.ApplicationDocumentCreateOrConnectWithoutScanAssessmentInput | Prisma.ApplicationDocumentCreateOrConnectWithoutScanAssessmentInput[]
+  createMany?: Prisma.ApplicationDocumentCreateManyScanAssessmentInputEnvelope
+  connect?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+}
+
+export type ApplicationDocumentUncheckedCreateNestedManyWithoutScanAssessmentInput = {
+  create?: Prisma.XOR<Prisma.ApplicationDocumentCreateWithoutScanAssessmentInput, Prisma.ApplicationDocumentUncheckedCreateWithoutScanAssessmentInput> | Prisma.ApplicationDocumentCreateWithoutScanAssessmentInput[] | Prisma.ApplicationDocumentUncheckedCreateWithoutScanAssessmentInput[]
+  connectOrCreate?: Prisma.ApplicationDocumentCreateOrConnectWithoutScanAssessmentInput | Prisma.ApplicationDocumentCreateOrConnectWithoutScanAssessmentInput[]
+  createMany?: Prisma.ApplicationDocumentCreateManyScanAssessmentInputEnvelope
+  connect?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+}
+
+export type ApplicationDocumentUpdateManyWithoutScanAssessmentNestedInput = {
+  create?: Prisma.XOR<Prisma.ApplicationDocumentCreateWithoutScanAssessmentInput, Prisma.ApplicationDocumentUncheckedCreateWithoutScanAssessmentInput> | Prisma.ApplicationDocumentCreateWithoutScanAssessmentInput[] | Prisma.ApplicationDocumentUncheckedCreateWithoutScanAssessmentInput[]
+  connectOrCreate?: Prisma.ApplicationDocumentCreateOrConnectWithoutScanAssessmentInput | Prisma.ApplicationDocumentCreateOrConnectWithoutScanAssessmentInput[]
+  upsert?: Prisma.ApplicationDocumentUpsertWithWhereUniqueWithoutScanAssessmentInput | Prisma.ApplicationDocumentUpsertWithWhereUniqueWithoutScanAssessmentInput[]
+  createMany?: Prisma.ApplicationDocumentCreateManyScanAssessmentInputEnvelope
+  set?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  disconnect?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  delete?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  connect?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  update?: Prisma.ApplicationDocumentUpdateWithWhereUniqueWithoutScanAssessmentInput | Prisma.ApplicationDocumentUpdateWithWhereUniqueWithoutScanAssessmentInput[]
+  updateMany?: Prisma.ApplicationDocumentUpdateManyWithWhereWithoutScanAssessmentInput | Prisma.ApplicationDocumentUpdateManyWithWhereWithoutScanAssessmentInput[]
+  deleteMany?: Prisma.ApplicationDocumentScalarWhereInput | Prisma.ApplicationDocumentScalarWhereInput[]
+}
+
+export type ApplicationDocumentUncheckedUpdateManyWithoutScanAssessmentNestedInput = {
+  create?: Prisma.XOR<Prisma.ApplicationDocumentCreateWithoutScanAssessmentInput, Prisma.ApplicationDocumentUncheckedCreateWithoutScanAssessmentInput> | Prisma.ApplicationDocumentCreateWithoutScanAssessmentInput[] | Prisma.ApplicationDocumentUncheckedCreateWithoutScanAssessmentInput[]
+  connectOrCreate?: Prisma.ApplicationDocumentCreateOrConnectWithoutScanAssessmentInput | Prisma.ApplicationDocumentCreateOrConnectWithoutScanAssessmentInput[]
+  upsert?: Prisma.ApplicationDocumentUpsertWithWhereUniqueWithoutScanAssessmentInput | Prisma.ApplicationDocumentUpsertWithWhereUniqueWithoutScanAssessmentInput[]
+  createMany?: Prisma.ApplicationDocumentCreateManyScanAssessmentInputEnvelope
+  set?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  disconnect?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  delete?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  connect?: Prisma.ApplicationDocumentWhereUniqueInput | Prisma.ApplicationDocumentWhereUniqueInput[]
+  update?: Prisma.ApplicationDocumentUpdateWithWhereUniqueWithoutScanAssessmentInput | Prisma.ApplicationDocumentUpdateWithWhereUniqueWithoutScanAssessmentInput[]
+  updateMany?: Prisma.ApplicationDocumentUpdateManyWithWhereWithoutScanAssessmentInput | Prisma.ApplicationDocumentUpdateManyWithWhereWithoutScanAssessmentInput[]
+  deleteMany?: Prisma.ApplicationDocumentScalarWhereInput | Prisma.ApplicationDocumentScalarWhereInput[]
+}
+
 export type ApplicationDocumentCreateWithoutSourceCandidateCvInput = {
   id?: string
   kind: $Enums.ApplicationDocumentKind
@@ -744,6 +876,8 @@ export type ApplicationDocumentCreateWithoutSourceCandidateCvInput = {
   deletedAt?: Date | string | null
   createdAt?: Date | string
   application: Prisma.JobApplicationCreateNestedOneWithoutApplicationDocumentsInput
+  sourceArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutApplicationDocumentsInput
+  scanAssessment?: Prisma.CvScanAssessmentCreateNestedOneWithoutApplicationDocumentsInput
 }
 
 export type ApplicationDocumentUncheckedCreateWithoutSourceCandidateCvInput = {
@@ -758,6 +892,8 @@ export type ApplicationDocumentUncheckedCreateWithoutSourceCandidateCvInput = {
   contentDigestHmac: string
   sourceCandidateCvVersion?: number | null
   safetyAssessmentId: string
+  sourceArtifactId?: string | null
+  scanAssessmentId?: string | null
   committedAt?: Date | string | null
   ordinaryAccessDeniedAt?: Date | string | null
   deleteAfter?: Date | string | null
@@ -807,6 +943,8 @@ export type ApplicationDocumentScalarWhereInput = {
   sourceCandidateCvId?: Prisma.StringNullableFilter<"ApplicationDocument"> | string | null
   sourceCandidateCvVersion?: Prisma.IntNullableFilter<"ApplicationDocument"> | number | null
   safetyAssessmentId?: Prisma.StringFilter<"ApplicationDocument"> | string
+  sourceArtifactId?: Prisma.StringNullableFilter<"ApplicationDocument"> | string | null
+  scanAssessmentId?: Prisma.StringNullableFilter<"ApplicationDocument"> | string | null
   committedAt?: Prisma.DateTimeNullableFilter<"ApplicationDocument"> | Date | string | null
   ordinaryAccessDeniedAt?: Prisma.DateTimeNullableFilter<"ApplicationDocument"> | Date | string | null
   deleteAfter?: Prisma.DateTimeNullableFilter<"ApplicationDocument"> | Date | string | null
@@ -831,6 +969,8 @@ export type ApplicationDocumentCreateWithoutApplicationInput = {
   deletedAt?: Date | string | null
   createdAt?: Date | string
   sourceCandidateCv?: Prisma.CandidateCvCreateNestedOneWithoutApplicationDocumentsInput
+  sourceArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutApplicationDocumentsInput
+  scanAssessment?: Prisma.CvScanAssessmentCreateNestedOneWithoutApplicationDocumentsInput
 }
 
 export type ApplicationDocumentUncheckedCreateWithoutApplicationInput = {
@@ -845,6 +985,8 @@ export type ApplicationDocumentUncheckedCreateWithoutApplicationInput = {
   sourceCandidateCvId?: string | null
   sourceCandidateCvVersion?: number | null
   safetyAssessmentId: string
+  sourceArtifactId?: string | null
+  scanAssessmentId?: string | null
   committedAt?: Date | string | null
   ordinaryAccessDeniedAt?: Date | string | null
   deleteAfter?: Date | string | null
@@ -878,6 +1020,142 @@ export type ApplicationDocumentUpdateManyWithWhereWithoutApplicationInput = {
   data: Prisma.XOR<Prisma.ApplicationDocumentUpdateManyMutationInput, Prisma.ApplicationDocumentUncheckedUpdateManyWithoutApplicationInput>
 }
 
+export type ApplicationDocumentCreateWithoutSourceArtifactInput = {
+  id?: string
+  kind: $Enums.ApplicationDocumentKind
+  storagePurposeVersion?: string
+  storageKeyEncrypted: string
+  originalFilenameEncrypted: string
+  mediaType: string
+  byteLength: number
+  contentDigestHmac: string
+  sourceCandidateCvVersion?: number | null
+  safetyAssessmentId: string
+  committedAt?: Date | string | null
+  ordinaryAccessDeniedAt?: Date | string | null
+  deleteAfter?: Date | string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  application: Prisma.JobApplicationCreateNestedOneWithoutApplicationDocumentsInput
+  sourceCandidateCv?: Prisma.CandidateCvCreateNestedOneWithoutApplicationDocumentsInput
+  scanAssessment?: Prisma.CvScanAssessmentCreateNestedOneWithoutApplicationDocumentsInput
+}
+
+export type ApplicationDocumentUncheckedCreateWithoutSourceArtifactInput = {
+  id?: string
+  jobApplicationId: string
+  kind: $Enums.ApplicationDocumentKind
+  storagePurposeVersion?: string
+  storageKeyEncrypted: string
+  originalFilenameEncrypted: string
+  mediaType: string
+  byteLength: number
+  contentDigestHmac: string
+  sourceCandidateCvId?: string | null
+  sourceCandidateCvVersion?: number | null
+  safetyAssessmentId: string
+  scanAssessmentId?: string | null
+  committedAt?: Date | string | null
+  ordinaryAccessDeniedAt?: Date | string | null
+  deleteAfter?: Date | string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+}
+
+export type ApplicationDocumentCreateOrConnectWithoutSourceArtifactInput = {
+  where: Prisma.ApplicationDocumentWhereUniqueInput
+  create: Prisma.XOR<Prisma.ApplicationDocumentCreateWithoutSourceArtifactInput, Prisma.ApplicationDocumentUncheckedCreateWithoutSourceArtifactInput>
+}
+
+export type ApplicationDocumentCreateManySourceArtifactInputEnvelope = {
+  data: Prisma.ApplicationDocumentCreateManySourceArtifactInput | Prisma.ApplicationDocumentCreateManySourceArtifactInput[]
+  skipDuplicates?: boolean
+}
+
+export type ApplicationDocumentUpsertWithWhereUniqueWithoutSourceArtifactInput = {
+  where: Prisma.ApplicationDocumentWhereUniqueInput
+  update: Prisma.XOR<Prisma.ApplicationDocumentUpdateWithoutSourceArtifactInput, Prisma.ApplicationDocumentUncheckedUpdateWithoutSourceArtifactInput>
+  create: Prisma.XOR<Prisma.ApplicationDocumentCreateWithoutSourceArtifactInput, Prisma.ApplicationDocumentUncheckedCreateWithoutSourceArtifactInput>
+}
+
+export type ApplicationDocumentUpdateWithWhereUniqueWithoutSourceArtifactInput = {
+  where: Prisma.ApplicationDocumentWhereUniqueInput
+  data: Prisma.XOR<Prisma.ApplicationDocumentUpdateWithoutSourceArtifactInput, Prisma.ApplicationDocumentUncheckedUpdateWithoutSourceArtifactInput>
+}
+
+export type ApplicationDocumentUpdateManyWithWhereWithoutSourceArtifactInput = {
+  where: Prisma.ApplicationDocumentScalarWhereInput
+  data: Prisma.XOR<Prisma.ApplicationDocumentUpdateManyMutationInput, Prisma.ApplicationDocumentUncheckedUpdateManyWithoutSourceArtifactInput>
+}
+
+export type ApplicationDocumentCreateWithoutScanAssessmentInput = {
+  id?: string
+  kind: $Enums.ApplicationDocumentKind
+  storagePurposeVersion?: string
+  storageKeyEncrypted: string
+  originalFilenameEncrypted: string
+  mediaType: string
+  byteLength: number
+  contentDigestHmac: string
+  sourceCandidateCvVersion?: number | null
+  safetyAssessmentId: string
+  committedAt?: Date | string | null
+  ordinaryAccessDeniedAt?: Date | string | null
+  deleteAfter?: Date | string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  application: Prisma.JobApplicationCreateNestedOneWithoutApplicationDocumentsInput
+  sourceCandidateCv?: Prisma.CandidateCvCreateNestedOneWithoutApplicationDocumentsInput
+  sourceArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutApplicationDocumentsInput
+}
+
+export type ApplicationDocumentUncheckedCreateWithoutScanAssessmentInput = {
+  id?: string
+  jobApplicationId: string
+  kind: $Enums.ApplicationDocumentKind
+  storagePurposeVersion?: string
+  storageKeyEncrypted: string
+  originalFilenameEncrypted: string
+  mediaType: string
+  byteLength: number
+  contentDigestHmac: string
+  sourceCandidateCvId?: string | null
+  sourceCandidateCvVersion?: number | null
+  safetyAssessmentId: string
+  sourceArtifactId?: string | null
+  committedAt?: Date | string | null
+  ordinaryAccessDeniedAt?: Date | string | null
+  deleteAfter?: Date | string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+}
+
+export type ApplicationDocumentCreateOrConnectWithoutScanAssessmentInput = {
+  where: Prisma.ApplicationDocumentWhereUniqueInput
+  create: Prisma.XOR<Prisma.ApplicationDocumentCreateWithoutScanAssessmentInput, Prisma.ApplicationDocumentUncheckedCreateWithoutScanAssessmentInput>
+}
+
+export type ApplicationDocumentCreateManyScanAssessmentInputEnvelope = {
+  data: Prisma.ApplicationDocumentCreateManyScanAssessmentInput | Prisma.ApplicationDocumentCreateManyScanAssessmentInput[]
+  skipDuplicates?: boolean
+}
+
+export type ApplicationDocumentUpsertWithWhereUniqueWithoutScanAssessmentInput = {
+  where: Prisma.ApplicationDocumentWhereUniqueInput
+  update: Prisma.XOR<Prisma.ApplicationDocumentUpdateWithoutScanAssessmentInput, Prisma.ApplicationDocumentUncheckedUpdateWithoutScanAssessmentInput>
+  create: Prisma.XOR<Prisma.ApplicationDocumentCreateWithoutScanAssessmentInput, Prisma.ApplicationDocumentUncheckedCreateWithoutScanAssessmentInput>
+}
+
+export type ApplicationDocumentUpdateWithWhereUniqueWithoutScanAssessmentInput = {
+  where: Prisma.ApplicationDocumentWhereUniqueInput
+  data: Prisma.XOR<Prisma.ApplicationDocumentUpdateWithoutScanAssessmentInput, Prisma.ApplicationDocumentUncheckedUpdateWithoutScanAssessmentInput>
+}
+
+export type ApplicationDocumentUpdateManyWithWhereWithoutScanAssessmentInput = {
+  where: Prisma.ApplicationDocumentScalarWhereInput
+  data: Prisma.XOR<Prisma.ApplicationDocumentUpdateManyMutationInput, Prisma.ApplicationDocumentUncheckedUpdateManyWithoutScanAssessmentInput>
+}
+
 export type ApplicationDocumentCreateManySourceCandidateCvInput = {
   id?: string
   jobApplicationId: string
@@ -890,6 +1168,8 @@ export type ApplicationDocumentCreateManySourceCandidateCvInput = {
   contentDigestHmac: string
   sourceCandidateCvVersion?: number | null
   safetyAssessmentId: string
+  sourceArtifactId?: string | null
+  scanAssessmentId?: string | null
   committedAt?: Date | string | null
   ordinaryAccessDeniedAt?: Date | string | null
   deleteAfter?: Date | string | null
@@ -914,6 +1194,8 @@ export type ApplicationDocumentUpdateWithoutSourceCandidateCvInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   application?: Prisma.JobApplicationUpdateOneRequiredWithoutApplicationDocumentsNestedInput
+  sourceArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutApplicationDocumentsNestedInput
+  scanAssessment?: Prisma.CvScanAssessmentUpdateOneWithoutApplicationDocumentsNestedInput
 }
 
 export type ApplicationDocumentUncheckedUpdateWithoutSourceCandidateCvInput = {
@@ -928,6 +1210,8 @@ export type ApplicationDocumentUncheckedUpdateWithoutSourceCandidateCvInput = {
   contentDigestHmac?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCandidateCvVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   safetyAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   committedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ordinaryAccessDeniedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -947,6 +1231,8 @@ export type ApplicationDocumentUncheckedUpdateManyWithoutSourceCandidateCvInput 
   contentDigestHmac?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCandidateCvVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   safetyAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   committedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ordinaryAccessDeniedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -966,6 +1252,8 @@ export type ApplicationDocumentCreateManyApplicationInput = {
   sourceCandidateCvId?: string | null
   sourceCandidateCvVersion?: number | null
   safetyAssessmentId: string
+  sourceArtifactId?: string | null
+  scanAssessmentId?: string | null
   committedAt?: Date | string | null
   ordinaryAccessDeniedAt?: Date | string | null
   deleteAfter?: Date | string | null
@@ -990,6 +1278,8 @@ export type ApplicationDocumentUpdateWithoutApplicationInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceCandidateCv?: Prisma.CandidateCvUpdateOneWithoutApplicationDocumentsNestedInput
+  sourceArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutApplicationDocumentsNestedInput
+  scanAssessment?: Prisma.CvScanAssessmentUpdateOneWithoutApplicationDocumentsNestedInput
 }
 
 export type ApplicationDocumentUncheckedUpdateWithoutApplicationInput = {
@@ -1004,6 +1294,8 @@ export type ApplicationDocumentUncheckedUpdateWithoutApplicationInput = {
   sourceCandidateCvId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceCandidateCvVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   safetyAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   committedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ordinaryAccessDeniedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1023,6 +1315,176 @@ export type ApplicationDocumentUncheckedUpdateManyWithoutApplicationInput = {
   sourceCandidateCvId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceCandidateCvVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   safetyAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  committedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ordinaryAccessDeniedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ApplicationDocumentCreateManySourceArtifactInput = {
+  id?: string
+  jobApplicationId: string
+  kind: $Enums.ApplicationDocumentKind
+  storagePurposeVersion?: string
+  storageKeyEncrypted: string
+  originalFilenameEncrypted: string
+  mediaType: string
+  byteLength: number
+  contentDigestHmac: string
+  sourceCandidateCvId?: string | null
+  sourceCandidateCvVersion?: number | null
+  safetyAssessmentId: string
+  scanAssessmentId?: string | null
+  committedAt?: Date | string | null
+  ordinaryAccessDeniedAt?: Date | string | null
+  deleteAfter?: Date | string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+}
+
+export type ApplicationDocumentUpdateWithoutSourceArtifactInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
+  storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  originalFilenameEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaType?: Prisma.StringFieldUpdateOperationsInput | string
+  byteLength?: Prisma.IntFieldUpdateOperationsInput | number
+  contentDigestHmac?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCandidateCvVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  safetyAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  committedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ordinaryAccessDeniedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  application?: Prisma.JobApplicationUpdateOneRequiredWithoutApplicationDocumentsNestedInput
+  sourceCandidateCv?: Prisma.CandidateCvUpdateOneWithoutApplicationDocumentsNestedInput
+  scanAssessment?: Prisma.CvScanAssessmentUpdateOneWithoutApplicationDocumentsNestedInput
+}
+
+export type ApplicationDocumentUncheckedUpdateWithoutSourceArtifactInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobApplicationId?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
+  storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  originalFilenameEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaType?: Prisma.StringFieldUpdateOperationsInput | string
+  byteLength?: Prisma.IntFieldUpdateOperationsInput | number
+  contentDigestHmac?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCandidateCvId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCandidateCvVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  safetyAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  scanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  committedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ordinaryAccessDeniedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ApplicationDocumentUncheckedUpdateManyWithoutSourceArtifactInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobApplicationId?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
+  storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  originalFilenameEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaType?: Prisma.StringFieldUpdateOperationsInput | string
+  byteLength?: Prisma.IntFieldUpdateOperationsInput | number
+  contentDigestHmac?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCandidateCvId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCandidateCvVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  safetyAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  scanAssessmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  committedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ordinaryAccessDeniedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ApplicationDocumentCreateManyScanAssessmentInput = {
+  id?: string
+  jobApplicationId: string
+  kind: $Enums.ApplicationDocumentKind
+  storagePurposeVersion?: string
+  storageKeyEncrypted: string
+  originalFilenameEncrypted: string
+  mediaType: string
+  byteLength: number
+  contentDigestHmac: string
+  sourceCandidateCvId?: string | null
+  sourceCandidateCvVersion?: number | null
+  safetyAssessmentId: string
+  sourceArtifactId?: string | null
+  committedAt?: Date | string | null
+  ordinaryAccessDeniedAt?: Date | string | null
+  deleteAfter?: Date | string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+}
+
+export type ApplicationDocumentUpdateWithoutScanAssessmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
+  storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  originalFilenameEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaType?: Prisma.StringFieldUpdateOperationsInput | string
+  byteLength?: Prisma.IntFieldUpdateOperationsInput | number
+  contentDigestHmac?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCandidateCvVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  safetyAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  committedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ordinaryAccessDeniedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  application?: Prisma.JobApplicationUpdateOneRequiredWithoutApplicationDocumentsNestedInput
+  sourceCandidateCv?: Prisma.CandidateCvUpdateOneWithoutApplicationDocumentsNestedInput
+  sourceArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutApplicationDocumentsNestedInput
+}
+
+export type ApplicationDocumentUncheckedUpdateWithoutScanAssessmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobApplicationId?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
+  storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  originalFilenameEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaType?: Prisma.StringFieldUpdateOperationsInput | string
+  byteLength?: Prisma.IntFieldUpdateOperationsInput | number
+  contentDigestHmac?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCandidateCvId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCandidateCvVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  safetyAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  committedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ordinaryAccessDeniedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ApplicationDocumentUncheckedUpdateManyWithoutScanAssessmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobApplicationId?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumApplicationDocumentKindFieldUpdateOperationsInput | $Enums.ApplicationDocumentKind
+  storagePurposeVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKeyEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  originalFilenameEncrypted?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaType?: Prisma.StringFieldUpdateOperationsInput | string
+  byteLength?: Prisma.IntFieldUpdateOperationsInput | number
+  contentDigestHmac?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCandidateCvId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCandidateCvVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  safetyAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   committedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ordinaryAccessDeniedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1045,6 +1507,8 @@ export type ApplicationDocumentSelect<ExtArgs extends runtime.Types.Extensions.I
   sourceCandidateCvId?: boolean
   sourceCandidateCvVersion?: boolean
   safetyAssessmentId?: boolean
+  sourceArtifactId?: boolean
+  scanAssessmentId?: boolean
   committedAt?: boolean
   ordinaryAccessDeniedAt?: boolean
   deleteAfter?: boolean
@@ -1052,6 +1516,8 @@ export type ApplicationDocumentSelect<ExtArgs extends runtime.Types.Extensions.I
   createdAt?: boolean
   application?: boolean | Prisma.JobApplicationDefaultArgs<ExtArgs>
   sourceCandidateCv?: boolean | Prisma.ApplicationDocument$sourceCandidateCvArgs<ExtArgs>
+  sourceArtifact?: boolean | Prisma.ApplicationDocument$sourceArtifactArgs<ExtArgs>
+  scanAssessment?: boolean | Prisma.ApplicationDocument$scanAssessmentArgs<ExtArgs>
 }, ExtArgs["result"]["applicationDocument"]>
 
 export type ApplicationDocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1067,6 +1533,8 @@ export type ApplicationDocumentSelectCreateManyAndReturn<ExtArgs extends runtime
   sourceCandidateCvId?: boolean
   sourceCandidateCvVersion?: boolean
   safetyAssessmentId?: boolean
+  sourceArtifactId?: boolean
+  scanAssessmentId?: boolean
   committedAt?: boolean
   ordinaryAccessDeniedAt?: boolean
   deleteAfter?: boolean
@@ -1074,6 +1542,8 @@ export type ApplicationDocumentSelectCreateManyAndReturn<ExtArgs extends runtime
   createdAt?: boolean
   application?: boolean | Prisma.JobApplicationDefaultArgs<ExtArgs>
   sourceCandidateCv?: boolean | Prisma.ApplicationDocument$sourceCandidateCvArgs<ExtArgs>
+  sourceArtifact?: boolean | Prisma.ApplicationDocument$sourceArtifactArgs<ExtArgs>
+  scanAssessment?: boolean | Prisma.ApplicationDocument$scanAssessmentArgs<ExtArgs>
 }, ExtArgs["result"]["applicationDocument"]>
 
 export type ApplicationDocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1089,6 +1559,8 @@ export type ApplicationDocumentSelectUpdateManyAndReturn<ExtArgs extends runtime
   sourceCandidateCvId?: boolean
   sourceCandidateCvVersion?: boolean
   safetyAssessmentId?: boolean
+  sourceArtifactId?: boolean
+  scanAssessmentId?: boolean
   committedAt?: boolean
   ordinaryAccessDeniedAt?: boolean
   deleteAfter?: boolean
@@ -1096,6 +1568,8 @@ export type ApplicationDocumentSelectUpdateManyAndReturn<ExtArgs extends runtime
   createdAt?: boolean
   application?: boolean | Prisma.JobApplicationDefaultArgs<ExtArgs>
   sourceCandidateCv?: boolean | Prisma.ApplicationDocument$sourceCandidateCvArgs<ExtArgs>
+  sourceArtifact?: boolean | Prisma.ApplicationDocument$sourceArtifactArgs<ExtArgs>
+  scanAssessment?: boolean | Prisma.ApplicationDocument$scanAssessmentArgs<ExtArgs>
 }, ExtArgs["result"]["applicationDocument"]>
 
 export type ApplicationDocumentSelectScalar = {
@@ -1111,6 +1585,8 @@ export type ApplicationDocumentSelectScalar = {
   sourceCandidateCvId?: boolean
   sourceCandidateCvVersion?: boolean
   safetyAssessmentId?: boolean
+  sourceArtifactId?: boolean
+  scanAssessmentId?: boolean
   committedAt?: boolean
   ordinaryAccessDeniedAt?: boolean
   deleteAfter?: boolean
@@ -1118,18 +1594,24 @@ export type ApplicationDocumentSelectScalar = {
   createdAt?: boolean
 }
 
-export type ApplicationDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobApplicationId" | "kind" | "storagePurposeVersion" | "storageKeyEncrypted" | "originalFilenameEncrypted" | "mediaType" | "byteLength" | "contentDigestHmac" | "sourceCandidateCvId" | "sourceCandidateCvVersion" | "safetyAssessmentId" | "committedAt" | "ordinaryAccessDeniedAt" | "deleteAfter" | "deletedAt" | "createdAt", ExtArgs["result"]["applicationDocument"]>
+export type ApplicationDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobApplicationId" | "kind" | "storagePurposeVersion" | "storageKeyEncrypted" | "originalFilenameEncrypted" | "mediaType" | "byteLength" | "contentDigestHmac" | "sourceCandidateCvId" | "sourceCandidateCvVersion" | "safetyAssessmentId" | "sourceArtifactId" | "scanAssessmentId" | "committedAt" | "ordinaryAccessDeniedAt" | "deleteAfter" | "deletedAt" | "createdAt", ExtArgs["result"]["applicationDocument"]>
 export type ApplicationDocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   application?: boolean | Prisma.JobApplicationDefaultArgs<ExtArgs>
   sourceCandidateCv?: boolean | Prisma.ApplicationDocument$sourceCandidateCvArgs<ExtArgs>
+  sourceArtifact?: boolean | Prisma.ApplicationDocument$sourceArtifactArgs<ExtArgs>
+  scanAssessment?: boolean | Prisma.ApplicationDocument$scanAssessmentArgs<ExtArgs>
 }
 export type ApplicationDocumentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   application?: boolean | Prisma.JobApplicationDefaultArgs<ExtArgs>
   sourceCandidateCv?: boolean | Prisma.ApplicationDocument$sourceCandidateCvArgs<ExtArgs>
+  sourceArtifact?: boolean | Prisma.ApplicationDocument$sourceArtifactArgs<ExtArgs>
+  scanAssessment?: boolean | Prisma.ApplicationDocument$scanAssessmentArgs<ExtArgs>
 }
 export type ApplicationDocumentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   application?: boolean | Prisma.JobApplicationDefaultArgs<ExtArgs>
   sourceCandidateCv?: boolean | Prisma.ApplicationDocument$sourceCandidateCvArgs<ExtArgs>
+  sourceArtifact?: boolean | Prisma.ApplicationDocument$sourceArtifactArgs<ExtArgs>
+  scanAssessment?: boolean | Prisma.ApplicationDocument$scanAssessmentArgs<ExtArgs>
 }
 
 export type $ApplicationDocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1137,6 +1619,8 @@ export type $ApplicationDocumentPayload<ExtArgs extends runtime.Types.Extensions
   objects: {
     application: Prisma.$JobApplicationPayload<ExtArgs>
     sourceCandidateCv: Prisma.$CandidateCvPayload<ExtArgs> | null
+    sourceArtifact: Prisma.$CvStoredArtifactPayload<ExtArgs> | null
+    scanAssessment: Prisma.$CvScanAssessmentPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1151,6 +1635,8 @@ export type $ApplicationDocumentPayload<ExtArgs extends runtime.Types.Extensions
     sourceCandidateCvId: string | null
     sourceCandidateCvVersion: number | null
     safetyAssessmentId: string
+    sourceArtifactId: string | null
+    scanAssessmentId: string | null
     committedAt: Date | null
     ordinaryAccessDeniedAt: Date | null
     deleteAfter: Date | null
@@ -1552,6 +2038,8 @@ export interface Prisma__ApplicationDocumentClient<T, Null = never, ExtArgs exte
   readonly [Symbol.toStringTag]: "PrismaPromise"
   application<T extends Prisma.JobApplicationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.JobApplicationDefaultArgs<ExtArgs>>): Prisma.Prisma__JobApplicationClient<runtime.Types.Result.GetResult<Prisma.$JobApplicationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   sourceCandidateCv<T extends Prisma.ApplicationDocument$sourceCandidateCvArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ApplicationDocument$sourceCandidateCvArgs<ExtArgs>>): Prisma.Prisma__CandidateCvClient<runtime.Types.Result.GetResult<Prisma.$CandidateCvPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sourceArtifact<T extends Prisma.ApplicationDocument$sourceArtifactArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ApplicationDocument$sourceArtifactArgs<ExtArgs>>): Prisma.Prisma__CvStoredArtifactClient<runtime.Types.Result.GetResult<Prisma.$CvStoredArtifactPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  scanAssessment<T extends Prisma.ApplicationDocument$scanAssessmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ApplicationDocument$scanAssessmentArgs<ExtArgs>>): Prisma.Prisma__CvScanAssessmentClient<runtime.Types.Result.GetResult<Prisma.$CvScanAssessmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1593,6 +2081,8 @@ export interface ApplicationDocumentFieldRefs {
   readonly sourceCandidateCvId: Prisma.FieldRef<"ApplicationDocument", 'String'>
   readonly sourceCandidateCvVersion: Prisma.FieldRef<"ApplicationDocument", 'Int'>
   readonly safetyAssessmentId: Prisma.FieldRef<"ApplicationDocument", 'String'>
+  readonly sourceArtifactId: Prisma.FieldRef<"ApplicationDocument", 'String'>
+  readonly scanAssessmentId: Prisma.FieldRef<"ApplicationDocument", 'String'>
   readonly committedAt: Prisma.FieldRef<"ApplicationDocument", 'DateTime'>
   readonly ordinaryAccessDeniedAt: Prisma.FieldRef<"ApplicationDocument", 'DateTime'>
   readonly deleteAfter: Prisma.FieldRef<"ApplicationDocument", 'DateTime'>
@@ -2015,6 +2505,44 @@ export type ApplicationDocument$sourceCandidateCvArgs<ExtArgs extends runtime.Ty
    */
   include?: Prisma.CandidateCvInclude<ExtArgs> | null
   where?: Prisma.CandidateCvWhereInput
+}
+
+/**
+ * ApplicationDocument.sourceArtifact
+ */
+export type ApplicationDocument$sourceArtifactArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CvStoredArtifact
+   */
+  select?: Prisma.CvStoredArtifactSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CvStoredArtifact
+   */
+  omit?: Prisma.CvStoredArtifactOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CvStoredArtifactInclude<ExtArgs> | null
+  where?: Prisma.CvStoredArtifactWhereInput
+}
+
+/**
+ * ApplicationDocument.scanAssessment
+ */
+export type ApplicationDocument$scanAssessmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CvScanAssessment
+   */
+  select?: Prisma.CvScanAssessmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CvScanAssessment
+   */
+  omit?: Prisma.CvScanAssessmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CvScanAssessmentInclude<ExtArgs> | null
+  where?: Prisma.CvScanAssessmentWhereInput
 }
 
 /**

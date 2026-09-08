@@ -52,6 +52,9 @@ export type CvUploadMinAggregateOutputType = {
   id: string | null
   accountId: string | null
   profileId: string | null
+  purpose: $Enums.CvUploadPurpose | null
+  processingMode: $Enums.CvProcessingMode | null
+  policyVersion: string | null
   documentKind: $Enums.CvDocumentKind | null
   parserClass: $Enums.CvParserClass | null
   status: $Enums.CvUploadStatus | null
@@ -83,6 +86,9 @@ export type CvUploadMaxAggregateOutputType = {
   id: string | null
   accountId: string | null
   profileId: string | null
+  purpose: $Enums.CvUploadPurpose | null
+  processingMode: $Enums.CvProcessingMode | null
+  policyVersion: string | null
   documentKind: $Enums.CvDocumentKind | null
   parserClass: $Enums.CvParserClass | null
   status: $Enums.CvUploadStatus | null
@@ -114,6 +120,9 @@ export type CvUploadCountAggregateOutputType = {
   id: number
   accountId: number
   profileId: number
+  purpose: number
+  processingMode: number
+  policyVersion: number
   documentKind: number
   parserClass: number
   status: number
@@ -169,6 +178,9 @@ export type CvUploadMinAggregateInputType = {
   id?: true
   accountId?: true
   profileId?: true
+  purpose?: true
+  processingMode?: true
+  policyVersion?: true
   documentKind?: true
   parserClass?: true
   status?: true
@@ -200,6 +212,9 @@ export type CvUploadMaxAggregateInputType = {
   id?: true
   accountId?: true
   profileId?: true
+  purpose?: true
+  processingMode?: true
+  policyVersion?: true
   documentKind?: true
   parserClass?: true
   status?: true
@@ -231,6 +246,9 @@ export type CvUploadCountAggregateInputType = {
   id?: true
   accountId?: true
   profileId?: true
+  purpose?: true
+  processingMode?: true
+  policyVersion?: true
   documentKind?: true
   parserClass?: true
   status?: true
@@ -349,6 +367,9 @@ export type CvUploadGroupByOutputType = {
   id: string
   accountId: string
   profileId: string
+  purpose: $Enums.CvUploadPurpose
+  processingMode: $Enums.CvProcessingMode
+  policyVersion: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status: $Enums.CvUploadStatus
@@ -403,6 +424,9 @@ export type CvUploadWhereInput = {
   id?: Prisma.StringFilter<"CvUpload"> | string
   accountId?: Prisma.StringFilter<"CvUpload"> | string
   profileId?: Prisma.StringFilter<"CvUpload"> | string
+  purpose?: Prisma.EnumCvUploadPurposeFilter<"CvUpload"> | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFilter<"CvUpload"> | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFilter<"CvUpload"> | string
   documentKind?: Prisma.EnumCvDocumentKindFilter<"CvUpload"> | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFilter<"CvUpload"> | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFilter<"CvUpload"> | $Enums.CvUploadStatus
@@ -444,6 +468,9 @@ export type CvUploadOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   profileId?: Prisma.SortOrder
+  purpose?: Prisma.SortOrder
+  processingMode?: Prisma.SortOrder
+  policyVersion?: Prisma.SortOrder
   documentKind?: Prisma.SortOrder
   parserClass?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -489,6 +516,9 @@ export type CvUploadWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CvUploadWhereInput | Prisma.CvUploadWhereInput[]
   accountId?: Prisma.StringFilter<"CvUpload"> | string
   profileId?: Prisma.StringFilter<"CvUpload"> | string
+  purpose?: Prisma.EnumCvUploadPurposeFilter<"CvUpload"> | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFilter<"CvUpload"> | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFilter<"CvUpload"> | string
   documentKind?: Prisma.EnumCvDocumentKindFilter<"CvUpload"> | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFilter<"CvUpload"> | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFilter<"CvUpload"> | $Enums.CvUploadStatus
@@ -530,6 +560,9 @@ export type CvUploadOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   profileId?: Prisma.SortOrder
+  purpose?: Prisma.SortOrder
+  processingMode?: Prisma.SortOrder
+  policyVersion?: Prisma.SortOrder
   documentKind?: Prisma.SortOrder
   parserClass?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -569,6 +602,9 @@ export type CvUploadScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"CvUpload"> | string
   accountId?: Prisma.StringWithAggregatesFilter<"CvUpload"> | string
   profileId?: Prisma.StringWithAggregatesFilter<"CvUpload"> | string
+  purpose?: Prisma.EnumCvUploadPurposeWithAggregatesFilter<"CvUpload"> | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeWithAggregatesFilter<"CvUpload"> | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringWithAggregatesFilter<"CvUpload"> | string
   documentKind?: Prisma.EnumCvDocumentKindWithAggregatesFilter<"CvUpload"> | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassWithAggregatesFilter<"CvUpload"> | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusWithAggregatesFilter<"CvUpload"> | $Enums.CvUploadStatus
@@ -598,6 +634,9 @@ export type CvUploadScalarWhereWithAggregatesInput = {
 
 export type CvUploadCreateInput = {
   id?: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -639,6 +678,9 @@ export type CvUploadUncheckedCreateInput = {
   id?: string
   accountId: string
   profileId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -676,6 +718,9 @@ export type CvUploadUncheckedCreateInput = {
 
 export type CvUploadUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -717,6 +762,9 @@ export type CvUploadUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -756,6 +804,9 @@ export type CvUploadCreateManyInput = {
   id?: string
   accountId: string
   profileId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -785,6 +836,9 @@ export type CvUploadCreateManyInput = {
 
 export type CvUploadUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -816,6 +870,9 @@ export type CvUploadUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -862,6 +919,9 @@ export type CvUploadCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   profileId?: Prisma.SortOrder
+  purpose?: Prisma.SortOrder
+  processingMode?: Prisma.SortOrder
+  policyVersion?: Prisma.SortOrder
   documentKind?: Prisma.SortOrder
   parserClass?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -904,6 +964,9 @@ export type CvUploadMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   profileId?: Prisma.SortOrder
+  purpose?: Prisma.SortOrder
+  processingMode?: Prisma.SortOrder
+  policyVersion?: Prisma.SortOrder
   documentKind?: Prisma.SortOrder
   parserClass?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -935,6 +998,9 @@ export type CvUploadMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   profileId?: Prisma.SortOrder
+  purpose?: Prisma.SortOrder
+  processingMode?: Prisma.SortOrder
+  policyVersion?: Prisma.SortOrder
   documentKind?: Prisma.SortOrder
   parserClass?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1060,6 +1126,14 @@ export type CvUploadUncheckedUpdateManyWithoutProfileNestedInput = {
   update?: Prisma.CvUploadUpdateWithWhereUniqueWithoutProfileInput | Prisma.CvUploadUpdateWithWhereUniqueWithoutProfileInput[]
   updateMany?: Prisma.CvUploadUpdateManyWithWhereWithoutProfileInput | Prisma.CvUploadUpdateManyWithWhereWithoutProfileInput[]
   deleteMany?: Prisma.CvUploadScalarWhereInput | Prisma.CvUploadScalarWhereInput[]
+}
+
+export type EnumCvUploadPurposeFieldUpdateOperationsInput = {
+  set?: $Enums.CvUploadPurpose
+}
+
+export type EnumCvProcessingModeFieldUpdateOperationsInput = {
+  set?: $Enums.CvProcessingMode
 }
 
 export type EnumCvDocumentKindFieldUpdateOperationsInput = {
@@ -1196,6 +1270,9 @@ export type CvUploadUpdateOneRequiredWithoutConfirmationNestedInput = {
 
 export type CvUploadCreateWithoutAccountInput = {
   id?: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -1235,6 +1312,9 @@ export type CvUploadCreateWithoutAccountInput = {
 export type CvUploadUncheckedCreateWithoutAccountInput = {
   id?: string
   profileId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -1303,6 +1383,9 @@ export type CvUploadScalarWhereInput = {
   id?: Prisma.StringFilter<"CvUpload"> | string
   accountId?: Prisma.StringFilter<"CvUpload"> | string
   profileId?: Prisma.StringFilter<"CvUpload"> | string
+  purpose?: Prisma.EnumCvUploadPurposeFilter<"CvUpload"> | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFilter<"CvUpload"> | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFilter<"CvUpload"> | string
   documentKind?: Prisma.EnumCvDocumentKindFilter<"CvUpload"> | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFilter<"CvUpload"> | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFilter<"CvUpload"> | $Enums.CvUploadStatus
@@ -1332,6 +1415,9 @@ export type CvUploadScalarWhereInput = {
 
 export type CvUploadCreateWithoutProfileInput = {
   id?: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -1371,6 +1457,9 @@ export type CvUploadCreateWithoutProfileInput = {
 export type CvUploadUncheckedCreateWithoutProfileInput = {
   id?: string
   accountId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -1434,6 +1523,9 @@ export type CvUploadUpdateManyWithWhereWithoutProfileInput = {
 
 export type CvUploadCreateWithoutArtifactsInput = {
   id?: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -1474,6 +1566,9 @@ export type CvUploadUncheckedCreateWithoutArtifactsInput = {
   id?: string
   accountId: string
   profileId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -1526,6 +1621,9 @@ export type CvUploadUpdateToOneWithWhereWithoutArtifactsInput = {
 
 export type CvUploadUpdateWithoutArtifactsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -1566,6 +1664,9 @@ export type CvUploadUncheckedUpdateWithoutArtifactsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -1602,6 +1703,9 @@ export type CvUploadUncheckedUpdateWithoutArtifactsInput = {
 
 export type CvUploadCreateWithoutScanAssessmentsInput = {
   id?: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -1642,6 +1746,9 @@ export type CvUploadUncheckedCreateWithoutScanAssessmentsInput = {
   id?: string
   accountId: string
   profileId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -1694,6 +1801,9 @@ export type CvUploadUpdateToOneWithWhereWithoutScanAssessmentsInput = {
 
 export type CvUploadUpdateWithoutScanAssessmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -1734,6 +1844,9 @@ export type CvUploadUncheckedUpdateWithoutScanAssessmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -1770,6 +1883,9 @@ export type CvUploadUncheckedUpdateWithoutScanAssessmentsInput = {
 
 export type CvUploadCreateWithoutExtractionsInput = {
   id?: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -1810,6 +1926,9 @@ export type CvUploadUncheckedCreateWithoutExtractionsInput = {
   id?: string
   accountId: string
   profileId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -1862,6 +1981,9 @@ export type CvUploadUpdateToOneWithWhereWithoutExtractionsInput = {
 
 export type CvUploadUpdateWithoutExtractionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -1902,6 +2024,9 @@ export type CvUploadUncheckedUpdateWithoutExtractionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -1938,6 +2063,9 @@ export type CvUploadUncheckedUpdateWithoutExtractionsInput = {
 
 export type CvUploadCreateWithoutParseJobsInput = {
   id?: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -1978,6 +2106,9 @@ export type CvUploadUncheckedCreateWithoutParseJobsInput = {
   id?: string
   accountId: string
   profileId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -2030,6 +2161,9 @@ export type CvUploadUpdateToOneWithWhereWithoutParseJobsInput = {
 
 export type CvUploadUpdateWithoutParseJobsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2070,6 +2204,9 @@ export type CvUploadUncheckedUpdateWithoutParseJobsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2106,6 +2243,9 @@ export type CvUploadUncheckedUpdateWithoutParseJobsInput = {
 
 export type CvUploadCreateWithoutRetryRequestsInput = {
   id?: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -2146,6 +2286,9 @@ export type CvUploadUncheckedCreateWithoutRetryRequestsInput = {
   id?: string
   accountId: string
   profileId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -2198,6 +2341,9 @@ export type CvUploadUpdateToOneWithWhereWithoutRetryRequestsInput = {
 
 export type CvUploadUpdateWithoutRetryRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2238,6 +2384,9 @@ export type CvUploadUncheckedUpdateWithoutRetryRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2274,6 +2423,9 @@ export type CvUploadUncheckedUpdateWithoutRetryRequestsInput = {
 
 export type CvUploadCreateWithoutDraftInput = {
   id?: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -2314,6 +2466,9 @@ export type CvUploadUncheckedCreateWithoutDraftInput = {
   id?: string
   accountId: string
   profileId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -2366,6 +2521,9 @@ export type CvUploadUpdateToOneWithWhereWithoutDraftInput = {
 
 export type CvUploadUpdateWithoutDraftInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2406,6 +2564,9 @@ export type CvUploadUncheckedUpdateWithoutDraftInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2442,6 +2603,9 @@ export type CvUploadUncheckedUpdateWithoutDraftInput = {
 
 export type CvUploadCreateWithoutConsentEventsInput = {
   id?: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -2482,6 +2646,9 @@ export type CvUploadUncheckedCreateWithoutConsentEventsInput = {
   id?: string
   accountId: string
   profileId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -2534,6 +2701,9 @@ export type CvUploadUpdateToOneWithWhereWithoutConsentEventsInput = {
 
 export type CvUploadUpdateWithoutConsentEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2574,6 +2744,9 @@ export type CvUploadUncheckedUpdateWithoutConsentEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2610,6 +2783,9 @@ export type CvUploadUncheckedUpdateWithoutConsentEventsInput = {
 
 export type CvUploadCreateWithoutConfirmationInput = {
   id?: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -2650,6 +2826,9 @@ export type CvUploadUncheckedCreateWithoutConfirmationInput = {
   id?: string
   accountId: string
   profileId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -2702,6 +2881,9 @@ export type CvUploadUpdateToOneWithWhereWithoutConfirmationInput = {
 
 export type CvUploadUpdateWithoutConfirmationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2742,6 +2924,9 @@ export type CvUploadUncheckedUpdateWithoutConfirmationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2779,6 +2964,9 @@ export type CvUploadUncheckedUpdateWithoutConfirmationInput = {
 export type CvUploadCreateManyAccountInput = {
   id?: string
   profileId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -2808,6 +2996,9 @@ export type CvUploadCreateManyAccountInput = {
 
 export type CvUploadUpdateWithoutAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2847,6 +3038,9 @@ export type CvUploadUpdateWithoutAccountInput = {
 export type CvUploadUncheckedUpdateWithoutAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2885,6 +3079,9 @@ export type CvUploadUncheckedUpdateWithoutAccountInput = {
 export type CvUploadUncheckedUpdateManyWithoutAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   profileId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2915,6 +3112,9 @@ export type CvUploadUncheckedUpdateManyWithoutAccountInput = {
 export type CvUploadCreateManyProfileInput = {
   id?: string
   accountId: string
+  purpose?: $Enums.CvUploadPurpose
+  processingMode?: $Enums.CvProcessingMode
+  policyVersion?: string
   documentKind: $Enums.CvDocumentKind
   parserClass: $Enums.CvParserClass
   status?: $Enums.CvUploadStatus
@@ -2944,6 +3144,9 @@ export type CvUploadCreateManyProfileInput = {
 
 export type CvUploadUpdateWithoutProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -2983,6 +3186,9 @@ export type CvUploadUpdateWithoutProfileInput = {
 export type CvUploadUncheckedUpdateWithoutProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -3021,6 +3227,9 @@ export type CvUploadUncheckedUpdateWithoutProfileInput = {
 export type CvUploadUncheckedUpdateManyWithoutProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.EnumCvUploadPurposeFieldUpdateOperationsInput | $Enums.CvUploadPurpose
+  processingMode?: Prisma.EnumCvProcessingModeFieldUpdateOperationsInput | $Enums.CvProcessingMode
+  policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   documentKind?: Prisma.EnumCvDocumentKindFieldUpdateOperationsInput | $Enums.CvDocumentKind
   parserClass?: Prisma.EnumCvParserClassFieldUpdateOperationsInput | $Enums.CvParserClass
   status?: Prisma.EnumCvUploadStatusFieldUpdateOperationsInput | $Enums.CvUploadStatus
@@ -3128,6 +3337,9 @@ export type CvUploadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   accountId?: boolean
   profileId?: boolean
+  purpose?: boolean
+  processingMode?: boolean
+  policyVersion?: boolean
   documentKind?: boolean
   parserClass?: boolean
   status?: boolean
@@ -3170,6 +3382,9 @@ export type CvUploadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   accountId?: boolean
   profileId?: boolean
+  purpose?: boolean
+  processingMode?: boolean
+  policyVersion?: boolean
   documentKind?: boolean
   parserClass?: boolean
   status?: boolean
@@ -3203,6 +3418,9 @@ export type CvUploadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   accountId?: boolean
   profileId?: boolean
+  purpose?: boolean
+  processingMode?: boolean
+  policyVersion?: boolean
   documentKind?: boolean
   parserClass?: boolean
   status?: boolean
@@ -3236,6 +3454,9 @@ export type CvUploadSelectScalar = {
   id?: boolean
   accountId?: boolean
   profileId?: boolean
+  purpose?: boolean
+  processingMode?: boolean
+  policyVersion?: boolean
   documentKind?: boolean
   parserClass?: boolean
   status?: boolean
@@ -3263,7 +3484,7 @@ export type CvUploadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CvUploadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountId" | "profileId" | "documentKind" | "parserClass" | "status" | "declaredMediaType" | "declaredBytes" | "actualBytes" | "quotaReservationBytes" | "quotaReservationRemaining" | "sourceSha256" | "displayFilenameCiphertext" | "idempotencyDigest" | "createBindingDigest" | "failureCode" | "automaticScanAttemptsUsed" | "candidateScanRetriesUsed" | "automaticParseAttemptsUsed" | "candidateParseRetriesUsed" | "contentReceivedAt" | "contentInaccessibleAt" | "expiresAt" | "deleteAfter" | "deletedAt" | "confirmedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["cvUpload"]>
+export type CvUploadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountId" | "profileId" | "purpose" | "processingMode" | "policyVersion" | "documentKind" | "parserClass" | "status" | "declaredMediaType" | "declaredBytes" | "actualBytes" | "quotaReservationBytes" | "quotaReservationRemaining" | "sourceSha256" | "displayFilenameCiphertext" | "idempotencyDigest" | "createBindingDigest" | "failureCode" | "automaticScanAttemptsUsed" | "candidateScanRetriesUsed" | "automaticParseAttemptsUsed" | "candidateParseRetriesUsed" | "contentReceivedAt" | "contentInaccessibleAt" | "expiresAt" | "deleteAfter" | "deletedAt" | "confirmedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["cvUpload"]>
 export type CvUploadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   account?: boolean | Prisma.UserAccountDefaultArgs<ExtArgs>
   profile?: boolean | Prisma.CandidateProfileDefaultArgs<ExtArgs>
@@ -3304,6 +3525,9 @@ export type $CvUploadPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: string
     accountId: string
     profileId: string
+    purpose: $Enums.CvUploadPurpose
+    processingMode: $Enums.CvProcessingMode
+    policyVersion: string
     documentKind: $Enums.CvDocumentKind
     parserClass: $Enums.CvParserClass
     status: $Enums.CvUploadStatus
@@ -3765,6 +3989,9 @@ export interface CvUploadFieldRefs {
   readonly id: Prisma.FieldRef<"CvUpload", 'String'>
   readonly accountId: Prisma.FieldRef<"CvUpload", 'String'>
   readonly profileId: Prisma.FieldRef<"CvUpload", 'String'>
+  readonly purpose: Prisma.FieldRef<"CvUpload", 'CvUploadPurpose'>
+  readonly processingMode: Prisma.FieldRef<"CvUpload", 'CvProcessingMode'>
+  readonly policyVersion: Prisma.FieldRef<"CvUpload", 'String'>
   readonly documentKind: Prisma.FieldRef<"CvUpload", 'CvDocumentKind'>
   readonly parserClass: Prisma.FieldRef<"CvUpload", 'CvParserClass'>
   readonly status: Prisma.FieldRef<"CvUpload", 'CvUploadStatus'>

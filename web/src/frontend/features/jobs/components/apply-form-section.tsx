@@ -16,6 +16,7 @@ import { useCsrfProof } from "@/frontend/features/authentication/client/csrf-pro
 import { mutateWithCurrentCsrf } from "@/frontend/features/authentication/client/current-csrf-proof";
 import { profileMutationOutcomeSchema } from "@/shared/contracts/account/profile";
 import { candidateCvSummarySchema } from "@/shared/contracts/cv-import/candidate-cv";
+import type { CvUploadStatus } from "@/shared/contracts/cv-import/common";
 import type {
   ApplicationContactSnapshot,
   ApplicationForm,
@@ -34,6 +35,15 @@ import {
   type JobApplicationLocale,
 } from "./job-application-copy";
 import { useOptionalJobInteraction } from "./job-interaction-provider";
+import {
+  clearCvSecurityUploadId,
+  newCvSecurityIdempotencyKey,
+  pollCvSecurityUpload,
+  readCvSecurityUploadId,
+  requestCvSecurityRetry,
+  saveCvSecurityUploadId,
+  CvSecurityUploadError,
+} from "@/frontend/lib/cv-security-upload";
 
 const MAX_CV_BYTES = 5_000_000;
 const PHONE_INPUT_MAX_LENGTH = 15;
@@ -168,6 +178,14 @@ function InlineApplicationForm({
   const [errors, setErrors] = useState<FieldErrors>({});
   const [cvSelectionError, setCvSelectionError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [cvSecurityStatus, setCvSecurityStatus] =
+    useState<CvUploadStatus | null>(null);
+  const [cvSecurityRetryable, setCvSecurityRetryable] = useState(false);
+  const [cvResuming, setCvResuming] = useState(false);
+  const cvSecurityAbortController = useRef<AbortController | null>(null);
+  const [directCvUploadId, setDirectCvUploadId] = useState<string | null>(null);
+  const cvImportScope = `job-cv-import:${form.jobId}`;
+  const directApplicationScope = `job-direct-application:${form.jobId}`;
   const formBusy = pending || locationSaving || cvSaving;
 
   useEffect(() => {
@@ -196,6 +214,125 @@ function InlineApplicationForm({
     setCvSelectionError(message);
     toast.error(message, { id: "candidate-cv-upload-error" });
   }
+
+  function cvSecurityMessage(caught: unknown) {
+    if (caught instanceof CvSecurityUploadError) {
+      if (caught.status === "INFECTED") return copy.cvInfected;
+      if (caught.retryable || cvSecurityRetryable) return copy.cvRetryable;
+      return copy.cvStatusError;
+    }
+    return caught instanceof Error ? caught.message : copy.errors.saveCv;
+  }
+
+  async function finalizeImportedCv(uploadId: string) {
+    const finalizeRes = await mutateWithCurrentCsrf(
+      "/api/account/candidate-cvs",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ uploadId }),
+      },
+      form.csrfToken || csrfProof,
+    );
+    const finalResult: unknown = await finalizeRes.json().catch(() => null);
+    if (!finalizeRes.ok) {
+      const problem = finalResult as { message?: unknown } | null;
+      throw new Error(
+        typeof problem?.message === "string" && locale === "en"
+          ? problem.message
+          : copy.errors.saveCv,
+      );
+    }
+    const saved = candidateCvSummarySchema.parse(finalResult);
+    setSavedCvs((current) => [
+      saved,
+      ...current.filter((cv) => cv.id !== saved.id),
+    ]);
+    setSelectedCvId(saved.id);
+    setNewCvAttached(true);
+    clearCvSecurityUploadId(cvImportScope);
+    setCvSelectionError(null);
+    setErrors((current) => {
+      const next = { ...current };
+      delete next.cv;
+      return next;
+    });
+  }
+
+  async function waitForCleanUpload(uploadId: string, scope: string) {
+    saveCvSecurityUploadId(scope, uploadId);
+    setCvSecurityStatus("SCANNING");
+    setCvSecurityRetryable(false);
+    const controller = new AbortController();
+    cvSecurityAbortController.current = controller;
+    try {
+      const result = await pollCvSecurityUpload(uploadId, {
+        signal: controller.signal,
+      });
+      setCvSecurityStatus(result.status);
+      const retryable = [
+        "SCAN_FAILED",
+        "EXTRACTION_FAILED",
+        "PARSE_FAILED",
+      ].includes(result.status);
+      setCvSecurityRetryable(retryable);
+      if (!result.clean) {
+        if (!retryable) clearCvSecurityUploadId(scope);
+        throw new CvSecurityUploadError(
+          "CV_SECURITY_REJECTED",
+          result.status === "INFECTED" ? copy.cvInfected : copy.cvStatusError,
+          { retryable, status: result.status },
+        );
+      }
+      return result;
+    } finally {
+      if (cvSecurityAbortController.current === controller)
+        cvSecurityAbortController.current = null;
+    }
+  }
+
+  async function resumeCvUpload(uploadId: string, direct: boolean) {
+    setCvResuming(true);
+    if (direct) setPending(true);
+    else setCvSaving(true);
+    setError(null);
+    try {
+      const result = await waitForCleanUpload(
+        uploadId,
+        direct ? directApplicationScope : cvImportScope,
+      );
+      if (direct) {
+        setDirectCvUploadId(uploadId);
+      } else if (result.clean) {
+        await finalizeImportedCv(uploadId);
+      }
+    } catch (caught: unknown) {
+      if (caught instanceof DOMException && caught.name === "AbortError") return;
+      showCvUploadError(cvSecurityMessage(caught));
+    } finally {
+      setCvResuming(false);
+      if (direct) setPending(false);
+      else setCvSaving(false);
+    }
+  }
+
+  useEffect(() => {
+    const directUploadId = readCvSecurityUploadId(directApplicationScope);
+    const importedUploadId = readCvSecurityUploadId(cvImportScope);
+    const uploadId = directUploadId ?? importedUploadId;
+    if (!uploadId) return;
+    const direct = Boolean(directUploadId);
+    const resumeTimer = window.setTimeout(
+      () => void resumeCvUpload(uploadId, direct),
+      0,
+    );
+    return () => {
+      window.clearTimeout(resumeTimer);
+      cvSecurityAbortController.current?.abort();
+    };
+    // Resume only the job-scoped opaque upload id; no file bytes or form data are stored.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cvImportScope, directApplicationScope]);
 
   async function chooseFile(file: File | undefined) {
     if (!file) return;
@@ -282,13 +419,27 @@ function InlineApplicationForm({
             : copy.errors.saveCv,
         );
       }
-      const saved = candidateCvSummarySchema.parse(body);
+      const finalResult = body;
+      if (
+        response.status === 202 &&
+        body &&
+        typeof body === "object" &&
+        "uploadId" in body
+      ) {
+        const uploadId = String((body as { uploadId: string }).uploadId);
+        await waitForCleanUpload(uploadId, cvImportScope);
+        await finalizeImportedCv(uploadId);
+        cvUploadIdempotencyKey.current = null;
+        return;
+      }
+      const saved = candidateCvSummarySchema.parse(finalResult);
       setSavedCvs((current) => [
         saved,
         ...current.filter((cv) => cv.id !== saved.id),
       ]);
       setSelectedCvId(saved.id);
       setNewCvAttached(true);
+      cvUploadIdempotencyKey.current = null;
       setCvSelectionError(null);
       setErrors((current) => {
         const next = { ...current };
@@ -296,12 +447,7 @@ function InlineApplicationForm({
         return next;
       });
     } catch (caught) {
-      const message =
-        caught instanceof Error
-          ? locale === "en"
-            ? caught.message
-            : copy.errors.saveCv
-          : copy.errors.saveCv;
+      const message = cvSecurityMessage(caught);
       clearNewCvSelection();
       setSelectedCvId("");
       cvUploadIdempotencyKey.current = null;
@@ -347,6 +493,36 @@ function InlineApplicationForm({
       );
     }
     return Object.keys(next).length === 0;
+  }
+
+  async function retryCvSecurityCheck() {
+    const directUploadId = readCvSecurityUploadId(directApplicationScope);
+    const importedUploadId = readCvSecurityUploadId(cvImportScope);
+    const uploadId = directUploadId ?? importedUploadId;
+    if (!uploadId || formBusy) return;
+    const direct = Boolean(directUploadId);
+    setError(null);
+    if (direct) setPending(true);
+    else setCvSaving(true);
+    try {
+      await requestCvSecurityRetry(
+        uploadId,
+        newCvSecurityIdempotencyKey("job-cv-retry"),
+        (path, init) =>
+          mutateWithCurrentCsrf(path, init, form.csrfToken || csrfProof),
+      );
+      const result = await waitForCleanUpload(
+        uploadId,
+        direct ? directApplicationScope : cvImportScope,
+      );
+      if (direct) setDirectCvUploadId(uploadId);
+      else if (result.clean) await finalizeImportedCv(uploadId);
+    } catch (caught) {
+      showCvUploadError(cvSecurityMessage(caught));
+    } finally {
+      if (direct) setPending(false);
+      else setCvSaving(false);
+    }
   }
 
   async function saveLocation(value: string) {
@@ -429,6 +605,8 @@ function InlineApplicationForm({
     }));
     const directCv =
       newCvFile && newCvAttached && !selectedCvId ? newCvFile : null;
+    const storedDirectUploadId = directCvUploadId;
+    const usesDirectUpload = Boolean(directCv || storedDirectUploadId);
     const cvFileRef = selectedCvId || null;
     const contactSnapshot = {
       fullName: contact.fullName.trim(),
@@ -441,7 +619,10 @@ function InlineApplicationForm({
         globalThis.crypto?.randomUUID?.() ??
         "application-" + Date.now() + "-key";
       const payload = {
-        cvId: directCv ? DIRECT_APPLICATION_CV_ID : selectedCvId || cvFileRef,
+        cvId: usesDirectUpload
+          ? DIRECT_APPLICATION_CV_ID
+          : selectedCvId || cvFileRef,
+        cvUploadId: storedDirectUploadId ?? undefined,
         cvFileRef,
         contactSnapshot,
         answers,
@@ -471,7 +652,7 @@ function InlineApplicationForm({
         form.csrfToken || csrfProof,
       );
 
-      const body: unknown = await response.json();
+      let body: unknown = await response.json().catch(() => null);
       if (!response.ok) {
         const problem = body as { message?: unknown; fieldErrors?: unknown };
         if (problem.fieldErrors && typeof problem.fieldErrors === "object") {
@@ -492,14 +673,70 @@ function InlineApplicationForm({
         return;
       }
 
+      if (
+        response.status === 202 &&
+        body &&
+        typeof body === "object" &&
+        "uploadId" in body
+      ) {
+        const uploadId = String((body as { uploadId: string }).uploadId);
+        await waitForCleanUpload(uploadId, directApplicationScope);
+        setDirectCvUploadId(uploadId);
+
+        const finalizePayload = {
+          ...payload,
+          cvId: DIRECT_APPLICATION_CV_ID,
+          cvUploadId: uploadId,
+        };
+        const finalizeResponse = await mutateWithCurrentCsrf(
+          "/api/jobs/" + form.jobId + "/applications",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Idempotency-Key": idempotencyKey.current,
+            },
+            body: JSON.stringify(finalizePayload),
+          },
+          form.csrfToken || csrfProof,
+        );
+        body = await finalizeResponse.json().catch(() => null);
+        if (!finalizeResponse.ok) {
+          const problem = body as { message?: unknown; fieldErrors?: unknown };
+          if (problem.fieldErrors && typeof problem.fieldErrors === "object") {
+            const serverErrors: FieldErrors = {};
+            for (const [field, value] of Object.entries(
+              problem.fieldErrors as Record<string, unknown>,
+            )) {
+              const first = Array.isArray(value) ? value[0] : value;
+              if (typeof first === "string") serverErrors[field] = first;
+            }
+            setErrors((current) => ({ ...current, ...serverErrors }));
+          }
+          setError(
+            typeof problem.message === "string" && locale === "en"
+              ? problem.message
+              : copy.errors.submit,
+          );
+          return;
+        }
+      }
+
       const outcome = applicationOutcomeSchema.parse(body);
       onSubmitted({
         ...outcome,
         aiAnalysisConsent: aiConsent,
         aiMatchScore: outcome.aiMatchScore,
       });
-    } catch {
-      setError(copy.errors.submitTryAgain);
+      clearCvSecurityUploadId(directApplicationScope);
+      setDirectCvUploadId(null);
+      setCvSecurityRetryable(false);
+    } catch (caught) {
+      setError(
+        caught instanceof CvSecurityUploadError
+          ? cvSecurityMessage(caught)
+          : copy.errors.submitTryAgain,
+      );
     } finally {
       setPending(false);
     }
@@ -655,6 +892,30 @@ function InlineApplicationForm({
           <p id="cv-error" className="job-field-error" role="alert">
             {cvErrorMessage}
           </p>
+        ) : null}
+        {cvSecurityStatus || cvSecurityRetryable ? (
+          <p className="job-form-help" role="status" aria-live="polite">
+            {formBusy
+              ? cvResuming
+                ? copy.cvResuming
+                : copy.cvScanning
+              : cvSecurityRetryable
+                ? copy.cvRetryable
+                : cvSecurityStatus === "SECURITY_CLEAN"
+                  ? copy.cvReady
+                  : cvSecurityStatus === "INFECTED"
+                    ? copy.cvInfected
+                    : copy.cvStatusError}
+          </p>
+        ) : null}
+        {cvSecurityRetryable ? (
+          <button
+            type="button"
+            onClick={() => void retryCvSecurityCheck()}
+            disabled={submitDisabled}
+          >
+            {copy.retryCv}
+          </button>
         ) : null}
       </fieldset>
 

@@ -1,12 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  createCvWorkerStorage: vi.fn(),
-  createCvWorkerCryptor: vi.fn(),
-  createCvWorkerIntegrityReader: vi.fn(),
+  openSafeCvArtifact: vi.fn(),
 }));
 
-vi.mock("@/backend/cv/workers/cv-worker-resources", () => mocks);
+vi.mock(
+  "@/backend/services/cv-admission/open-safe-cv-artifact-service",
+  () => ({
+    OpenSafeCvArtifactService: class {
+      open = mocks.openSafeCvArtifact;
+    },
+  }),
+);
 
 import { promoteCandidateCvForApplication } from "@/backend/services/profile/promote-candidate-cv-for-application";
 
@@ -29,6 +34,9 @@ function sourceCv(id = "candidate-cv-upload-1") {
     candidateUserId: "candidate-1",
     byteSize: 64,
     checksumSha256: "a".repeat(64),
+    sourceArtifactId: "artifact-1",
+    scanAssessmentId: "assessment-1",
+    uploadId: "upload-1",
   };
 }
 
@@ -37,40 +45,25 @@ describe("promoteCandidateCvForApplication", () => {
     vi.clearAllMocks();
   });
 
-  it("verifies the encrypted import artifact before promoting it", async () => {
+  it("verifies and reuses the encrypted source without writing a plaintext copy", async () => {
     const target = destination();
-    const sourceStorage = {
-      assertReady: vi.fn().mockResolvedValue(undefined),
-    };
-    const verified = {
-      plaintextBytes: 64,
-      open: vi.fn(() =>
+    const opened = {
+      byteLength: 64,
+      evidence: {
+        artifactId: "artifact-1",
+        assessmentId: "assessment-1",
+        storageLocator: "encrypted-source-locator",
+        checksumSha256: "a".repeat(64),
+      },
+      openStream: vi.fn(() =>
         (async function* () {
           yield new Uint8Array(64);
         })(),
       ),
       dispose: vi.fn().mockResolvedValue(undefined),
     };
-    const reader = {
-      verify: vi.fn().mockResolvedValue(verified),
-    };
-    mocks.createCvWorkerStorage.mockReturnValue(sourceStorage);
-    mocks.createCvWorkerCryptor.mockReturnValue("cryptor");
-    mocks.createCvWorkerIntegrityReader.mockReturnValue(reader);
-    const db = {
-      $queryRaw: vi.fn().mockResolvedValue([
-        {
-          id: "artifact-1",
-          storageLocator: "cv-source-locator",
-          encryptionKeyVersion: 1,
-          encryptionIvHex: "11".repeat(12),
-          authenticationTagHex: "22".repeat(16),
-          plaintextBytes: 64,
-          ciphertextBytes: 96,
-          plaintextSha256Hex: "a".repeat(64),
-        },
-      ]),
-    };
+    mocks.openSafeCvArtifact.mockResolvedValue(opened);
+    const db = {};
 
     const result = await promoteCandidateCvForApplication(
       sourceCv(),
@@ -78,65 +71,49 @@ describe("promoteCandidateCvForApplication", () => {
       db as never,
     );
 
-    expect(result).toMatchObject({ destination: target });
-    expect(reader.verify).toHaveBeenCalledWith(
-      expect.objectContaining({
-        locator: "cv-source-locator",
-        ciphertextBytes: 96,
-        plaintextBytes: 64,
-        context: expect.objectContaining({
-          accountId: "candidate-1",
-          uploadId: "upload-1",
-          artifactId: "artifact-1",
-        }),
-      }),
-    );
-    expect(target.assertReady).toHaveBeenCalledOnce();
-    expect(target.put).toHaveBeenCalledWith({
-      expectedBytes: 64,
-      source: expect.anything(),
+    expect(result).toMatchObject({
+      artifactId: "artifact-1",
+      assessmentId: "assessment-1",
+      storageLocator: "encrypted-source-locator",
+      byteLength: 64,
     });
-    expect(verified.dispose).toHaveBeenCalledOnce();
+    expect(mocks.openSafeCvArtifact).toHaveBeenCalledWith({
+      candidateUserId: "candidate-1",
+      uploadId: "upload-1",
+      artifactId: "artifact-1",
+      assessmentId: "assessment-1",
+      allowedPurposes: [
+        "PROFILE_IMPORT",
+        "PROFILE_DIRECT",
+        "JOB_APPLICATION_DIRECT",
+      ],
+    });
+    expect(target.assertReady).not.toHaveBeenCalled();
+    expect(target.put).not.toHaveBeenCalled();
+    expect(opened.dispose).toHaveBeenCalledOnce();
   });
 
-  it("reuses a committed application document when no import artifact is available", async () => {
+  it("fails closed when the CandidateCv has no scan evidence", async () => {
     const target = destination();
     target.open.mockReturnValue(
       (async function* () {
         yield new Uint8Array(64);
       })(),
     );
-    const db = {
-      $queryRaw: vi.fn(),
-      applicationDocument: {
-        findFirst: vi.fn().mockResolvedValue({
-          storageKeyEncrypted: "existing-application-locator",
-          byteLength: 64,
-        }),
-      },
-    };
+    const db = {};
 
     const result = await promoteCandidateCvForApplication(
-      sourceCv("legacy-cv-1"),
+      {
+        ...sourceCv("legacy-cv-1"),
+        sourceArtifactId: null,
+        scanAssessmentId: null,
+        uploadId: null,
+      },
       target as never,
       db as never,
     );
 
-    expect(result).toMatchObject({ destination: target });
-    expect(db.applicationDocument.findFirst).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          sourceCandidateCvId: "legacy-cv-1",
-          contentDigestHmac: "a".repeat(64),
-          byteLength: 64,
-        }),
-      }),
-    );
-    expect(target.open).toHaveBeenCalledWith(
-      "existing-application-locator",
-      64,
-    );
-    expect(target.put).toHaveBeenCalledOnce();
-    expect(db.$queryRaw).not.toHaveBeenCalled();
+    expect(result).toBeNull();
+    expect(target.put).not.toHaveBeenCalled();
   });
 });

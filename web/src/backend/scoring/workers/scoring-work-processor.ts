@@ -1,6 +1,5 @@
 import "server-only";
 
-import { createApplicationDocumentStorage } from "@/backend/applications/storage/factory";
 import { logCvClassificationOutcome } from "@/backend/cv/upload-observability";
 import { prisma } from "@/backend/database/prisma";
 import {
@@ -27,12 +26,8 @@ import {
   decideCvClassification,
   type CvClassificationPort,
 } from "../providers/cv-classification-adapter";
-import {
-  createCvWorkerCryptor,
-  createCvWorkerIntegrityReader,
-  createCvWorkerStorage,
-} from "@/backend/cv/workers/cv-worker-resources";
 import { partitionJobSkillsForMatching } from "../domain/job-skill-requirement-policy";
+import { OpenSafeCvArtifactService } from "@/backend/services/cv-admission/open-safe-cv-artifact-service";
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -73,8 +68,11 @@ export function createScoringWorkProcessor(
             take: 1,
             select: {
               mediaType: true,
-              storageKeyEncrypted: true,
               byteLength: true,
+              contentDigestHmac: true,
+              sourceArtifactId: true,
+              scanAssessmentId: true,
+              sourceArtifact: { select: { uploadId: true } },
             },
           },
           jobPosting: {
@@ -109,6 +107,7 @@ export function createScoringWorkProcessor(
         row.applicationDocuments[0],
         documentExtractor,
         input.applicationId,
+        row.candidateUserId,
       )) ??
       (await sourceCandidateCvText({
         candidateUserId: row.candidateUserId,
@@ -280,12 +279,16 @@ async function uploadedApplicationCvText(
   document:
     | {
         mediaType: string;
-        storageKeyEncrypted: string;
         byteLength: number;
+        contentDigestHmac: string;
+        sourceArtifactId: string | null;
+        scanAssessmentId: string | null;
+        sourceArtifact: { uploadId: string } | null;
       }
     | undefined,
   extractor: IsolatedDocumentExtractor,
   applicationId: string,
+  candidateUserId: string,
 ): Promise<string | null> {
   if (!document) return null;
   const kind =
@@ -303,38 +306,55 @@ async function uploadedApplicationCvText(
     );
     return null;
   }
-  try {
-    const storage = createApplicationDocumentStorage();
-    await storage.assertReady();
-    const chunks: Uint8Array[] = [];
-    let bytes = 0;
-    for await (const chunk of storage.open(
-      document.storageKeyEncrypted,
-      document.byteLength,
-    )) {
-      bytes += chunk.byteLength;
-      if (bytes > document.byteLength)
-        throw new Error("APPLICATION_CV_LENGTH_MISMATCH");
-      chunks.push(Uint8Array.from(chunk));
-    }
-    if (bytes !== document.byteLength)
-      throw new Error("APPLICATION_CV_LENGTH_MISMATCH");
-    const source = new Uint8Array(bytes);
-    let offset = 0;
-    for (const chunk of chunks) {
-      source.set(chunk, offset);
-      offset += chunk.byteLength;
-    }
-    const extracted = await extractDocumentWithRecovery(
-      extractor,
-      kind,
-      source,
+  if (
+    !document.sourceArtifactId ||
+    !document.scanAssessmentId ||
+    !document.sourceArtifact
+  ) {
+    console.warn(
+      `[application-scoring] CV_TEXT_EXTRACTION_FALLBACK ${applicationId} APPLICATION_CV_EVIDENCE_MISSING`,
     );
-    const text = extracted.segments
-      .map((segment) => segment.text)
-      .join("\n")
-      .trim();
-    return text || null;
+    return null;
+  }
+
+  try {
+    const opened = await new OpenSafeCvArtifactService().open({
+      candidateUserId,
+      uploadId: document.sourceArtifact.uploadId,
+      artifactId: document.sourceArtifactId,
+      assessmentId: document.scanAssessmentId,
+      allowedPurposes: [
+        "PROFILE_IMPORT",
+        "PROFILE_DIRECT",
+        "JOB_APPLICATION_DIRECT",
+      ],
+    });
+    try {
+      if (
+        opened.byteLength !== document.byteLength ||
+        document.contentDigestHmac.toLowerCase() !==
+          opened.evidence.checksumSha256.toLowerCase()
+      ) {
+        throw new Error("APPLICATION_CV_LENGTH_MISMATCH");
+      }
+      const source = await readVerifiedBytes(
+        opened.openStream(),
+        document.byteLength,
+      );
+      const extracted = await extractDocumentWithRecovery(
+        extractor,
+        kind,
+        source,
+        opened.evidence.scanStatus,
+      );
+      const text = extracted.segments
+        .map((segment) => segment.text)
+        .join("\n")
+        .trim();
+      return text || null;
+    } finally {
+      await opened.dispose();
+    }
   } catch (error) {
     const code =
       error instanceof Error
@@ -389,112 +409,33 @@ async function sourceCandidateCvText(input: {
       ? input.cvSnapshot.checksumSha256
       : "";
   if (!uploadId) return null;
+  if (!documentKind || byteLength < 1 || !/^[a-f0-9]{64}$/iu.test(checksum)) {
+    return null;
+  }
+
   try {
-    const rows = await prisma.$queryRaw<
-      Array<{
-        id: string;
-        kind: "SOURCE_DOCUMENT" | "EXTRACTED_TEXT";
-        storageLocator: string;
-        encryptionKeyVersion: number;
-        encryptionIvHex: string;
-        authenticationTagHex: string;
-        plaintextBytes: number;
-        ciphertextBytes: number;
-        plaintextSha256Hex: string;
-      }>
-    >`
-      SELECT artifact."id",
-             artifact."kind"::text AS "kind",
-             artifact."storageLocator",
-             artifact."encryptionKeyVersion",
-             encode(artifact."encryptionIv", 'hex') AS "encryptionIvHex",
-             encode(artifact."authenticationTag", 'hex') AS "authenticationTagHex",
-             artifact."plaintextBytes",
-             artifact."ciphertextBytes",
-             encode(artifact."plaintextSha256", 'hex') AS "plaintextSha256Hex"
-        FROM "CvStoredArtifact" artifact
-       WHERE artifact."uploadId" = ${uploadId}
-         AND artifact."accountId" = ${input.candidateUserId}
-         AND artifact."kind" IN ('SOURCE_DOCUMENT', 'EXTRACTED_TEXT')
-         AND artifact."status" = 'AVAILABLE'
-         AND artifact."contentInaccessibleAt" IS NULL
-         AND artifact."deletedAt" IS NULL
-        ORDER BY CASE WHEN artifact."kind" = 'EXTRACTED_TEXT' THEN 0 ELSE 1 END,
-                 artifact."availableAt" DESC NULLS LAST,
-                 artifact."createdAt" DESC
-    `;
-    const extractedArtifact = rows.find((row) => row.kind === "EXTRACTED_TEXT");
-    const artifact =
-      extractedArtifact ?? rows.find((row) => row.kind === "SOURCE_DOCUMENT");
-    if (!artifact) return null;
-    if (
-      artifact.kind === "SOURCE_DOCUMENT" &&
-      (!documentKind ||
-        byteLength < 1 ||
-        !/^[a-f0-9]{64}$/iu.test(checksum) ||
-        artifact.plaintextBytes !== byteLength ||
-        artifact.plaintextSha256Hex !== checksum)
-    )
-      return null;
-    const storage = createCvWorkerStorage();
-    await storage.assertReady();
-    const verified = await createCvWorkerIntegrityReader(
-      storage,
-      createCvWorkerCryptor(),
-    ).verify({
-      locator: artifact.storageLocator,
-      ciphertextBytes: artifact.ciphertextBytes,
-      plaintextBytes: artifact.plaintextBytes,
-      plaintextSha256: Buffer.from(artifact.plaintextSha256Hex, "hex"),
-      context: {
-        accountId: input.candidateUserId,
-        uploadId,
-        artifactId: artifact.id,
-        kind: artifact.kind,
-      },
-      envelope: {
-        keyVersion: artifact.encryptionKeyVersion,
-        iv: Buffer.from(artifact.encryptionIvHex, "hex"),
-        authenticationTag: Buffer.from(artifact.authenticationTagHex, "hex"),
-      },
+    const opened = await new OpenSafeCvArtifactService().open({
+      candidateUserId: input.candidateUserId,
+      uploadId,
+      allowedPurposes: [
+        "PROFILE_IMPORT",
+        "PROFILE_DIRECT",
+        "JOB_APPLICATION_DIRECT",
+      ],
     });
     try {
-      if (artifact.kind === "EXTRACTED_TEXT") {
-        let serialized = "";
-        for await (const chunk of verified.open())
-          serialized += Buffer.from(chunk).toString("utf8");
-        const text = serialized
-          .split(/\r?\n/u)
-          .map((line) => {
-            try {
-              const value = JSON.parse(line) as { text?: unknown };
-              return typeof value.text === "string" ? value.text : "";
-            } catch {
-              return "";
-            }
-          })
-          .filter(Boolean)
-          .join("\n")
-          .trim();
-        return text || null;
+      if (
+        opened.byteLength !== byteLength ||
+        opened.evidence.checksumSha256.toLowerCase() !== checksum.toLowerCase()
+      ) {
+        throw new Error("APPLICATION_SOURCE_CV_INTEGRITY_MISMATCH");
       }
-      const sourceBytes: Uint8Array[] = [];
-      let sourceLength = 0;
-      for await (const chunk of verified.open()) {
-        const copy = Uint8Array.from(chunk);
-        sourceBytes.push(copy);
-        sourceLength += copy.byteLength;
-      }
-      const source = new Uint8Array(sourceLength);
-      let sourceOffset = 0;
-      for (const chunk of sourceBytes) {
-        source.set(chunk, sourceOffset);
-        sourceOffset += chunk.byteLength;
-      }
+      const source = await readVerifiedBytes(opened.openStream(), byteLength);
       const extracted = await extractDocumentWithRecovery(
         input.extractor,
         documentKind!,
         source,
+        opened.evidence.scanStatus,
       );
       const text = extracted.segments
         .map((segment) => segment.text)
@@ -502,7 +443,7 @@ async function sourceCandidateCvText(input: {
         .trim();
       return text || null;
     } finally {
-      await verified.dispose();
+      await opened.dispose();
     }
   } catch (error) {
     const code =
@@ -514,6 +455,27 @@ async function sourceCandidateCvText(input: {
     );
     return null;
   }
+}
+
+async function readVerifiedBytes(
+  stream: AsyncIterable<Uint8Array>,
+  expectedBytes: number,
+): Promise<Uint8Array> {
+  const chunks: Uint8Array[] = [];
+  let bytes = 0;
+  for await (const chunk of stream) {
+    bytes += chunk.byteLength;
+    if (bytes > expectedBytes) throw new Error("CV_LENGTH_MISMATCH");
+    chunks.push(Uint8Array.from(chunk));
+  }
+  if (bytes !== expectedBytes) throw new Error("CV_LENGTH_MISMATCH");
+  const source = new Uint8Array(bytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    source.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return source;
 }
 
 /**
@@ -528,10 +490,11 @@ async function extractDocumentWithRecovery(
   extractor: IsolatedDocumentExtractor,
   kind: "PDF" | "DOC" | "DOCX",
   source: Uint8Array,
+  scanStatus: "CLEAN",
 ) {
   if (kind === "DOC") return extractLegacyDocText(source);
   try {
-    return await extractor.extract({ kind, scanStatus: "CLEAN", source });
+    return await extractor.extract({ kind, scanStatus, source });
   } catch (error) {
     const recovered =
       kind === "PDF"

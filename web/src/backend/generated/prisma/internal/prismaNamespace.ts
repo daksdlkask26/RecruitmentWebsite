@@ -13437,6 +13437,8 @@ export const TeamApplicationScalarFieldEnum = {
   cvByteSize: 'cvByteSize',
   cvStorageKey: 'cvStorageKey',
   cvChecksumSha256: 'cvChecksumSha256',
+  cvSourceArtifactId: 'cvSourceArtifactId',
+  cvScanAssessmentId: 'cvScanAssessmentId',
   activeKey: 'activeKey',
   status: 'status',
   rejectionReason: 'rejectionReason',
@@ -14215,6 +14217,8 @@ export const CandidateCvScalarFieldEnum = {
   byteSize: 'byteSize',
   storageKey: 'storageKey',
   checksumSha256: 'checksumSha256',
+  sourceArtifactId: 'sourceArtifactId',
+  scanAssessmentId: 'scanAssessmentId',
   version: 'version',
   confirmedAt: 'confirmedAt',
   archivedAt: 'archivedAt',
@@ -14527,6 +14531,8 @@ export const ApplicationDocumentScalarFieldEnum = {
   sourceCandidateCvId: 'sourceCandidateCvId',
   sourceCandidateCvVersion: 'sourceCandidateCvVersion',
   safetyAssessmentId: 'safetyAssessmentId',
+  sourceArtifactId: 'sourceArtifactId',
+  scanAssessmentId: 'scanAssessmentId',
   committedAt: 'committedAt',
   ordinaryAccessDeniedAt: 'ordinaryAccessDeniedAt',
   deleteAfter: 'deleteAfter',
@@ -14995,6 +15001,9 @@ export const CvUploadScalarFieldEnum = {
   id: 'id',
   accountId: 'accountId',
   profileId: 'profileId',
+  purpose: 'purpose',
+  processingMode: 'processingMode',
+  policyVersion: 'policyVersion',
   documentKind: 'documentKind',
   parserClass: 'parserClass',
   status: 'status',
@@ -15060,6 +15069,7 @@ export const CvScanAssessmentScalarFieldEnum = {
   sourceArtifactId: 'sourceArtifactId',
   accountId: 'accountId',
   attemptNumber: 'attemptNumber',
+  policyVersion: 'policyVersion',
   candidateInitiated: 'candidateInitiated',
   status: 'status',
   engineName: 'engineName',
@@ -17626,6 +17636,34 @@ export type EnumRecruitmentNotificationKindFieldRefInput<$PrismaModel> = FieldRe
  * Reference to a field of type 'RecruitmentNotificationKind[]'
  */
 export type ListEnumRecruitmentNotificationKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecruitmentNotificationKind[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CvUploadPurpose'
+ */
+export type EnumCvUploadPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CvUploadPurpose'>
+    
+
+
+/**
+ * Reference to a field of type 'CvUploadPurpose[]'
+ */
+export type ListEnumCvUploadPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CvUploadPurpose[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CvProcessingMode'
+ */
+export type EnumCvProcessingModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CvProcessingMode'>
+    
+
+
+/**
+ * Reference to a field of type 'CvProcessingMode[]'
+ */
+export type ListEnumCvProcessingModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CvProcessingMode[]'>
     
 
 

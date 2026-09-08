@@ -1,11 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/backend/database/prisma";
-import {
-  createCvWorkerCryptor,
-  createCvWorkerIntegrityReader,
-  createCvWorkerStorage,
-} from "@/backend/cv/workers/cv-worker-resources";
+import { OpenSafeCvArtifactService } from "@/backend/services/cv-admission/open-safe-cv-artifact-service";
 import { safeFilename } from "@/backend/services/cv-import/cv-import-projection";
 import {
   candidateCvDeleteOutcomeSchema,
@@ -15,7 +11,10 @@ import {
   type CandidateCvLibrary,
   type CandidateCvSummary,
 } from "@/shared/contracts/cv-import/candidate-cv";
-import { CV_ACCOUNT_MAX_IMPORTS } from "@/shared/contracts/cv-import/common";
+import {
+  CV_ACCOUNT_MAX_IMPORTS,
+  CV_SECURITY_POLICY_VERSION,
+} from "@/shared/contracts/cv-import/common";
 
 function initialDisplayName(originalName: string | null, fallback: string) {
   const value = originalName?.trim() || fallback;
@@ -44,14 +43,6 @@ function isGeneratedFilename(value: string | undefined): boolean {
   );
 }
 
-function isMaterializedStorageLocator(value: string | undefined): boolean {
-  return Boolean(
-    value &&
-    !value.startsWith("candidate-cv-") &&
-    /^[A-Za-z0-9_-]{32,128}$/u.test(value),
-  );
-}
-
 type ConfirmedCvImport = Readonly<{
   id: string;
   declaredMediaType: string;
@@ -59,6 +50,9 @@ type ConfirmedCvImport = Readonly<{
   sourceSha256: Uint8Array | null;
   confirmedAt: Date | null;
   displayFilenameCiphertext: string | null;
+  sourceArtifactId: string | null;
+  sourceStorageLocator: string | null;
+  scanAssessmentId: string | null;
 }>;
 
 async function confirmedCvImports(
@@ -78,6 +72,9 @@ async function confirmedCvImports(
         sourceSha256Hex: string | null;
         confirmedAt: Date | null;
         displayFilenameCiphertext: string | null;
+        sourceArtifactId: string | null;
+        sourceStorageLocator: string | null;
+        scanAssessmentId: string | null;
       }>
     >`
       SELECT upload."id",
@@ -85,12 +82,44 @@ async function confirmedCvImports(
              upload."actualBytes",
              encode(upload."sourceSha256", 'hex') AS "sourceSha256Hex",
              upload."confirmedAt",
-             upload."displayFilenameCiphertext"
+             upload."displayFilenameCiphertext",
+             source_artifact."sourceArtifactId",
+             source_artifact."sourceStorageLocator",
+             clean_assessment."scanAssessmentId"
         FROM "CvUpload" upload
+   LEFT JOIN LATERAL (
+           SELECT artifact."id" AS "sourceArtifactId",
+                  artifact."storageLocator" AS "sourceStorageLocator"
+             FROM "CvStoredArtifact" artifact
+           WHERE artifact."uploadId" = upload."id"
+              AND artifact."accountId" = upload."accountId"
+              AND artifact."kind" = 'SOURCE_DOCUMENT'
+              AND artifact."status" = 'AVAILABLE'
+              AND artifact."deletedAt" IS NULL
+              AND artifact."plaintextBytes" = upload."actualBytes"
+              AND artifact."plaintextSha256" = upload."sourceSha256"
+            ORDER BY artifact."createdAt" DESC, artifact."id" DESC
+            LIMIT 1
+         ) source_artifact ON TRUE
+   LEFT JOIN LATERAL (
+           SELECT assessment."id" AS "scanAssessmentId"
+             FROM "CvScanAssessment" assessment
+            WHERE assessment."uploadId" = upload."id"
+              AND assessment."accountId" = upload."accountId"
+              AND assessment."sourceArtifactId" = source_artifact."sourceArtifactId"
+              AND assessment."status" = 'CLEAN'
+              AND assessment."completedAt" IS NOT NULL
+              AND assessment."policyVersion" = ${CV_SECURITY_POLICY_VERSION}
+            ORDER BY assessment."attemptNumber" DESC, assessment."createdAt" DESC
+            LIMIT 1
+         ) clean_assessment ON TRUE
        WHERE upload."accountId" = ${userId}
          AND upload."parserClass" IN ('DETERMINISTIC_INTERNAL', 'EXTERNAL_OPENAI')
          AND upload."status" = 'CONFIRMED'
          AND upload."confirmedAt" IS NOT NULL
+         AND upload."purpose" = 'PROFILE_IMPORT'
+         AND upload."processingMode" = 'IMPORT_AND_PARSE'
+         AND upload."policyVersion" = ${CV_SECURITY_POLICY_VERSION}
          AND upload."actualBytes" IS NOT NULL
          AND upload."sourceSha256" IS NOT NULL
          AND upload."declaredMediaType" IN (
@@ -110,7 +139,7 @@ async function confirmedCvImports(
   }
 
   // Lightweight test doubles do not implement Prisma's tagged raw-query API.
-  return db.cvUpload.findMany({
+  const rows = await db.cvUpload.findMany({
     where: {
       accountId: userId,
       parserClass: {
@@ -118,6 +147,9 @@ async function confirmedCvImports(
       },
       status: "CONFIRMED",
       confirmedAt: { not: null },
+      purpose: "PROFILE_IMPORT",
+      processingMode: "IMPORT_AND_PARSE",
+      policyVersion: CV_SECURITY_POLICY_VERSION,
       actualBytes: { not: null },
       sourceSha256: { not: null },
       declaredMediaType: {
@@ -137,7 +169,62 @@ async function confirmedCvImports(
       sourceSha256: true,
       confirmedAt: true,
       displayFilenameCiphertext: true,
+      artifacts: {
+        where: {
+          kind: "SOURCE_DOCUMENT",
+          status: "AVAILABLE",
+          deletedAt: null,
+          upload: {
+            is: {
+              status: { in: ["SECURITY_CLEAN", "CONFIRMED"] },
+              purpose: { in: ["PROFILE_IMPORT", "PROFILE_DIRECT"] },
+              policyVersion: CV_SECURITY_POLICY_VERSION,
+              deletedAt: null,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          id: true,
+          storageLocator: true,
+          plaintextBytes: true,
+          plaintextSha256: true,
+        },
+      },
+      scanAssessments: {
+        where: {
+          status: "CLEAN",
+          completedAt: { not: null },
+          policyVersion: CV_SECURITY_POLICY_VERSION,
+        },
+        orderBy: { attemptNumber: "desc" },
+        take: 1,
+        select: { id: true, sourceArtifactId: true },
+      },
     },
+  });
+  return rows.map((row) => {
+    const artifact = row.artifacts?.[0];
+    const checksumMatches = Boolean(
+      artifact?.plaintextSha256 &&
+      row.sourceSha256 &&
+      Buffer.from(artifact.plaintextSha256).equals(
+        Buffer.from(row.sourceSha256),
+      ),
+    );
+    const artifactMatches =
+      artifact?.plaintextBytes === row.actualBytes && checksumMatches;
+    const assessment = row.scanAssessments?.[0];
+    return {
+      ...row,
+      sourceArtifactId: artifactMatches ? artifact.id : null,
+      sourceStorageLocator: artifactMatches ? artifact.storageLocator : null,
+      scanAssessmentId:
+        artifactMatches && assessment?.sourceArtifactId === artifact.id
+          ? assessment.id
+          : null,
+    };
   });
 }
 
@@ -191,8 +278,8 @@ export async function ensureCandidateCvLibrary(
           : upload.declaredMediaType === "application/msword"
             ? "doc"
             : "docx";
-      const storageKey = "candidate-cv-" + upload.id;
-      const desiredId = storageKey;
+      const desiredId = "candidate-cv-" + upload.id;
+      const storageKey = upload.sourceStorageLocator ?? desiredId;
       const fallbackFileName = "candidate-cv." + extension;
       const existing =
         existingByStorageKey.get(storageKey) ?? existingById.get(desiredId);
@@ -224,6 +311,8 @@ export async function ensureCandidateCvLibrary(
           checksumSha256,
           version: 1,
           confirmedAt: upload.confirmedAt,
+          sourceArtifactId: upload.sourceArtifactId,
+          scanAssessmentId: upload.scanAssessmentId,
         },
         update: {
           ...(existing &&
@@ -231,21 +320,16 @@ export async function ensureCandidateCvLibrary(
             isGeneratedFilename(existing.displayName))
             ? { displayName: originalName }
             : {}),
-          // A confirmed import is first projected with the stable
-          // `candidate-cv-<uploadId>` bridge key.  The confirmation flow then
-          // materializes a plaintext copy and replaces that bridge with a
-          // private-storage locator.  Do not overwrite the materialized
-          // locator every time the library is listed (the old behavior made
-          // profile CVs and subsequent application promotions unreadable).
-          storageKey:
-            existing && isMaterializedStorageLocator(existing.storageKey)
-              ? existing.storageKey
-              : storageKey,
+          // CandidateCv points at the same encrypted source artifact; it must
+          // never preserve or recreate a legacy plaintext materialization.
+          storageKey,
           fileName: existingUserFilename ?? originalName,
           mimeType: upload.declaredMediaType,
           byteSize: upload.actualBytes,
           checksumSha256,
           confirmedAt: upload.confirmedAt,
+          sourceArtifactId: upload.sourceArtifactId,
+          scanAssessmentId: upload.scanAssessmentId,
         },
       });
     }),
@@ -253,9 +337,8 @@ export async function ensureCandidateCvLibrary(
 }
 
 /**
- * Replace the temporary bridge locator with a verified private-storage copy
- * after a CV import is confirmed. The CV-import workflow calls this profile
- * projection service instead of writing CandidateCv directly.
+ * Replace the temporary bridge locator with the verified encrypted source
+ * locator after confirmation. No second plaintext object is materialized.
  */
 export async function materializeConfirmedCandidateCv(
   accountId: string,
@@ -267,65 +350,29 @@ export async function materializeConfirmedCandidateCv(
     where: { id: candidateCvId },
   });
   if (!cv || cv.storageKey !== candidateCvId) return;
-  const rows = await db.$queryRaw<
-    Array<{
-      id: string;
-      storageLocator: string;
-      encryptionKeyVersion: number;
-      encryptionIvHex: string;
-      authenticationTagHex: string;
-      plaintextBytes: number;
-      ciphertextBytes: number;
-      plaintextSha256Hex: string;
-    }>
-  >`
-    SELECT artifact."id", artifact."storageLocator", artifact."encryptionKeyVersion",
-           encode(artifact."encryptionIv", 'hex') AS "encryptionIvHex",
-           encode(artifact."authenticationTag", 'hex') AS "authenticationTagHex",
-           artifact."plaintextBytes", artifact."ciphertextBytes",
-           encode(artifact."plaintextSha256", 'hex') AS "plaintextSha256Hex"
-      FROM "CvStoredArtifact" artifact
-     WHERE artifact."uploadId" = ${uploadId}
-       AND artifact."accountId" = ${accountId}
-       AND artifact."kind" = 'SOURCE_DOCUMENT'
-       AND artifact."deletedAt" IS NULL
-     ORDER BY artifact."createdAt" DESC LIMIT 1
-  `;
-  const artifact = rows[0];
-  if (!artifact) throw new Error("CANDIDATE_CV_SOURCE_UNAVAILABLE");
-  const storage = createCvWorkerStorage();
-  await storage.assertReady();
-  const verified = await createCvWorkerIntegrityReader(
-    storage,
-    createCvWorkerCryptor(),
-  ).verify({
-    locator: artifact.storageLocator,
-    ciphertextBytes: artifact.ciphertextBytes,
-    plaintextBytes: artifact.plaintextBytes,
-    plaintextSha256: Buffer.from(artifact.plaintextSha256Hex, "hex"),
-    context: {
-      accountId,
-      uploadId,
-      artifactId: artifact.id,
-      kind: "SOURCE_DOCUMENT",
-    },
-    envelope: {
-      keyVersion: artifact.encryptionKeyVersion,
-      iv: Buffer.from(artifact.encryptionIvHex, "hex"),
-      authenticationTag: Buffer.from(artifact.authenticationTagHex, "hex"),
-    },
+
+  const opened = await new OpenSafeCvArtifactService().open({
+    candidateUserId: accountId,
+    uploadId,
+    expectedPurpose: "PROFILE_IMPORT",
   });
+  if (
+    opened.byteLength !== cv.byteSize ||
+    opened.evidence.checksumSha256 !== cv.checksumSha256.toLowerCase()
+  ) {
+    await opened.dispose();
+    throw new Error("CANDIDATE_CV_SOURCE_MISMATCH");
+  }
+
   try {
-    const stored = await storage.put({
-      source: verified.open(),
-      expectedBytes: verified.plaintextBytes,
-    });
+    // CandidateCv is a projection over the immutable encrypted source
+    // artifact. Do not create a second plaintext object after safe-open.
     await db.candidateCv.update({
       where: { id: candidateCvId, storageKey: candidateCvId },
-      data: { storageKey: String(stored.locator) },
+      data: { storageKey: opened.evidence.storageLocator },
     });
   } finally {
-    await verified.dispose();
+    await opened.dispose();
   }
 }
 
@@ -339,6 +386,32 @@ export async function listCandidateCvLibrary(
       candidateUserId: userId,
       confirmedAt: { not: null },
       archivedAt: null,
+      sourceArtifactId: { not: null },
+      scanAssessmentId: { not: null },
+      sourceArtifact: {
+        is: {
+          kind: "SOURCE_DOCUMENT",
+          status: "AVAILABLE",
+          deletedAt: null,
+          contentInaccessibleAt: null,
+          upload: {
+            is: {
+              status: { in: ["SECURITY_CLEAN", "CONFIRMED"] },
+              purpose: { in: ["PROFILE_IMPORT", "PROFILE_DIRECT"] },
+              policyVersion: CV_SECURITY_POLICY_VERSION,
+              deletedAt: null,
+              contentInaccessibleAt: null,
+            },
+          },
+        },
+      },
+      scanAssessment: {
+        is: {
+          status: "CLEAN",
+          completedAt: { not: null },
+          policyVersion: CV_SECURITY_POLICY_VERSION,
+        },
+      },
     },
     orderBy: [{ confirmedAt: "desc" }, { id: "desc" }],
     // Match Check and Profile share the ten-file account quota.
@@ -351,20 +424,35 @@ export async function listCandidateCvLibrary(
       byteSize: true,
       version: true,
       confirmedAt: true,
+      sourceArtifactId: true,
+      scanAssessmentId: true,
+      sourceArtifact: { select: { id: true } },
+      scanAssessment: {
+        select: { id: true, sourceArtifactId: true },
+      },
     },
   });
   return candidateCvLibrarySchema.parse({
-    items: rows.map((row) =>
-      candidateCvSummarySchema.parse({
-        id: row.id,
-        displayName: row.displayName,
-        fileName: row.fileName,
-        mimeType: row.mimeType,
-        byteSize: row.byteSize,
-        version: row.version,
-        confirmedAt: row.confirmedAt?.toISOString(),
-      }),
-    ),
+    items: rows.flatMap((row) => {
+      if (
+        row.sourceArtifactId !== row.sourceArtifact?.id ||
+        row.scanAssessmentId !== row.scanAssessment?.id ||
+        row.scanAssessment.sourceArtifactId !== row.sourceArtifact?.id
+      ) {
+        return [];
+      }
+      return [
+        candidateCvSummarySchema.parse({
+          id: row.id,
+          displayName: row.displayName,
+          fileName: row.fileName,
+          mimeType: row.mimeType,
+          byteSize: row.byteSize,
+          version: row.version,
+          confirmedAt: row.confirmedAt?.toISOString(),
+        }),
+      ];
+    }),
   });
 }
 

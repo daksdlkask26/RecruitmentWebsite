@@ -12,15 +12,12 @@ import {
   candidateTeamApplicationSchema,
   type TeamRole,
 } from "@/shared/contracts/company-members/team-applications";
-import type { PreparedDirectApplicationCv } from "@/backend/services/jobs/prepare-direct-application-cv";
+import type { PreparedDirectApplicationDocument } from "@/backend/services/jobs/prepare-direct-application-document";
 import { teamApplicationCvDeleteAfter } from "./team-application-retention-policy";
 import {
-  CANDIDATE_CV_ARTIFACT_SCOPE,
-  markCandidateCvArtifactCommitted,
-  markCandidateCvArtifactDeleted,
-  markCandidateCvArtifactFailure,
-  stageCandidateCvArtifact,
-} from "@/backend/cv/candidate-cv-artifact-promotion";
+  CvSafetyEvidenceError,
+  CvSafetyEvidenceService,
+} from "@/backend/services/cv-admission/cv-safety-evidence-service";
 
 const supportedRoles = ["HR_MANAGER", "RECRUITER"] as const;
 
@@ -65,6 +62,13 @@ export function projectCandidateTeamApplication(
 
 function activeKey(candidateUserId: string, companyId: string, role: TeamRole) {
   return `${candidateUserId}:${companyId}:${role}`;
+}
+
+function isUniqueConstraintError(error: unknown): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2002"
+  );
 }
 
 async function writeAudit(
@@ -141,99 +145,56 @@ export class TeamApplicationService {
     return projectCandidateTeamApplication(row);
   }
 
-  async submit(
+  async submitWithUploadId(
     candidateUserId: string,
     companyId: string,
     role: TeamRole,
-    prepared: PreparedDirectApplicationCv,
+    uploadId: string,
     occurredAt = new Date(),
   ) {
-    let cleaned = false;
-    let transactionAttempted = false;
-    let promotionId: string | null = null;
-    let stageFailed = false;
-    let storageOutcomeUnknown = false;
-    const cleanup = async () => {
-      if (cleaned) return;
-      await prepared.cleanup();
-      cleaned = true;
-    };
-    const cleanupStagedArtifact = async () => {
-      try {
-        await cleanup();
-        if (promotionId)
-          await markCandidateCvArtifactDeleted(promotionId, occurredAt);
-      } catch {
-        prepared.preserveOnUnknown?.();
-        if (promotionId) {
-          await markCandidateCvArtifactFailure(
-            promotionId,
-            "CANDIDATE_CV_ARTIFACT_CLEANUP_FAILED",
-          );
-        }
-      }
-    };
+    const account = await prisma.userAccount.findUnique({
+      where: { id: candidateUserId },
+      select: {
+        email: true,
+        state: true,
+        candidateIdentity: { select: { userId: true } },
+      },
+    });
+    if (!account || account.state !== "ACTIVE" || !account.candidateIdentity) {
+      throw new TeamApplicationCommandError("TEAM_APPLICATION_UNAVAILABLE");
+    }
+
+    const key = activeKey(candidateUserId, companyId, role);
+    const existing = await prisma.teamApplication.findFirst({
+      where: { activeKey: key },
+      select: { id: true },
+    });
+    if (existing) {
+      const status = await this.getCandidate(candidateUserId, existing.id);
+      return { created: false as const, application: status };
+    }
+
+    let evidence;
     try {
-      const account = await prisma.userAccount.findUnique({
-        where: { id: candidateUserId },
-        select: {
-          email: true,
-          state: true,
-          candidateIdentity: { select: { userId: true } },
+      evidence = await new CvSafetyEvidenceService().assertCvArtifactSafeForUse(
+        {
+          candidateUserId,
+          uploadId,
+          expectedPurpose: "TEAM_APPLICATION_DIRECT",
+          now: occurredAt,
         },
-      });
-      if (
-        !account ||
-        account.state !== "ACTIVE" ||
-        !account.candidateIdentity
-      ) {
+      );
+    } catch (error) {
+      if (error instanceof CvSafetyEvidenceError) {
         throw new TeamApplicationCommandError("TEAM_APPLICATION_UNAVAILABLE");
       }
+      throw error;
+    }
 
-      const key = activeKey(candidateUserId, companyId, role);
-      const existing = await prisma.teamApplication.findFirst({
-        where: { activeKey: key },
-        select: { id: true },
-      });
-      if (existing) {
-        await cleanup();
-        const status = await this.getCandidate(candidateUserId, existing.id);
-        return { created: false as const, application: status };
-      }
-
-      const applicationId = randomUUID();
-      promotionId = await stageCandidateCvArtifact({
-        candidateUserId,
-        scope: CANDIDATE_CV_ARTIFACT_SCOPE.TEAM_APPLICATION,
-        targetId: applicationId,
-        storageKey: prepared.storageKey,
-        contentDigestSha256: prepared.checksumSha256,
-        byteSize: prepared.byteSize,
-        occurredAt,
-      }).catch((error) => {
-        stageFailed = true;
-        throw error;
-      });
-      // The durable Team Application promotion is staged before the object is
-      // materialized. A storage response lost after this point is therefore
-      // recoverable by the reconciliation worker instead of becoming an
-      // untracked upload.
-      try {
-        await prepared.ensureStored?.();
-      } catch (error) {
-        // cleanup() intentionally does nothing for an UNKNOWN object. Its
-        // resolution is not proof of deletion: leave the staged ledger for
-        // reconciliation even if recording this failure also loses its reply.
-        storageOutcomeUnknown = true;
-        prepared.preserveOnUnknown?.();
-        await markCandidateCvArtifactFailure(
-          promotionId,
-          "CANDIDATE_CV_ARTIFACT_STORAGE_WRITE_UNKNOWN",
-        );
-        throw error;
-      }
-      transactionAttempted = true;
-      const createdId = await prisma.$transaction(async (tx) => {
+    const applicationId = randomUUID();
+    let createdId: string;
+    try {
+      createdId = await prisma.$transaction(async (tx) => {
         const company = await tx.company.findFirst({
           where: {
             id: companyId,
@@ -287,6 +248,17 @@ export class TeamApplicationService {
           throw new TeamApplicationCommandError("TEAM_APPLICATION_DUPLICATE");
         }
 
+        const sourceArtifactInUse = await tx.teamApplication.findFirst({
+          where: {
+            cvSourceArtifactId: evidence.artifactId,
+            cvDeletedAt: null,
+          },
+          select: { id: true },
+        });
+        if (sourceArtifactInUse) {
+          throw new TeamApplicationCommandError("TEAM_APPLICATION_CONFLICT");
+        }
+
         const application = await tx.teamApplication.create({
           data: {
             id: applicationId,
@@ -295,18 +267,21 @@ export class TeamApplicationService {
             teamOpportunityId: opportunity.id,
             appliedRole: role,
             applicationEmail: account.email.trim().toLowerCase(),
-            cvDisplayName: prepared.displayName,
-            cvFileName: prepared.fileName,
-            cvMimeType: prepared.mimeType,
-            cvByteSize: prepared.byteSize,
-            cvStorageKey: prepared.storageKey,
-            cvChecksumSha256: prepared.checksumSha256,
+            cvDisplayName: evidence.fileName,
+            cvFileName: evidence.fileName,
+            cvMimeType: evidence.mimeType,
+            cvByteSize: evidence.plaintextBytes,
+            cvStorageKey: evidence.storageLocator,
+            cvChecksumSha256: evidence.checksumSha256,
+            cvSourceArtifactId: evidence.artifactId,
+            cvScanAssessmentId: evidence.assessmentId,
             activeKey: key,
             status: "SUBMITTED",
             submittedAt: occurredAt,
           },
           select: { id: true },
         });
+
         await writeAudit(tx, {
           action: "team_application.submitted",
           actorUserId: candidateUserId,
@@ -315,10 +290,13 @@ export class TeamApplicationService {
           context: {
             companyId,
             role,
-            cvMimeType: prepared.mimeType,
-            cvByteSize: prepared.byteSize,
+            cvMimeType: evidence.mimeType,
+            cvByteSize: evidence.plaintextBytes,
+            cvSourceArtifactId: evidence.artifactId,
+            cvScanAssessmentId: evidence.assessmentId,
           },
         });
+
         for (const owner of owners) {
           await createInAppNotification(tx, {
             recipientUserId: owner.userId,
@@ -335,59 +313,58 @@ export class TeamApplicationService {
             },
           });
         }
+
         return application.id;
       });
-
-      // The transaction has committed the application row and its CV locator.
-      // From this point onward route/projection failures must not delete the
-      // artifact; retention/reconciliation owns it instead.
-      prepared.claimOwnership();
-      if (promotionId) await markCandidateCvArtifactCommitted(promotionId);
-
-      const result = await this.getCandidate(candidateUserId, createdId);
-      return { created: true as const, application: result };
     } catch (error) {
-      if (storageOutcomeUnknown) throw error;
-      if (
-        (error instanceof TeamApplicationCommandError &&
-          error.code === "TEAM_APPLICATION_DUPLICATE") ||
-        (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.code === "P2002")
-      ) {
-        let existing: { id: string } | null;
-        try {
-          existing = await prisma.teamApplication.findFirst({
-            where: { activeKey: activeKey(candidateUserId, companyId, role) },
-            select: { id: true },
-          });
-        } catch {
-          prepared.preserveOnUnknown?.();
-          throw error;
+      if (isUniqueConstraintError(error)) {
+        // Two finalize requests can pass the read-before-transaction check at
+        // the same time. Converge the loser on the committed row so the
+        // client does not create a second retry path or duplicate notices.
+        const raced = await prisma.teamApplication.findFirst({
+          where: { activeKey: key },
+          select: { id: true },
+        });
+        if (raced) {
+          const existingApplication = await this.getCandidate(
+            candidateUserId,
+            raced.id,
+          );
+          return { created: false as const, application: existingApplication };
         }
-        if (existing) {
-          await cleanupStagedArtifact();
-          return {
-            created: false as const,
-            application: await this.getCandidate(candidateUserId, existing.id),
-          };
-        }
-        prepared.preserveOnUnknown?.();
-        throw error;
-      }
-      if (stageFailed) {
-        prepared.preserveOnUnknown?.();
-      } else if (
-        !transactionAttempted ||
-        error instanceof TeamApplicationCommandError
-      ) {
-        await cleanupStagedArtifact();
-      } else {
-        prepared.preserveOnUnknown?.();
+        throw new TeamApplicationCommandError("TEAM_APPLICATION_CONFLICT");
       }
       throw error;
     }
+
+    const result = await this.getCandidate(candidateUserId, createdId);
+    return { created: true as const, application: result };
   }
 
+  /**
+   * Compatibility entry point retained for callers that used submit().
+   * Only an upload admitted by the unified quarantine/scan pipeline is
+   * accepted. Legacy prepared plaintext objects are rejected and cleaned.
+   */
+  async submit(
+    candidateUserId: string,
+    companyId: string,
+    role: TeamRole,
+    admission: { uploadId: string } | PreparedDirectApplicationDocument,
+    occurredAt = new Date(),
+  ) {
+    if (!("uploadId" in admission) || !admission.uploadId) {
+      await (admission as PreparedDirectApplicationDocument).cleanup?.();
+      throw new TeamApplicationCommandError("TEAM_APPLICATION_UNAVAILABLE");
+    }
+    return this.submitWithUploadId(
+      candidateUserId,
+      companyId,
+      role,
+      admission.uploadId,
+      occurredAt,
+    );
+  }
   async withdraw(
     candidateUserId: string,
     applicationId: string,

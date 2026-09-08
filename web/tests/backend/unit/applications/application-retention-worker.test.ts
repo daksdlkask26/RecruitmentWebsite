@@ -4,10 +4,12 @@ const mocks = vi.hoisted(() => ({
   prisma: {
     jobApplication: {
       updateMany: vi.fn(),
+      update: vi.fn(),
       findFirst: vi.fn(),
     },
     applicationDocument: {
       updateMany: vi.fn(),
+      update: vi.fn(),
       findMany: vi.fn(),
       findFirst: vi.fn(),
       count: vi.fn(),
@@ -64,6 +66,7 @@ beforeEach(() => {
   mocks.prisma.jobApplication.updateMany.mockResolvedValue({ count: 0 });
   mocks.prisma.jobApplication.findFirst.mockResolvedValue(null);
   mocks.prisma.applicationDocument.updateMany.mockResolvedValue({ count: 0 });
+  mocks.prisma.applicationDocument.update.mockResolvedValue({});
   mocks.prisma.applicationDocument.findMany.mockResolvedValue([]);
   mocks.prisma.applicationDocument.findFirst.mockResolvedValue(null);
   mocks.prisma.applicationDocument.count.mockResolvedValue(0);
@@ -76,6 +79,31 @@ beforeEach(() => {
 });
 
 describe("application artifact promotion reconciliation", () => {
+  it("retires a CV projection without deleting its shared encrypted source", async () => {
+    mocks.prisma.applicationDocument.findMany.mockResolvedValue([
+      {
+        id: "document-1",
+        jobApplicationId: "application-1",
+        kind: "CV",
+        storageKeyEncrypted: "encrypted-source",
+        sourceArtifactId: "artifact-1",
+      },
+    ]);
+
+    const result = await runApplicationRetentionCycle(now);
+
+    expect(result.deleted).toBe(1);
+    expect(mocks.storage.delete).not.toHaveBeenCalled();
+    expect(mocks.prisma.applicationDocument.update).toHaveBeenCalledWith({
+      where: { id: "document-1" },
+      data: {
+        deletedAt: now,
+        sourceArtifactId: null,
+        scanAssessmentId: null,
+      },
+    });
+  });
+
   it("deletes only an orphan with no durable application or document", async () => {
     mocks.prisma.applicationArtifactPromotion.findMany.mockResolvedValue([
       orphan(),
@@ -85,7 +113,9 @@ describe("application artifact promotion reconciliation", () => {
 
     expect(result.orphansDeleted).toBe(1);
     expect(mocks.storage.delete).toHaveBeenCalledWith("application-storage-1");
-    expect(mocks.prisma.applicationArtifactPromotion.update).toHaveBeenCalledWith(
+    expect(
+      mocks.prisma.applicationArtifactPromotion.update,
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: "promotion-1" },
         data: expect.objectContaining({ state: "DELETED", deletedAt: now }),
@@ -106,7 +136,9 @@ describe("application artifact promotion reconciliation", () => {
 
     expect(result.orphansDeleted).toBe(0);
     expect(mocks.storage.delete).not.toHaveBeenCalled();
-    expect(mocks.prisma.applicationArtifactPromotion.update).toHaveBeenCalledWith(
+    expect(
+      mocks.prisma.applicationArtifactPromotion.update,
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           state: "COMMITTED",
@@ -130,7 +162,9 @@ describe("application artifact promotion reconciliation", () => {
 
     expect(result.orphansDeleted).toBe(0);
     expect(mocks.storage.delete).not.toHaveBeenCalled();
-    expect(mocks.prisma.applicationArtifactPromotion.update).toHaveBeenCalledWith(
+    expect(
+      mocks.prisma.applicationArtifactPromotion.update,
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           state: "COMMITTED",
@@ -146,7 +180,10 @@ describe("application artifact promotion reconciliation", () => {
     ]);
     mocks.prisma.applicationDocument.findFirst.mockResolvedValue({
       jobApplicationId: "other-application",
-      application: { candidateUserId: "other-candidate", jobPostingId: "job-2" },
+      application: {
+        candidateUserId: "other-candidate",
+        jobPostingId: "job-2",
+      },
       contentDigestHmac: "b".repeat(64),
     });
 
@@ -154,7 +191,9 @@ describe("application artifact promotion reconciliation", () => {
 
     expect(result.orphansDeleted).toBe(0);
     expect(mocks.storage.delete).not.toHaveBeenCalled();
-    expect(mocks.prisma.applicationArtifactPromotion.update).toHaveBeenCalledWith(
+    expect(
+      mocks.prisma.applicationArtifactPromotion.update,
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           state: "DELETE_FAILED",
@@ -178,7 +217,9 @@ describe("application artifact promotion reconciliation", () => {
 
     expect(result.orphansDeleted).toBe(0);
     expect(mocks.storage.delete).not.toHaveBeenCalled();
-    expect(mocks.prisma.applicationArtifactPromotion.update).toHaveBeenCalledWith(
+    expect(
+      mocks.prisma.applicationArtifactPromotion.update,
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           state: "DELETE_FAILED",
@@ -200,7 +241,9 @@ describe("application artifact promotion reconciliation", () => {
 
     expect(result.orphansDeleted).toBe(0);
     expect(mocks.storage.delete).not.toHaveBeenCalled();
-    expect(mocks.prisma.applicationArtifactPromotion.update).toHaveBeenCalledWith(
+    expect(
+      mocks.prisma.applicationArtifactPromotion.update,
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           state: "DELETE_FAILED",
@@ -219,7 +262,9 @@ describe("application artifact promotion reconciliation", () => {
     const result = await runApplicationRetentionCycle(now);
 
     expect(result.orphansDeleted).toBe(0);
-    expect(mocks.prisma.applicationArtifactPromotion.update).toHaveBeenCalledWith(
+    expect(
+      mocks.prisma.applicationArtifactPromotion.update,
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           state: "DELETE_FAILED",

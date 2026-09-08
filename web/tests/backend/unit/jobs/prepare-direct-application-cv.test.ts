@@ -13,7 +13,7 @@ vi.mock("@/backend/cv/workers/cv-worker-resources", () => ({
   createCvWorkerStorage: () => storage,
 }));
 
-describe("prepareDirectApplicationCv ownership", () => {
+describe("prepareDirectApplicationDocument ownership", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     storage.assertReady.mockResolvedValue(undefined);
@@ -27,10 +27,10 @@ describe("prepareDirectApplicationCv ownership", () => {
   });
 
   it("claims ownership after commit and makes later request cleanup a no-op", async () => {
-    const { prepareDirectApplicationCv } =
-      await import("@/backend/services/jobs/prepare-direct-application-cv");
+    const { prepareDirectApplicationDocument } =
+      await import("@/backend/services/jobs/prepare-direct-application-document");
     const bytes = createSyntheticPdf("ownership boundary");
-    const prepared = await prepareDirectApplicationCv({
+    const prepared = await prepareDirectApplicationDocument({
       fileName: "ownership.pdf",
       mimeType: "application/pdf",
       byteSize: bytes.byteLength,
@@ -45,10 +45,10 @@ describe("prepareDirectApplicationCv ownership", () => {
   });
 
   it("deletes a temporary artifact at most once across concurrent cleanup calls", async () => {
-    const { prepareDirectApplicationCv } =
-      await import("@/backend/services/jobs/prepare-direct-application-cv");
+    const { prepareDirectApplicationDocument } =
+      await import("@/backend/services/jobs/prepare-direct-application-document");
     const bytes = createSyntheticPdf("temporary cleanup");
-    const prepared = await prepareDirectApplicationCv({
+    const prepared = await prepareDirectApplicationDocument({
       fileName: "temporary.pdf",
       mimeType: "application/pdf",
       byteSize: bytes.byteLength,
@@ -67,10 +67,10 @@ describe("prepareDirectApplicationCv ownership", () => {
   });
 
   it("allows cleanup to retry after a storage deletion failure", async () => {
-    const { prepareDirectApplicationCv } =
-      await import("@/backend/services/jobs/prepare-direct-application-cv");
+    const { prepareDirectApplicationDocument } =
+      await import("@/backend/services/jobs/prepare-direct-application-document");
     const bytes = createSyntheticPdf("retry cleanup");
-    const prepared = await prepareDirectApplicationCv({
+    const prepared = await prepareDirectApplicationDocument({
       fileName: "retry.pdf",
       mimeType: "application/pdf",
       byteSize: bytes.byteLength,
@@ -88,10 +88,10 @@ describe("prepareDirectApplicationCv ownership", () => {
   });
 
   it("reserves a deterministic locator and defers the object write", async () => {
-    const { prepareDirectApplicationCv } =
-      await import("@/backend/services/jobs/prepare-direct-application-cv");
+    const { prepareDirectApplicationDocument } =
+      await import("@/backend/services/jobs/prepare-direct-application-document");
     const bytes = createSyntheticPdf("deferred storage");
-    const prepared = await prepareDirectApplicationCv(
+    const prepared = await prepareDirectApplicationDocument(
       {
         fileName: "deferred.pdf",
         mimeType: "application/pdf",
@@ -114,11 +114,11 @@ describe("prepareDirectApplicationCv ownership", () => {
   });
 
   it("keeps an ambiguous deferred write for reconciliation", async () => {
-    const { prepareDirectApplicationCv } =
-      await import("@/backend/services/jobs/prepare-direct-application-cv");
+    const { prepareDirectApplicationDocument } =
+      await import("@/backend/services/jobs/prepare-direct-application-document");
     const bytes = createSyntheticPdf("ambiguous deferred storage");
     storage.put.mockRejectedValueOnce(new Error("STORAGE_RESPONSE_LOST"));
-    const prepared = await prepareDirectApplicationCv(
+    const prepared = await prepareDirectApplicationDocument(
       {
         fileName: "ambiguous.pdf",
         mimeType: "application/pdf",

@@ -23,6 +23,13 @@ export type JobApplicationCopy = {
   removeFile: string;
   savingCv: string;
   importCv: string;
+  cvScanning: string;
+  cvResuming: string;
+  cvRetryable: string;
+  cvInfected: string;
+  cvStatusError: string;
+  cvReady: string;
+  retryCv: string;
   contactInformation: string;
   fullName: string;
   email: string;
@@ -91,7 +98,7 @@ const englishCopy: JobApplicationCopy = {
   cvSection: "Application CV",
   cvHelp:
     "Select exactly one confirmed CV from your Profile, or import one new PDF, DOC, or DOCX file.",
-  selectCv: "Select CV from Profile",
+  selectCv: "Select a CV from Profile",
   savedCvPlaceholder: "Select one saved CV",
   noConfirmedCvs: "No confirmed CVs in Profile",
   fileSelected: "CV file selected",
@@ -101,6 +108,14 @@ const englishCopy: JobApplicationCopy = {
   removeFile: "Remove",
   savingCv: "Saving CV...",
   importCv: "Import CV",
+  cvScanning: "CV uploaded. We are checking it for safety...",
+  cvResuming: "Resuming the CV safety check...",
+  cvRetryable:
+    "The safety check could not finish. Retry it without uploading the file again.",
+  cvInfected: "This CV was blocked because the safety scan detected a threat.",
+  cvStatusError: "The CV could not pass the safety check.",
+  cvReady: "CV safety check passed.",
+  retryCv: "Retry safety check",
   contactInformation: "Contact information",
   fullName: "Full name",
   email: "Email",
@@ -187,6 +202,14 @@ const vietnameseCopy: JobApplicationCopy = {
   removeFile: "Xóa",
   savingCv: "Đang lưu CV...",
   importCv: "Nhập CV",
+  cvScanning: "CV đã được tải lên. Đang kiểm tra an toàn...",
+  cvResuming: "Đang tiếp tục kiểm tra an toàn CV...",
+  cvRetryable:
+    "Kiểm tra an toàn chưa hoàn tất. Bạn có thể thử lại mà không cần tải lại tệp.",
+  cvInfected: "CV bị chặn vì quá trình quét an toàn phát hiện mối đe dọa.",
+  cvStatusError: "CV không vượt qua kiểm tra an toàn.",
+  cvReady: "CV đã vượt qua kiểm tra an toàn.",
+  retryCv: "Thử lại kiểm tra an toàn",
   contactInformation: "Thông tin liên hệ",
   fullName: "Họ và tên",
   email: "Email",

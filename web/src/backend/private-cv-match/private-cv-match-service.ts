@@ -22,6 +22,7 @@ import type {
 } from "./private-match-types";
 import { partitionJobSkillsForMatching } from "@/backend/scoring/domain/job-skill-requirement-policy";
 import { FORMULA_VERSION } from "@/backend/scoring/domain/hybrid-score-calculator";
+import { CV_SECURITY_POLICY_VERSION } from "@/shared/contracts/cv-import/common";
 
 export const PRIVATE_SCORING_CONFIG_VERSION = FORMULA_VERSION;
 export const PRIVATE_PARSER_VERSION = "private-cv-match-parser-v1";
@@ -460,7 +461,38 @@ export class PrivateCvMatchService {
 
     const [cv, job] = await Promise.all([
       prisma.candidateCv.findFirst({
-        where: { id: parsed.data.cvVersionId, candidateUserId },
+        where: {
+          id: parsed.data.cvVersionId,
+          candidateUserId,
+          confirmedAt: { not: null },
+          archivedAt: null,
+          sourceArtifactId: { not: null },
+          scanAssessmentId: { not: null },
+          sourceArtifact: {
+            is: {
+              kind: "SOURCE_DOCUMENT",
+              status: "AVAILABLE",
+              deletedAt: null,
+              contentInaccessibleAt: null,
+              upload: {
+                is: {
+                  status: { in: ["SECURITY_CLEAN", "CONFIRMED"] },
+                  purpose: { in: ["PROFILE_IMPORT", "PROFILE_DIRECT"] },
+                  policyVersion: CV_SECURITY_POLICY_VERSION,
+                  deletedAt: null,
+                  contentInaccessibleAt: null,
+                },
+              },
+            },
+          },
+          scanAssessment: {
+            is: {
+              status: "CLEAN",
+              completedAt: { not: null },
+              policyVersion: CV_SECURITY_POLICY_VERSION,
+            },
+          },
+        },
         select: {
           id: true,
           displayName: true,
@@ -471,11 +503,24 @@ export class PrivateCvMatchService {
           version: true,
           confirmedAt: true,
           archivedAt: true,
+          sourceArtifactId: true,
+          scanAssessmentId: true,
+          sourceArtifact: { select: { id: true } },
+          scanAssessment: {
+            select: { id: true, sourceArtifactId: true },
+          },
         },
       }),
       findEligiblePrivateMatchJob(parsed.data.jobId, now),
     ]);
-    if (!cv) throw privateMatchError("CV_UNAVAILABLE", 404);
+    if (
+      !cv ||
+      cv.sourceArtifactId !== cv.sourceArtifact?.id ||
+      cv.scanAssessmentId !== cv.scanAssessment?.id ||
+      cv.scanAssessment.sourceArtifactId !== cv.sourceArtifact?.id
+    ) {
+      throw privateMatchError("CV_UNAVAILABLE", 404);
+    }
     if (cv.archivedAt) throw privateMatchError("CV_UNAVAILABLE", 404);
     if (!cv.confirmedAt) throw privateMatchError("CV_NOT_PARSED", 404);
     if (

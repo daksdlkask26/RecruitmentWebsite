@@ -62,6 +62,7 @@ function stage(status: CvUploadStatus, ocrStatus?: string) {
   if (status === "AWAITING_CONTENT") return "UPLOAD" as const;
   if (status === "VALIDATION_QUEUED") return "VALIDATE" as const;
   if (status === "SCAN_QUEUED" || status === "SCANNING") return "SCAN" as const;
+  if (status === "SECURITY_CLEAN") return "COMPLETE" as const;
   if (status === "EXTRACTION_QUEUED" || status === "EXTRACTING")
     return ["QUEUED", "PROCESSING"].includes(ocrStatus ?? "")
       ? ("OCR" as const)

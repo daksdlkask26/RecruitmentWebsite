@@ -157,6 +157,7 @@ export const applicationCoverLetterInputSchema = z.union([
 export const applicationSubmissionSchema = z
   .object({
     cvId: z.string().min(1).max(128),
+    cvUploadId: z.string().min(1).max(128).optional(),
     cvFileRef: z.string().min(1).max(256).nullable().optional(),
     contactSnapshot: applicationContactSnapshotSchema.optional(),
     shareContactWithRecruiter: z.boolean().optional(),

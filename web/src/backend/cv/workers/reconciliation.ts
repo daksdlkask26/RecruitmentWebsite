@@ -165,8 +165,9 @@ export class CvStorageReconciliation {
     });
     const locators = inventory.items.map((item) => String(item.locator));
     // The local CV storage adapter is also used by CandidateCv materialized
-    // copies, application-document promotion, and active application drafts.
-    // Reconciliation must treat all five namespaces as owned objects;
+    // copies, application-document promotion, active application drafts, and
+    // a deterministic upload reservation while a provider response is
+    // ambiguous. Reconciliation must treat all six namespaces as owned;
     // otherwise a valid draft cover letter is classified as an untracked
     // artifact and deleted after the orphan grace period.
     const [
@@ -175,6 +176,7 @@ export class CvStorageReconciliation {
       trackedApplicationDocuments,
       trackedPromotions,
       trackedDrafts,
+      trackedPendingUploads,
     ] = locators.length
       ? await Promise.all([
           prisma.cvStoredArtifact.findMany({
@@ -197,8 +199,24 @@ export class CvStorageReconciliation {
             where: { expiresAt: { gt: now } },
             select: { coverLetterDraft: true },
           }),
+          prisma.cvUpload.findMany({
+            where: {
+              id: { in: locators },
+              status: {
+                in: [
+                  "AWAITING_CONTENT",
+                  "VALIDATION_QUEUED",
+                  "SCAN_QUEUED",
+                  "SCANNING",
+                ],
+              },
+              contentInaccessibleAt: null,
+              deletedAt: null,
+            },
+            select: { id: true },
+          }),
         ])
-      : [[], [], [], [], []];
+      : [[], [], [], [], [], []];
     const trackedLocators = new Set([
       ...trackedCvArtifacts.map((item) => item.storageLocator),
       ...trackedCandidateCvs.map((item) => item.storageKey),
@@ -208,6 +226,7 @@ export class CvStorageReconciliation {
         const storageKey = draftCoverLetterStorageKey(coverLetterDraft);
         return storageKey ? [storageKey] : [];
       }),
+      ...trackedPendingUploads.map((item) => item.id),
     ]);
     let orphansDeleted = 0;
     for (const item of inventory.items) {

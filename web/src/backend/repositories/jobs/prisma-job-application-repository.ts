@@ -1,5 +1,5 @@
 import "server-only";
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { Prisma } from "@/backend/generated/prisma/client";
 import {
   ApplicationArtifactPromotionState,
@@ -27,7 +27,8 @@ import { createInAppNotification } from "@/backend/notifications/notification-se
 import { NotificationRecipientPolicy } from "@/backend/notifications/notification-recipient-policy";
 import { createApplicationDocumentStorage } from "@/backend/applications/storage/factory";
 import type { ApplicationDocumentStoragePort } from "@/backend/applications/storage/application-document-storage";
-import { promoteCandidateCvForApplication } from "@/backend/services/profile/promote-candidate-cv-for-application";
+import { CV_SECURITY_POLICY_VERSION } from "@/shared/contracts/cv-import/common";
+import { OpenSafeCvArtifactService } from "@/backend/services/cv-admission/open-safe-cv-artifact-service";
 
 type CandidateApplicationForm = {
   job: {
@@ -115,25 +116,6 @@ type DurableApplicationState = Readonly<{
 }>;
 
 type ArtifactReconciliation = "PRESERVED" | "CLEANED" | "UNKNOWN";
-
-type ApplicationSourceCv = Readonly<{
-  id: string;
-  candidateUserId: string;
-  fileName: string;
-  mimeType: string;
-  byteSize: number;
-  storageKey: string;
-  checksumSha256: string;
-  version: number;
-  confirmedAt: Date | null;
-  archivedAt: Date | null;
-}>;
-
-function applicationDocumentStorageKey(promotionId: string) {
-  return `application-document-${createHash("sha256")
-    .update(promotionId, "utf8")
-    .digest("hex")}`;
-}
 
 export class PrismaJobApplicationRepository implements ApplicationRepositoryPort {
   constructor(
@@ -246,7 +228,9 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
     if (!artifacts.length) return "CLEANED";
     try {
       const rows = await this.db.applicationArtifactPromotion.findMany({
-        where: { id: { in: artifacts.map((artifact) => artifact.promotionId) } },
+        where: {
+          id: { in: artifacts.map((artifact) => artifact.promotionId) },
+        },
         select: {
           id: true,
           state: true,
@@ -286,7 +270,9 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
         }
         let cleaned = 0;
         for (const artifact of artifacts) {
-          const row = rows.find((candidate) => candidate.id === artifact.promotionId);
+          const row = rows.find(
+            (candidate) => candidate.id === artifact.promotionId,
+          );
           if (!row) {
             this.preserveArtifactsOnUnknown(input);
             return "UNKNOWN";
@@ -304,14 +290,16 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
             });
             cleaned += 1;
           } catch {
-            await this.db.applicationArtifactPromotion.update({
-              where: { id: row.id },
-              data: {
-                state: ApplicationArtifactPromotionState.DELETE_FAILED,
-                attemptCount: { increment: 1 },
-                lastSafeFailureCode: "APPLICATION_STORAGE_DELETE_FAILED",
-              },
-            }).catch(() => undefined);
+            await this.db.applicationArtifactPromotion
+              .update({
+                where: { id: row.id },
+                data: {
+                  state: ApplicationArtifactPromotionState.DELETE_FAILED,
+                  attemptCount: { increment: 1 },
+                  lastSafeFailureCode: "APPLICATION_STORAGE_DELETE_FAILED",
+                },
+              })
+              .catch(() => undefined);
             this.preserveArtifactsOnUnknown(input);
             return "PRESERVED";
           }
@@ -321,7 +309,9 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
 
       let cleaned = 0;
       for (const artifact of artifacts) {
-        const row = rows.find((candidate) => candidate.id === artifact.promotionId);
+        const row = rows.find(
+          (candidate) => candidate.id === artifact.promotionId,
+        );
         if (!row) {
           this.preserveArtifactsOnUnknown(input);
           return "UNKNOWN";
@@ -361,7 +351,9 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
           ) {
             await this.db.applicationArtifactPromotion.update({
               where: { id: row.id },
-              data: { lastSafeFailureCode: "APPLICATION_ARTIFACT_DIGEST_MISMATCH" },
+              data: {
+                lastSafeFailureCode: "APPLICATION_ARTIFACT_DIGEST_MISMATCH",
+              },
             });
             this.preserveArtifactsOnUnknown(input);
             return "UNKNOWN";
@@ -394,14 +386,16 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
           });
           cleaned += 1;
         } catch {
-          await this.db.applicationArtifactPromotion.update({
-            where: { id: row.id },
-            data: {
-              state: ApplicationArtifactPromotionState.DELETE_FAILED,
-              attemptCount: { increment: 1 },
-              lastSafeFailureCode: "APPLICATION_STORAGE_DELETE_FAILED",
-            },
-          }).catch(() => undefined);
+          await this.db.applicationArtifactPromotion
+            .update({
+              where: { id: row.id },
+              data: {
+                state: ApplicationArtifactPromotionState.DELETE_FAILED,
+                attemptCount: { increment: 1 },
+                lastSafeFailureCode: "APPLICATION_STORAGE_DELETE_FAILED",
+              },
+            })
+            .catch(() => undefined);
           this.preserveArtifactsOnUnknown(input);
           return "PRESERVED";
         }
@@ -442,6 +436,32 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                   ],
                 },
+                sourceArtifactId: { not: null },
+                scanAssessmentId: { not: null },
+                sourceArtifact: {
+                  is: {
+                    kind: "SOURCE_DOCUMENT",
+                    status: "AVAILABLE",
+                    deletedAt: null,
+                    contentInaccessibleAt: null,
+                    upload: {
+                      is: {
+                        status: { in: ["SECURITY_CLEAN", "CONFIRMED"] },
+                        purpose: { in: ["PROFILE_IMPORT", "PROFILE_DIRECT"] },
+                        policyVersion: CV_SECURITY_POLICY_VERSION,
+                        deletedAt: null,
+                        contentInaccessibleAt: null,
+                      },
+                    },
+                  },
+                },
+                scanAssessment: {
+                  is: {
+                    status: "CLEAN",
+                    completedAt: { not: null },
+                    policyVersion: CV_SECURITY_POLICY_VERSION,
+                  },
+                },
               },
               orderBy: { confirmedAt: "desc" },
               select: {
@@ -452,6 +472,12 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
                 byteSize: true,
                 version: true,
                 confirmedAt: true,
+                sourceArtifactId: true,
+                scanAssessmentId: true,
+                sourceArtifact: { select: { id: true } },
+                scanAssessment: {
+                  select: { id: true, sourceArtifactId: true },
+                },
               },
             },
           },
@@ -531,6 +557,9 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
       cvs: candidate.cvs.flatMap((cv) => {
         if (
           !cv.confirmedAt ||
+          cv.sourceArtifactId !== cv.sourceArtifact?.id ||
+          cv.scanAssessmentId !== cv.scanAssessment?.id ||
+          cv.scanAssessment.sourceArtifactId !== cv.sourceArtifact?.id ||
           ![
             "application/pdf",
             "application/msword",
@@ -540,9 +569,13 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
           return [];
         return [
           {
-            ...cv,
+            id: cv.id,
+            displayName: cv.displayName,
+            fileName: cv.fileName,
+            byteSize: cv.byteSize,
             mimeType:
               cv.mimeType as CandidateApplicationForm["cvs"][number]["mimeType"],
+            version: cv.version,
             confirmedAt: cv.confirmedAt,
           },
         ];
@@ -564,10 +597,13 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
 
   async submit(input: Parameters<ApplicationRepositoryPort["submit"]>[0]) {
     await ensureCandidateCvLibrary(input.candidateUserId, this.db);
+    if (input.directCv) {
+      // Non-HTTP callers must not revive the legacy unscanned/plaintext path.
+      throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
+    }
     let promotedStorage: ApplicationDocumentStoragePort | null = null;
     let promotedApplicationDocument:
       | {
-          promotionId: string;
           storageKey: string;
           fileName: string;
           mediaType: string;
@@ -585,12 +621,6 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
           mediaType: string;
           byteLength: number;
           checksumSha256: string;
-      }
-      | undefined;
-    let sourceCvForPromotion:
-      | {
-          sourceCv: ApplicationSourceCv;
-          storage: ApplicationDocumentStoragePort;
         }
       | undefined;
     let stagedPromotionIds: string[] = [];
@@ -628,7 +658,7 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
           created: false,
         };
       }
-      const sourceCv = input.directCv
+      const selectedSourceCv = input.directCv
         ? null
         : await this.db.candidateCv.findUnique({
             where: { id: input.command.cvId },
@@ -643,17 +673,54 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
               version: true,
               confirmedAt: true,
               archivedAt: true,
+              sourceArtifactId: true,
+              scanAssessmentId: true,
+              sourceArtifact: {
+                select: { uploadId: true, storageLocator: true },
+              },
             },
           });
-      if (
-        !input.directCv &&
-        sourceCv?.candidateUserId === input.candidateUserId
-      ) {
-        promotedStorage = this.documentStorage();
-        const promotionId = randomUUID();
+      const sourceCv = selectedSourceCv
+        ? {
+            ...selectedSourceCv,
+            uploadId: selectedSourceCv.sourceArtifact?.uploadId ?? null,
+          }
+        : null;
+      if (sourceCv?.candidateUserId === input.candidateUserId) {
+        if (
+          !sourceCv.sourceArtifactId ||
+          !sourceCv.scanAssessmentId ||
+          !sourceCv.sourceArtifact?.uploadId
+        ) {
+          throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
+        }
+        const opened = await new OpenSafeCvArtifactService().open({
+          candidateUserId: input.candidateUserId,
+          uploadId: sourceCv.sourceArtifact.uploadId,
+          artifactId: sourceCv.sourceArtifactId,
+          assessmentId: sourceCv.scanAssessmentId,
+          allowedPurposes: [
+            "PROFILE_IMPORT",
+            "PROFILE_DIRECT",
+            "JOB_APPLICATION_DIRECT",
+          ],
+        });
+        try {
+          if (
+            opened.byteLength !== sourceCv.byteSize ||
+            opened.evidence.checksumSha256.toLowerCase() !==
+              sourceCv.checksumSha256.toLowerCase() ||
+            opened.evidence.storageLocator !==
+              sourceCv.sourceArtifact.storageLocator
+          ) {
+            throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
+          }
+        } finally {
+          await opened.dispose();
+        }
         promotedApplicationDocument = {
-          promotionId,
-          storageKey: applicationDocumentStorageKey(promotionId),
+          storageKey:
+            sourceCv.sourceArtifact?.storageLocator ?? sourceCv.storageKey,
           fileName: sourceCv.fileName,
           mediaType: sourceCv.mimeType,
           byteLength: sourceCv.byteSize,
@@ -661,19 +728,9 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
           sourceCvId: sourceCv.id,
           sourceCvVersion: sourceCv.version,
         };
-        sourceCvForPromotion = { sourceCv, storage: promotedStorage };
-      } else if (input.directCv) {
-        promotedStorage = this.documentStorage();
-        promotedApplicationDocument = {
-          promotionId: randomUUID(),
-          storageKey: input.directCv.storageKey,
-          fileName: input.directCv.fileName,
-          mediaType: input.directCv.mimeType,
-          byteLength: input.directCv.byteSize,
-          checksumSha256: input.directCv.checksumSha256,
-          sourceCvId: input.directCv.id,
-          sourceCvVersion: 1,
-        };
+      }
+      if (!promotedApplicationDocument) {
+        throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
       }
       if (input.directCoverLetter) {
         promotedStorage ??= this.documentStorage();
@@ -687,16 +744,6 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
         };
       }
       promotedArtifacts = [
-        ...(promotedApplicationDocument
-          ? [
-              {
-                promotionId: promotedApplicationDocument.promotionId,
-                storageKey: promotedApplicationDocument.storageKey,
-                kind: ApplicationDocumentKind.CV,
-                checksumSha256: promotedApplicationDocument.checksumSha256,
-              },
-            ]
-          : []),
         ...(promotedCoverLetterDocument
           ? [
               {
@@ -712,22 +759,6 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
 
       // Materialize every object only after its durable promotion row exists.
       // A lost storage response is then recoverable by the retention worker.
-      if (sourceCvForPromotion && promotedApplicationDocument) {
-        const promotion = await promoteCandidateCvForApplication(
-          sourceCvForPromotion.sourceCv,
-          sourceCvForPromotion.storage,
-          this.db,
-          { locator: promotedApplicationDocument.storageKey },
-        );
-        if (
-          !promotion ||
-          promotion.stored.locator !== promotedApplicationDocument.storageKey ||
-          promotion.stored.bytes !== promotedApplicationDocument.byteLength
-        ) {
-          throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
-        }
-      }
-      await input.directCv?.ensureStored?.();
       await input.directCoverLetter?.ensureStored?.();
       const result = await this.db.$transaction(
         async (tx) => {
@@ -850,6 +881,12 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
           if (!cv || cv.candidateUserId !== input.candidateUserId) {
             throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
           }
+          // A CV document must carry the exact evidence pair that was opened
+          // above. The nullable columns exist only for legacy rows; they are
+          // never a valid fallback for a newly committed application.
+          if (!cv.sourceArtifactId || !cv.scanAssessmentId) {
+            throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
+          }
           const job = await tx.jobPosting.findFirst({
             where: {
               id: input.jobId,
@@ -943,7 +980,7 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
               ...input.command,
               // The transport sentinel was checked before creating this CV.
               // Domain validation must compare against the concrete owned row,
-              // not reject every freshly prepared application-cv-* identifier.
+              // not reject the materialized application-CV bridge.
               ...(input.directCv ? { cvId: cv.id } : {}),
               ...(input.directCoverLetter ? { coverLetter: null } : {}),
             },
@@ -991,12 +1028,14 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
                 : undefined,
               contactConsent: {
                 create: {
-                  sharedAt: input.command.shareContactWithRecruiter === true
-                    ? input.occurredAt
-                    : null,
-                  withdrawnAt: input.command.shareContactWithRecruiter === true
-                    ? null
-                    : input.occurredAt,
+                  sharedAt:
+                    input.command.shareContactWithRecruiter === true
+                      ? input.occurredAt
+                      : null,
+                  withdrawnAt:
+                    input.command.shareContactWithRecruiter === true
+                      ? null
+                      : input.occurredAt,
                   version: 1,
                 },
               },
@@ -1047,7 +1086,12 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
                     sourceCandidateCvVersion:
                       promotedApplicationDocument?.sourceCvVersion ??
                       cv.version,
-                    safetyAssessmentId: `application-safety-${cv.id}`,
+                    // The legacy non-FK column remains for compatibility only;
+                    // it is populated from the same evidence FK, never from a
+                    // synthetic/random assessment identifier.
+                    safetyAssessmentId: cv.scanAssessmentId,
+                    sourceArtifactId: cv.sourceArtifactId,
+                    scanAssessmentId: cv.scanAssessmentId,
                     committedAt: input.occurredAt,
                   },
                   ...(promotedCoverLetterDocument
@@ -1264,10 +1308,15 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
         // protects against a caller/projection error after the commit.
         this.markArtifactsOwned(input);
       } else if (promotedArtifacts.length) {
-        await this.reconcileArtifacts(input, promotedArtifacts, promotedStorage, {
-          applicationId: result.application.applicationId,
-          allowCleanup: true,
-        });
+        await this.reconcileArtifacts(
+          input,
+          promotedArtifacts,
+          promotedStorage,
+          {
+            applicationId: result.application.applicationId,
+            allowCleanup: true,
+          },
+        );
       }
       return result;
     } catch (error) {

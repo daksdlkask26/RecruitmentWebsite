@@ -58,6 +58,8 @@
     "perf:notifications": "node --conditions=react-server --import tsx scripts/measure-in-app-notification-performance.mjs",
     "notifications:migrate:legacy": "node --conditions=react-server --import tsx scripts/migrate-in-app-notification-legacy-data.mjs",
     "notifications:migration:verify": "node --conditions=react-server --import tsx scripts/verify-in-app-notification-migration.mjs",
+    "cv-security:migration:verify": "node scripts/verify-unified-cv-security-boundary-migration.mjs",
+    "cv-security:reconcile": "node scripts/reconcile-unified-cv-security-boundary.mjs",
     "perf:connections": "node scripts/measure-professional-connections-performance.mjs",
     "smoke:messaging:server": "node --import ./scripts/register-server-runtime.mjs --import tsx scripts/smoke-messaging-production-server.mjs",
     "smoke:dev-server": "node --import ./scripts/register-server-runtime.mjs --import tsx scripts/smoke-custom-development-server.mjs",

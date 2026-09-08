@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { mutateWithCurrentCsrf } from "@/frontend/features/authentication/client/current-csrf-proof";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
@@ -28,6 +28,16 @@ import {
   validateCvFile,
   type CvFileValidationError,
 } from "@/shared/cv-file-validation";
+import type { CvUploadStatus } from "@/shared/contracts/cv-import/common";
+import {
+  clearCvSecurityUploadId,
+  newCvSecurityIdempotencyKey,
+  pollCvSecurityUpload,
+  readCvSecurityUploadId,
+  requestCvSecurityRetry,
+  saveCvSecurityUploadId,
+  CvSecurityUploadError,
+} from "@/frontend/lib/cv-security-upload";
 
 type WizardStep = 1 | 2;
 
@@ -96,6 +106,13 @@ export function ApplicationWizard({
       ? copy.applicationFiles.coverLetterNeedsReupload
       : null,
   );
+  const uploadIdempotencyKey = useRef<string | null>(null);
+  const [cvSecurityStatus, setCvSecurityStatus] =
+    useState<CvUploadStatus | null>(null);
+  const [cvSecurityRetryable, setCvSecurityRetryable] = useState(false);
+  const [cvResuming, setCvResuming] = useState(false);
+  const cvSecurityAbortController = useRef<AbortController | null>(null);
+  const cvSecurityScope = `candidate-application:${job.id}`;
 
   const personalInformation = {
     ...draft.personalInformation,
@@ -108,6 +125,110 @@ export function ApplicationWizard({
     setError(message);
     toast.error(message, { id: "candidate-cv-upload-error" });
   }
+
+  function cvSecurityMessage(caught: unknown) {
+    if (caught instanceof CvSecurityUploadError) {
+      if (caught.status === "INFECTED") return copy.applicationFiles.cvInfected;
+      if (caught.retryable || cvSecurityRetryable)
+        return copy.applicationFiles.cvRetryable;
+      return copy.applicationFiles.cvStatusError;
+    }
+    return applicationErrorMessage(
+      locale,
+      caught,
+      copy.applicationFiles.cvUploadError,
+    );
+  }
+
+  async function finalizeCvUpload(uploadId: string) {
+    const finalizeRes = await mutateWithCurrentCsrf(
+      "/api/account/candidate-cvs",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ uploadId }),
+      },
+      csrfProof,
+    );
+    const finalResult: unknown = await finalizeRes.json().catch(() => null);
+    if (!finalizeRes.ok) {
+      throw new Error(
+        messageFrom(finalResult, copy.applicationFiles.cvUploadError, locale),
+      );
+    }
+    const saved = candidateCvSummarySchema.parse(finalResult);
+    setCvs((current) => [
+      saved,
+      ...current.filter((cv) => cv.id !== saved.id),
+    ]);
+    setSelectedCvId(saved.id);
+    setCvMode("UPLOAD");
+    clearCvSecurityUploadId(cvSecurityScope);
+  }
+
+  async function waitForCleanCv(uploadId: string) {
+    saveCvSecurityUploadId(cvSecurityScope, uploadId);
+    setCvSecurityStatus("SCANNING");
+    setCvSecurityRetryable(false);
+    const controller = new AbortController();
+    cvSecurityAbortController.current = controller;
+    try {
+      const result = await pollCvSecurityUpload(uploadId, {
+        signal: controller.signal,
+      });
+      setCvSecurityStatus(result.status);
+      const retryable = [
+        "SCAN_FAILED",
+        "EXTRACTION_FAILED",
+        "PARSE_FAILED",
+      ].includes(result.status);
+      setCvSecurityRetryable(retryable);
+      if (!result.clean) {
+        if (!retryable) clearCvSecurityUploadId(cvSecurityScope);
+        throw new CvSecurityUploadError(
+          "CV_SECURITY_REJECTED",
+          result.status === "INFECTED"
+            ? copy.applicationFiles.cvInfected
+            : copy.applicationFiles.cvStatusError,
+          { retryable, status: result.status },
+        );
+      }
+      await finalizeCvUpload(uploadId);
+    } finally {
+      if (cvSecurityAbortController.current === controller)
+        cvSecurityAbortController.current = null;
+    }
+  }
+
+  async function resumeCvUpload(uploadId: string) {
+    setPending("cv");
+    setCvResuming(true);
+    setError(null);
+    try {
+      await waitForCleanCv(uploadId);
+    } catch (caught: unknown) {
+      if (caught instanceof DOMException && caught.name === "AbortError") return;
+      showFileUploadError(cvSecurityMessage(caught));
+    } finally {
+      setCvResuming(false);
+      setPending(null);
+    }
+  }
+
+  useEffect(() => {
+    const uploadId = readCvSecurityUploadId(cvSecurityScope);
+    if (!uploadId || selectedCvId) return;
+    const resumeTimer = window.setTimeout(
+      () => void resumeCvUpload(uploadId),
+      0,
+    );
+    return () => {
+      window.clearTimeout(resumeTimer);
+      cvSecurityAbortController.current?.abort();
+    };
+    // Only the job-scoped opaque upload id is resumed after a refresh.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cvSecurityScope]);
 
   async function saveDraft(nextConfirmation = draft.confirmationAccepted) {
     const coverLetter =
@@ -222,16 +343,17 @@ export function ApplicationWizard({
     setPending("cv");
     setError(null);
     try {
-      // TODO(application-files): the existing direct application-CV endpoint
-      // returns only a confirmed CandidateCv summary. It does not expose a
-      // CV-import id, parser lifecycle, or retry action, so this UI cannot
-      // truthfully render live parsing/failed states without that existing
-      // pipeline projection being made available to Apply.
+      uploadIdempotencyKey.current ??=
+        globalThis.crypto?.randomUUID?.() ?? "cv-upload-" + Date.now() + "-key";
       const form = new FormData();
       form.append("file", file, file.name);
       const response = await mutateWithCurrentCsrf(
         "/api/account/candidate-cvs",
-        { method: "POST", body: form },
+        {
+          method: "POST",
+          headers: { "Idempotency-Key": uploadIdempotencyKey.current },
+          body: form,
+        },
         csrfProof,
       );
       const body: unknown = await response.json().catch(() => null);
@@ -239,14 +361,29 @@ export function ApplicationWizard({
         throw new Error(
           messageFrom(body, copy.applicationFiles.cvUploadError, locale),
         );
-      const saved = candidateCvSummarySchema.parse(body);
+      const finalResult = body;
+      if (
+        response.status === 202 &&
+        body &&
+        typeof body === "object" &&
+        "uploadId" in body
+      ) {
+        const uploadId = String((body as { uploadId: string }).uploadId);
+        await waitForCleanCv(uploadId);
+        uploadIdempotencyKey.current = null;
+        return;
+      }
+
+      const saved = candidateCvSummarySchema.parse(finalResult);
       setCvs((current) => [
         saved,
         ...current.filter((cv) => cv.id !== saved.id),
       ]);
       setSelectedCvId(saved.id);
       setCvMode("UPLOAD");
+      uploadIdempotencyKey.current = null;
     } catch (caught) {
+      uploadIdempotencyKey.current = null;
       showFileUploadError(
         applicationErrorMessage(
           locale,
@@ -254,6 +391,25 @@ export function ApplicationWizard({
           copy.applicationFiles.cvUploadError,
         ),
       );
+    } finally {
+      setPending(null);
+    }
+  }
+
+  async function retryCvSecurityCheck() {
+    const uploadId = readCvSecurityUploadId(cvSecurityScope);
+    if (!uploadId || pending !== null) return;
+    setPending("cv");
+    setError(null);
+    try {
+      await requestCvSecurityRetry(
+        uploadId,
+        newCvSecurityIdempotencyKey("candidate-cv-retry"),
+        (path, init) => mutateWithCurrentCsrf(path, init, csrfProof),
+      );
+      await waitForCleanCv(uploadId);
+    } catch (caught) {
+      showFileUploadError(cvSecurityMessage(caught));
     } finally {
       setPending(null);
     }
@@ -385,6 +541,20 @@ export function ApplicationWizard({
       coverText={coverText}
       pending={pending}
       error={error}
+      cvStatusMessage={
+        pending === "cv"
+          ? cvResuming
+            ? copy.applicationFiles.cvResuming
+            : copy.applicationFiles.cvScanning
+          : cvSecurityRetryable
+            ? copy.applicationFiles.cvRetryable
+            : cvSecurityStatus === "SECURITY_CLEAN"
+              ? copy.applicationFiles.cvReady
+              : null
+      }
+      cvRetryable={cvSecurityRetryable}
+      retryCvLabel={copy.applicationFiles.retryCv}
+      onCvRetry={() => void retryCvSecurityCheck()}
       onCvModeChange={changeCvMode}
       onCvSelectionChange={setSelectedCvId}
       onCvUpload={(file) => void uploadCv(file)}

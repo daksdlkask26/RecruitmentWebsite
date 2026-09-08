@@ -18,7 +18,7 @@ services:
       retries: 12
       start_period: 5s
   clamav:
-    image: clamav/clamav:1.4_base@sha256:35ec19c1e8cbee7cae8a35c3b0ac62957d99b418e6902035b89a1778c39433e7
+    image: clamav/clamav:1.4_base@sha256:aeac907bb9445b12c1dd76f9283415272d8dcd596d402245ed13729d7181bb8a
     restart: unless-stopped
     entrypoint: ["/bin/sh", "/opt/smarthire/clamav-entrypoint.sh"]
     environment:

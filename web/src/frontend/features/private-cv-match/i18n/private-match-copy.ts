@@ -323,6 +323,12 @@ const english = {
     uploading: "Uploading…",
     importCv: "Import CV",
     uploadingSecurely: "Uploading your CV securely…",
+    resumingUpload: "Resuming the CV safety check…",
+    safetyRetryable:
+      "The safety check could not finish. Retry it without uploading the file again.",
+    safetyInfected: "This CV was blocked because the safety scan detected a threat.",
+    safetyStatusError: "The CV could not pass the safety check.",
+    retrySafetyCheck: "Retry safety check",
     importFailure:
       "The CV could not be imported. Check the file and try again.",
     unsupportedFile: "Only PDF, DOC, or DOCX files can be assessed here.",
@@ -733,6 +739,12 @@ const vietnameseSetup = {
   uploading: "Đang tải lên…",
   importCv: "Nhập CV",
   uploadingSecurely: "Đang tải CV lên an toàn…",
+  resumingUpload: "Đang tiếp tục kiểm tra an toàn CV…",
+  safetyRetryable:
+    "Kiểm tra an toàn chưa hoàn tất. Bạn có thể thử lại mà không cần tải lại tệp.",
+  safetyInfected: "CV bị chặn vì quá trình quét an toàn phát hiện mối đe dọa.",
+  safetyStatusError: "CV không vượt qua kiểm tra an toàn.",
+  retrySafetyCheck: "Thử lại kiểm tra an toàn",
   importFailure: "Không thể nhập CV. Hãy kiểm tra tệp và thử lại.",
   unsupportedFile: "Chỉ có thể đánh giá tệp PDF, DOC hoặc DOCX tại đây.",
   cvReady:

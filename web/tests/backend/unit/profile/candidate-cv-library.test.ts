@@ -123,7 +123,7 @@ describe("candidate CV library", () => {
     );
   });
 
-  it("keeps a materialized private-storage locator stable when the library is listed", async () => {
+  it("does not preserve a legacy materialized plaintext locator", async () => {
     const upsert = vi.fn().mockResolvedValue({});
     const materialized = "A".repeat(43);
     const db = {
@@ -156,7 +156,9 @@ describe("candidate CV library", () => {
 
     expect(upsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        update: expect.objectContaining({ storageKey: materialized }),
+        update: expect.objectContaining({
+          storageKey: "candidate-cv-upload-1",
+        }),
       }),
     );
   });

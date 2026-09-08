@@ -1,10 +1,12 @@
 import { createHash } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
 import { prisma } from "@/backend/database/prisma";
+import { createCvWorkerStorage } from "@/backend/cv/workers/cv-worker-resources";
 import {
   createJobBoardDatabaseFixture,
   deleteJobBoardDatabaseFixture,
 } from "./job-board-database-fixture";
+import { seedCleanJobApplicationCv } from "./job-application-cv-fixture";
 
 export type CandidateFirstDatabaseFixture = Awaited<
   ReturnType<typeof createCandidateFirstDatabaseFixture>
@@ -14,6 +16,53 @@ const password = "Candidate-first fixture 2026!";
 
 function digest(value: string) {
   return createHash("sha256").update(value, "utf8").digest("hex");
+}
+
+const fixtureStorageLocatorPattern = /^[A-Za-z0-9_-]{32,128}$/u;
+
+async function cleanupCandidateFirstStorage(userIds: readonly string[]) {
+  try {
+    const [artifacts, candidateCvs, applicationDocuments, promotions] =
+      await Promise.all([
+        prisma.cvStoredArtifact.findMany({
+          where: { accountId: { in: [...userIds] } },
+          select: { storageLocator: true },
+        }),
+        prisma.candidateCv.findMany({
+          where: { candidateUserId: { in: [...userIds] } },
+          select: { storageKey: true },
+        }),
+        prisma.applicationDocument.findMany({
+          where: { application: { candidateUserId: { in: [...userIds] } } },
+          select: { storageKeyEncrypted: true },
+        }),
+        prisma.applicationArtifactPromotion.findMany({
+          where: { candidateUserId: { in: [...userIds] } },
+          select: { storageKeyEncrypted: true },
+        }),
+      ]);
+    const locators = [
+      ...artifacts.map((row) => row.storageLocator),
+      ...candidateCvs.map((row) => row.storageKey),
+      ...applicationDocuments.map((row) => row.storageKeyEncrypted),
+      ...promotions.map((row) => row.storageKeyEncrypted),
+    ].filter(
+      (locator): locator is string =>
+        typeof locator === "string" &&
+        fixtureStorageLocatorPattern.test(locator),
+    );
+    if (!locators.length) return;
+    const storage = createCvWorkerStorage();
+    await storage.assertReady();
+    await Promise.all(
+      [...new Set(locators)].map((locator) =>
+        storage.delete(locator).catch(() => undefined),
+      ),
+    );
+  } catch {
+    // Database teardown remains useful when the optional fixture storage is
+    // unavailable. The caller still removes the complete DB namespace.
+  }
 }
 
 /**
@@ -35,7 +84,16 @@ export async function createCandidateFirstDatabaseFixture(
     const candidateUserId = databaseFixture.userIds[0]!;
     const employerUserId = databaseFixture.userIds[1]!;
     const job = databaseFixture.jobs.active;
-    const confirmedCvId = databaseFixture.confirmedCvIds[0]!;
+    const legacyConfirmedCvId = databaseFixture.confirmedCvIds[0]!;
+    const secureCv = await seedCleanJobApplicationCv({
+      candidateUserId,
+      now,
+      label: `candidate-first-${databaseFixture.suffix}`,
+      purpose: "PROFILE_IMPORT",
+      processingMode: "IMPORT_AND_PARSE",
+    });
+    await prisma.candidateCv.delete({ where: { id: legacyConfirmedCvId } });
+    const confirmedCvId = secureCv.candidateCvId;
     const applicationId = `application-candidate-first-${databaseFixture.suffix}`;
     const membershipId = `membership-candidate-first-${databaseFixture.suffix}`;
     const threadId = `thread-candidate-first-${databaseFixture.suffix}`;
@@ -232,6 +290,7 @@ export async function createCandidateFirstDatabaseFixture(
       notificationId,
     };
   } catch (error) {
+    await cleanupCandidateFirstStorage(databaseFixture.userIds);
     try {
       await deleteJobBoardDatabaseFixture(databaseFixture);
     } catch (cleanupError) {
@@ -251,5 +310,6 @@ export async function deleteCandidateFirstDatabaseFixture(
     "company" | "userIds" | "suffix"
   >,
 ) {
+  await cleanupCandidateFirstStorage(fixture.userIds);
   await deleteJobBoardDatabaseFixture(fixture);
 }

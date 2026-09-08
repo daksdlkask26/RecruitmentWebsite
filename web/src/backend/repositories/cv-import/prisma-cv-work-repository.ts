@@ -4,6 +4,7 @@ import { createHash, randomUUID } from "node:crypto";
 
 import { prisma } from "@/backend/database/prisma";
 import type { Prisma } from "@/backend/generated/prisma/client";
+import { CV_SECURITY_POLICY_VERSION } from "@/shared/contracts/cv-import/common";
 
 export type CvWorkStage = "SCAN" | "EXTRACTION" | "PARSE" | "DELETE";
 export type CvProcessingWorkStage = Exclude<CvWorkStage, "DELETE">;
@@ -121,6 +122,9 @@ export async function assertCvStageResultCommitAllowed(
          AND work."leaseOwner" = ${input.owner}
          AND work."leaseExpiresAt" > ${input.now}
          AND upload."accountId" = ${input.accountId}
+         AND upload."purpose" = 'PROFILE_IMPORT'
+         AND upload."processingMode" = 'IMPORT_AND_PARSE'
+         AND upload."policyVersion" = ${CV_SECURITY_POLICY_VERSION}
          AND upload."status" IN ('EXTRACTION_QUEUED', 'EXTRACTING')
          AND upload."expiresAt" > ${input.now}
          AND upload."contentInaccessibleAt" IS NULL
@@ -128,6 +132,8 @@ export async function assertCvStageResultCommitAllowed(
          AND account."state" = 'ACTIVE'
          AND account."deletedAt" IS NULL
          AND scan."status" = 'CLEAN'
+         AND scan."completedAt" IS NOT NULL
+         AND scan."policyVersion" = ${CV_SECURITY_POLICY_VERSION}
          AND scan."sourceArtifactId" = source."id"
          AND source."accountId" = ${input.accountId}
          AND source."uploadId" = ${input.uploadId}
@@ -152,6 +158,7 @@ export async function assertCvStageResultCommitAllowed(
          AND work."leaseOwner" = ${input.owner}
          AND work."leaseExpiresAt" > ${input.now}
          AND upload."accountId" = ${input.accountId}
+         AND upload."policyVersion" = ${CV_SECURITY_POLICY_VERSION}
          AND upload."status" IN ('PARSE_QUEUED', 'PARSING')
          AND upload."expiresAt" > ${input.now}
          AND upload."contentInaccessibleAt" IS NULL
@@ -465,7 +472,36 @@ export class PrismaCvWorkRepository {
            WHERE "id" = ${input.id} AND "status" = 'PROCESSING'
              AND "leaseOwner" = ${input.owner} AND "leaseExpiresAt" > ${input.now}
         `;
-        if (count !== 1) return false;
+        if (count !== 1) {
+          // ScanStageProcessor commits guarded terminal outcomes atomically;
+          // runtime finalization remains an idempotent audit boundary.
+          // Accept only the exact terminal result with no active lease.
+          const terminalRows = await transaction.$queryRaw<
+            Array<{
+              status: string;
+              failureCode: string | null;
+              completedAt: Date | null;
+              leaseOwner: string | null;
+              leaseExpiresAt: Date | null;
+            }>
+          >`
+            SELECT "status"::text AS "status", "failureCode", "completedAt",
+                   "leaseOwner", "leaseExpiresAt"
+              FROM "CvScanAssessment"
+             WHERE "id" = ${input.id}
+             LIMIT 1
+          `;
+          const terminal = terminalRows[0];
+          if (
+            terminal?.status !== input.status ||
+            terminal.failureCode !== (input.failureCode ?? null) ||
+            terminal.completedAt === null ||
+            terminal.leaseOwner !== null ||
+            terminal.leaseExpiresAt !== null
+          ) {
+            return false;
+          }
+        }
         const uploadId = await finalizedWorkUploadId(
           transaction,
           input.stage,

@@ -40,6 +40,7 @@ import {
   cvWorkerDatabaseTimestamp,
   readCvWorkerArtifactBytes,
 } from "./cv-worker-resources";
+import { CV_SECURITY_POLICY_VERSION } from "@/shared/contracts/cv-import/common";
 
 const REJECTED_CONTENT_RETENTION_MS = 24 * 60 * 60_000;
 
@@ -239,6 +240,36 @@ export class ExtractionStageProcessor {
         accountId: claim.accountId,
         status: "PROCESSING",
         leaseOwner: claim.leaseOwner,
+        upload: {
+          is: {
+            purpose: "PROFILE_IMPORT",
+            processingMode: "IMPORT_AND_PARSE",
+            policyVersion: CV_SECURITY_POLICY_VERSION,
+            status: { in: ["EXTRACTION_QUEUED", "EXTRACTING"] },
+            expiresAt: { gt: context.now },
+            contentInaccessibleAt: null,
+            deletedAt: null,
+          },
+        },
+        sourceArtifact: {
+          is: {
+            kind: "SOURCE_DOCUMENT",
+            status: "AVAILABLE",
+            contentInaccessibleAt: null,
+            deletedAt: null,
+          },
+        },
+        scanAssessment: {
+          is: {
+            status: "CLEAN",
+            completedAt: { not: null },
+            policyVersion: CV_SECURITY_POLICY_VERSION,
+            engineName: "clamav",
+            engineVersion: { not: null },
+            signatureVersion: { not: null },
+            signaturePublishedAt: { not: null },
+          },
+        },
       },
       select: {
         id: true,
@@ -248,6 +279,8 @@ export class ExtractionStageProcessor {
           select: {
             documentKind: true,
             parserClass: true,
+            purpose: true,
+            processingMode: true,
           },
         },
         sourceArtifact: {
@@ -332,7 +365,10 @@ export class ExtractionStageProcessor {
       });
       const extracted = await this.dependencies.extractor.extract({
         kind: work.upload.documentKind,
-        scanStatus: "CLEAN",
+        // The query above requires the current assessment to be CLEAN. Pass
+        // that evidence through instead of manufacturing a scan result at the
+        // extraction boundary.
+        scanStatus: work.scanAssessment.status,
         source: verified.open(),
       });
       rasterWorkspacePath = extracted.privateRasterWorkspacePath ?? undefined;
@@ -517,6 +553,7 @@ export class ExtractionStageProcessor {
         const active = await transaction.cvParseJob.findFirst({
           where: {
             accountId: work.accountId,
+            uploadId: work.uploadId,
             status: { in: ["QUEUED", "PROCESSING"] },
           },
           select: { id: true },

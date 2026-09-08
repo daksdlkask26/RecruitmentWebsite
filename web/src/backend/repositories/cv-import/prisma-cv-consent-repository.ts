@@ -109,6 +109,11 @@ function validateChallenge(input: {
   } catch {
     throw new CvImportServiceError("VALIDATION_ERROR");
   }
+  // Node's base64url decoder ignores non-significant trailing bits. Reject
+  // non-canonical encodings before the timing-safe comparison so a one-byte
+  // challenge mutation cannot decode to the same signature bytes.
+  if (supplied.toString("base64url") !== encodedSignature)
+    throw new CvImportServiceError("VALIDATION_ERROR");
   const expected = challengeSignature(
     input.secret,
     input.binding,
