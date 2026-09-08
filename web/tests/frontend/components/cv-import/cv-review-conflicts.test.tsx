@@ -4,6 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CvDraftReview } from "@/frontend/features/cv-import/components/cv-draft-review";
 import { cvDraftReviewFixture } from "../../../fixtures/cv-draft-review";
 
+const navigation = vi.hoisted(() => ({ replace: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => navigation }));
+
 const conflictLatest = {
   draftRevision: 1,
   profileRevision: 2,

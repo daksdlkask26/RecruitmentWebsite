@@ -6,7 +6,9 @@ import type { Prisma } from "@/backend/generated/prisma/client";
 import { prisma } from "@/backend/database/prisma";
 import { CvImportServiceError } from "@/backend/services/cv-import/cv-http-errors";
 import type { CvExternalConsentBinding } from "./cv-consent-read-gateway";
+import { CV_SECURITY_POLICY_VERSION } from "@/shared/contracts/cv-import/common";
 import {
+  CV_CANDIDATE_EXTRACTION_RETRY_LIMIT,
   CV_CANDIDATE_PARSE_RETRY_LIMIT,
   CV_CANDIDATE_SCAN_RETRY_LIMIT,
   CV_RETRYABLE_PARSE_FAILURE_CODES,
@@ -19,7 +21,7 @@ import {
 import { CV_PROCESSING_NOTICES } from "@/shared/contracts/cv-import/upload";
 
 type CvDatabase = typeof prisma | Prisma.TransactionClient;
-type RetryStage = "SCAN" | "PARSE";
+type RetryStage = "SCAN" | "EXTRACTION" | "PARSE";
 
 const CV_EXTERNAL_CONSENT_TEXT_VERSION = "cv-external-consent.v1";
 const retryableScanFailures = new Set<string>(CV_RETRYABLE_SCAN_FAILURE_CODES);
@@ -54,6 +56,17 @@ type ScanAttempt = Readonly<{
   attemptNumber: number;
   status: string;
   failureCode: string | null;
+  policyVersion: string;
+  completedAt: Date | null;
+}>;
+
+type ExtractionAttempt = Readonly<{
+  id: string;
+  sourceArtifactId: string;
+  scanAssessmentId: string;
+  attemptNumber: number;
+  status: string;
+  failureCode: string | null;
 }>;
 
 type ParseAttempt = Readonly<{
@@ -84,13 +97,20 @@ type StoredRetry = Readonly<{
   scanAssessmentId: string | null;
   priorParseJobId: string | null;
   parseJobId: string | null;
+  priorExtractionId: string | null;
+  extractionId: string | null;
   candidateScanRetriesUsed: number;
+  candidateExtractionRetriesUsed: number;
   candidateParseRetriesUsed: number;
   parserClass: "DETERMINISTIC_INTERNAL" | "EXTERNAL_OPENAI";
 }>;
 
 export type CvCandidateRetryEligibility =
   | Readonly<{ stage: "SCAN"; parserClass: RetryUpload["parserClass"] }>
+  | Readonly<{
+      stage: "EXTRACTION";
+      parserClass: RetryUpload["parserClass"];
+    }>
   | Readonly<{
       stage: "PARSE";
       parserClass: RetryUpload["parserClass"];
@@ -128,20 +148,33 @@ function retryLimitReached(): CvImportServiceError {
 }
 
 function retryOutcome(
-  upload: Pick<
-    RetryUpload,
-    "id" | "candidateScanRetriesUsed" | "candidateParseRetriesUsed"
-  >,
+  upload: Readonly<{
+    id: string;
+    candidateScanRetriesUsed: number;
+    candidateParseRetriesUsed: number;
+    candidateExtractionRetriesUsed?: number;
+  }>,
   stage: RetryStage,
 ): CvRetryAccepted {
   const remaining = projectCvRetryRemainingCounts({
     candidateScanRetriesUsed: upload.candidateScanRetriesUsed,
     candidateParseRetriesUsed: upload.candidateParseRetriesUsed,
+    ...(stage === "EXTRACTION" &&
+    typeof upload.candidateExtractionRetriesUsed === "number"
+      ? {
+          candidateExtractionRetriesUsed: upload.candidateExtractionRetriesUsed,
+        }
+      : {}),
   });
   return Object.freeze(
     cvRetryAcceptedSchema.parse({
       uploadId: upload.id,
-      status: stage === "SCAN" ? "SCAN_QUEUED" : "PARSE_QUEUED",
+      status:
+        stage === "SCAN"
+          ? "SCAN_QUEUED"
+          : stage === "EXTRACTION"
+            ? "EXTRACTION_QUEUED"
+            : "PARSE_QUEUED",
       ...remaining,
     }),
   );
@@ -178,7 +211,7 @@ function assertBaseRetryState(
       !retryableOcrFailures.has(upload.failureCode)
     )
       throw new CvImportServiceError("IMPORT_STATE_CONFLICT");
-    return "SCAN";
+    return "EXTRACTION";
   }
   if (upload.status === "PARSE_FAILED") {
     if (source.status !== "AVAILABLE")
@@ -196,19 +229,41 @@ function assertScanEligibility(upload: RetryUpload, prior: ScanAttempt | null) {
   ) {
     throw retryLimitReached();
   }
-  const retryingExtraction = upload.status === "EXTRACTION_FAILED";
-  const validPrior = retryingExtraction
-    ? prior?.status === "CLEAN" &&
-      Boolean(
-        upload.failureCode && retryableOcrFailures.has(upload.failureCode),
-      )
-    : prior?.status === "INDETERMINATE" &&
-      Boolean(
-        prior.failureCode && retryableScanFailures.has(prior.failureCode),
-      );
+  const validPrior =
+    prior?.status === "INDETERMINATE" &&
+    Boolean(prior.failureCode && retryableScanFailures.has(prior.failureCode));
   if (!prior || !validPrior) {
     throw new CvImportServiceError("IMPORT_STATE_CONFLICT");
   }
+}
+
+function assertExtractionEligibility(
+  upload: RetryUpload,
+  prior: ExtractionAttempt | null,
+  cleanScan: ScanAttempt | null,
+  extractionRetriesUsed: number,
+) {
+  if (
+    extractionRetriesUsed >= CV_CANDIDATE_EXTRACTION_RETRY_LIMIT ||
+    (prior?.attemptNumber ?? 5) >= 5
+  ) {
+    throw retryLimitReached();
+  }
+  if (
+    !prior ||
+    prior.status !== "FAILED" ||
+    !prior.failureCode ||
+    !retryableOcrFailures.has(prior.failureCode) ||
+    !cleanScan ||
+    cleanScan.status !== "CLEAN" ||
+    cleanScan.completedAt === null ||
+    cleanScan.policyVersion !== CV_SECURITY_POLICY_VERSION ||
+    cleanScan.sourceArtifactId !== prior.sourceArtifactId
+  ) {
+    throw new CvImportServiceError("IMPORT_STATE_CONFLICT");
+  }
+  if (upload.status !== "EXTRACTION_FAILED")
+    throw new CvImportServiceError("IMPORT_STATE_CONFLICT");
 }
 
 function assertParseEligibility(
@@ -263,6 +318,20 @@ function isActiveParseConflict(error: unknown): boolean {
   );
 }
 
+async function candidateRetryCount(
+  database: CvDatabase,
+  uploadId: string,
+  stage: RetryStage,
+): Promise<number> {
+  const rows = await database.$queryRaw<Array<{ count: number }>>`
+    SELECT COUNT(*)::int AS count
+      FROM "CvRetryRequest"
+     WHERE "uploadId" = ${uploadId}
+       AND "stage" = ${stage}::"CvRetryStage"
+  `;
+  return rows[0]?.count ?? 0;
+}
+
 async function findReplayIn(
   database: CvDatabase,
   input: RetryLookup,
@@ -271,6 +340,7 @@ async function findReplayIn(
     SELECT retry."uploadId", retry."stage"::text AS "stage",
            retry."priorScanAssessmentId", retry."scanAssessmentId",
            retry."priorParseJobId", retry."parseJobId",
+           retry."priorExtractionId", retry."extractionId",
            CASE WHEN retry."stage" = 'SCAN' THEN (
              SELECT COUNT(*)::int
                FROM "CvRetryRequest" candidate_retry
@@ -296,7 +366,18 @@ async function findReplayIn(
               WHERE candidate_retry."uploadId" = retry."uploadId"
                 AND candidate_retry."stage" = 'PARSE'
                 AND candidate_attempt."attemptNumber" <= replay_attempt."attemptNumber"
-           ) ELSE 0 END AS "candidateParseRetriesUsed",
+            ) ELSE 0 END AS "candidateParseRetriesUsed",
+           CASE WHEN retry."stage" = 'EXTRACTION' THEN (
+             SELECT COUNT(*)::int
+               FROM "CvRetryRequest" candidate_retry
+               JOIN "CvExtraction" candidate_attempt
+                 ON candidate_attempt."id" = candidate_retry."extractionId"
+               JOIN "CvExtraction" replay_attempt
+                 ON replay_attempt."id" = retry."extractionId"
+              WHERE candidate_retry."uploadId" = retry."uploadId"
+                AND candidate_retry."stage" = 'EXTRACTION'
+                AND candidate_attempt."attemptNumber" <= replay_attempt."attemptNumber"
+           ) ELSE 0 END AS "candidateExtractionRetriesUsed",
            upload."parserClass"::text AS "parserClass"
       FROM "CvRetryRequest" retry
       JOIN "CvUpload" upload ON upload."id" = retry."uploadId"
@@ -314,14 +395,27 @@ async function findReplayIn(
           stored.priorScanAssessmentId &&
           stored.scanAssessmentId &&
           !stored.priorParseJobId &&
-          !stored.parseJobId,
+          !stored.parseJobId &&
+          !stored.priorExtractionId &&
+          !stored.extractionId,
         )
-      : Boolean(
-          stored.priorParseJobId &&
-          stored.parseJobId &&
-          !stored.priorScanAssessmentId &&
-          !stored.scanAssessmentId,
-        );
+      : stored.stage === "EXTRACTION"
+        ? Boolean(
+            stored.priorExtractionId &&
+            stored.extractionId &&
+            !stored.priorScanAssessmentId &&
+            !stored.scanAssessmentId &&
+            !stored.priorParseJobId &&
+            !stored.parseJobId,
+          )
+        : Boolean(
+            stored.priorParseJobId &&
+            stored.parseJobId &&
+            !stored.priorScanAssessmentId &&
+            !stored.scanAssessmentId &&
+            !stored.priorExtractionId &&
+            !stored.extractionId,
+          );
   if (!exactBinding) throw new Error("CV_RETRY_BINDING_INVALID");
   return Object.freeze({
     outcome: retryOutcome(
@@ -329,6 +423,7 @@ async function findReplayIn(
         id: stored.uploadId,
         candidateScanRetriesUsed: stored.candidateScanRetriesUsed,
         candidateParseRetriesUsed: stored.candidateParseRetriesUsed,
+        candidateExtractionRetriesUsed: stored.candidateExtractionRetriesUsed,
       },
       stored.stage,
     ),
@@ -400,7 +495,8 @@ async function findLatestScan(
     ? await database.$queryRaw<ScanAttempt[]>`
         SELECT assessment."id", assessment."sourceArtifactId",
                assessment."attemptNumber", assessment."status"::text AS "status",
-               assessment."failureCode"
+               assessment."failureCode", assessment."policyVersion",
+               assessment."completedAt"
           FROM "CvScanAssessment" assessment
          WHERE assessment."uploadId" = ${uploadId}
            AND assessment."accountId" = ${accountId}
@@ -410,11 +506,75 @@ async function findLatestScan(
     : await database.$queryRaw<ScanAttempt[]>`
         SELECT assessment."id", assessment."sourceArtifactId",
                assessment."attemptNumber", assessment."status"::text AS "status",
-               assessment."failureCode"
+               assessment."failureCode", assessment."policyVersion",
+               assessment."completedAt"
           FROM "CvScanAssessment" assessment
          WHERE assessment."uploadId" = ${uploadId}
            AND assessment."accountId" = ${accountId}
          ORDER BY assessment."attemptNumber" DESC
+         LIMIT 1
+      `;
+  return rows[0] ?? null;
+}
+
+async function findScanById(
+  database: CvDatabase,
+  accountId: string,
+  uploadId: string,
+  scanAssessmentId: string,
+  lock = false,
+): Promise<ScanAttempt | null> {
+  const rows = lock
+    ? await database.$queryRaw<ScanAttempt[]>`
+        SELECT assessment."id", assessment."sourceArtifactId",
+               assessment."attemptNumber", assessment."status"::text AS "status",
+               assessment."failureCode", assessment."policyVersion",
+               assessment."completedAt"
+          FROM "CvScanAssessment" assessment
+         WHERE assessment."id" = ${scanAssessmentId}
+           AND assessment."uploadId" = ${uploadId}
+           AND assessment."accountId" = ${accountId}
+         LIMIT 1 FOR UPDATE
+      `
+    : await database.$queryRaw<ScanAttempt[]>`
+        SELECT assessment."id", assessment."sourceArtifactId",
+               assessment."attemptNumber", assessment."status"::text AS "status",
+               assessment."failureCode", assessment."policyVersion",
+               assessment."completedAt"
+          FROM "CvScanAssessment" assessment
+         WHERE assessment."id" = ${scanAssessmentId}
+           AND assessment."uploadId" = ${uploadId}
+           AND assessment."accountId" = ${accountId}
+         LIMIT 1
+      `;
+  return rows[0] ?? null;
+}
+
+async function findLatestExtraction(
+  database: CvDatabase,
+  accountId: string,
+  uploadId: string,
+  lock = false,
+): Promise<ExtractionAttempt | null> {
+  const rows = lock
+    ? await database.$queryRaw<ExtractionAttempt[]>`
+        SELECT extraction."id", extraction."sourceArtifactId",
+               extraction."scanAssessmentId", extraction."attemptNumber",
+               extraction."status"::text AS "status", extraction."failureCode"
+          FROM "CvExtraction" extraction
+         WHERE extraction."uploadId" = ${uploadId}
+           AND extraction."accountId" = ${accountId}
+         ORDER BY extraction."attemptNumber" DESC
+         LIMIT 1 FOR UPDATE
+      `
+    : await database.$queryRaw<ExtractionAttempt[]>`
+        SELECT extraction."id", extraction."sourceArtifactId",
+               extraction."scanAssessmentId", extraction."attemptNumber",
+               extraction."status"::text AS "status", extraction."failureCode"
+          FROM "CvExtraction" extraction
+         WHERE extraction."uploadId" = ${uploadId}
+           AND extraction."accountId" = ${accountId}
+         ORDER BY extraction."attemptNumber" DESC
          LIMIT 1
       `;
   return rows[0] ?? null;
@@ -580,6 +740,33 @@ export class PrismaCvRetryRepository {
         throw new CvImportServiceError("IMPORT_STATE_CONFLICT");
       return Object.freeze({ stage, parserClass: upload.parserClass });
     }
+    if (stage === "EXTRACTION") {
+      const prior = await findLatestExtraction(
+        prisma,
+        input.accountId,
+        input.uploadId,
+      );
+      const cleanScan = prior
+        ? await findScanById(
+            prisma,
+            input.accountId,
+            input.uploadId,
+            prior.scanAssessmentId,
+          )
+        : null;
+      const extractionRetriesUsed = await candidateRetryCount(
+        prisma,
+        input.uploadId,
+        stage,
+      );
+      assertExtractionEligibility(
+        upload,
+        prior,
+        cleanScan,
+        extractionRetriesUsed,
+      );
+      return Object.freeze({ stage, parserClass: upload.parserClass });
+    }
     const prior = await findLatestParse(
       prisma,
       input.accountId,
@@ -708,6 +895,103 @@ export class PrismaCvRetryRepository {
                 {
                   id: upload.id,
                   candidateScanRetriesUsed: upload.candidateScanRetriesUsed + 1,
+                  candidateParseRetriesUsed: upload.candidateParseRetriesUsed,
+                },
+                stage,
+              ),
+              replayed: false,
+              stage,
+              parserClass: upload.parserClass,
+            });
+          }
+
+          if (stage === "EXTRACTION") {
+            const prior = await findLatestExtraction(
+              transaction,
+              input.accountId,
+              input.uploadId,
+              true,
+            );
+            if (!prior) throw new CvImportServiceError("IMPORT_STATE_CONFLICT");
+            const cleanScan = await findScanById(
+              transaction,
+              input.accountId,
+              input.uploadId,
+              prior.scanAssessmentId,
+              true,
+            );
+            const extractionRetriesUsed = await candidateRetryCount(
+              transaction,
+              input.uploadId,
+              stage,
+            );
+            assertExtractionEligibility(
+              upload,
+              prior,
+              cleanScan,
+              extractionRetriesUsed,
+            );
+            const existingBinding = await transaction.$queryRaw<
+              Array<{ id: string }>
+            >`
+              SELECT "id" FROM "CvRetryRequest"
+               WHERE "priorExtractionId" = ${prior.id}
+               LIMIT 1
+            `;
+            if (existingBinding[0])
+              throw new CvImportServiceError("IMPORT_STATE_CONFLICT");
+            const newAttemptId = randomUUID();
+            const attemptNumber = prior.attemptNumber + 1;
+            await transaction.cvExtraction.create({
+              data: {
+                id: newAttemptId,
+                uploadId: input.uploadId,
+                sourceArtifactId: prior.sourceArtifactId,
+                scanAssessmentId: prior.scanAssessmentId,
+                accountId: input.accountId,
+                attemptNumber,
+                status: "QUEUED",
+                createdAt: input.now,
+              },
+              select: { id: true },
+            });
+            await transaction.$executeRaw`
+              INSERT INTO "CvRetryRequest" (
+                "id", "accountId", "uploadId", "stage", "idempotencyDigest",
+                "priorExtractionId", "extractionId", "createdAt"
+              ) VALUES (
+                ${retryId}, ${input.accountId}, ${input.uploadId}, 'EXTRACTION',
+                decode(${idempotencyHex}, 'hex'), ${prior.id}, ${newAttemptId}, ${input.now}
+              )
+            `;
+            const changed = await transaction.cvUpload.updateMany({
+              where: {
+                id: input.uploadId,
+                accountId: input.accountId,
+                status: "EXTRACTION_FAILED",
+              },
+              data: {
+                status: "EXTRACTION_QUEUED",
+                failureCode: null,
+                updatedAt: input.now,
+              },
+            });
+            if (changed.count !== 1)
+              throw new CvImportServiceError("IMPORT_STATE_CONFLICT");
+            await auditNewRetry(transaction, {
+              accountId: input.accountId,
+              uploadId: input.uploadId,
+              stage,
+              parserClass: upload.parserClass,
+              attemptNumber,
+              now: input.now,
+            });
+            return Object.freeze({
+              outcome: retryOutcome(
+                {
+                  id: upload.id,
+                  candidateScanRetriesUsed: upload.candidateScanRetriesUsed,
+                  candidateExtractionRetriesUsed: extractionRetriesUsed + 1,
                   candidateParseRetriesUsed: upload.candidateParseRetriesUsed,
                 },
                 stage,

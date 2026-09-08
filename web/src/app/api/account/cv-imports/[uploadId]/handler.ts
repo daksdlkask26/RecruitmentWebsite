@@ -46,8 +46,11 @@ export function createCvImportResourceHandlers(dependencies?: {
           resource: { type: "upload", id },
         });
         const resource = await project(current.accountId, id);
-        const pollingAfterMs =
-          "stage" in resource ? cvStatusPollingAfterMs(resource.status) : null;
+        const pollingAfterMs = cvStatusPollingAfterMs(
+          resource.status,
+          "stage" in resource ? resource.processingMode : undefined,
+          resource,
+        );
         return cvJsonResponse(resource, {
           headers: pollingAfterMs
             ? { "Retry-After": String(Math.ceil(pollingAfterMs / 1000)) }

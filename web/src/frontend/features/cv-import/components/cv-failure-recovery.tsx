@@ -13,6 +13,7 @@ export type CvFailureRecoveryResource = Readonly<{
   status: CvImportResource["status"];
   availableActions: CvImportResource["availableActions"];
   scanRetriesRemaining: number;
+  extractionRetriesRemaining?: number;
   parseRetriesRemaining: number;
   failure: CvImportResource["failure"];
 }>;
@@ -37,6 +38,11 @@ function retryDetails(
     return {
       count: resource.scanRetriesRemaining,
       label: locale === "vi" ? "quét" : "scan",
+    } as const;
+  if (resource.status === "EXTRACTION_FAILED")
+    return {
+      count: resource.extractionRetriesRemaining ?? 0,
+      label: locale === "vi" ? "trích xuất" : "extraction",
     } as const;
   if (resource.status === "PARSE_FAILED")
     return {

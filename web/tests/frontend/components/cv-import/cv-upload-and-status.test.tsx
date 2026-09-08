@@ -139,10 +139,9 @@ describe("CV upload and authoritative status UI", () => {
       />,
     );
     expect(screen.getByText("synthetic.pdf")).toBeVisible();
-    expect(screen.getByRole("link", { name: /view status/i })).toHaveAttribute(
-      "href",
-      "/profile/cv-imports/upload_fixture_1234",
-    );
+    expect(
+      screen.getByRole("link", { name: /resume import/i }),
+    ).toHaveAttribute("href", "/profile/cv-imports/upload_fixture_1234");
     rerender(
       <CvImportStatus
         resource={{
@@ -173,6 +172,49 @@ describe("CV upload and authoritative status UI", () => {
     );
     unmount();
     expect(clear).toHaveBeenCalled();
+  });
+
+  it("stops polling while hidden and refreshes once when visible again", async () => {
+    vi.useFakeTimers();
+    Object.defineProperty(document, "hidden", {
+      configurable: true,
+      value: false,
+    });
+    const loadStatus = vi.fn(async () => ({
+      uploadId: "upload_visibility_1234",
+      status: "SCANNING" as const,
+      stage: "SCAN" as const,
+      availableActions: [],
+      pollingAfterMs: 50,
+    }));
+    render(
+      <CvImportStatus
+        resource={{
+          uploadId: "upload_visibility_1234",
+          status: "SCANNING" as const,
+          stage: "SCAN" as const,
+          availableActions: [],
+          pollingAfterMs: 50,
+        }}
+        loadStatus={loadStatus}
+      />,
+    );
+    Object.defineProperty(document, "hidden", {
+      configurable: true,
+      value: true,
+    });
+    await act(async () => vi.advanceTimersByTimeAsync(500));
+    expect(loadStatus).not.toHaveBeenCalled();
+
+    Object.defineProperty(document, "hidden", {
+      configurable: true,
+      value: false,
+    });
+    await act(async () => {
+      document.dispatchEvent(new Event("visibilitychange"));
+      await Promise.resolve();
+    });
+    expect(loadStatus).toHaveBeenCalledOnce();
   });
 
   it("keeps polling successful responses and lets the candidate open a ready draft", async () => {
@@ -344,7 +386,7 @@ describe("CV upload and authoritative status UI", () => {
     expect(screen.getByTestId("openai-status")).toHaveTextContent(
       /parser_timeout/i,
     );
-    expect(screen.getByText(/failed: parse/i).closest("li")).toHaveAttribute(
+    expect(screen.getByText(/failed: extract/i).closest("li")).toHaveAttribute(
       "data-state",
       "error",
     );

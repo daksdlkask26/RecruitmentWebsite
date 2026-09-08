@@ -471,6 +471,8 @@ export type CvExtractionWhereInput = {
   outputArtifact?: Prisma.XOR<Prisma.CvStoredArtifactNullableScalarRelationFilter, Prisma.CvStoredArtifactWhereInput> | null
   parseJobs?: Prisma.CvParseJobListRelationFilter
   ocrAttempt?: Prisma.XOR<Prisma.OcrProcessingAttemptNullableScalarRelationFilter, Prisma.OcrProcessingAttemptWhereInput> | null
+  priorRetryRequests?: Prisma.CvRetryRequestListRelationFilter
+  newRetryRequests?: Prisma.CvRetryRequestListRelationFilter
 }
 
 export type CvExtractionOrderByWithRelationInput = {
@@ -512,6 +514,8 @@ export type CvExtractionOrderByWithRelationInput = {
   outputArtifact?: Prisma.CvStoredArtifactOrderByWithRelationInput
   parseJobs?: Prisma.CvParseJobOrderByRelationAggregateInput
   ocrAttempt?: Prisma.OcrProcessingAttemptOrderByWithRelationInput
+  priorRetryRequests?: Prisma.CvRetryRequestOrderByRelationAggregateInput
+  newRetryRequests?: Prisma.CvRetryRequestOrderByRelationAggregateInput
 }
 
 export type CvExtractionWhereUniqueInput = Prisma.AtLeast<{
@@ -557,6 +561,8 @@ export type CvExtractionWhereUniqueInput = Prisma.AtLeast<{
   outputArtifact?: Prisma.XOR<Prisma.CvStoredArtifactNullableScalarRelationFilter, Prisma.CvStoredArtifactWhereInput> | null
   parseJobs?: Prisma.CvParseJobListRelationFilter
   ocrAttempt?: Prisma.XOR<Prisma.OcrProcessingAttemptNullableScalarRelationFilter, Prisma.OcrProcessingAttemptWhereInput> | null
+  priorRetryRequests?: Prisma.CvRetryRequestListRelationFilter
+  newRetryRequests?: Prisma.CvRetryRequestListRelationFilter
 }, "id" | "outputArtifactId" | "uploadId_attemptNumber">
 
 export type CvExtractionOrderByWithAggregationInput = {
@@ -669,6 +675,8 @@ export type CvExtractionCreateInput = {
   outputArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutExtractionOutputInput
   parseJobs?: Prisma.CvParseJobCreateNestedManyWithoutExtractionInput
   ocrAttempt?: Prisma.OcrProcessingAttemptCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionUncheckedCreateInput = {
@@ -705,6 +713,8 @@ export type CvExtractionUncheckedCreateInput = {
   createdAt?: Date | string
   parseJobs?: Prisma.CvParseJobUncheckedCreateNestedManyWithoutExtractionInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionUpdateInput = {
@@ -741,6 +751,8 @@ export type CvExtractionUpdateInput = {
   outputArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutExtractionOutputNestedInput
   parseJobs?: Prisma.CvParseJobUpdateManyWithoutExtractionNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionUncheckedUpdateInput = {
@@ -777,6 +789,8 @@ export type CvExtractionUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parseJobs?: Prisma.CvParseJobUncheckedUpdateManyWithoutExtractionNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionCreateManyInput = {
@@ -1249,6 +1263,38 @@ export type CvExtractionUpdateOneRequiredWithoutParseJobsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CvExtractionUpdateToOneWithWhereWithoutParseJobsInput, Prisma.CvExtractionUpdateWithoutParseJobsInput>, Prisma.CvExtractionUncheckedUpdateWithoutParseJobsInput>
 }
 
+export type CvExtractionCreateNestedOneWithoutPriorRetryRequestsInput = {
+  create?: Prisma.XOR<Prisma.CvExtractionCreateWithoutPriorRetryRequestsInput, Prisma.CvExtractionUncheckedCreateWithoutPriorRetryRequestsInput>
+  connectOrCreate?: Prisma.CvExtractionCreateOrConnectWithoutPriorRetryRequestsInput
+  connect?: Prisma.CvExtractionWhereUniqueInput
+}
+
+export type CvExtractionCreateNestedOneWithoutNewRetryRequestsInput = {
+  create?: Prisma.XOR<Prisma.CvExtractionCreateWithoutNewRetryRequestsInput, Prisma.CvExtractionUncheckedCreateWithoutNewRetryRequestsInput>
+  connectOrCreate?: Prisma.CvExtractionCreateOrConnectWithoutNewRetryRequestsInput
+  connect?: Prisma.CvExtractionWhereUniqueInput
+}
+
+export type CvExtractionUpdateOneWithoutPriorRetryRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.CvExtractionCreateWithoutPriorRetryRequestsInput, Prisma.CvExtractionUncheckedCreateWithoutPriorRetryRequestsInput>
+  connectOrCreate?: Prisma.CvExtractionCreateOrConnectWithoutPriorRetryRequestsInput
+  upsert?: Prisma.CvExtractionUpsertWithoutPriorRetryRequestsInput
+  disconnect?: Prisma.CvExtractionWhereInput | boolean
+  delete?: Prisma.CvExtractionWhereInput | boolean
+  connect?: Prisma.CvExtractionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CvExtractionUpdateToOneWithWhereWithoutPriorRetryRequestsInput, Prisma.CvExtractionUpdateWithoutPriorRetryRequestsInput>, Prisma.CvExtractionUncheckedUpdateWithoutPriorRetryRequestsInput>
+}
+
+export type CvExtractionUpdateOneWithoutNewRetryRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.CvExtractionCreateWithoutNewRetryRequestsInput, Prisma.CvExtractionUncheckedCreateWithoutNewRetryRequestsInput>
+  connectOrCreate?: Prisma.CvExtractionCreateOrConnectWithoutNewRetryRequestsInput
+  upsert?: Prisma.CvExtractionUpsertWithoutNewRetryRequestsInput
+  disconnect?: Prisma.CvExtractionWhereInput | boolean
+  delete?: Prisma.CvExtractionWhereInput | boolean
+  connect?: Prisma.CvExtractionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CvExtractionUpdateToOneWithWhereWithoutNewRetryRequestsInput, Prisma.CvExtractionUpdateWithoutNewRetryRequestsInput>, Prisma.CvExtractionUncheckedUpdateWithoutNewRetryRequestsInput>
+}
+
 export type CvExtractionCreateNestedOneWithoutOcrAttemptInput = {
   create?: Prisma.XOR<Prisma.CvExtractionCreateWithoutOcrAttemptInput, Prisma.CvExtractionUncheckedCreateWithoutOcrAttemptInput>
   connectOrCreate?: Prisma.CvExtractionCreateOrConnectWithoutOcrAttemptInput
@@ -1298,6 +1344,8 @@ export type CvExtractionCreateWithoutAccountInput = {
   outputArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutExtractionOutputInput
   parseJobs?: Prisma.CvParseJobCreateNestedManyWithoutExtractionInput
   ocrAttempt?: Prisma.OcrProcessingAttemptCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionUncheckedCreateWithoutAccountInput = {
@@ -1333,6 +1381,8 @@ export type CvExtractionUncheckedCreateWithoutAccountInput = {
   createdAt?: Date | string
   parseJobs?: Prisma.CvParseJobUncheckedCreateNestedManyWithoutExtractionInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionCreateOrConnectWithoutAccountInput = {
@@ -1431,6 +1481,8 @@ export type CvExtractionCreateWithoutUploadInput = {
   outputArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutExtractionOutputInput
   parseJobs?: Prisma.CvParseJobCreateNestedManyWithoutExtractionInput
   ocrAttempt?: Prisma.OcrProcessingAttemptCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionUncheckedCreateWithoutUploadInput = {
@@ -1466,6 +1518,8 @@ export type CvExtractionUncheckedCreateWithoutUploadInput = {
   createdAt?: Date | string
   parseJobs?: Prisma.CvParseJobUncheckedCreateNestedManyWithoutExtractionInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionCreateOrConnectWithoutUploadInput = {
@@ -1527,6 +1581,8 @@ export type CvExtractionCreateWithoutSourceArtifactInput = {
   outputArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutExtractionOutputInput
   parseJobs?: Prisma.CvParseJobCreateNestedManyWithoutExtractionInput
   ocrAttempt?: Prisma.OcrProcessingAttemptCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionUncheckedCreateWithoutSourceArtifactInput = {
@@ -1562,6 +1618,8 @@ export type CvExtractionUncheckedCreateWithoutSourceArtifactInput = {
   createdAt?: Date | string
   parseJobs?: Prisma.CvParseJobUncheckedCreateNestedManyWithoutExtractionInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionCreateOrConnectWithoutSourceArtifactInput = {
@@ -1607,6 +1665,8 @@ export type CvExtractionCreateWithoutOutputArtifactInput = {
   account: Prisma.UserAccountCreateNestedOneWithoutCvExtractionsInput
   parseJobs?: Prisma.CvParseJobCreateNestedManyWithoutExtractionInput
   ocrAttempt?: Prisma.OcrProcessingAttemptCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionUncheckedCreateWithoutOutputArtifactInput = {
@@ -1642,6 +1702,8 @@ export type CvExtractionUncheckedCreateWithoutOutputArtifactInput = {
   createdAt?: Date | string
   parseJobs?: Prisma.CvParseJobUncheckedCreateNestedManyWithoutExtractionInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionCreateOrConnectWithoutOutputArtifactInput = {
@@ -1709,6 +1771,8 @@ export type CvExtractionUpdateWithoutOutputArtifactInput = {
   account?: Prisma.UserAccountUpdateOneRequiredWithoutCvExtractionsNestedInput
   parseJobs?: Prisma.CvParseJobUpdateManyWithoutExtractionNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionUncheckedUpdateWithoutOutputArtifactInput = {
@@ -1744,6 +1808,8 @@ export type CvExtractionUncheckedUpdateWithoutOutputArtifactInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parseJobs?: Prisma.CvParseJobUncheckedUpdateManyWithoutExtractionNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionCreateWithoutScanAssessmentInput = {
@@ -1779,6 +1845,8 @@ export type CvExtractionCreateWithoutScanAssessmentInput = {
   outputArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutExtractionOutputInput
   parseJobs?: Prisma.CvParseJobCreateNestedManyWithoutExtractionInput
   ocrAttempt?: Prisma.OcrProcessingAttemptCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionUncheckedCreateWithoutScanAssessmentInput = {
@@ -1814,6 +1882,8 @@ export type CvExtractionUncheckedCreateWithoutScanAssessmentInput = {
   createdAt?: Date | string
   parseJobs?: Prisma.CvParseJobUncheckedCreateNestedManyWithoutExtractionInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionCreateOrConnectWithoutScanAssessmentInput = {
@@ -1875,6 +1945,8 @@ export type CvExtractionCreateWithoutParseJobsInput = {
   account: Prisma.UserAccountCreateNestedOneWithoutCvExtractionsInput
   outputArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutExtractionOutputInput
   ocrAttempt?: Prisma.OcrProcessingAttemptCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionUncheckedCreateWithoutParseJobsInput = {
@@ -1910,6 +1982,8 @@ export type CvExtractionUncheckedCreateWithoutParseJobsInput = {
   completedAt?: Date | string | null
   createdAt?: Date | string
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionCreateOrConnectWithoutParseJobsInput = {
@@ -1961,6 +2035,8 @@ export type CvExtractionUpdateWithoutParseJobsInput = {
   account?: Prisma.UserAccountUpdateOneRequiredWithoutCvExtractionsNestedInput
   outputArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutExtractionOutputNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionUncheckedUpdateWithoutParseJobsInput = {
@@ -1996,6 +2072,336 @@ export type CvExtractionUncheckedUpdateWithoutParseJobsInput = {
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutExtractionNestedInput
+}
+
+export type CvExtractionCreateWithoutPriorRetryRequestsInput = {
+  id?: string
+  attemptNumber: number
+  status?: $Enums.CvExtractionStatus
+  extractorName?: string | null
+  extractorVersion?: string | null
+  rulesVersion?: string | null
+  pageCount?: number | null
+  entryCount?: number | null
+  expandedBytes?: number | null
+  segmentCount?: number | null
+  extractedUtf8Bytes?: number | null
+  segmentSchemaVersion?: string | null
+  eligibilityPolicyVersion?: string | null
+  deduplicationPolicyVersion?: string | null
+  confidencePolicyVersion?: string | null
+  nativeSegmentCount?: number | null
+  ocrSegmentCount?: number | null
+  accountedUnitCount?: number | null
+  lowConfidenceUnitCount?: number | null
+  conflictUnitCount?: number | null
+  failureCode?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  upload: Prisma.CvUploadCreateNestedOneWithoutExtractionsInput
+  sourceArtifact: Prisma.CvStoredArtifactCreateNestedOneWithoutExtractionInputsInput
+  scanAssessment: Prisma.CvScanAssessmentCreateNestedOneWithoutExtractionsInput
+  account: Prisma.UserAccountCreateNestedOneWithoutCvExtractionsInput
+  outputArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutExtractionOutputInput
+  parseJobs?: Prisma.CvParseJobCreateNestedManyWithoutExtractionInput
+  ocrAttempt?: Prisma.OcrProcessingAttemptCreateNestedOneWithoutCvExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutExtractionInput
+}
+
+export type CvExtractionUncheckedCreateWithoutPriorRetryRequestsInput = {
+  id?: string
+  uploadId: string
+  sourceArtifactId: string
+  scanAssessmentId: string
+  accountId: string
+  outputArtifactId?: string | null
+  attemptNumber: number
+  status?: $Enums.CvExtractionStatus
+  extractorName?: string | null
+  extractorVersion?: string | null
+  rulesVersion?: string | null
+  pageCount?: number | null
+  entryCount?: number | null
+  expandedBytes?: number | null
+  segmentCount?: number | null
+  extractedUtf8Bytes?: number | null
+  segmentSchemaVersion?: string | null
+  eligibilityPolicyVersion?: string | null
+  deduplicationPolicyVersion?: string | null
+  confidencePolicyVersion?: string | null
+  nativeSegmentCount?: number | null
+  ocrSegmentCount?: number | null
+  accountedUnitCount?: number | null
+  lowConfidenceUnitCount?: number | null
+  conflictUnitCount?: number | null
+  failureCode?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  parseJobs?: Prisma.CvParseJobUncheckedCreateNestedManyWithoutExtractionInput
+  ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedCreateNestedOneWithoutCvExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutExtractionInput
+}
+
+export type CvExtractionCreateOrConnectWithoutPriorRetryRequestsInput = {
+  where: Prisma.CvExtractionWhereUniqueInput
+  create: Prisma.XOR<Prisma.CvExtractionCreateWithoutPriorRetryRequestsInput, Prisma.CvExtractionUncheckedCreateWithoutPriorRetryRequestsInput>
+}
+
+export type CvExtractionCreateWithoutNewRetryRequestsInput = {
+  id?: string
+  attemptNumber: number
+  status?: $Enums.CvExtractionStatus
+  extractorName?: string | null
+  extractorVersion?: string | null
+  rulesVersion?: string | null
+  pageCount?: number | null
+  entryCount?: number | null
+  expandedBytes?: number | null
+  segmentCount?: number | null
+  extractedUtf8Bytes?: number | null
+  segmentSchemaVersion?: string | null
+  eligibilityPolicyVersion?: string | null
+  deduplicationPolicyVersion?: string | null
+  confidencePolicyVersion?: string | null
+  nativeSegmentCount?: number | null
+  ocrSegmentCount?: number | null
+  accountedUnitCount?: number | null
+  lowConfidenceUnitCount?: number | null
+  conflictUnitCount?: number | null
+  failureCode?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  upload: Prisma.CvUploadCreateNestedOneWithoutExtractionsInput
+  sourceArtifact: Prisma.CvStoredArtifactCreateNestedOneWithoutExtractionInputsInput
+  scanAssessment: Prisma.CvScanAssessmentCreateNestedOneWithoutExtractionsInput
+  account: Prisma.UserAccountCreateNestedOneWithoutCvExtractionsInput
+  outputArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutExtractionOutputInput
+  parseJobs?: Prisma.CvParseJobCreateNestedManyWithoutExtractionInput
+  ocrAttempt?: Prisma.OcrProcessingAttemptCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorExtractionInput
+}
+
+export type CvExtractionUncheckedCreateWithoutNewRetryRequestsInput = {
+  id?: string
+  uploadId: string
+  sourceArtifactId: string
+  scanAssessmentId: string
+  accountId: string
+  outputArtifactId?: string | null
+  attemptNumber: number
+  status?: $Enums.CvExtractionStatus
+  extractorName?: string | null
+  extractorVersion?: string | null
+  rulesVersion?: string | null
+  pageCount?: number | null
+  entryCount?: number | null
+  expandedBytes?: number | null
+  segmentCount?: number | null
+  extractedUtf8Bytes?: number | null
+  segmentSchemaVersion?: string | null
+  eligibilityPolicyVersion?: string | null
+  deduplicationPolicyVersion?: string | null
+  confidencePolicyVersion?: string | null
+  nativeSegmentCount?: number | null
+  ocrSegmentCount?: number | null
+  accountedUnitCount?: number | null
+  lowConfidenceUnitCount?: number | null
+  conflictUnitCount?: number | null
+  failureCode?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  parseJobs?: Prisma.CvParseJobUncheckedCreateNestedManyWithoutExtractionInput
+  ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedCreateNestedOneWithoutCvExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorExtractionInput
+}
+
+export type CvExtractionCreateOrConnectWithoutNewRetryRequestsInput = {
+  where: Prisma.CvExtractionWhereUniqueInput
+  create: Prisma.XOR<Prisma.CvExtractionCreateWithoutNewRetryRequestsInput, Prisma.CvExtractionUncheckedCreateWithoutNewRetryRequestsInput>
+}
+
+export type CvExtractionUpsertWithoutPriorRetryRequestsInput = {
+  update: Prisma.XOR<Prisma.CvExtractionUpdateWithoutPriorRetryRequestsInput, Prisma.CvExtractionUncheckedUpdateWithoutPriorRetryRequestsInput>
+  create: Prisma.XOR<Prisma.CvExtractionCreateWithoutPriorRetryRequestsInput, Prisma.CvExtractionUncheckedCreateWithoutPriorRetryRequestsInput>
+  where?: Prisma.CvExtractionWhereInput
+}
+
+export type CvExtractionUpdateToOneWithWhereWithoutPriorRetryRequestsInput = {
+  where?: Prisma.CvExtractionWhereInput
+  data: Prisma.XOR<Prisma.CvExtractionUpdateWithoutPriorRetryRequestsInput, Prisma.CvExtractionUncheckedUpdateWithoutPriorRetryRequestsInput>
+}
+
+export type CvExtractionUpdateWithoutPriorRetryRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumCvExtractionStatusFieldUpdateOperationsInput | $Enums.CvExtractionStatus
+  extractorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractorVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rulesVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  entryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expandedBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  segmentCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractedUtf8Bytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  segmentSchemaVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibilityPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deduplicationPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidencePolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nativeSegmentCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrSegmentCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accountedUnitCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lowConfidenceUnitCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  conflictUnitCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  upload?: Prisma.CvUploadUpdateOneRequiredWithoutExtractionsNestedInput
+  sourceArtifact?: Prisma.CvStoredArtifactUpdateOneRequiredWithoutExtractionInputsNestedInput
+  scanAssessment?: Prisma.CvScanAssessmentUpdateOneRequiredWithoutExtractionsNestedInput
+  account?: Prisma.UserAccountUpdateOneRequiredWithoutCvExtractionsNestedInput
+  outputArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutExtractionOutputNestedInput
+  parseJobs?: Prisma.CvParseJobUpdateManyWithoutExtractionNestedInput
+  ocrAttempt?: Prisma.OcrProcessingAttemptUpdateOneWithoutCvExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutExtractionNestedInput
+}
+
+export type CvExtractionUncheckedUpdateWithoutPriorRetryRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
+  scanAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  outputArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumCvExtractionStatusFieldUpdateOperationsInput | $Enums.CvExtractionStatus
+  extractorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractorVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rulesVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  entryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expandedBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  segmentCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractedUtf8Bytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  segmentSchemaVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibilityPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deduplicationPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidencePolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nativeSegmentCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrSegmentCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accountedUnitCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lowConfidenceUnitCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  conflictUnitCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parseJobs?: Prisma.CvParseJobUncheckedUpdateManyWithoutExtractionNestedInput
+  ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedUpdateOneWithoutCvExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutExtractionNestedInput
+}
+
+export type CvExtractionUpsertWithoutNewRetryRequestsInput = {
+  update: Prisma.XOR<Prisma.CvExtractionUpdateWithoutNewRetryRequestsInput, Prisma.CvExtractionUncheckedUpdateWithoutNewRetryRequestsInput>
+  create: Prisma.XOR<Prisma.CvExtractionCreateWithoutNewRetryRequestsInput, Prisma.CvExtractionUncheckedCreateWithoutNewRetryRequestsInput>
+  where?: Prisma.CvExtractionWhereInput
+}
+
+export type CvExtractionUpdateToOneWithWhereWithoutNewRetryRequestsInput = {
+  where?: Prisma.CvExtractionWhereInput
+  data: Prisma.XOR<Prisma.CvExtractionUpdateWithoutNewRetryRequestsInput, Prisma.CvExtractionUncheckedUpdateWithoutNewRetryRequestsInput>
+}
+
+export type CvExtractionUpdateWithoutNewRetryRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumCvExtractionStatusFieldUpdateOperationsInput | $Enums.CvExtractionStatus
+  extractorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractorVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rulesVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  entryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expandedBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  segmentCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractedUtf8Bytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  segmentSchemaVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibilityPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deduplicationPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidencePolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nativeSegmentCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrSegmentCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accountedUnitCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lowConfidenceUnitCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  conflictUnitCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  upload?: Prisma.CvUploadUpdateOneRequiredWithoutExtractionsNestedInput
+  sourceArtifact?: Prisma.CvStoredArtifactUpdateOneRequiredWithoutExtractionInputsNestedInput
+  scanAssessment?: Prisma.CvScanAssessmentUpdateOneRequiredWithoutExtractionsNestedInput
+  account?: Prisma.UserAccountUpdateOneRequiredWithoutCvExtractionsNestedInput
+  outputArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutExtractionOutputNestedInput
+  parseJobs?: Prisma.CvParseJobUpdateManyWithoutExtractionNestedInput
+  ocrAttempt?: Prisma.OcrProcessingAttemptUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorExtractionNestedInput
+}
+
+export type CvExtractionUncheckedUpdateWithoutNewRetryRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceArtifactId?: Prisma.StringFieldUpdateOperationsInput | string
+  scanAssessmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  outputArtifactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumCvExtractionStatusFieldUpdateOperationsInput | $Enums.CvExtractionStatus
+  extractorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractorVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rulesVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  entryCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expandedBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  segmentCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractedUtf8Bytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  segmentSchemaVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibilityPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deduplicationPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidencePolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nativeSegmentCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrSegmentCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accountedUnitCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lowConfidenceUnitCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  conflictUnitCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parseJobs?: Prisma.CvParseJobUncheckedUpdateManyWithoutExtractionNestedInput
+  ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorExtractionNestedInput
 }
 
 export type CvExtractionCreateWithoutOcrAttemptInput = {
@@ -2031,6 +2437,8 @@ export type CvExtractionCreateWithoutOcrAttemptInput = {
   account: Prisma.UserAccountCreateNestedOneWithoutCvExtractionsInput
   outputArtifact?: Prisma.CvStoredArtifactCreateNestedOneWithoutExtractionOutputInput
   parseJobs?: Prisma.CvParseJobCreateNestedManyWithoutExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionUncheckedCreateWithoutOcrAttemptInput = {
@@ -2066,6 +2474,8 @@ export type CvExtractionUncheckedCreateWithoutOcrAttemptInput = {
   completedAt?: Date | string | null
   createdAt?: Date | string
   parseJobs?: Prisma.CvParseJobUncheckedCreateNestedManyWithoutExtractionInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutPriorExtractionInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedCreateNestedManyWithoutExtractionInput
 }
 
 export type CvExtractionCreateOrConnectWithoutOcrAttemptInput = {
@@ -2117,6 +2527,8 @@ export type CvExtractionUpdateWithoutOcrAttemptInput = {
   account?: Prisma.UserAccountUpdateOneRequiredWithoutCvExtractionsNestedInput
   outputArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutExtractionOutputNestedInput
   parseJobs?: Prisma.CvParseJobUpdateManyWithoutExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionUncheckedUpdateWithoutOcrAttemptInput = {
@@ -2152,6 +2564,8 @@ export type CvExtractionUncheckedUpdateWithoutOcrAttemptInput = {
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parseJobs?: Prisma.CvParseJobUncheckedUpdateManyWithoutExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionCreateManyAccountInput = {
@@ -2220,6 +2634,8 @@ export type CvExtractionUpdateWithoutAccountInput = {
   outputArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutExtractionOutputNestedInput
   parseJobs?: Prisma.CvParseJobUpdateManyWithoutExtractionNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionUncheckedUpdateWithoutAccountInput = {
@@ -2255,6 +2671,8 @@ export type CvExtractionUncheckedUpdateWithoutAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parseJobs?: Prisma.CvParseJobUncheckedUpdateManyWithoutExtractionNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionUncheckedUpdateManyWithoutAccountInput = {
@@ -2356,6 +2774,8 @@ export type CvExtractionUpdateWithoutUploadInput = {
   outputArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutExtractionOutputNestedInput
   parseJobs?: Prisma.CvParseJobUpdateManyWithoutExtractionNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionUncheckedUpdateWithoutUploadInput = {
@@ -2391,6 +2811,8 @@ export type CvExtractionUncheckedUpdateWithoutUploadInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parseJobs?: Prisma.CvParseJobUncheckedUpdateManyWithoutExtractionNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionUncheckedUpdateManyWithoutUploadInput = {
@@ -2492,6 +2914,8 @@ export type CvExtractionUpdateWithoutSourceArtifactInput = {
   outputArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutExtractionOutputNestedInput
   parseJobs?: Prisma.CvParseJobUpdateManyWithoutExtractionNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionUncheckedUpdateWithoutSourceArtifactInput = {
@@ -2527,6 +2951,8 @@ export type CvExtractionUncheckedUpdateWithoutSourceArtifactInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parseJobs?: Prisma.CvParseJobUncheckedUpdateManyWithoutExtractionNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionUncheckedUpdateManyWithoutSourceArtifactInput = {
@@ -2628,6 +3054,8 @@ export type CvExtractionUpdateWithoutScanAssessmentInput = {
   outputArtifact?: Prisma.CvStoredArtifactUpdateOneWithoutExtractionOutputNestedInput
   parseJobs?: Prisma.CvParseJobUpdateManyWithoutExtractionNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionUncheckedUpdateWithoutScanAssessmentInput = {
@@ -2663,6 +3091,8 @@ export type CvExtractionUncheckedUpdateWithoutScanAssessmentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parseJobs?: Prisma.CvParseJobUncheckedUpdateManyWithoutExtractionNestedInput
   ocrAttempt?: Prisma.OcrProcessingAttemptUncheckedUpdateOneWithoutCvExtractionNestedInput
+  priorRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutPriorExtractionNestedInput
+  newRetryRequests?: Prisma.CvRetryRequestUncheckedUpdateManyWithoutExtractionNestedInput
 }
 
 export type CvExtractionUncheckedUpdateManyWithoutScanAssessmentInput = {
@@ -2705,10 +3135,14 @@ export type CvExtractionUncheckedUpdateManyWithoutScanAssessmentInput = {
 
 export type CvExtractionCountOutputType = {
   parseJobs: number
+  priorRetryRequests: number
+  newRetryRequests: number
 }
 
 export type CvExtractionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   parseJobs?: boolean | CvExtractionCountOutputTypeCountParseJobsArgs
+  priorRetryRequests?: boolean | CvExtractionCountOutputTypeCountPriorRetryRequestsArgs
+  newRetryRequests?: boolean | CvExtractionCountOutputTypeCountNewRetryRequestsArgs
 }
 
 /**
@@ -2726,6 +3160,20 @@ export type CvExtractionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types
  */
 export type CvExtractionCountOutputTypeCountParseJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CvParseJobWhereInput
+}
+
+/**
+ * CvExtractionCountOutputType without action
+ */
+export type CvExtractionCountOutputTypeCountPriorRetryRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CvRetryRequestWhereInput
+}
+
+/**
+ * CvExtractionCountOutputType without action
+ */
+export type CvExtractionCountOutputTypeCountNewRetryRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CvRetryRequestWhereInput
 }
 
 
@@ -2768,6 +3216,8 @@ export type CvExtractionSelect<ExtArgs extends runtime.Types.Extensions.Internal
   outputArtifact?: boolean | Prisma.CvExtraction$outputArtifactArgs<ExtArgs>
   parseJobs?: boolean | Prisma.CvExtraction$parseJobsArgs<ExtArgs>
   ocrAttempt?: boolean | Prisma.CvExtraction$ocrAttemptArgs<ExtArgs>
+  priorRetryRequests?: boolean | Prisma.CvExtraction$priorRetryRequestsArgs<ExtArgs>
+  newRetryRequests?: boolean | Prisma.CvExtraction$newRetryRequestsArgs<ExtArgs>
   _count?: boolean | Prisma.CvExtractionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["cvExtraction"]>
 
@@ -2892,6 +3342,8 @@ export type CvExtractionInclude<ExtArgs extends runtime.Types.Extensions.Interna
   outputArtifact?: boolean | Prisma.CvExtraction$outputArtifactArgs<ExtArgs>
   parseJobs?: boolean | Prisma.CvExtraction$parseJobsArgs<ExtArgs>
   ocrAttempt?: boolean | Prisma.CvExtraction$ocrAttemptArgs<ExtArgs>
+  priorRetryRequests?: boolean | Prisma.CvExtraction$priorRetryRequestsArgs<ExtArgs>
+  newRetryRequests?: boolean | Prisma.CvExtraction$newRetryRequestsArgs<ExtArgs>
   _count?: boolean | Prisma.CvExtractionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CvExtractionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2919,6 +3371,8 @@ export type $CvExtractionPayload<ExtArgs extends runtime.Types.Extensions.Intern
     outputArtifact: Prisma.$CvStoredArtifactPayload<ExtArgs> | null
     parseJobs: Prisma.$CvParseJobPayload<ExtArgs>[]
     ocrAttempt: Prisma.$OcrProcessingAttemptPayload<ExtArgs> | null
+    priorRetryRequests: Prisma.$CvRetryRequestPayload<ExtArgs>[]
+    newRetryRequests: Prisma.$CvRetryRequestPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3353,6 +3807,8 @@ export interface Prisma__CvExtractionClient<T, Null = never, ExtArgs extends run
   outputArtifact<T extends Prisma.CvExtraction$outputArtifactArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvExtraction$outputArtifactArgs<ExtArgs>>): Prisma.Prisma__CvStoredArtifactClient<runtime.Types.Result.GetResult<Prisma.$CvStoredArtifactPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   parseJobs<T extends Prisma.CvExtraction$parseJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvExtraction$parseJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CvParseJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ocrAttempt<T extends Prisma.CvExtraction$ocrAttemptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvExtraction$ocrAttemptArgs<ExtArgs>>): Prisma.Prisma__OcrProcessingAttemptClient<runtime.Types.Result.GetResult<Prisma.$OcrProcessingAttemptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  priorRetryRequests<T extends Prisma.CvExtraction$priorRetryRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvExtraction$priorRetryRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CvRetryRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  newRetryRequests<T extends Prisma.CvExtraction$newRetryRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvExtraction$newRetryRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CvRetryRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3873,6 +4329,54 @@ export type CvExtraction$ocrAttemptArgs<ExtArgs extends runtime.Types.Extensions
    */
   include?: Prisma.OcrProcessingAttemptInclude<ExtArgs> | null
   where?: Prisma.OcrProcessingAttemptWhereInput
+}
+
+/**
+ * CvExtraction.priorRetryRequests
+ */
+export type CvExtraction$priorRetryRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CvRetryRequest
+   */
+  select?: Prisma.CvRetryRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CvRetryRequest
+   */
+  omit?: Prisma.CvRetryRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CvRetryRequestInclude<ExtArgs> | null
+  where?: Prisma.CvRetryRequestWhereInput
+  orderBy?: Prisma.CvRetryRequestOrderByWithRelationInput | Prisma.CvRetryRequestOrderByWithRelationInput[]
+  cursor?: Prisma.CvRetryRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CvRetryRequestScalarFieldEnum | Prisma.CvRetryRequestScalarFieldEnum[]
+}
+
+/**
+ * CvExtraction.newRetryRequests
+ */
+export type CvExtraction$newRetryRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CvRetryRequest
+   */
+  select?: Prisma.CvRetryRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CvRetryRequest
+   */
+  omit?: Prisma.CvRetryRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CvRetryRequestInclude<ExtArgs> | null
+  where?: Prisma.CvRetryRequestWhereInput
+  orderBy?: Prisma.CvRetryRequestOrderByWithRelationInput | Prisma.CvRetryRequestOrderByWithRelationInput[]
+  cursor?: Prisma.CvRetryRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CvRetryRequestScalarFieldEnum | Prisma.CvRetryRequestScalarFieldEnum[]
 }
 
 /**

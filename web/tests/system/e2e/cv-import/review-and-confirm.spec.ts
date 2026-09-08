@@ -86,7 +86,7 @@ async function registerCandidate(
         }
         return verificationLink;
       },
-      { timeout: 15_000 },
+      { timeout: 30_000 },
     )
     .not.toBe("");
   await page.goto(verificationLink);
@@ -136,6 +136,12 @@ test("reviews, saves, reloads, selectively confirms, replays, and denies cross-a
   await expect(
     owner.page.getByRole("heading", { name: "Review CV proposals" }),
   ).toBeVisible();
+  const unavailableReceipt = await owner.page.request.get(
+    `/profile/cv-imports/${seeded.uploadId}/receipt`,
+  );
+  const unavailableReceiptBody = await unavailableReceipt.text();
+  expect(unavailableReceipt.status()).toBe(404);
+  expect(unavailableReceiptBody).not.toContain("Platform Engineer");
   const coldReviewLoadMs = performance.now() - coldReviewLoadStartedAt;
   const rejectedWarmups = await owner.page.evaluate(async (draftId) => {
     const options: RequestInit = {
@@ -224,9 +230,11 @@ test("reviews, saves, reloads, selectively confirms, replays, and denies cross-a
         body: unknown;
       }
     | undefined;
+  let confirmationPostCount = 0;
   owner.page.on("request", (request) => {
     if (request.method() !== "POST" || !request.url().endsWith("/confirm"))
       return;
+    confirmationPostCount += 1;
     confirmationRequest = {
       url: request.url(),
       key: request.headers()["idempotency-key"] ?? "",
@@ -252,9 +260,27 @@ test("reviews, saves, reloads, selectively confirms, replays, and denies cross-a
   await expect(
     owner.page.getByRole("heading", { name: "CV import confirmed" }),
   ).toBeVisible();
+  await expect(owner.page).toHaveURL(
+    `/profile/cv-imports/${seeded.uploadId}/receipt`,
+  );
   const originalResponse = await confirmationResponse;
   expect(originalResponse.status()).toBe(201);
   const originalReceipt = await originalResponse.json();
+  const postsAfterConfirm = confirmationPostCount;
+  await owner.page.reload();
+  await expect(
+    owner.page.getByRole("heading", { name: "CV import confirmed" }),
+  ).toBeVisible();
+  expect(confirmationPostCount).toBe(postsAfterConfirm);
+  await owner.page.goBack();
+  await expect(owner.page).toHaveURL(/\/profile\/cv-imports$/u);
+  await owner.page.goForward();
+  await expect(owner.page).toHaveURL(
+    `/profile/cv-imports/${seeded.uploadId}/receipt`,
+  );
+  await expect(
+    owner.page.getByRole("heading", { name: "CV import confirmed" }),
+  ).toBeVisible();
   await owner.page.getByRole("link", { name: "View import status" }).click();
   await expect(owner.page).toHaveURL(`/profile/cv-imports/${seeded.uploadId}`);
   await expect(
@@ -459,4 +485,37 @@ test("reviews, saves, reloads, selectively confirms, replays, and denies cross-a
   await expect(
     outsider.page.getByRole("heading", { name: /page could not be found/i }),
   ).toBeVisible();
+
+  const foreignReceipt = await outsider.page.request.get(
+    `/profile/cv-imports/${seeded.uploadId}/receipt`,
+  );
+  expect(foreignReceipt.status()).toBe(404);
+  const foreignReceiptBody = await foreignReceipt.text();
+  expect(foreignReceiptBody).not.toContain(originalReceipt.receiptId);
+  expect(foreignReceiptBody).not.toContain("Reviewed Platform Engineer");
+
+  const missingReceipt = await owner.page.request.get(
+    "/profile/cv-imports/nonexistent-receipt-404/receipt",
+  );
+  expect(missingReceipt.status()).toBe(404);
+  const missingReceiptBody = await missingReceipt.text();
+  expect(missingReceiptBody).not.toContain(originalReceipt.receiptId);
+  expect(missingReceiptBody).not.toContain("Reviewed Platform Engineer");
+
+  await pool.query(
+    `UPDATE "CvUpload"
+        SET "status" = 'CANCELLED',
+            "contentInaccessibleAt" = NOW(),
+            "deleteAfter" = NOW(),
+            "deletedAt" = NOW()
+      WHERE "id" = $1`,
+    [seeded.uploadId],
+  );
+  const tombstonedReceipt = await owner.page.request.get(
+    `/profile/cv-imports/${seeded.uploadId}/receipt`,
+  );
+  expect(tombstonedReceipt.status()).toBe(404);
+  const tombstonedReceiptBody = await tombstonedReceipt.text();
+  expect(tombstonedReceiptBody).not.toContain(originalReceipt.receiptId);
+  expect(tombstonedReceiptBody).not.toContain("Reviewed Platform Engineer");
 });

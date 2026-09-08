@@ -11,6 +11,37 @@ type CvImportListItem = Omit<CvImportSummary, "uploadId"> & {
   uploadId: string;
 };
 
+const activeStatuses = new Set([
+  "AWAITING_CONTENT",
+  "VALIDATION_QUEUED",
+  "SCAN_QUEUED",
+  "SCANNING",
+  "EXTRACTION_QUEUED",
+  "EXTRACTING",
+  "PARSE_QUEUED",
+  "PARSING",
+]);
+const actionRequiredStatuses = new Set([
+  "AWAITING_CONSENT",
+  "REVIEW_READY",
+  "VALIDATION_FAILED",
+  "INFECTED",
+  "SCAN_FAILED",
+  "EXTRACTION_FAILED",
+  "PARSE_FAILED",
+]);
+
+function importAction(item: CvImportListItem, locale: "vi" | "en") {
+  const active =
+    activeStatuses.has(item.status) ||
+    (item.status === "SECURITY_CLEAN" && item.processingMode !== "SCAN_ONLY");
+  if (item.status === "REVIEW_READY")
+    return locale === "vi" ? "Xem bản nháp" : "Review draft";
+  if (active || actionRequiredStatuses.has(item.status))
+    return locale === "vi" ? "Tiếp tục nhập" : "Resume import";
+  return locale === "vi" ? "Xem kết quả" : "View result";
+}
+
 export function CvImportList({
   items,
 }: {
@@ -68,7 +99,7 @@ export function CvImportList({
               {cvStatusLabel(locale, item.status)}
             </span>
             <Link href={`/profile/cv-imports/${item.uploadId}`}>
-              {locale === "vi" ? "Xem trạng thái" : "View status"}{" "}
+              {importAction(item, locale)}{" "}
               <span aria-hidden="true">→</span>
             </Link>
           </div>

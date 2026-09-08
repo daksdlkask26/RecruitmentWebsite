@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type {
   CvParserClass,
+  CvProcessingMode,
   CvUploadStatus,
 } from "@/shared/contracts/cv-import/common";
 import {
@@ -20,12 +21,17 @@ import {
   cvStatusPollingAfterMs,
   type CvImportResource,
 } from "@/shared/contracts/cv-import/upload";
+import { nextCvPollingDelay } from "../client/cv-import-polling-policy";
+import {
+  cvImportFailureCategoryLabel,
+  cvImportStepLabel,
+  mapCvImportPresentation,
+} from "../client/cv-import-presentation";
 import { useWorkspaceLocale } from "../../dashboard/client/workspace-locale";
 import {
   cvCopy,
   cvKnownError,
   cvParserLabel,
-  cvStageLabel,
   cvStatusLabel,
 } from "../i18n/cv-import-copy";
 import {
@@ -40,11 +46,13 @@ import styles from "./cv-import-status.module.css";
 type StatusResource = Readonly<{
   uploadId: string;
   parserClass?: CvParserClass;
+  processingMode?: CvProcessingMode;
   status: CvUploadStatus;
   stage?: string;
   availableActions?: readonly string[];
   pollingAfterMs?: number | null;
   scanRetriesRemaining?: number;
+  extractionRetriesRemaining?: number;
   parseRetriesRemaining?: number;
   failure?: CvImportResource["failure"];
   ocr?: CvImportResource["ocr"];
@@ -63,52 +71,6 @@ function newRetryKey() {
 function retryAfterSeconds(response: Response): number | null {
   const value = Number(response.headers.get("retry-after"));
   return Number.isSafeInteger(value) && value > 0 ? value : null;
-}
-
-function tombstonePollingAfterMs(resource: StatusResource): number | null {
-  if (resource.status !== "CANCELLED" || resource.deletedAt) return null;
-  const deadline = resource.deleteAfter
-    ? new Date(resource.deleteAfter).getTime()
-    : Number.NaN;
-  return !Number.isNaN(deadline) && Date.now() < deadline ? 2_000 : null;
-}
-
-type TimelineState = "complete" | "current" | "upcoming" | "error";
-
-const stageKeys = [
-  "UPLOAD",
-  "VALIDATE",
-  "SCAN",
-  "EXTRACT",
-  "OCR",
-  "CONSENT",
-  "PARSE",
-  "REVIEW",
-] as const;
-
-type TimelineStage = (typeof stageKeys)[number];
-
-function visualStage(resource: StatusResource): TimelineStage {
-  if (resource.status === "VALIDATION_FAILED") return "VALIDATE";
-  if (resource.status === "INFECTED" || resource.status === "SCAN_FAILED")
-    return "SCAN";
-  if (resource.status === "EXTRACTION_FAILED") return "EXTRACT";
-  if (resource.status === "PARSE_FAILED") return "PARSE";
-  if (resource.status === "REVIEW_READY" || resource.status === "CONFIRMED")
-    return "REVIEW";
-
-  const stage = resource.stage as TimelineStage | undefined;
-  return stage && stageKeys.includes(stage) ? stage : "UPLOAD";
-}
-
-function timelineState(input: {
-  index: number;
-  currentIndex: number;
-  failed: boolean;
-}): TimelineState {
-  if (input.index < input.currentIndex) return "complete";
-  if (input.index > input.currentIndex) return "upcoming";
-  return input.failed ? "error" : "current";
 }
 
 function aiPresentation(
@@ -188,6 +150,7 @@ export function CvImportStatus({
   const [pollError, setPollError] = useState<string | null>(null);
   const retryKey = useRef<string | null>(null);
   const mounted = useRef(true);
+  const pollInFlight = useRef(false);
 
   useEffect(() => {
     mounted.current = true;
@@ -216,12 +179,11 @@ export function CvImportStatus({
     const parsed = cvImportStatusResponseSchema.parse(await response.json());
     const next: StatusResource = {
       ...parsed,
-      pollingAfterMs:
-        parsed.status === "CANCELLED"
-          ? tombstonePollingAfterMs(parsed)
-          : "stage" in parsed
-            ? cvStatusPollingAfterMs(parsed.status)
-            : null,
+      pollingAfterMs: cvStatusPollingAfterMs(
+        parsed.status,
+        "processingMode" in parsed ? parsed.processingMode : undefined,
+        parsed,
+      ),
     };
     if (mounted.current) {
       setCurrent(next);
@@ -234,33 +196,84 @@ export function CvImportStatus({
     if (!current.pollingAfterMs) return;
     let active = true;
     let timer: ReturnType<typeof setTimeout> | null = null;
-    const schedule = (pollingAfterMs: number) => {
-      const delay = document.hidden
-        ? Math.max(pollingAfterMs, 10_000)
-        : pollingAfterMs;
-      timer = setTimeout(() => {
-        void refreshStatus()
-          .then((next) => {
-            if (!active || !next.pollingAfterMs) return;
-            schedule(next.pollingAfterMs);
-          })
-          .catch(() => {
-            if (!active) return;
-            setPollError(
-              locale === "vi"
-                ? "Không thể làm mới trạng thái. SmartHire sẽ tiếp tục thử lại."
-                : "Status could not be refreshed. SmartHire will keep trying.",
-            );
-            schedule(pollingAfterMs);
-          });
-      }, delay);
+    let previousDelayMs: number | null = current.pollingAfterMs;
+    let previousSnapshot = {
+      status: current.status,
+      stage: current.stage,
     };
+    const clearTimer = () => {
+      if (timer) clearTimeout(timer);
+      timer = null;
+    };
+    const schedule = (delayMs: number) => {
+      clearTimer();
+      if (!active || document.hidden || !delayMs) return;
+      timer = setTimeout(() => {
+        timer = null;
+        void poll();
+      }, delayMs);
+    };
+    const poll = async () => {
+      if (
+        !active ||
+        !mounted.current ||
+        document.hidden ||
+        pollInFlight.current
+      )
+        return;
+      pollInFlight.current = true;
+      try {
+        const next = await refreshStatus();
+        if (!active) return;
+        const advanced =
+          next.status !== previousSnapshot.status ||
+          next.stage !== previousSnapshot.stage;
+        const outcome = advanced ? "advanced" : "unchanged";
+        const baseDelayMs =
+          next.pollingAfterMs ?? current.pollingAfterMs ?? 2_000;
+        const delayMs = next.pollingAfterMs
+          ? nextCvPollingDelay({
+              baseDelayMs,
+              previousDelayMs: advanced ? null : previousDelayMs,
+              outcome,
+            })
+          : null;
+        previousSnapshot = { status: next.status, stage: next.stage };
+        previousDelayMs = delayMs;
+        if (delayMs) schedule(delayMs);
+      } catch {
+        if (!active) return;
+        setPollError(
+          locale === "vi"
+            ? "Không thể làm mới trạng thái. SmartHire sẽ tiếp tục thử lại."
+            : "Status could not be refreshed. SmartHire will keep trying.",
+        );
+        const delayMs = nextCvPollingDelay({
+          baseDelayMs: current.pollingAfterMs ?? 2_000,
+          previousDelayMs,
+          outcome: "error",
+        });
+        previousDelayMs = delayMs;
+        schedule(delayMs);
+      } finally {
+        pollInFlight.current = false;
+      }
+    };
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        clearTimer();
+        return;
+      }
+      void poll();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
     schedule(current.pollingAfterMs);
     return () => {
       active = false;
-      if (timer) clearTimeout(timer);
+      clearTimer();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [current.pollingAfterMs, locale, refreshStatus]);
+  }, [current.pollingAfterMs, current.stage, current.status, locale, refreshStatus]);
 
   const requestRetry = useCallback(async () => {
     if (!csrfProof)
@@ -351,7 +364,11 @@ export function CvImportStatus({
       if (mounted.current) {
         setCurrent({
           ...tombstone,
-          pollingAfterMs: tombstonePollingAfterMs(tombstone),
+          pollingAfterMs: cvStatusPollingAfterMs(
+            tombstone.status,
+            undefined,
+            tombstone,
+          ),
         });
         setPollError(null);
       }
@@ -405,40 +422,20 @@ export function CvImportStatus({
 
   const label = cvStatusLabel(locale, current.status);
   const availableActions = current.availableActions ?? [];
+  const presentation = mapCvImportPresentation({
+    status: current.status,
+    processingMode: current.processingMode,
+    stage: current.stage,
+    failureCode: current.failure?.code,
+    availableActions,
+  });
   const aiStatus = aiPresentation(locale, current);
-  const optionalOcrStages: readonly TimelineStage[] = current.ocr
-    ? ["OCR"]
-    : [];
-
-  const stages: readonly TimelineStage[] =
-    current.parserClass === "EXTERNAL_OPENAI"
-      ? [
-          "UPLOAD",
-          "VALIDATE",
-          "SCAN",
-          "EXTRACT",
-          ...optionalOcrStages,
-          "CONSENT",
-          "PARSE",
-          "REVIEW",
-        ]
-      : [
-          "UPLOAD",
-          "VALIDATE",
-          "SCAN",
-          "EXTRACT",
-          ...optionalOcrStages,
-          "PARSE",
-          "REVIEW",
-        ];
-  const activeStage = visualStage(current);
-  const activeStageIndex = Math.max(0, stages.indexOf(activeStage));
-  const failed =
-    current.status.endsWith("_FAILED") || current.status === "INFECTED";
   const hasFailureRecovery = Boolean(
     current.failure &&
     typeof current.scanRetriesRemaining === "number" &&
-    typeof current.parseRetriesRemaining === "number",
+    typeof current.parseRetriesRemaining === "number" &&
+    (current.status !== "EXTRACTION_FAILED" ||
+      typeof current.extractionRetriesRemaining === "number"),
   );
   const consentRequiredRecoveryNotice =
     current.failure?.code === "CONSENT_REQUIRED" &&
@@ -464,7 +461,7 @@ export function CvImportStatus({
       >
         <strong>{label}</strong>
         {current.stage
-          ? ` — ${copy.status.stage} ${cvStageLabel(locale, activeStage)}.`
+          ? ` — ${copy.status.stage} ${cvImportStepLabel(locale, presentation.currentStep)}.`
           : `. ${copy.status.contentUnavailable}`}
       </p>
       {current.stage ? (
@@ -514,18 +511,18 @@ export function CvImportStatus({
           className={styles.timeline}
           aria-label={copy.common.processingTimeline}
         >
-          {stages.map((stage, index) => {
-            const state = timelineState({
-              index,
-              currentIndex: activeStageIndex,
-              failed,
-            });
+          {presentation.steps.map((step, index) => {
+            const state = step.state;
             return (
               <li
-                key={stage}
+                key={step.key}
                 data-state={state}
                 aria-current={
-                  state === "current" || state === "error" ? "step" : undefined
+                  state === "current" ||
+                  state === "error" ||
+                  state === "action-required"
+                    ? "step"
+                    : undefined
                 }
               >
                 <span className={styles.timelineMarker} aria-hidden="true">
@@ -534,12 +531,19 @@ export function CvImportStatus({
                 <span>
                   {state === "current" ? copy.status.current : ""}
                   {state === "error" ? copy.status.failed : ""}
-                  {cvStageLabel(locale, stage)}
+                  {state === "action-required" ? `${copy.common.current} ` : ""}
+                  {cvImportStepLabel(locale, step.key)}
                 </span>
               </li>
             );
           })}
         </ol>
+      ) : null}
+      {presentation.failureCategory && current.stage ? (
+        <p className={styles.failureCategory} data-testid="cv-failure-category">
+          <strong>{copy.common.failed}:</strong>{" "}
+          {cvImportFailureCategoryLabel(locale, presentation.failureCategory)}
+        </p>
       ) : null}
       {pollError ? (
         <p className={styles.pollError} role="alert">
@@ -563,13 +567,15 @@ export function CvImportStatus({
         />
       ) : hasFailureRecovery ? (
         <CvFailureRecovery
-          key={`${current.status}:${current.failure?.code}:${current.scanRetriesRemaining}:${current.parseRetriesRemaining}`}
+          key={`${current.status}:${current.failure?.code}:${current.scanRetriesRemaining}:${current.extractionRetriesRemaining}:${current.parseRetriesRemaining}`}
           resource={{
             uploadId: current.uploadId,
             status: current.status,
             availableActions:
               availableActions as CvImportResource["availableActions"],
             scanRetriesRemaining: current.scanRetriesRemaining ?? 0,
+            extractionRetriesRemaining:
+              current.extractionRetriesRemaining ?? 0,
             parseRetriesRemaining: current.parseRetriesRemaining ?? 0,
             failure: current.failure ?? null,
           }}

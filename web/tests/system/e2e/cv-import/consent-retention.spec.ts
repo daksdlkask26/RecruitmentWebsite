@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { readdir, readFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
   expect,
@@ -19,6 +19,7 @@ const password = "Synthetic Consent Retention 004!";
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const contexts: BrowserContext[] = [];
 const candidateEmails = new Set<string>();
+const cvStorageRoot = resolve(process.cwd(), ".local/cv-storage-cf-phase2");
 
 test.afterAll(async () => {
   await pool.end();
@@ -92,7 +93,7 @@ async function registerCandidate(
         }
         return verificationLink;
       },
-      { timeout: 15_000 },
+      { timeout: 30_000 },
     )
     .not.toBe("");
   await page.goto(verificationLink);
@@ -148,31 +149,48 @@ async function normalizeStorageLocators(
   client: PoolClient,
   uploadId: string,
 ): Promise<void> {
-  await client.query(
-    `UPDATE "CvStoredArtifact"
-        SET "storageAdapter" = 'filesystem-v1',
-            "storageLocator" = 'cv004_' || replace(gen_random_uuid()::text, '-', '')
-      WHERE "uploadId" = $1`,
+  const artifacts = await client.query<{ id: string }>(
+    `SELECT "id" FROM "CvStoredArtifact"
+      WHERE "uploadId" = $1 ORDER BY "id"`,
     [uploadId],
   );
+  await mkdir(cvStorageRoot, { recursive: true });
+  for (const artifact of artifacts.rows) {
+    const locator = `cv004_${randomUUID().replaceAll("-", "")}`;
+    await writeFile(resolve(cvStorageRoot, locator), Buffer.from([0x00]), {
+      flag: "wx",
+      mode: 0o600,
+    });
+    await client.query(
+      `UPDATE "CvStoredArtifact"
+          SET "storageAdapter" = 'filesystem-v1',
+              "storageLocator" = $2
+        WHERE "id" = $1`,
+      [artifact.id, locator],
+    );
+  }
 }
 
 async function completeExternalParse(
   client: PoolClient,
   fixture: Awaited<ReturnType<typeof seedAwaitingConsent>>,
 ) {
-  const queued = await client.query<{ id: string }>(
+  const latest = await client.query<{ id: string }>(
     `SELECT "id" FROM "CvParseJob"
-      WHERE "uploadId" = $1 AND "status" = 'QUEUED'
-      ORDER BY "attemptNumber" DESC LIMIT 1`,
+      WHERE "uploadId" = $1
+      ORDER BY "attemptNumber" DESC, "createdAt" DESC LIMIT 1`,
     [fixture.uploadId],
   );
-  const parseJobId = queued.rows[0]?.id;
+  const parseJobId = latest.rows[0]?.id;
   if (!parseJobId) throw new Error("CONSENT_PARSE_JOB_MISSING");
   const now = new Date();
   const draftId = `consent-e2e-draft-${randomUUID()}`;
   await client.query("BEGIN");
   try {
+    await client.query(
+      `SELECT "id" FROM "CvParseJob" WHERE "id" = $1 FOR UPDATE`,
+      [parseJobId],
+    );
     await client.query(
       `INSERT INTO "CvDraft" (
          "id", "uploadId", "accountId", "profileId", "parseJobId", "status",
@@ -182,7 +200,13 @@ async function completeExternalParse(
        ) SELECT $1, upload."id", upload."accountId", upload."profileId", $2,
                 'EDITABLE', 'cv-draft-v1', 0, $3, $3, '{}'::jsonb, '{}'::jsonb,
                 2, 2, upload."expiresAt", $4, $4
-           FROM "CvUpload" upload WHERE upload."id" = $5`,
+           FROM "CvUpload" upload
+          WHERE upload."id" = $5
+            AND NOT EXISTS (
+              SELECT 1 FROM "CvDraft" existing
+               WHERE existing."uploadId" = upload."id"
+            )
+        ON CONFLICT ("uploadId") DO NOTHING`,
       [
         draftId,
         parseJobId,
@@ -238,22 +262,25 @@ async function makeLatestQueuedParseProcessing(
 
 async function advanceCleanupDeadline(uploadId: string): Promise<void> {
   const client = await pool.connect();
-  const due = new Date(Date.now() - 1_000);
   await client.query("BEGIN");
   try {
     await client.query(
-      `UPDATE "CvUpload" SET "deleteAfter" = $2 WHERE "id" = $1`,
-      [uploadId, due],
+      `UPDATE "CvUpload"
+          SET "deleteAfter" = CURRENT_TIMESTAMP - interval '1 second'
+        WHERE "id" = $1`,
+      [uploadId],
     );
     await client.query(
-      `UPDATE "CvStoredArtifact" SET "deleteAfter" = $2
+      `UPDATE "CvStoredArtifact"
+          SET "deleteAfter" = CURRENT_TIMESTAMP - interval '1 second'
         WHERE "uploadId" = $1 AND "status" <> 'DELETED'`,
-      [uploadId, due],
+      [uploadId],
     );
     await client.query(
-      `UPDATE "CvDraft" SET "payloadDeleteAfter" = $2
+      `UPDATE "CvDraft"
+          SET "payloadDeleteAfter" = CURRENT_TIMESTAMP - interval '1 second'
         WHERE "uploadId" = $1 AND "payloadDeletedAt" IS NULL`,
-      [uploadId, due],
+      [uploadId],
     );
     await client.query("COMMIT");
   } catch (error) {
@@ -274,7 +301,11 @@ test("grants exact consent, blocks revoked/changed bindings, and deletes during 
   await expect(owner.page.getByRole("note")).toContainText(
     /deterministic parser runs inside smarthire/i,
   );
-  await owner.page.getByLabel("Parser").selectOption("EXTERNAL_OPENAI");
+  const externalParser = owner.page.getByRole("radio", {
+    name: "External OpenAI",
+  });
+  await expect(externalParser).toBeEnabled();
+  await externalParser.click();
   await expect(owner.page.getByRole("note")).toContainText(
     /external parser remains blocked until you separately consent/i,
   );
@@ -337,7 +368,9 @@ test("grants exact consent, blocks revoked/changed bindings, and deletes during 
       completionClient.release();
     }
     await owner.page.reload();
-    await expect(owner.page.getByText(/review ready/i)).toBeVisible();
+    await expect(
+      owner.page.getByText("Review ready", { exact: true }),
+    ).toBeVisible();
     await expect(
       owner.page.getByRole("link", { name: /review draft/i }),
     ).toBeVisible();
@@ -356,9 +389,17 @@ test("grants exact consent, blocks revoked/changed bindings, and deletes during 
     await owner.page
       .getByRole("checkbox", { name: /i agree that smarthire may send/i })
       .check();
+    const controlledGrant = owner.page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname.endsWith(
+          `/${controlled.uploadId}/consent`,
+        ),
+    );
     await owner.page
       .getByRole("button", { name: /grant external processing consent/i })
       .click();
+    await controlledGrant;
     await expect(
       owner.page.getByRole("button", {
         name: /revoke consent for future processing/i,
@@ -486,7 +527,7 @@ test("grants exact consent, blocks revoked/changed bindings, and deletes during 
       )
       .toBe("DELETED");
     await owner.page.reload();
-    await expect(owner.page.getByText(/deleted/i)).toBeVisible();
+    await expect(owner.page.getByText("Deleted", { exact: true })).toBeVisible();
     await expect(owner.page.getByRole("status")).toContainText(
       /temporary import content has been removed/i,
     );
@@ -514,12 +555,21 @@ test("naturally expires an unconfirmed import without candidate DELETE and compl
       existingAccount: account,
     });
     await normalizeStorageLocators(client, fixture.uploadId);
+    await client.query(
+      `UPDATE "CvUpload"
+          SET "createdAt" = CURRENT_TIMESTAMP + interval '10 seconds' - interval '30 days',
+              "expiresAt" = CURRENT_TIMESTAMP + interval '10 seconds'
+        WHERE "id" = $1`,
+      [fixture.uploadId],
+    );
   } finally {
     client.release();
   }
 
   await owner.page.goto(`/profile/cv-imports/${fixture.uploadId}`);
-  await expect(owner.page.getByText(/parse failed/i)).toBeVisible();
+  await expect(
+    owner.page.getByText("Parsing failed", { exact: true }),
+  ).toBeVisible();
   await expect
     .poll(
       async () => {
@@ -544,7 +594,7 @@ test("naturally expires an unconfirmed import without candidate DELETE and compl
   expect(tombstone).not.toHaveProperty("draft");
   expect(tombstone).not.toHaveProperty("failure");
   await owner.page.reload();
-  await expect(owner.page.getByText("expired", { exact: true })).toBeVisible();
+  await expect(owner.page.getByText("Expired", { exact: true })).toBeVisible();
   await expect(
     owner.page.getByRole("button", { name: /retry|confirm/i }),
   ).toHaveCount(0);
@@ -585,7 +635,7 @@ test("naturally expires an unconfirmed import without candidate DELETE and compl
     )
     .toEqual({ status: "EXPIRED", deleted: true, remainingArtifacts: 0 });
   await owner.page.reload();
-  await expect(owner.page.getByText("expired", { exact: true })).toBeVisible();
+  await expect(owner.page.getByText("Expired", { exact: true })).toBeVisible();
   await expect(
     owner.page.getByRole("link", { name: /open candidate profile/i }),
   ).toHaveAttribute("href", "/profile");

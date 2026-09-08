@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { useWorkspaceLocale } from "../../dashboard/client/workspace-locale";
 import {
@@ -8,10 +9,14 @@ import {
   cvApiErrorSchema,
   type CvImportStage,
   type CvParserClass,
+  type CvProcessingMode,
   type CvUploadStatus,
 } from "@/shared/contracts/cv-import/common";
 import {
+  cvContentAcceptedSchema,
   cvImportStatusResponseSchema,
+  cvStatusPollingAfterMs,
+  cvUploadReservationSchema,
   type CreateCvImportRequest,
 } from "@/shared/contracts/cv-import/upload";
 import { validateCvFile } from "@/shared/cv-file-validation";
@@ -106,6 +111,7 @@ type CvStatusResource = Readonly<{
   status: CvUploadStatus;
   stage?: CvImportStage;
   parserClass?: CvParserClass;
+  processingMode?: CvProcessingMode;
   deleteAfter?: string | null;
   deletedAt?: string | null;
   failure?: Readonly<{
@@ -289,6 +295,7 @@ function terminalMessage(locale: CvLocale, resource: CvStatusResource): string {
 
 export function useCvImport(input: { csrfProof: string }) {
   const locale = useWorkspaceLocale();
+  const router = useRouter();
   const [progress, setProgress] = useState<CvUploadProgress>(() => {
     return {
       state: "IDLE",
@@ -354,18 +361,11 @@ export function useCvImport(input: { csrfProof: string }) {
         !Number.isNaN(cleanupDeadline) &&
         Date.now() < cleanupDeadline;
       const terminal =
-        [
-          "REVIEW_READY",
-          "VALIDATION_FAILED",
-          "INFECTED",
-          "SCAN_FAILED",
-          "EXTRACTION_FAILED",
-          "PARSE_FAILED",
-          "CONFIRMED",
-          "DELETED",
-          "EXPIRED",
-        ].includes(resource.status) ||
-        (resource.status === "CANCELLED" && !candidateCleanupPending);
+        cvStatusPollingAfterMs(
+          resource.status,
+          "processingMode" in resource ? resource.processingMode : undefined,
+          resource,
+        ) === null;
       const nextProgress = activeProgress(locale, resource);
       setProgress(
         candidateCleanupPending
@@ -471,10 +471,9 @@ export function useCvImport(input: { csrfProof: string }) {
             ),
           );
         }
-        const reservation = (await reservationResponse.json()) as {
-          uploadId: string;
-          contentUrl: string;
-        };
+        const reservation = cvUploadReservationSchema.parse(
+          await reservationResponse.json(),
+        );
         await new Promise<void>((resolve, reject) => {
           const request = new XMLHttpRequest();
           activeRequest.current = request;
@@ -503,10 +502,20 @@ export function useCvImport(input: { csrfProof: string }) {
           };
           request.onerror = () => reject(new Error("CV_UPLOAD_FAILED"));
           request.onabort = () => reject(new Error("CV_UPLOAD_ABORTED"));
-          request.onload = () =>
-            request.status >= 200 && request.status < 300
-              ? resolve()
-              : reject(new Error("CV_UPLOAD_FAILED"));
+          request.onload = () => {
+            if (request.status < 200 || request.status >= 300)
+              return reject(new Error("CV_UPLOAD_FAILED"));
+            try {
+              const accepted = cvContentAcceptedSchema.parse(
+                JSON.parse(request.responseText),
+              );
+              if (accepted.uploadId !== reservation.uploadId)
+                return reject(new Error("CV_UPLOAD_FAILED"));
+              resolve();
+            } catch {
+              reject(new Error("CV_UPLOAD_FAILED"));
+            }
+          };
           request.send(file);
         });
         activeRequest.current = null;
@@ -521,7 +530,7 @@ export function useCvImport(input: { csrfProof: string }) {
           uploadId: reservation.uploadId,
           parserClass,
         });
-        await poll(reservation.uploadId);
+        router.push(`/profile/cv-imports/${reservation.uploadId}`);
       } catch (error) {
         setProgress((current) => ({
           ...current,
@@ -542,7 +551,7 @@ export function useCvImport(input: { csrfProof: string }) {
         throw error;
       }
     },
-    [input.csrfProof, locale, poll, stop],
+    [input.csrfProof, locale, router, stop],
   );
 
   return Object.freeze({

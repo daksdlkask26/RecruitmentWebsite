@@ -2567,6 +2567,8 @@ export const CvRetryRequestScalarFieldEnum = {
   scanAssessmentId: 'scanAssessmentId',
   priorParseJobId: 'priorParseJobId',
   parseJobId: 'parseJobId',
+  priorExtractionId: 'priorExtractionId',
+  extractionId: 'extractionId',
   createdAt: 'createdAt'
 } as const
 

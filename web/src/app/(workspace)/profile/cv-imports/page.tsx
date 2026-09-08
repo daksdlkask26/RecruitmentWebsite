@@ -84,16 +84,40 @@ export default async function CvImportsPage() {
         <li>
           <StepCard
             number={2}
-            title={vi ? "Xử lý an toàn" : "Process securely"}
+            title={vi ? "Quét bảo mật" : "Scan securely"}
             subtitle={
-              vi ? "Quét, trích xuất và phân tích" : "Scan, extract, and parse"
+              vi
+                ? "Xác minh CV trước khi xử lý"
+                : "Verify the CV before processing"
             }
           />
         </li>
         <li>
           <StepCard
             number={3}
-            title={vi ? "Xem xét và áp dụng" : "Review and apply"}
+            title={vi ? "Trích xuất" : "Extract"}
+            subtitle={
+              vi
+                ? "Tạo bản nháp từ nội dung đã an toàn"
+                : "Create a draft from safe content"
+            }
+          />
+        </li>
+        <li>
+          <StepCard
+            number={4}
+            title={vi ? "Xem xét" : "Review"}
+            subtitle={
+              vi
+                ? "Kiểm tra từng đề xuất trước khi áp dụng"
+                : "Inspect every proposal before applying"
+            }
+          />
+        </li>
+        <li>
+          <StepCard
+            number={5}
+            title={vi ? "Xác nhận" : "Confirm"}
             subtitle={
               vi ? "Bạn phê duyệt mọi thay đổi" : "You approve every change"
             }

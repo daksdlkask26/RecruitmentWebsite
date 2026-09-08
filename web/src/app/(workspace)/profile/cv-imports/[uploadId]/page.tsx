@@ -44,11 +44,11 @@ export default async function CvImportStatusPage({
     throw error;
   }
   const pollingAfterMs =
-    "stage" in resource
-      ? cvStatusPollingAfterMs(resource.status)
-      : resource.status === "CANCELLED" && resource.deletedAt === null
-        ? 2_000
-        : null;
+    cvStatusPollingAfterMs(
+      resource.status,
+      "stage" in resource ? resource.processingMode : undefined,
+      resource,
+    );
   const copy = cvImportStatusPageCopy(context.initialLocale);
   return (
     <main className={styles.page}>

@@ -1,10 +1,13 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { CvDraftReview } from "@/frontend/features/cv-import/components/cv-draft-review";
 import { cvDraftReviewFixture } from "../../../fixtures/cv-draft-review";
+
+const navigation = vi.hoisted(() => ({ replace: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => navigation }));
 
 describe("CV draft review accessibility", () => {
   it("has labelled native controls, live feedback, keyboard focus, and a 320px marker", async () => {

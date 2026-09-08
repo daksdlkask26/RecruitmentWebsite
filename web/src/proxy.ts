@@ -38,10 +38,60 @@ function redirectToAdminOrigin(request: NextRequest) {
   return NextResponse.redirect(target);
 }
 
-export function proxy(request: NextRequest) {
+function cvImportUploadId(pathname: string): string | null {
+  return (
+    pathname.match(/^\/profile\/cv-imports\/([^/]+)(?:\/receipt)?$/u)?.[1] ??
+    null
+  );
+}
+
+async function preflightCvImport(
+  request: NextRequest,
+  uploadId: string,
+  requireReceipt: boolean,
+): Promise<NextResponse | null> {
+  const headers = new Headers();
+  const cookie = request.headers.get("cookie");
+  if (cookie) headers.set("cookie", cookie);
+  try {
+    const resource = await fetch(
+      new URL(
+        `/api/account/cv-imports/${encodeURIComponent(uploadId)}`,
+        request.url,
+      ),
+      { headers, cache: "no-store" },
+    );
+    if (resource.status === 404) return new NextResponse(null, { status: 404 });
+    if (resource.status < 200 || resource.status >= 300) return null;
+    const body: unknown = await resource.json().catch(() => null);
+    if (
+      requireReceipt &&
+      (!body ||
+        typeof body !== "object" ||
+        !("receipt" in body) ||
+        !body.receipt)
+    )
+      return new NextResponse(null, { status: 404 });
+  } catch {
+    // The page performs the authoritative server-side check as a fallback.
+    return null;
+  }
+  return null;
+}
+
+export async function proxy(request: NextRequest) {
   const host = request.headers.get("host")?.toLowerCase() ?? "";
   const pathname = request.nextUrl.pathname;
   if (pathname.startsWith("/api/")) return NextResponse.next();
+  const importUploadId = cvImportUploadId(pathname);
+  if (importUploadId) {
+    const unavailable = await preflightCvImport(
+      request,
+      importUploadId,
+      pathname.endsWith("/receipt"),
+    );
+    if (unavailable) return unavailable;
+  }
   if (
     host === expectedHost("candidate") &&
     (pathname === INTERNAL_ADMIN_ROUTE ||

@@ -16,9 +16,10 @@ import {
 
 type RetryOutcome = Readonly<{
   uploadId: string;
-  status: "SCAN_QUEUED" | "PARSE_QUEUED";
+  status: "SCAN_QUEUED" | "EXTRACTION_QUEUED" | "PARSE_QUEUED";
   scanRetriesRemaining: number;
   parseRetriesRemaining: number;
+  extractionRetriesRemaining?: number;
 }>;
 
 type RetryCvImportServiceShape = Readonly<{
@@ -68,6 +69,16 @@ async function failScanAttempt(id: string, completedAt: Date) {
   await pool.query(
     `UPDATE "CvScanAssessment"
         SET "status" = 'INDETERMINATE', "failureCode" = 'SCANNER_UNAVAILABLE',
+            "completedAt" = $2, "leaseOwner" = NULL, "leaseExpiresAt" = NULL
+      WHERE "id" = $1`,
+    [id, completedAt],
+  );
+}
+
+async function failExtractionAttempt(id: string, completedAt: Date) {
+  await pool.query(
+    `UPDATE "CvExtraction"
+        SET "status" = 'FAILED', "failureCode" = 'OCR_UNAVAILABLE',
             "completedAt" = $2, "leaseOwner" = NULL, "leaseExpiresAt" = NULL
       WHERE "id" = $1`,
     [id, completedAt],
@@ -636,6 +647,155 @@ describe.sequential("controlled CV retry policy", () => {
       expect(attempts.rows[0]?.count).toBe(3);
     },
   );
+
+  it("retries extraction against the existing CLEAN scan without rescanning", async () => {
+    const client = await pool.connect();
+    const seeded = await seedCvRecoveryImport(client, "candidate-extraction", {
+      stage: "EXTRACTION",
+      mode: "TERMINAL_FAILURE",
+      failureCode: "OCR_UNAVAILABLE",
+      now: initial,
+      automaticAttemptsUsed: 3,
+    });
+    accounts.push(seeded.accountId);
+    client.release();
+
+    const first = await candidateRetry(
+      seeded,
+      "candidate-extraction-key-0001",
+      initial,
+    );
+    expect(first).toMatchObject({
+      status: "EXTRACTION_QUEUED",
+      extractionRetriesRemaining: 1,
+    });
+    const firstBinding = await pool.query<{
+      stage: string;
+      priorExtractionId: string;
+      extractionId: string;
+    }>(
+      `SELECT "stage"::text,
+              "priorExtractionId",
+              "extractionId"
+         FROM "CvRetryRequest" retry
+         JOIN "CvExtraction" extraction
+           ON extraction."id" = retry."extractionId"
+        WHERE retry."uploadId" = $1
+        ORDER BY extraction."attemptNumber"
+        LIMIT 1`,
+      [seeded.uploadId],
+    );
+    expect(firstBinding.rows[0]).toMatchObject({
+      stage: "EXTRACTION",
+      priorExtractionId: seeded.extractionId,
+    });
+    expect(firstBinding.rows[0]!.extractionId).not.toBe(seeded.extractionId);
+    const firstState = await pool.query<{
+      status: string;
+      failureCode: string | null;
+      scans: number;
+      extractions: number;
+    }>(
+      `SELECT upload."status"::text,
+              upload."failureCode",
+              (SELECT count(*)::int FROM "CvScanAssessment"
+                WHERE "uploadId" = upload."id") AS scans,
+              (SELECT count(*)::int FROM "CvExtraction"
+                WHERE "uploadId" = upload."id") AS extractions
+         FROM "CvUpload" upload
+        WHERE upload."id" = $1`,
+      [seeded.uploadId],
+    );
+    expect(firstState.rows[0]).toEqual({
+      status: "EXTRACTION_QUEUED",
+      failureCode: null,
+      scans: 1,
+      extractions: 2,
+    });
+
+    await failExtractionAttempt(firstBinding.rows[0]!.extractionId, initial);
+    await pool.query(
+      `UPDATE "CvUpload"
+          SET "status" = 'EXTRACTION_FAILED',
+              "failureCode" = 'OCR_UNAVAILABLE'
+        WHERE "id" = $1`,
+      [seeded.uploadId],
+    );
+    await expect(
+      candidateRetry(
+        seeded,
+        "candidate-extraction-key-0001",
+        new Date(initial.getTime() + 1),
+      ),
+    ).resolves.toEqual(first);
+
+    const second = await candidateRetry(
+      seeded,
+      "candidate-extraction-key-0002",
+      new Date(initial.getTime() + 2),
+    );
+    expect(second).toMatchObject({
+      status: "EXTRACTION_QUEUED",
+      extractionRetriesRemaining: 0,
+    });
+    const secondBinding = await pool.query<{
+      priorExtractionId: string;
+      extractionId: string;
+    }>(
+      `SELECT retry."priorExtractionId", retry."extractionId"
+         FROM "CvRetryRequest" retry
+         JOIN "CvExtraction" extraction
+           ON extraction."id" = retry."extractionId"
+        WHERE retry."uploadId" = $1
+        ORDER BY extraction."attemptNumber" DESC
+        LIMIT 1`,
+      [seeded.uploadId],
+    );
+    expect(secondBinding.rows[0]!.priorExtractionId).toBe(
+      firstBinding.rows[0]!.extractionId,
+    );
+    expect(secondBinding.rows[0]!.extractionId).not.toBe(
+      firstBinding.rows[0]!.extractionId,
+    );
+    await failExtractionAttempt(secondBinding.rows[0]!.extractionId, initial);
+    await pool.query(
+      `UPDATE "CvUpload"
+          SET "status" = 'EXTRACTION_FAILED',
+              "failureCode" = 'OCR_UNAVAILABLE'
+        WHERE "id" = $1`,
+      [seeded.uploadId],
+    );
+    await expect(
+      candidateRetry(
+        seeded,
+        "candidate-extraction-key-0003",
+        new Date(initial.getTime() + 3),
+      ),
+    ).rejects.toMatchObject({ code: "RETRY_LIMIT_REACHED" });
+    const finalState = await pool.query<{
+      retries: number;
+      scans: number;
+      extractions: number;
+      status: string;
+    }>(
+      `SELECT
+         (SELECT count(*)::int FROM "CvRetryRequest"
+           WHERE "uploadId" = $1 AND "stage" = 'EXTRACTION') AS retries,
+         (SELECT count(*)::int FROM "CvScanAssessment"
+           WHERE "uploadId" = $1) AS scans,
+         (SELECT count(*)::int FROM "CvExtraction"
+           WHERE "uploadId" = $1) AS extractions,
+         "status"::text
+         FROM "CvUpload" WHERE "id" = $1`,
+      [seeded.uploadId],
+    );
+    expect(finalState.rows[0]).toEqual({
+      retries: 2,
+      scans: 1,
+      extractions: 3,
+      status: "EXTRACTION_FAILED",
+    });
+  });
 
   it("never restarts an automatic cycle after a candidate retry", async () => {
     const client = await pool.connect();

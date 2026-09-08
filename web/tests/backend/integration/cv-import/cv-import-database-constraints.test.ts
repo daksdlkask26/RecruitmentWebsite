@@ -47,7 +47,7 @@ const enumValues = {
   ],
   CvParseStatus: ["QUEUED", "PROCESSING", "SUCCEEDED", "FAILED", "CANCELLED"],
   CvParseTrigger: ["INITIAL", "AUTOMATIC_RETRY", "CANDIDATE_RETRY"],
-  CvRetryStage: ["SCAN", "PARSE"],
+  CvRetryStage: ["SCAN", "PARSE", "EXTRACTION"],
   CvDraftStatus: ["EDITABLE", "CONFIRMED", "DELETED", "EXPIRED"],
   CvConsentAction: ["GRANTED", "REVOKED"],
 } as const;
