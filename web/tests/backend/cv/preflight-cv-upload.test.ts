@@ -22,6 +22,7 @@ describe("direct CV upload content preflight", () => {
       validateCvUploadContent({
         bytes: Uint8Array.of(0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1),
         kind: "DOC",
+        scanStatus: "CLEAN",
         classifier,
       }),
     ).rejects.toMatchObject({
@@ -37,6 +38,7 @@ describe("direct CV upload content preflight", () => {
           "This is a contract describing payment terms and legal obligations.",
         ),
         kind: "DOC",
+        scanStatus: "CLEAN",
         classifier: {
           classify: vi.fn().mockResolvedValue({
             isCv: false,
@@ -55,6 +57,7 @@ describe("direct CV upload content preflight", () => {
           "Jane Doe\nWork Experience\nEducation\nSkills\n2024",
         ),
         kind: "DOC",
+        scanStatus: "CLEAN",
         classifier: {
           classify: vi.fn().mockResolvedValue({
             isCv: true,
@@ -75,6 +78,7 @@ describe("direct CV upload content preflight", () => {
           "Nguyen Van An\nEmail: an@example.com\nKinh nghiem lam viec\n2021 - nay: Backend Developer\nHoc van\nDai hoc Cong nghe Thong tin\nKy nang\nNode.js PostgreSQL Docker",
         ),
         kind: "DOC",
+        scanStatus: "CLEAN",
         classifier: {
           classify: vi.fn().mockResolvedValue({
             isCv: false,
@@ -87,5 +91,18 @@ describe("direct CV upload content preflight", () => {
       classification: { isCv: false, confidence: 0.82 },
       decision: { accepted: true, basis: "STRONG_STRUCTURAL_EVIDENCE" },
     });
+  });
+
+  it("fails closed before parsing any document that is not CLEAN", async () => {
+    const classifier = { classify: vi.fn() };
+    await expect(
+      validateCvUploadContent({
+        bytes: legacyDocBytes("Jane Doe\nWork Experience\nSkills"),
+        kind: "DOC",
+        scanStatus: "QUEUED",
+        classifier,
+      }),
+    ).rejects.toMatchObject({ code: "CV_TEXT_UNAVAILABLE" });
+    expect(classifier.classify).not.toHaveBeenCalled();
   });
 });

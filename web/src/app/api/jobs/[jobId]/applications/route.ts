@@ -7,88 +7,53 @@ import {
   requireJobActor,
 } from "@/backend/security/job-request-boundary";
 import { JobServiceError } from "@/backend/services/jobs/job-types";
-import type { DirectApplicationCvSource } from "@/backend/services/jobs/prepare-direct-application-cv";
 import {
-  isCvFileValidationError,
-  validatedCvUploadSource,
-} from "@/backend/cv/validated-file-upload";
-import { logCvUploadRejection } from "@/backend/cv/upload-observability";
+  CvAdmissionError,
+  CvAdmissionService,
+} from "@/backend/services/cv-admission/cv-admission-service";
 import {
-  cvUploadContentValidationMessage,
-  CvUploadContentValidationError,
-  validateCvUploadContent,
-} from "@/backend/cv/preflight-cv-upload";
+  CV_MULTIPART_MAX_TOTAL_BYTES,
+  CV_SOURCE_MAX_BYTES,
+  cvIdempotencyKeySchema,
+} from "@/shared/contracts/cv-import/common";
 
-async function directCvSource(
-  file: FormDataEntryValue | null,
-  validateContent = false,
-) {
-  if (!(file instanceof File)) {
-    logCvUploadRejection({ reason: "FILE_REQUIRED" });
-    throw new JobServiceError(400, {
-      code: "APPLICATION_CV_INELIGIBLE",
-      message: "Attach a CV file before applying.",
-    });
-  }
-  try {
-    const validated = await validatedCvUploadSource(file);
-    if (validateContent) {
-      try {
-        await validateCvUploadContent({
-          bytes: validated.bytes,
-          kind: validated.kind,
-        });
-      } catch (error) {
-        if (error instanceof CvUploadContentValidationError) {
-          logCvUploadRejection({
-            reason: error.code,
-            byteSize: file.size,
-            declaredMimeType: file.type,
-          });
-          throw new JobServiceError(400, {
-            code: "APPLICATION_CV_INELIGIBLE",
-            message: cvUploadContentValidationMessage(error.code),
-          });
-        }
-        throw error;
-      }
-    }
-    return {
-      fileName: validated.fileName,
-      mimeType: validated.mimeType,
-      byteSize: validated.byteSize,
-      source: validated.source,
-    } satisfies DirectApplicationCvSource;
-  } catch (error) {
-    if (isCvFileValidationError(error)) {
-      logCvUploadRejection({
-        reason: error.code,
-        byteSize: file.size,
-        declaredMimeType: file.type,
-      });
-      throw new JobServiceError(400, {
-        code: "APPLICATION_CV_INELIGIBLE",
-        message: error.message,
-      });
-    }
-    throw error;
-  }
-}
+import {
+  MultipartParsingError,
+  parseBoundedMultipart,
+} from "@/backend/cv/multipart/bounded-multipart-parser";
 
 export async function POST(
   request: Request,
   context: { params: Promise<{ jobId: string }> },
 ) {
+  // Reject oversized requests before body consumption.
+  const contentLengthHeader = request.headers.get("content-length");
+  if (contentLengthHeader && /^\d+$/u.test(contentLengthHeader)) {
+    const declaredLength = Number(contentLengthHeader);
+    if (declaredLength > CV_MULTIPART_MAX_TOTAL_BYTES) {
+      return jobErrorResponse(
+        new JobServiceError(413, {
+          code: "REQUEST_TOO_LARGE",
+          message: "The request is too large.",
+        }),
+      );
+    }
+  }
+
   try {
     const actor = await requireJobActor(request);
     const contentType =
       request.headers.get("content-type")?.toLowerCase() ?? "";
     let command: unknown;
-    let directCv: DirectApplicationCvSource | undefined;
-    let directCoverLetter: DirectApplicationCvSource | undefined;
     if (contentType.startsWith("multipart/form-data")) {
-      const formData = await request.formData();
-      const application = formData.get("application");
+      const parsed = await parseBoundedMultipart(request, {
+        maxTotalBytes: CV_MULTIPART_MAX_TOTAL_BYTES,
+        maxFileBytes: CV_SOURCE_MAX_BYTES,
+        maxFieldBytes: 64 * 1024,
+        maxFields: 2,
+        maxParts: 3,
+      });
+      const application = parsed.fields["application"];
       if (typeof application !== "string") {
         throw new JobServiceError(400, {
           code: "APPLICATION_CV_INELIGIBLE",
@@ -103,12 +68,48 @@ export async function POST(
           message: "The application payload is invalid.",
         });
       }
-      directCv = await directCvSource(formData.get("cvFile"), true);
-      if (formData.get("coverLetterFile") instanceof File) {
-        directCoverLetter = await directCvSource(
-          formData.get("coverLetterFile"),
-        );
+      const cvFile = parsed.file;
+      if (!cvFile) {
+        throw new JobServiceError(400, {
+          code: "APPLICATION_CV_INELIGIBLE",
+          message: "Attach a CV file before applying.",
+        });
       }
+      if (cvFile.fieldName !== "cvFile") {
+        throw new JobServiceError(400, {
+          code: "APPLICATION_CV_INELIGIBLE",
+          message: "Attach the CV using the cvFile field.",
+        });
+      }
+      const idempotencyKey = cvIdempotencyKeySchema.safeParse(
+        request.headers.get("idempotency-key"),
+      );
+      if (!idempotencyKey.success) {
+        throw new JobServiceError(400, {
+          code: "APPLICATION_CV_INELIGIBLE",
+          message: "A valid Idempotency-Key is required.",
+        });
+      }
+      const admission = await new CvAdmissionService().admit({
+        candidateUserId: actor.userId,
+        purpose: "JOB_APPLICATION_DIRECT",
+        processingMode: "SCAN_ONLY",
+        fileName: cvFile.fileName === "blob" ? "resume.pdf" : cvFile.fileName,
+        contentType: cvFile.contentType,
+        contentLength: cvFile.byteSize,
+        body: (async function* () {
+          yield cvFile.bytes;
+        })(),
+        idempotencyKey: idempotencyKey.data,
+      });
+      return jobJson(
+        {
+          uploadId: admission.uploadId,
+          status: admission.status,
+          retryAfterSeconds: admission.retryAfterSeconds,
+        },
+        { status: 202 },
+      );
     } else {
       command = await parseBoundedJson(
         request,
@@ -122,11 +123,48 @@ export async function POST(
       request.headers.get("idempotency-key") ?? "",
       command,
       new Date(),
-      directCv,
-      directCoverLetter,
+      undefined,
     );
     return jobJson(result, { status: result.created ? 201 : 200 });
   } catch (error) {
+    if (error instanceof CvAdmissionError) {
+      const status =
+        error.code === "PAYLOAD_TOO_LARGE"
+          ? 413
+          : error.code === "UPLOAD_RATE_LIMITED"
+            ? 429
+            : error.code === "UNSUPPORTED_MEDIA_TYPE"
+              ? 415
+              : error.code === "IDEMPOTENCY_KEY_REUSED" ||
+                  error.code === "CV_QUOTA_EXCEEDED"
+                ? 409
+                : 400;
+      return jobErrorResponse(
+        new JobServiceError(status, {
+          code: "APPLICATION_CV_INELIGIBLE",
+          message: error.userMessage ?? "The CV could not be accepted.",
+        }),
+      );
+    }
+    if (error instanceof MultipartParsingError) {
+      if (
+        error.code === "PAYLOAD_TOO_LARGE" ||
+        error.code === "FILE_TOO_LARGE"
+      ) {
+        return jobErrorResponse(
+          new JobServiceError(413, {
+            code: "REQUEST_TOO_LARGE",
+            message: "The request is too large.",
+          }),
+        );
+      }
+      return jobErrorResponse(
+        new JobServiceError(400, {
+          code: "APPLICATION_CV_INELIGIBLE",
+          message: error.message,
+        }),
+      );
+    }
     return jobErrorResponse(error);
   }
 }

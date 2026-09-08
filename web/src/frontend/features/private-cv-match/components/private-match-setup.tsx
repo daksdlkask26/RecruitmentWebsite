@@ -26,6 +26,7 @@ import { useCsrfProof } from "@/frontend/features/authentication/client/csrf-pro
 import { mutateWithCurrentCsrf } from "@/frontend/features/authentication/client/current-csrf-proof";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
 import { candidateCvSummarySchema } from "@/shared/contracts/cv-import/candidate-cv";
+import type { CvUploadStatus } from "@/shared/contracts/cv-import/common";
 import {
   CvFileValidationError,
   validateCvFile,
@@ -34,6 +35,15 @@ import {
   PRIVATE_MATCH_JOB_PICKER_LIMIT,
   privateMatchJobsResponseSchema,
 } from "@/shared/contracts/private-cv-match";
+import {
+  clearCvSecurityUploadId,
+  newCvSecurityIdempotencyKey,
+  pollCvSecurityUpload,
+  readCvSecurityUploadId,
+  requestCvSecurityRetry,
+  saveCvSecurityUploadId,
+  CvSecurityUploadError,
+} from "@/frontend/lib/cv-security-upload";
 import {
   formatEmploymentType,
   formatExperienceRequirement,
@@ -155,10 +165,17 @@ export function PrivateMatchSetup({
   const jobSearchAbort = useRef<AbortController | null>(null);
   const [localFile, setLocalFile] = useState<File | null>(null);
   const [localUploadState, setLocalUploadState] = useState<
-    "IDLE" | "UPLOADING"
+    "IDLE" | "UPLOADING" | "PARSING"
   >("IDLE");
+  const localUploadIdempotencyKey = useRef<string | null>(null);
   const [localUploadError, setLocalUploadError] = useState<string | null>(null);
   const [localUploadComplete, setLocalUploadComplete] = useState(false);
+  const [localSecurityStatus, setLocalSecurityStatus] =
+    useState<CvUploadStatus | null>(null);
+  const [localSecurityRetryable, setLocalSecurityRetryable] = useState(false);
+  const [localUploadResuming, setLocalUploadResuming] = useState(false);
+  const localSecurityAbortController = useRef<AbortController | null>(null);
+  const localSecurityScope = "private-cv-match";
   const requestedJobIsUnavailable = Boolean(
     initialJobId && !jobs.some((job) => job.jobId === initialJobId),
   );
@@ -240,6 +257,118 @@ export function PrivateMatchSetup({
     toast.error(message, { id: "candidate-cv-upload-error" });
   }
 
+  function localSecurityMessage(error: unknown) {
+    if (error instanceof CvSecurityUploadError) {
+      if (error.status === "INFECTED") return setup.safetyInfected;
+      if (error.retryable || localSecurityRetryable)
+        return setup.safetyRetryable;
+      return setup.safetyStatusError;
+    }
+    return error instanceof Error ? error.message : setup.importFailure;
+  }
+
+  async function waitForCleanLocalCv(uploadId: string) {
+    saveCvSecurityUploadId(localSecurityScope, uploadId);
+    setLocalUploadState("PARSING");
+    setLocalSecurityStatus("SCANNING");
+    setLocalSecurityRetryable(false);
+    const controller = new AbortController();
+    localSecurityAbortController.current = controller;
+    try {
+      const result = await pollCvSecurityUpload(uploadId, {
+        signal: controller.signal,
+      });
+      setLocalSecurityStatus(result.status);
+      const retryable = [
+        "SCAN_FAILED",
+        "EXTRACTION_FAILED",
+        "PARSE_FAILED",
+      ].includes(result.status);
+      setLocalSecurityRetryable(retryable);
+      if (!result.clean) {
+        if (!retryable) clearCvSecurityUploadId(localSecurityScope);
+        throw new CvSecurityUploadError(
+          "CV_SECURITY_REJECTED",
+          result.status === "INFECTED"
+            ? setup.safetyInfected
+            : setup.safetyStatusError,
+          { retryable, status: result.status },
+        );
+      }
+      return result;
+    } finally {
+      if (localSecurityAbortController.current === controller)
+        localSecurityAbortController.current = null;
+    }
+  }
+
+  async function finalizeLocalCv(uploadId: string) {
+    const finalizeRes = await mutateWithCurrentCsrf(
+      "/api/account/candidate-cvs",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ uploadId }),
+      },
+      csrfProof,
+    );
+    const finalResult: unknown = await finalizeRes.json().catch(() => null);
+    if (!finalizeRes.ok) throw new Error(setup.importFailure);
+    const saved = candidateCvSummarySchema.parse(finalResult);
+    const mimeType = saved.mimeType;
+    if (
+      mimeType !== "application/pdf" &&
+      mimeType !== "application/msword" &&
+      mimeType !==
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      throw new Error(setup.unsupportedFile);
+    }
+    const nextCv: PrivateMatchSetupCv = {
+      ...saved,
+      mimeType,
+      pageCount: null,
+      parseStatus: "READY",
+    };
+    setAvailableCvs((current) =>
+      [nextCv, ...current.filter((cv) => cv.id !== nextCv.id)].slice(0, 10),
+    );
+    setSelectedCvId(nextCv.id);
+    setLocalUploadComplete(true);
+    clearCvSecurityUploadId(localSecurityScope);
+  }
+
+  async function resumeLocalCv(uploadId: string) {
+    setLocalUploadResuming(true);
+    setLocalUploadState("PARSING");
+    setLocalUploadError(null);
+    try {
+      await waitForCleanLocalCv(uploadId);
+      await finalizeLocalCv(uploadId);
+    } catch (error: unknown) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      showLocalCvError(localSecurityMessage(error));
+    } finally {
+      setLocalUploadResuming(false);
+      setLocalUploadState("IDLE");
+    }
+  }
+
+  useEffect(() => {
+    const uploadId = readCvSecurityUploadId(localSecurityScope);
+    if (!uploadId) return;
+    const resumeTimer = window.setTimeout(
+      () => void resumeLocalCv(uploadId),
+      0,
+    );
+    return () => {
+      window.clearTimeout(resumeTimer);
+      localSecurityAbortController.current?.abort();
+    };
+    // Resume only the opaque upload id. File contents remain outside browser storage.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!create.isError) return;
     toast.error(privateMatchErrorMessage(create.error, locale), {
@@ -253,11 +382,17 @@ export function PrivateMatchSetup({
     setLocalUploadComplete(false);
     setLocalUploadState("UPLOADING");
     try {
+      localUploadIdempotencyKey.current ??=
+        globalThis.crypto?.randomUUID?.() ?? "cv-upload-" + Date.now() + "-key";
       const form = new FormData();
       form.append("file", localFile, localFile.name);
       const response = await mutateWithCurrentCsrf(
         "/api/account/candidate-cvs",
-        { method: "POST", body: form },
+        {
+          method: "POST",
+          headers: { "Idempotency-Key": localUploadIdempotencyKey.current },
+          body: form,
+        },
         csrfProof,
       );
       const body: unknown = await response.json().catch(() => null);
@@ -273,7 +408,22 @@ export function PrivateMatchSetup({
             : setup.importFailure;
         throw new Error(message);
       }
-      const saved = candidateCvSummarySchema.parse(body);
+
+      const finalResult = body;
+      if (
+        response.status === 202 &&
+        body &&
+        typeof body === "object" &&
+        "uploadId" in body
+      ) {
+        const uploadId = String((body as { uploadId: string }).uploadId);
+        await waitForCleanLocalCv(uploadId);
+        await finalizeLocalCv(uploadId);
+        localUploadIdempotencyKey.current = null;
+        return;
+      }
+
+      const saved = candidateCvSummarySchema.parse(finalResult);
       const mimeType = saved.mimeType;
       if (
         mimeType !== "application/pdf" &&
@@ -294,15 +444,44 @@ export function PrivateMatchSetup({
       );
       setSelectedCvId(nextCv.id);
       setLocalUploadComplete(true);
+      localUploadIdempotencyKey.current = null;
     } catch (error) {
+      const retryable =
+        error instanceof CvSecurityUploadError && error.retryable;
       const message =
-        error instanceof Error &&
-        (locale === "en" || error.message === setup.unsupportedFile)
-          ? error.message
-          : setup.importFailure;
-      setLocalFile(null);
-      if (fileInput.current) fileInput.current.value = "";
+        error instanceof CvSecurityUploadError
+          ? localSecurityMessage(error)
+          : error instanceof Error &&
+              (locale === "en" || error.message === setup.unsupportedFile)
+            ? error.message
+            : setup.importFailure;
+      if (!retryable) {
+        clearCvSecurityUploadId(localSecurityScope);
+        setLocalFile(null);
+      }
+      localUploadIdempotencyKey.current = null;
+      if (!retryable && fileInput.current) fileInput.current.value = "";
       showLocalCvError(message);
+    } finally {
+      setLocalUploadState("IDLE");
+    }
+  }
+
+  async function retryLocalCv() {
+    const uploadId = readCvSecurityUploadId(localSecurityScope);
+    if (!uploadId || localUploadState !== "IDLE") return;
+    setLocalUploadError(null);
+    setLocalUploadState("PARSING");
+    try {
+      await requestCvSecurityRetry(
+        uploadId,
+        newCvSecurityIdempotencyKey("private-cv-retry"),
+        (path, init) => mutateWithCurrentCsrf(path, init, csrfProof),
+      );
+      await waitForCleanLocalCv(uploadId);
+      await finalizeLocalCv(uploadId);
+    } catch (error) {
+      showLocalCvError(localSecurityMessage(error));
     } finally {
       setLocalUploadState("IDLE");
     }
@@ -658,7 +837,7 @@ export function PrivateMatchSetup({
                   className="private-match-secondary-button"
                   type="button"
                   onClick={() => fileInput.current?.click()}
-                  disabled={localUploadState === "UPLOADING"}
+                  disabled={localUploadState !== "IDLE"}
                 >
                   <Upload aria-hidden="true" /> {setup.chooseLocalFile}
                 </button>
@@ -668,20 +847,46 @@ export function PrivateMatchSetup({
                     className="private-match-secondary-button"
                     type="button"
                     onClick={() => void importLocalCv()}
-                    disabled={localUploadState === "UPLOADING"}
+                    disabled={localUploadState !== "IDLE"}
                   >
-                    {localUploadState === "UPLOADING"
+                    {localUploadState !== "IDLE"
                       ? setup.uploading
                       : setup.importCv}
                   </button>
                 ) : null}
               </div>
-              {localUploadState === "UPLOADING" ? (
+              {localUploadState !== "IDLE" ? (
                 <p role="status" aria-live="polite">
-                  {setup.uploadingSecurely}
+                  {localUploadResuming
+                    ? setup.resumingUpload
+                    : setup.uploadingSecurely}
+                </p>
+              ) : null}
+              {localSecurityStatus &&
+              localUploadState === "IDLE" &&
+              !localUploadError &&
+              !localUploadComplete ? (
+                <p role="status" aria-live="polite">
+                  {localSecurityStatus === "SECURITY_CLEAN"
+                    ? setup.cvReady
+                    : localSecurityStatus === "INFECTED"
+                      ? setup.safetyInfected
+                      : localSecurityRetryable
+                        ? setup.safetyRetryable
+                        : setup.safetyStatusError}
                 </p>
               ) : null}
               {localUploadError ? <p role="alert">{localUploadError}</p> : null}
+              {localSecurityRetryable ? (
+                <button
+                  className="private-match-secondary-button"
+                  type="button"
+                  onClick={() => void retryLocalCv()}
+                  disabled={localUploadState !== "IDLE"}
+                >
+                  {setup.retrySafetyCheck}
+                </button>
+              ) : null}
               {localUploadComplete ? (
                 <p role="status">{setup.cvReady}</p>
               ) : null}

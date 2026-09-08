@@ -377,6 +377,9 @@ export type CvStoredArtifactWhereInput = {
   scanInputs?: Prisma.CvScanAssessmentListRelationFilter
   extractionInputs?: Prisma.CvExtractionListRelationFilter
   extractionOutput?: Prisma.XOR<Prisma.CvExtractionNullableScalarRelationFilter, Prisma.CvExtractionWhereInput> | null
+  candidateCvs?: Prisma.CandidateCvListRelationFilter
+  applicationDocuments?: Prisma.ApplicationDocumentListRelationFilter
+  teamApplications?: Prisma.TeamApplicationListRelationFilter
 }
 
 export type CvStoredArtifactOrderByWithRelationInput = {
@@ -408,6 +411,9 @@ export type CvStoredArtifactOrderByWithRelationInput = {
   scanInputs?: Prisma.CvScanAssessmentOrderByRelationAggregateInput
   extractionInputs?: Prisma.CvExtractionOrderByRelationAggregateInput
   extractionOutput?: Prisma.CvExtractionOrderByWithRelationInput
+  candidateCvs?: Prisma.CandidateCvOrderByRelationAggregateInput
+  applicationDocuments?: Prisma.ApplicationDocumentOrderByRelationAggregateInput
+  teamApplications?: Prisma.TeamApplicationOrderByRelationAggregateInput
 }
 
 export type CvStoredArtifactWhereUniqueInput = Prisma.AtLeast<{
@@ -443,6 +449,9 @@ export type CvStoredArtifactWhereUniqueInput = Prisma.AtLeast<{
   scanInputs?: Prisma.CvScanAssessmentListRelationFilter
   extractionInputs?: Prisma.CvExtractionListRelationFilter
   extractionOutput?: Prisma.XOR<Prisma.CvExtractionNullableScalarRelationFilter, Prisma.CvExtractionWhereInput> | null
+  candidateCvs?: Prisma.CandidateCvListRelationFilter
+  applicationDocuments?: Prisma.ApplicationDocumentListRelationFilter
+  teamApplications?: Prisma.TeamApplicationListRelationFilter
 }, "id" | "storageAdapter_storageLocator">
 
 export type CvStoredArtifactOrderByWithAggregationInput = {
@@ -532,6 +541,9 @@ export type CvStoredArtifactCreateInput = {
   scanInputs?: Prisma.CvScanAssessmentCreateNestedManyWithoutSourceArtifactInput
   extractionInputs?: Prisma.CvExtractionCreateNestedManyWithoutSourceArtifactInput
   extractionOutput?: Prisma.CvExtractionCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvSourceArtifactInput
 }
 
 export type CvStoredArtifactUncheckedCreateInput = {
@@ -561,6 +573,9 @@ export type CvStoredArtifactUncheckedCreateInput = {
   scanInputs?: Prisma.CvScanAssessmentUncheckedCreateNestedManyWithoutSourceArtifactInput
   extractionInputs?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutSourceArtifactInput
   extractionOutput?: Prisma.CvExtractionUncheckedCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvSourceArtifactInput
 }
 
 export type CvStoredArtifactUpdateInput = {
@@ -590,6 +605,9 @@ export type CvStoredArtifactUpdateInput = {
   scanInputs?: Prisma.CvScanAssessmentUpdateManyWithoutSourceArtifactNestedInput
   extractionInputs?: Prisma.CvExtractionUpdateManyWithoutSourceArtifactNestedInput
   extractionOutput?: Prisma.CvExtractionUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvSourceArtifactNestedInput
 }
 
 export type CvStoredArtifactUncheckedUpdateInput = {
@@ -619,6 +637,9 @@ export type CvStoredArtifactUncheckedUpdateInput = {
   scanInputs?: Prisma.CvScanAssessmentUncheckedUpdateManyWithoutSourceArtifactNestedInput
   extractionInputs?: Prisma.CvExtractionUncheckedUpdateManyWithoutSourceArtifactNestedInput
   extractionOutput?: Prisma.CvExtractionUncheckedUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvSourceArtifactNestedInput
 }
 
 export type CvStoredArtifactCreateManyInput = {
@@ -705,6 +726,11 @@ export type CvStoredArtifactListRelationFilter = {
 
 export type CvStoredArtifactOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type CvStoredArtifactNullableScalarRelationFilter = {
+  is?: Prisma.CvStoredArtifactWhereInput | null
+  isNot?: Prisma.CvStoredArtifactWhereInput | null
 }
 
 export type CvStoredArtifactStorageAdapterStorageLocatorCompoundUniqueInput = {
@@ -809,11 +835,6 @@ export type CvStoredArtifactScalarRelationFilter = {
   isNot?: Prisma.CvStoredArtifactWhereInput
 }
 
-export type CvStoredArtifactNullableScalarRelationFilter = {
-  is?: Prisma.CvStoredArtifactWhereInput | null
-  isNot?: Prisma.CvStoredArtifactWhereInput | null
-}
-
 export type CvStoredArtifactCreateNestedManyWithoutAccountInput = {
   create?: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutAccountInput, Prisma.CvStoredArtifactUncheckedCreateWithoutAccountInput> | Prisma.CvStoredArtifactCreateWithoutAccountInput[] | Prisma.CvStoredArtifactUncheckedCreateWithoutAccountInput[]
   connectOrCreate?: Prisma.CvStoredArtifactCreateOrConnectWithoutAccountInput | Prisma.CvStoredArtifactCreateOrConnectWithoutAccountInput[]
@@ -854,6 +875,54 @@ export type CvStoredArtifactUncheckedUpdateManyWithoutAccountNestedInput = {
   update?: Prisma.CvStoredArtifactUpdateWithWhereUniqueWithoutAccountInput | Prisma.CvStoredArtifactUpdateWithWhereUniqueWithoutAccountInput[]
   updateMany?: Prisma.CvStoredArtifactUpdateManyWithWhereWithoutAccountInput | Prisma.CvStoredArtifactUpdateManyWithWhereWithoutAccountInput[]
   deleteMany?: Prisma.CvStoredArtifactScalarWhereInput | Prisma.CvStoredArtifactScalarWhereInput[]
+}
+
+export type CvStoredArtifactCreateNestedOneWithoutTeamApplicationsInput = {
+  create?: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutTeamApplicationsInput, Prisma.CvStoredArtifactUncheckedCreateWithoutTeamApplicationsInput>
+  connectOrCreate?: Prisma.CvStoredArtifactCreateOrConnectWithoutTeamApplicationsInput
+  connect?: Prisma.CvStoredArtifactWhereUniqueInput
+}
+
+export type CvStoredArtifactUpdateOneWithoutTeamApplicationsNestedInput = {
+  create?: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutTeamApplicationsInput, Prisma.CvStoredArtifactUncheckedCreateWithoutTeamApplicationsInput>
+  connectOrCreate?: Prisma.CvStoredArtifactCreateOrConnectWithoutTeamApplicationsInput
+  upsert?: Prisma.CvStoredArtifactUpsertWithoutTeamApplicationsInput
+  disconnect?: Prisma.CvStoredArtifactWhereInput | boolean
+  delete?: Prisma.CvStoredArtifactWhereInput | boolean
+  connect?: Prisma.CvStoredArtifactWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CvStoredArtifactUpdateToOneWithWhereWithoutTeamApplicationsInput, Prisma.CvStoredArtifactUpdateWithoutTeamApplicationsInput>, Prisma.CvStoredArtifactUncheckedUpdateWithoutTeamApplicationsInput>
+}
+
+export type CvStoredArtifactCreateNestedOneWithoutCandidateCvsInput = {
+  create?: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutCandidateCvsInput, Prisma.CvStoredArtifactUncheckedCreateWithoutCandidateCvsInput>
+  connectOrCreate?: Prisma.CvStoredArtifactCreateOrConnectWithoutCandidateCvsInput
+  connect?: Prisma.CvStoredArtifactWhereUniqueInput
+}
+
+export type CvStoredArtifactUpdateOneWithoutCandidateCvsNestedInput = {
+  create?: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutCandidateCvsInput, Prisma.CvStoredArtifactUncheckedCreateWithoutCandidateCvsInput>
+  connectOrCreate?: Prisma.CvStoredArtifactCreateOrConnectWithoutCandidateCvsInput
+  upsert?: Prisma.CvStoredArtifactUpsertWithoutCandidateCvsInput
+  disconnect?: Prisma.CvStoredArtifactWhereInput | boolean
+  delete?: Prisma.CvStoredArtifactWhereInput | boolean
+  connect?: Prisma.CvStoredArtifactWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CvStoredArtifactUpdateToOneWithWhereWithoutCandidateCvsInput, Prisma.CvStoredArtifactUpdateWithoutCandidateCvsInput>, Prisma.CvStoredArtifactUncheckedUpdateWithoutCandidateCvsInput>
+}
+
+export type CvStoredArtifactCreateNestedOneWithoutApplicationDocumentsInput = {
+  create?: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutApplicationDocumentsInput, Prisma.CvStoredArtifactUncheckedCreateWithoutApplicationDocumentsInput>
+  connectOrCreate?: Prisma.CvStoredArtifactCreateOrConnectWithoutApplicationDocumentsInput
+  connect?: Prisma.CvStoredArtifactWhereUniqueInput
+}
+
+export type CvStoredArtifactUpdateOneWithoutApplicationDocumentsNestedInput = {
+  create?: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutApplicationDocumentsInput, Prisma.CvStoredArtifactUncheckedCreateWithoutApplicationDocumentsInput>
+  connectOrCreate?: Prisma.CvStoredArtifactCreateOrConnectWithoutApplicationDocumentsInput
+  upsert?: Prisma.CvStoredArtifactUpsertWithoutApplicationDocumentsInput
+  disconnect?: Prisma.CvStoredArtifactWhereInput | boolean
+  delete?: Prisma.CvStoredArtifactWhereInput | boolean
+  connect?: Prisma.CvStoredArtifactWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CvStoredArtifactUpdateToOneWithWhereWithoutApplicationDocumentsInput, Prisma.CvStoredArtifactUpdateWithoutApplicationDocumentsInput>, Prisma.CvStoredArtifactUncheckedUpdateWithoutApplicationDocumentsInput>
 }
 
 export type CvStoredArtifactCreateNestedManyWithoutUploadInput = {
@@ -976,6 +1045,9 @@ export type CvStoredArtifactCreateWithoutAccountInput = {
   scanInputs?: Prisma.CvScanAssessmentCreateNestedManyWithoutSourceArtifactInput
   extractionInputs?: Prisma.CvExtractionCreateNestedManyWithoutSourceArtifactInput
   extractionOutput?: Prisma.CvExtractionCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvSourceArtifactInput
 }
 
 export type CvStoredArtifactUncheckedCreateWithoutAccountInput = {
@@ -1004,6 +1076,9 @@ export type CvStoredArtifactUncheckedCreateWithoutAccountInput = {
   scanInputs?: Prisma.CvScanAssessmentUncheckedCreateNestedManyWithoutSourceArtifactInput
   extractionInputs?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutSourceArtifactInput
   extractionOutput?: Prisma.CvExtractionUncheckedCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvSourceArtifactInput
 }
 
 export type CvStoredArtifactCreateOrConnectWithoutAccountInput = {
@@ -1061,6 +1136,426 @@ export type CvStoredArtifactScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"CvStoredArtifact"> | Date | string
 }
 
+export type CvStoredArtifactCreateWithoutTeamApplicationsInput = {
+  id?: string
+  kind: $Enums.CvArtifactKind
+  status?: $Enums.CvArtifactStatus
+  storageAdapter: string
+  storageLocator: string
+  encryptionKeyVersion: number
+  encryptionIv: runtime.Bytes
+  authenticationTag: runtime.Bytes
+  plaintextBytes: number
+  ciphertextBytes: number
+  plaintextSha256: runtime.Bytes
+  availableAt?: Date | string | null
+  contentInaccessibleAt?: Date | string | null
+  deleteAfter?: Date | string | null
+  deleteLeaseOwner?: string | null
+  deleteLeaseExpiresAt?: Date | string | null
+  deleteAttempts?: number
+  deleteFailureCode?: string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  upload: Prisma.CvUploadCreateNestedOneWithoutArtifactsInput
+  account: Prisma.UserAccountCreateNestedOneWithoutCvStoredArtifactsInput
+  scanInputs?: Prisma.CvScanAssessmentCreateNestedManyWithoutSourceArtifactInput
+  extractionInputs?: Prisma.CvExtractionCreateNestedManyWithoutSourceArtifactInput
+  extractionOutput?: Prisma.CvExtractionCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutSourceArtifactInput
+}
+
+export type CvStoredArtifactUncheckedCreateWithoutTeamApplicationsInput = {
+  id?: string
+  uploadId: string
+  accountId: string
+  kind: $Enums.CvArtifactKind
+  status?: $Enums.CvArtifactStatus
+  storageAdapter: string
+  storageLocator: string
+  encryptionKeyVersion: number
+  encryptionIv: runtime.Bytes
+  authenticationTag: runtime.Bytes
+  plaintextBytes: number
+  ciphertextBytes: number
+  plaintextSha256: runtime.Bytes
+  availableAt?: Date | string | null
+  contentInaccessibleAt?: Date | string | null
+  deleteAfter?: Date | string | null
+  deleteLeaseOwner?: string | null
+  deleteLeaseExpiresAt?: Date | string | null
+  deleteAttempts?: number
+  deleteFailureCode?: string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  scanInputs?: Prisma.CvScanAssessmentUncheckedCreateNestedManyWithoutSourceArtifactInput
+  extractionInputs?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutSourceArtifactInput
+  extractionOutput?: Prisma.CvExtractionUncheckedCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutSourceArtifactInput
+}
+
+export type CvStoredArtifactCreateOrConnectWithoutTeamApplicationsInput = {
+  where: Prisma.CvStoredArtifactWhereUniqueInput
+  create: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutTeamApplicationsInput, Prisma.CvStoredArtifactUncheckedCreateWithoutTeamApplicationsInput>
+}
+
+export type CvStoredArtifactUpsertWithoutTeamApplicationsInput = {
+  update: Prisma.XOR<Prisma.CvStoredArtifactUpdateWithoutTeamApplicationsInput, Prisma.CvStoredArtifactUncheckedUpdateWithoutTeamApplicationsInput>
+  create: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutTeamApplicationsInput, Prisma.CvStoredArtifactUncheckedCreateWithoutTeamApplicationsInput>
+  where?: Prisma.CvStoredArtifactWhereInput
+}
+
+export type CvStoredArtifactUpdateToOneWithWhereWithoutTeamApplicationsInput = {
+  where?: Prisma.CvStoredArtifactWhereInput
+  data: Prisma.XOR<Prisma.CvStoredArtifactUpdateWithoutTeamApplicationsInput, Prisma.CvStoredArtifactUncheckedUpdateWithoutTeamApplicationsInput>
+}
+
+export type CvStoredArtifactUpdateWithoutTeamApplicationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumCvArtifactKindFieldUpdateOperationsInput | $Enums.CvArtifactKind
+  status?: Prisma.EnumCvArtifactStatusFieldUpdateOperationsInput | $Enums.CvArtifactStatus
+  storageAdapter?: Prisma.StringFieldUpdateOperationsInput | string
+  storageLocator?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptionKeyVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  encryptionIv?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  authenticationTag?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  plaintextBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  ciphertextBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  plaintextSha256?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  availableAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contentInaccessibleAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteLeaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteLeaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  deleteFailureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  upload?: Prisma.CvUploadUpdateOneRequiredWithoutArtifactsNestedInput
+  account?: Prisma.UserAccountUpdateOneRequiredWithoutCvStoredArtifactsNestedInput
+  scanInputs?: Prisma.CvScanAssessmentUpdateManyWithoutSourceArtifactNestedInput
+  extractionInputs?: Prisma.CvExtractionUpdateManyWithoutSourceArtifactNestedInput
+  extractionOutput?: Prisma.CvExtractionUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutSourceArtifactNestedInput
+}
+
+export type CvStoredArtifactUncheckedUpdateWithoutTeamApplicationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadId?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumCvArtifactKindFieldUpdateOperationsInput | $Enums.CvArtifactKind
+  status?: Prisma.EnumCvArtifactStatusFieldUpdateOperationsInput | $Enums.CvArtifactStatus
+  storageAdapter?: Prisma.StringFieldUpdateOperationsInput | string
+  storageLocator?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptionKeyVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  encryptionIv?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  authenticationTag?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  plaintextBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  ciphertextBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  plaintextSha256?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  availableAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contentInaccessibleAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteLeaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteLeaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  deleteFailureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scanInputs?: Prisma.CvScanAssessmentUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  extractionInputs?: Prisma.CvExtractionUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  extractionOutput?: Prisma.CvExtractionUncheckedUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutSourceArtifactNestedInput
+}
+
+export type CvStoredArtifactCreateWithoutCandidateCvsInput = {
+  id?: string
+  kind: $Enums.CvArtifactKind
+  status?: $Enums.CvArtifactStatus
+  storageAdapter: string
+  storageLocator: string
+  encryptionKeyVersion: number
+  encryptionIv: runtime.Bytes
+  authenticationTag: runtime.Bytes
+  plaintextBytes: number
+  ciphertextBytes: number
+  plaintextSha256: runtime.Bytes
+  availableAt?: Date | string | null
+  contentInaccessibleAt?: Date | string | null
+  deleteAfter?: Date | string | null
+  deleteLeaseOwner?: string | null
+  deleteLeaseExpiresAt?: Date | string | null
+  deleteAttempts?: number
+  deleteFailureCode?: string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  upload: Prisma.CvUploadCreateNestedOneWithoutArtifactsInput
+  account: Prisma.UserAccountCreateNestedOneWithoutCvStoredArtifactsInput
+  scanInputs?: Prisma.CvScanAssessmentCreateNestedManyWithoutSourceArtifactInput
+  extractionInputs?: Prisma.CvExtractionCreateNestedManyWithoutSourceArtifactInput
+  extractionOutput?: Prisma.CvExtractionCreateNestedOneWithoutOutputArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvSourceArtifactInput
+}
+
+export type CvStoredArtifactUncheckedCreateWithoutCandidateCvsInput = {
+  id?: string
+  uploadId: string
+  accountId: string
+  kind: $Enums.CvArtifactKind
+  status?: $Enums.CvArtifactStatus
+  storageAdapter: string
+  storageLocator: string
+  encryptionKeyVersion: number
+  encryptionIv: runtime.Bytes
+  authenticationTag: runtime.Bytes
+  plaintextBytes: number
+  ciphertextBytes: number
+  plaintextSha256: runtime.Bytes
+  availableAt?: Date | string | null
+  contentInaccessibleAt?: Date | string | null
+  deleteAfter?: Date | string | null
+  deleteLeaseOwner?: string | null
+  deleteLeaseExpiresAt?: Date | string | null
+  deleteAttempts?: number
+  deleteFailureCode?: string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  scanInputs?: Prisma.CvScanAssessmentUncheckedCreateNestedManyWithoutSourceArtifactInput
+  extractionInputs?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutSourceArtifactInput
+  extractionOutput?: Prisma.CvExtractionUncheckedCreateNestedOneWithoutOutputArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvSourceArtifactInput
+}
+
+export type CvStoredArtifactCreateOrConnectWithoutCandidateCvsInput = {
+  where: Prisma.CvStoredArtifactWhereUniqueInput
+  create: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutCandidateCvsInput, Prisma.CvStoredArtifactUncheckedCreateWithoutCandidateCvsInput>
+}
+
+export type CvStoredArtifactUpsertWithoutCandidateCvsInput = {
+  update: Prisma.XOR<Prisma.CvStoredArtifactUpdateWithoutCandidateCvsInput, Prisma.CvStoredArtifactUncheckedUpdateWithoutCandidateCvsInput>
+  create: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutCandidateCvsInput, Prisma.CvStoredArtifactUncheckedCreateWithoutCandidateCvsInput>
+  where?: Prisma.CvStoredArtifactWhereInput
+}
+
+export type CvStoredArtifactUpdateToOneWithWhereWithoutCandidateCvsInput = {
+  where?: Prisma.CvStoredArtifactWhereInput
+  data: Prisma.XOR<Prisma.CvStoredArtifactUpdateWithoutCandidateCvsInput, Prisma.CvStoredArtifactUncheckedUpdateWithoutCandidateCvsInput>
+}
+
+export type CvStoredArtifactUpdateWithoutCandidateCvsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumCvArtifactKindFieldUpdateOperationsInput | $Enums.CvArtifactKind
+  status?: Prisma.EnumCvArtifactStatusFieldUpdateOperationsInput | $Enums.CvArtifactStatus
+  storageAdapter?: Prisma.StringFieldUpdateOperationsInput | string
+  storageLocator?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptionKeyVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  encryptionIv?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  authenticationTag?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  plaintextBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  ciphertextBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  plaintextSha256?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  availableAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contentInaccessibleAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteLeaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteLeaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  deleteFailureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  upload?: Prisma.CvUploadUpdateOneRequiredWithoutArtifactsNestedInput
+  account?: Prisma.UserAccountUpdateOneRequiredWithoutCvStoredArtifactsNestedInput
+  scanInputs?: Prisma.CvScanAssessmentUpdateManyWithoutSourceArtifactNestedInput
+  extractionInputs?: Prisma.CvExtractionUpdateManyWithoutSourceArtifactNestedInput
+  extractionOutput?: Prisma.CvExtractionUpdateOneWithoutOutputArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvSourceArtifactNestedInput
+}
+
+export type CvStoredArtifactUncheckedUpdateWithoutCandidateCvsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadId?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumCvArtifactKindFieldUpdateOperationsInput | $Enums.CvArtifactKind
+  status?: Prisma.EnumCvArtifactStatusFieldUpdateOperationsInput | $Enums.CvArtifactStatus
+  storageAdapter?: Prisma.StringFieldUpdateOperationsInput | string
+  storageLocator?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptionKeyVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  encryptionIv?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  authenticationTag?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  plaintextBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  ciphertextBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  plaintextSha256?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  availableAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contentInaccessibleAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteLeaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteLeaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  deleteFailureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scanInputs?: Prisma.CvScanAssessmentUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  extractionInputs?: Prisma.CvExtractionUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  extractionOutput?: Prisma.CvExtractionUncheckedUpdateOneWithoutOutputArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvSourceArtifactNestedInput
+}
+
+export type CvStoredArtifactCreateWithoutApplicationDocumentsInput = {
+  id?: string
+  kind: $Enums.CvArtifactKind
+  status?: $Enums.CvArtifactStatus
+  storageAdapter: string
+  storageLocator: string
+  encryptionKeyVersion: number
+  encryptionIv: runtime.Bytes
+  authenticationTag: runtime.Bytes
+  plaintextBytes: number
+  ciphertextBytes: number
+  plaintextSha256: runtime.Bytes
+  availableAt?: Date | string | null
+  contentInaccessibleAt?: Date | string | null
+  deleteAfter?: Date | string | null
+  deleteLeaseOwner?: string | null
+  deleteLeaseExpiresAt?: Date | string | null
+  deleteAttempts?: number
+  deleteFailureCode?: string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  upload: Prisma.CvUploadCreateNestedOneWithoutArtifactsInput
+  account: Prisma.UserAccountCreateNestedOneWithoutCvStoredArtifactsInput
+  scanInputs?: Prisma.CvScanAssessmentCreateNestedManyWithoutSourceArtifactInput
+  extractionInputs?: Prisma.CvExtractionCreateNestedManyWithoutSourceArtifactInput
+  extractionOutput?: Prisma.CvExtractionCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvSourceArtifactInput
+}
+
+export type CvStoredArtifactUncheckedCreateWithoutApplicationDocumentsInput = {
+  id?: string
+  uploadId: string
+  accountId: string
+  kind: $Enums.CvArtifactKind
+  status?: $Enums.CvArtifactStatus
+  storageAdapter: string
+  storageLocator: string
+  encryptionKeyVersion: number
+  encryptionIv: runtime.Bytes
+  authenticationTag: runtime.Bytes
+  plaintextBytes: number
+  ciphertextBytes: number
+  plaintextSha256: runtime.Bytes
+  availableAt?: Date | string | null
+  contentInaccessibleAt?: Date | string | null
+  deleteAfter?: Date | string | null
+  deleteLeaseOwner?: string | null
+  deleteLeaseExpiresAt?: Date | string | null
+  deleteAttempts?: number
+  deleteFailureCode?: string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  scanInputs?: Prisma.CvScanAssessmentUncheckedCreateNestedManyWithoutSourceArtifactInput
+  extractionInputs?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutSourceArtifactInput
+  extractionOutput?: Prisma.CvExtractionUncheckedCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvSourceArtifactInput
+}
+
+export type CvStoredArtifactCreateOrConnectWithoutApplicationDocumentsInput = {
+  where: Prisma.CvStoredArtifactWhereUniqueInput
+  create: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutApplicationDocumentsInput, Prisma.CvStoredArtifactUncheckedCreateWithoutApplicationDocumentsInput>
+}
+
+export type CvStoredArtifactUpsertWithoutApplicationDocumentsInput = {
+  update: Prisma.XOR<Prisma.CvStoredArtifactUpdateWithoutApplicationDocumentsInput, Prisma.CvStoredArtifactUncheckedUpdateWithoutApplicationDocumentsInput>
+  create: Prisma.XOR<Prisma.CvStoredArtifactCreateWithoutApplicationDocumentsInput, Prisma.CvStoredArtifactUncheckedCreateWithoutApplicationDocumentsInput>
+  where?: Prisma.CvStoredArtifactWhereInput
+}
+
+export type CvStoredArtifactUpdateToOneWithWhereWithoutApplicationDocumentsInput = {
+  where?: Prisma.CvStoredArtifactWhereInput
+  data: Prisma.XOR<Prisma.CvStoredArtifactUpdateWithoutApplicationDocumentsInput, Prisma.CvStoredArtifactUncheckedUpdateWithoutApplicationDocumentsInput>
+}
+
+export type CvStoredArtifactUpdateWithoutApplicationDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumCvArtifactKindFieldUpdateOperationsInput | $Enums.CvArtifactKind
+  status?: Prisma.EnumCvArtifactStatusFieldUpdateOperationsInput | $Enums.CvArtifactStatus
+  storageAdapter?: Prisma.StringFieldUpdateOperationsInput | string
+  storageLocator?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptionKeyVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  encryptionIv?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  authenticationTag?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  plaintextBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  ciphertextBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  plaintextSha256?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  availableAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contentInaccessibleAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteLeaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteLeaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  deleteFailureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  upload?: Prisma.CvUploadUpdateOneRequiredWithoutArtifactsNestedInput
+  account?: Prisma.UserAccountUpdateOneRequiredWithoutCvStoredArtifactsNestedInput
+  scanInputs?: Prisma.CvScanAssessmentUpdateManyWithoutSourceArtifactNestedInput
+  extractionInputs?: Prisma.CvExtractionUpdateManyWithoutSourceArtifactNestedInput
+  extractionOutput?: Prisma.CvExtractionUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvSourceArtifactNestedInput
+}
+
+export type CvStoredArtifactUncheckedUpdateWithoutApplicationDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadId?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumCvArtifactKindFieldUpdateOperationsInput | $Enums.CvArtifactKind
+  status?: Prisma.EnumCvArtifactStatusFieldUpdateOperationsInput | $Enums.CvArtifactStatus
+  storageAdapter?: Prisma.StringFieldUpdateOperationsInput | string
+  storageLocator?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptionKeyVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  encryptionIv?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  authenticationTag?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  plaintextBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  ciphertextBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  plaintextSha256?: Prisma.BytesFieldUpdateOperationsInput | runtime.Bytes
+  availableAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contentInaccessibleAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteLeaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteLeaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deleteAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  deleteFailureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scanInputs?: Prisma.CvScanAssessmentUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  extractionInputs?: Prisma.CvExtractionUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  extractionOutput?: Prisma.CvExtractionUncheckedUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvSourceArtifactNestedInput
+}
+
 export type CvStoredArtifactCreateWithoutUploadInput = {
   id?: string
   kind: $Enums.CvArtifactKind
@@ -1087,6 +1582,9 @@ export type CvStoredArtifactCreateWithoutUploadInput = {
   scanInputs?: Prisma.CvScanAssessmentCreateNestedManyWithoutSourceArtifactInput
   extractionInputs?: Prisma.CvExtractionCreateNestedManyWithoutSourceArtifactInput
   extractionOutput?: Prisma.CvExtractionCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvSourceArtifactInput
 }
 
 export type CvStoredArtifactUncheckedCreateWithoutUploadInput = {
@@ -1115,6 +1613,9 @@ export type CvStoredArtifactUncheckedCreateWithoutUploadInput = {
   scanInputs?: Prisma.CvScanAssessmentUncheckedCreateNestedManyWithoutSourceArtifactInput
   extractionInputs?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutSourceArtifactInput
   extractionOutput?: Prisma.CvExtractionUncheckedCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvSourceArtifactInput
 }
 
 export type CvStoredArtifactCreateOrConnectWithoutUploadInput = {
@@ -1169,6 +1670,9 @@ export type CvStoredArtifactCreateWithoutScanInputsInput = {
   account: Prisma.UserAccountCreateNestedOneWithoutCvStoredArtifactsInput
   extractionInputs?: Prisma.CvExtractionCreateNestedManyWithoutSourceArtifactInput
   extractionOutput?: Prisma.CvExtractionCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvSourceArtifactInput
 }
 
 export type CvStoredArtifactUncheckedCreateWithoutScanInputsInput = {
@@ -1197,6 +1701,9 @@ export type CvStoredArtifactUncheckedCreateWithoutScanInputsInput = {
   updatedAt?: Date | string
   extractionInputs?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutSourceArtifactInput
   extractionOutput?: Prisma.CvExtractionUncheckedCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvSourceArtifactInput
 }
 
 export type CvStoredArtifactCreateOrConnectWithoutScanInputsInput = {
@@ -1241,6 +1748,9 @@ export type CvStoredArtifactUpdateWithoutScanInputsInput = {
   account?: Prisma.UserAccountUpdateOneRequiredWithoutCvStoredArtifactsNestedInput
   extractionInputs?: Prisma.CvExtractionUpdateManyWithoutSourceArtifactNestedInput
   extractionOutput?: Prisma.CvExtractionUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvSourceArtifactNestedInput
 }
 
 export type CvStoredArtifactUncheckedUpdateWithoutScanInputsInput = {
@@ -1269,6 +1779,9 @@ export type CvStoredArtifactUncheckedUpdateWithoutScanInputsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   extractionInputs?: Prisma.CvExtractionUncheckedUpdateManyWithoutSourceArtifactNestedInput
   extractionOutput?: Prisma.CvExtractionUncheckedUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvSourceArtifactNestedInput
 }
 
 export type CvStoredArtifactCreateWithoutExtractionInputsInput = {
@@ -1297,6 +1810,9 @@ export type CvStoredArtifactCreateWithoutExtractionInputsInput = {
   account: Prisma.UserAccountCreateNestedOneWithoutCvStoredArtifactsInput
   scanInputs?: Prisma.CvScanAssessmentCreateNestedManyWithoutSourceArtifactInput
   extractionOutput?: Prisma.CvExtractionCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvSourceArtifactInput
 }
 
 export type CvStoredArtifactUncheckedCreateWithoutExtractionInputsInput = {
@@ -1325,6 +1841,9 @@ export type CvStoredArtifactUncheckedCreateWithoutExtractionInputsInput = {
   updatedAt?: Date | string
   scanInputs?: Prisma.CvScanAssessmentUncheckedCreateNestedManyWithoutSourceArtifactInput
   extractionOutput?: Prisma.CvExtractionUncheckedCreateNestedOneWithoutOutputArtifactInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvSourceArtifactInput
 }
 
 export type CvStoredArtifactCreateOrConnectWithoutExtractionInputsInput = {
@@ -1358,6 +1877,9 @@ export type CvStoredArtifactCreateWithoutExtractionOutputInput = {
   account: Prisma.UserAccountCreateNestedOneWithoutCvStoredArtifactsInput
   scanInputs?: Prisma.CvScanAssessmentCreateNestedManyWithoutSourceArtifactInput
   extractionInputs?: Prisma.CvExtractionCreateNestedManyWithoutSourceArtifactInput
+  candidateCvs?: Prisma.CandidateCvCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationCreateNestedManyWithoutCvSourceArtifactInput
 }
 
 export type CvStoredArtifactUncheckedCreateWithoutExtractionOutputInput = {
@@ -1386,6 +1908,9 @@ export type CvStoredArtifactUncheckedCreateWithoutExtractionOutputInput = {
   updatedAt?: Date | string
   scanInputs?: Prisma.CvScanAssessmentUncheckedCreateNestedManyWithoutSourceArtifactInput
   extractionInputs?: Prisma.CvExtractionUncheckedCreateNestedManyWithoutSourceArtifactInput
+  candidateCvs?: Prisma.CandidateCvUncheckedCreateNestedManyWithoutSourceArtifactInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedCreateNestedManyWithoutSourceArtifactInput
+  teamApplications?: Prisma.TeamApplicationUncheckedCreateNestedManyWithoutCvSourceArtifactInput
 }
 
 export type CvStoredArtifactCreateOrConnectWithoutExtractionOutputInput = {
@@ -1430,6 +1955,9 @@ export type CvStoredArtifactUpdateWithoutExtractionInputsInput = {
   account?: Prisma.UserAccountUpdateOneRequiredWithoutCvStoredArtifactsNestedInput
   scanInputs?: Prisma.CvScanAssessmentUpdateManyWithoutSourceArtifactNestedInput
   extractionOutput?: Prisma.CvExtractionUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvSourceArtifactNestedInput
 }
 
 export type CvStoredArtifactUncheckedUpdateWithoutExtractionInputsInput = {
@@ -1458,6 +1986,9 @@ export type CvStoredArtifactUncheckedUpdateWithoutExtractionInputsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scanInputs?: Prisma.CvScanAssessmentUncheckedUpdateManyWithoutSourceArtifactNestedInput
   extractionOutput?: Prisma.CvExtractionUncheckedUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvSourceArtifactNestedInput
 }
 
 export type CvStoredArtifactUpsertWithoutExtractionOutputInput = {
@@ -1497,6 +2028,9 @@ export type CvStoredArtifactUpdateWithoutExtractionOutputInput = {
   account?: Prisma.UserAccountUpdateOneRequiredWithoutCvStoredArtifactsNestedInput
   scanInputs?: Prisma.CvScanAssessmentUpdateManyWithoutSourceArtifactNestedInput
   extractionInputs?: Prisma.CvExtractionUpdateManyWithoutSourceArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvSourceArtifactNestedInput
 }
 
 export type CvStoredArtifactUncheckedUpdateWithoutExtractionOutputInput = {
@@ -1525,6 +2059,9 @@ export type CvStoredArtifactUncheckedUpdateWithoutExtractionOutputInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scanInputs?: Prisma.CvScanAssessmentUncheckedUpdateManyWithoutSourceArtifactNestedInput
   extractionInputs?: Prisma.CvExtractionUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvSourceArtifactNestedInput
 }
 
 export type CvStoredArtifactCreateManyAccountInput = {
@@ -1578,6 +2115,9 @@ export type CvStoredArtifactUpdateWithoutAccountInput = {
   scanInputs?: Prisma.CvScanAssessmentUpdateManyWithoutSourceArtifactNestedInput
   extractionInputs?: Prisma.CvExtractionUpdateManyWithoutSourceArtifactNestedInput
   extractionOutput?: Prisma.CvExtractionUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvSourceArtifactNestedInput
 }
 
 export type CvStoredArtifactUncheckedUpdateWithoutAccountInput = {
@@ -1606,6 +2146,9 @@ export type CvStoredArtifactUncheckedUpdateWithoutAccountInput = {
   scanInputs?: Prisma.CvScanAssessmentUncheckedUpdateManyWithoutSourceArtifactNestedInput
   extractionInputs?: Prisma.CvExtractionUncheckedUpdateManyWithoutSourceArtifactNestedInput
   extractionOutput?: Prisma.CvExtractionUncheckedUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvSourceArtifactNestedInput
 }
 
 export type CvStoredArtifactUncheckedUpdateManyWithoutAccountInput = {
@@ -1684,6 +2227,9 @@ export type CvStoredArtifactUpdateWithoutUploadInput = {
   scanInputs?: Prisma.CvScanAssessmentUpdateManyWithoutSourceArtifactNestedInput
   extractionInputs?: Prisma.CvExtractionUpdateManyWithoutSourceArtifactNestedInput
   extractionOutput?: Prisma.CvExtractionUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUpdateManyWithoutCvSourceArtifactNestedInput
 }
 
 export type CvStoredArtifactUncheckedUpdateWithoutUploadInput = {
@@ -1712,6 +2258,9 @@ export type CvStoredArtifactUncheckedUpdateWithoutUploadInput = {
   scanInputs?: Prisma.CvScanAssessmentUncheckedUpdateManyWithoutSourceArtifactNestedInput
   extractionInputs?: Prisma.CvExtractionUncheckedUpdateManyWithoutSourceArtifactNestedInput
   extractionOutput?: Prisma.CvExtractionUncheckedUpdateOneWithoutOutputArtifactNestedInput
+  candidateCvs?: Prisma.CandidateCvUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  applicationDocuments?: Prisma.ApplicationDocumentUncheckedUpdateManyWithoutSourceArtifactNestedInput
+  teamApplications?: Prisma.TeamApplicationUncheckedUpdateManyWithoutCvSourceArtifactNestedInput
 }
 
 export type CvStoredArtifactUncheckedUpdateManyWithoutUploadInput = {
@@ -1747,11 +2296,17 @@ export type CvStoredArtifactUncheckedUpdateManyWithoutUploadInput = {
 export type CvStoredArtifactCountOutputType = {
   scanInputs: number
   extractionInputs: number
+  candidateCvs: number
+  applicationDocuments: number
+  teamApplications: number
 }
 
 export type CvStoredArtifactCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   scanInputs?: boolean | CvStoredArtifactCountOutputTypeCountScanInputsArgs
   extractionInputs?: boolean | CvStoredArtifactCountOutputTypeCountExtractionInputsArgs
+  candidateCvs?: boolean | CvStoredArtifactCountOutputTypeCountCandidateCvsArgs
+  applicationDocuments?: boolean | CvStoredArtifactCountOutputTypeCountApplicationDocumentsArgs
+  teamApplications?: boolean | CvStoredArtifactCountOutputTypeCountTeamApplicationsArgs
 }
 
 /**
@@ -1776,6 +2331,27 @@ export type CvStoredArtifactCountOutputTypeCountScanInputsArgs<ExtArgs extends r
  */
 export type CvStoredArtifactCountOutputTypeCountExtractionInputsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CvExtractionWhereInput
+}
+
+/**
+ * CvStoredArtifactCountOutputType without action
+ */
+export type CvStoredArtifactCountOutputTypeCountCandidateCvsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CandidateCvWhereInput
+}
+
+/**
+ * CvStoredArtifactCountOutputType without action
+ */
+export type CvStoredArtifactCountOutputTypeCountApplicationDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApplicationDocumentWhereInput
+}
+
+/**
+ * CvStoredArtifactCountOutputType without action
+ */
+export type CvStoredArtifactCountOutputTypeCountTeamApplicationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TeamApplicationWhereInput
 }
 
 
@@ -1808,6 +2384,9 @@ export type CvStoredArtifactSelect<ExtArgs extends runtime.Types.Extensions.Inte
   scanInputs?: boolean | Prisma.CvStoredArtifact$scanInputsArgs<ExtArgs>
   extractionInputs?: boolean | Prisma.CvStoredArtifact$extractionInputsArgs<ExtArgs>
   extractionOutput?: boolean | Prisma.CvStoredArtifact$extractionOutputArgs<ExtArgs>
+  candidateCvs?: boolean | Prisma.CvStoredArtifact$candidateCvsArgs<ExtArgs>
+  applicationDocuments?: boolean | Prisma.CvStoredArtifact$applicationDocumentsArgs<ExtArgs>
+  teamApplications?: boolean | Prisma.CvStoredArtifact$teamApplicationsArgs<ExtArgs>
   _count?: boolean | Prisma.CvStoredArtifactCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["cvStoredArtifact"]>
 
@@ -1900,6 +2479,9 @@ export type CvStoredArtifactInclude<ExtArgs extends runtime.Types.Extensions.Int
   scanInputs?: boolean | Prisma.CvStoredArtifact$scanInputsArgs<ExtArgs>
   extractionInputs?: boolean | Prisma.CvStoredArtifact$extractionInputsArgs<ExtArgs>
   extractionOutput?: boolean | Prisma.CvStoredArtifact$extractionOutputArgs<ExtArgs>
+  candidateCvs?: boolean | Prisma.CvStoredArtifact$candidateCvsArgs<ExtArgs>
+  applicationDocuments?: boolean | Prisma.CvStoredArtifact$applicationDocumentsArgs<ExtArgs>
+  teamApplications?: boolean | Prisma.CvStoredArtifact$teamApplicationsArgs<ExtArgs>
   _count?: boolean | Prisma.CvStoredArtifactCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CvStoredArtifactIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1919,6 +2501,9 @@ export type $CvStoredArtifactPayload<ExtArgs extends runtime.Types.Extensions.In
     scanInputs: Prisma.$CvScanAssessmentPayload<ExtArgs>[]
     extractionInputs: Prisma.$CvExtractionPayload<ExtArgs>[]
     extractionOutput: Prisma.$CvExtractionPayload<ExtArgs> | null
+    candidateCvs: Prisma.$CandidateCvPayload<ExtArgs>[]
+    applicationDocuments: Prisma.$ApplicationDocumentPayload<ExtArgs>[]
+    teamApplications: Prisma.$TeamApplicationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2343,6 +2928,9 @@ export interface Prisma__CvStoredArtifactClient<T, Null = never, ExtArgs extends
   scanInputs<T extends Prisma.CvStoredArtifact$scanInputsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvStoredArtifact$scanInputsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CvScanAssessmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   extractionInputs<T extends Prisma.CvStoredArtifact$extractionInputsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvStoredArtifact$extractionInputsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CvExtractionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   extractionOutput<T extends Prisma.CvStoredArtifact$extractionOutputArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvStoredArtifact$extractionOutputArgs<ExtArgs>>): Prisma.Prisma__CvExtractionClient<runtime.Types.Result.GetResult<Prisma.$CvExtractionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  candidateCvs<T extends Prisma.CvStoredArtifact$candidateCvsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvStoredArtifact$candidateCvsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CandidateCvPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  applicationDocuments<T extends Prisma.CvStoredArtifact$applicationDocumentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvStoredArtifact$applicationDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApplicationDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  teamApplications<T extends Prisma.CvStoredArtifact$teamApplicationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CvStoredArtifact$teamApplicationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TeamApplicationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2860,6 +3448,78 @@ export type CvStoredArtifact$extractionOutputArgs<ExtArgs extends runtime.Types.
    */
   include?: Prisma.CvExtractionInclude<ExtArgs> | null
   where?: Prisma.CvExtractionWhereInput
+}
+
+/**
+ * CvStoredArtifact.candidateCvs
+ */
+export type CvStoredArtifact$candidateCvsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CandidateCv
+   */
+  select?: Prisma.CandidateCvSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CandidateCv
+   */
+  omit?: Prisma.CandidateCvOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CandidateCvInclude<ExtArgs> | null
+  where?: Prisma.CandidateCvWhereInput
+  orderBy?: Prisma.CandidateCvOrderByWithRelationInput | Prisma.CandidateCvOrderByWithRelationInput[]
+  cursor?: Prisma.CandidateCvWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CandidateCvScalarFieldEnum | Prisma.CandidateCvScalarFieldEnum[]
+}
+
+/**
+ * CvStoredArtifact.applicationDocuments
+ */
+export type CvStoredArtifact$applicationDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApplicationDocument
+   */
+  select?: Prisma.ApplicationDocumentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApplicationDocument
+   */
+  omit?: Prisma.ApplicationDocumentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApplicationDocumentInclude<ExtArgs> | null
+  where?: Prisma.ApplicationDocumentWhereInput
+  orderBy?: Prisma.ApplicationDocumentOrderByWithRelationInput | Prisma.ApplicationDocumentOrderByWithRelationInput[]
+  cursor?: Prisma.ApplicationDocumentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApplicationDocumentScalarFieldEnum | Prisma.ApplicationDocumentScalarFieldEnum[]
+}
+
+/**
+ * CvStoredArtifact.teamApplications
+ */
+export type CvStoredArtifact$teamApplicationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TeamApplication
+   */
+  select?: Prisma.TeamApplicationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TeamApplication
+   */
+  omit?: Prisma.TeamApplicationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TeamApplicationInclude<ExtArgs> | null
+  where?: Prisma.TeamApplicationWhereInput
+  orderBy?: Prisma.TeamApplicationOrderByWithRelationInput | Prisma.TeamApplicationOrderByWithRelationInput[]
+  cursor?: Prisma.TeamApplicationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TeamApplicationScalarFieldEnum | Prisma.TeamApplicationScalarFieldEnum[]
 }
 
 /**

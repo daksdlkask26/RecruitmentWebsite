@@ -163,7 +163,11 @@ export async function seedCvRecoveryImport(
       sourceId,
       uploadId,
       accountId,
-      options.deletedSource ? "DELETED" : "AVAILABLE",
+      options.deletedSource
+        ? "DELETED"
+        : options.stage === "SCAN"
+          ? "QUARANTINED"
+          : "AVAILABLE",
       `fixture/${sourceId}`,
       options.now,
       options.deletedSource ?? false,

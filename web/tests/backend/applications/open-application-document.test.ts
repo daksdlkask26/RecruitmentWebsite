@@ -1,4 +1,25 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const { openSafeCvArtifactMock, safetyEvidenceMock } = vi.hoisted(() => ({
+  openSafeCvArtifactMock: vi.fn(),
+  safetyEvidenceMock: vi.fn(),
+}));
+
+vi.mock(
+  "@/backend/services/cv-admission/open-safe-cv-artifact-service",
+  () => ({
+    OpenSafeCvArtifactService: class {
+      open = openSafeCvArtifactMock;
+    },
+  }),
+);
+
+vi.mock("@/backend/services/cv-admission/cv-safety-evidence-service", () => ({
+  CvSafetyEvidenceService: class {
+    assertCvArtifactSafeForUse = safetyEvidenceMock;
+  },
+}));
+
 import { OpenApplicationDocumentService } from "@/backend/applications/services/open-application-document";
 import { PrismaApplicationRepository } from "@/backend/repositories/applications/prisma-application-repository";
 import * as automaticStageRules from "@/backend/applications/services/automatic-viewed-stage-rules";
@@ -16,6 +37,11 @@ type TestDocument = {
   storageKey: string | null;
   text: string | null;
   previewSupported: boolean;
+  sourceArtifactId: string;
+  scanAssessmentId: string;
+  uploadId: string;
+  candidateUserId: string;
+  scanStatus: "CLEAN";
 };
 
 function document(stage: "APPLIED" | "VIEWED"): TestDocument {
@@ -31,6 +57,11 @@ function document(stage: "APPLIED" | "VIEWED"): TestDocument {
     storageKey: null,
     text: "Candidate CV text",
     previewSupported: true,
+    sourceArtifactId: "artifact-1",
+    scanAssessmentId: "assessment-1",
+    uploadId: "upload-1",
+    candidateUserId: "candidate-1",
+    scanStatus: "CLEAN",
   };
 }
 
@@ -41,6 +72,18 @@ function repository(result: ReturnType<typeof document>) {
 }
 
 describe("recruiter document review tracking", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    openSafeCvArtifactMock.mockResolvedValue({
+      openStream: () =>
+        (async function* () {
+          yield new Uint8Array([1]);
+        })(),
+      dispose: vi.fn().mockResolvedValue(undefined),
+    });
+    safetyEvidenceMock.mockResolvedValue({});
+  });
+
   it("records APPLIED -> VIEWED when an authorized recruiter opens a document", async () => {
     const repo = repository(document("APPLIED"));
     const authorization = {

@@ -6,7 +6,7 @@ import {
   type CandidateActor,
 } from "@/backend/services/jobs/job-types";
 import { JobApplicationService } from "@/backend/services/jobs/job-application-service";
-import type { PreparedDirectApplicationCv } from "@/backend/services/jobs/prepare-direct-application-cv";
+import type { PreparedDirectApplicationDocument } from "@/backend/services/jobs/prepare-direct-application-document";
 import {
   applicationSubmitCommandSchema,
   candidatePersonalInfoSchema,
@@ -110,7 +110,7 @@ export class CandidateApplicationSubmissionService {
       );
     }
 
-    let preparedCoverLetter: PreparedDirectApplicationCv | undefined;
+    let preparedCoverLetter: PreparedDirectApplicationDocument | undefined;
     let coverLetter: unknown = null;
     const rawCoverLetter = draft.coverLetterDraft;
     const rawCoverKind =

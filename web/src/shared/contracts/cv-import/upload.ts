@@ -316,6 +316,7 @@ export const cvImportStatusResponseSchema = z.union([
 ]);
 
 const terminalStatuses = new Set<CvUploadStatus>([
+  "SECURITY_CLEAN",
   "REVIEW_READY",
   "VALIDATION_FAILED",
   "INFECTED",
@@ -341,6 +342,6 @@ export type CvImportStatusResponse = z.infer<
   typeof cvImportStatusResponseSchema
 >;
 
-if (CV_UPLOAD_STATUSES.length !== 19) {
+if (CV_UPLOAD_STATUSES.length !== 20) {
   throw new Error("CV_UPLOAD_STATUS_CONTRACT_INCOMPLETE");
 }

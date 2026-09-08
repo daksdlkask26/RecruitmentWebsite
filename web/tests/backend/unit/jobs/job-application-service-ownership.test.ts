@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DIRECT_APPLICATION_CV_ID } from "@/shared/contracts/jobs/actions";
 
-const { prepareDirectApplicationCvMock, recordApplicationMock } = vi.hoisted(
-  () => ({
-    prepareDirectApplicationCvMock: vi.fn(),
-    recordApplicationMock: vi.fn(),
-  }),
-);
+const {
+  prepareDirectApplicationCvMock,
+  finalizeCandidateCvFromUploadMock,
+  recordApplicationMock,
+} = vi.hoisted(() => ({
+  prepareDirectApplicationCvMock: vi.fn(),
+  finalizeCandidateCvFromUploadMock: vi.fn(),
+  recordApplicationMock: vi.fn(),
+}));
 
 vi.mock("@/backend/services/jobs/prepare-direct-application-cv", () => ({
   prepareDirectApplicationCv: prepareDirectApplicationCvMock,
@@ -14,22 +17,11 @@ vi.mock("@/backend/services/jobs/prepare-direct-application-cv", () => ({
 vi.mock("@/backend/services/jobs/recruiter-job-posting-data", () => ({
   recordApplication: recordApplicationMock,
 }));
+vi.mock("@/backend/services/cv-admission/finalize-candidate-cv", () => ({
+  finalizeCandidateCvFromUpload: finalizeCandidateCvFromUploadMock,
+}));
 
 import { JobApplicationService } from "@/backend/services/jobs/job-application-service";
-
-function prepared(storageKey: string, checksumSha256 = "a".repeat(64)) {
-  return {
-    id: `application-cv-${storageKey}`,
-    displayName: "resume.pdf",
-    fileName: "resume.pdf",
-    mimeType: "application/pdf" as const,
-    byteSize: 64,
-    storageKey,
-    checksumSha256,
-    claimOwnership: vi.fn(),
-    cleanup: vi.fn().mockResolvedValue(undefined),
-  };
-}
 
 const command = {
   cvId: DIRECT_APPLICATION_CV_ID,
@@ -61,27 +53,23 @@ function application(created: boolean) {
   };
 }
 
-describe("JobApplicationService direct CV ownership", () => {
+describe("JobApplicationService CV security boundary", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     recordApplicationMock.mockResolvedValue(undefined);
   });
 
-  it("claims the CV before a post-commit projection failure can clean it up", async () => {
-    const direct = prepared("direct-cv-post-commit");
-    prepareDirectApplicationCvMock.mockResolvedValue(direct);
-    recordApplicationMock.mockRejectedValue(
-      new Error("CATALOGUE_PROJECTION_FAILED"),
-    );
+  it("rejects a legacy raw direct-CV source before repository submission", async () => {
     const repository = {
-      submit: vi.fn().mockResolvedValue({
-        application: application(true),
-        created: true,
-      }),
+      submit: vi.fn(),
     };
-
+    const audit = { append: vi.fn().mockResolvedValue("audit-1") };
     await expect(
-      new JobApplicationService(repository as never).submit(
+      new JobApplicationService(
+        repository as never,
+        undefined,
+        audit as never,
+      ).submit(
         { userId: "candidate-1", sessionId: "session-1" },
         "job-1",
         "application-key-00000001",
@@ -89,29 +77,25 @@ describe("JobApplicationService direct CV ownership", () => {
         new Date("2026-08-01T00:00:00.000Z"),
         directSource,
       ),
-    ).resolves.toMatchObject({ created: true });
+    ).rejects.toMatchObject({
+      status: 400,
+      body: { code: "APPLICATION_CV_INELIGIBLE" },
+    });
 
-    expect(direct.claimOwnership).toHaveBeenCalledOnce();
-    expect(direct.cleanup).not.toHaveBeenCalled();
+    expect(prepareDirectApplicationCvMock).not.toHaveBeenCalled();
+    expect(repository.submit).not.toHaveBeenCalled();
   });
 
-  it("cleans the retry artifact when the repository replays an active key", async () => {
-    const first = prepared("direct-cv-first");
-    const retry = prepared("direct-cv-retry");
-    prepareDirectApplicationCvMock
-      .mockResolvedValueOnce(first)
-      .mockResolvedValueOnce(retry);
+  it("finalizes an admitted upload before submitting the application", async () => {
+    const now = new Date("2026-08-01T00:00:00.000Z");
+    finalizeCandidateCvFromUploadMock.mockResolvedValue({
+      id: "candidate-cv-clean-upload",
+    });
     const repository = {
-      submit: vi
-        .fn()
-        .mockResolvedValueOnce({
-          application: application(true),
-          created: true,
-        })
-        .mockResolvedValueOnce({
-          application: application(false),
-          created: false,
-        }),
+      submit: vi.fn().mockResolvedValue({
+        application: application(true),
+        created: true,
+      }),
     };
     const service = new JobApplicationService(repository as never);
     const actor = { userId: "candidate-1", sessionId: "session-1" };
@@ -121,27 +105,27 @@ describe("JobApplicationService direct CV ownership", () => {
         actor,
         "job-1",
         "application-key-00000001",
-        command,
-        new Date("2026-08-01T00:00:00.000Z"),
-        directSource,
+        { ...command, cvUploadId: "upload-clean" },
+        now,
       ),
     ).resolves.toMatchObject({ created: true });
-    await expect(
-      service.submit(
-        actor,
-        "job-1",
-        "application-key-00000001",
-        command,
-        new Date("2026-08-01T00:00:01.000Z"),
-        directSource,
-      ),
-    ).resolves.toMatchObject({ created: false });
 
-    expect(repository.submit).toHaveBeenCalledTimes(2);
-    expect(first.claimOwnership).toHaveBeenCalledOnce();
-    expect(first.cleanup).not.toHaveBeenCalled();
-    expect(retry.claimOwnership).not.toHaveBeenCalled();
-    expect(retry.cleanup).toHaveBeenCalledOnce();
+    expect(finalizeCandidateCvFromUploadMock).toHaveBeenCalledWith({
+      candidateUserId: actor.userId,
+      uploadId: "upload-clean",
+      expectedPurpose: "JOB_APPLICATION_DIRECT",
+      archive: true,
+      now,
+    });
+    expect(repository.submit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        command: expect.objectContaining({
+          cvId: "candidate-cv-clean-upload",
+          cvUploadId: "upload-clean",
+        }),
+        directCv: undefined,
+      }),
+    );
     expect(recordApplicationMock).toHaveBeenCalledOnce();
   });
 });

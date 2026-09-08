@@ -5,7 +5,7 @@ const { baseFixture, createBaseMock, deleteBaseMock, prismaMock } = vi.hoisted(
     const createBaseMock = vi.fn();
     const deleteBaseMock = vi.fn();
     const prismaMock = {
-      candidateCv: { findUniqueOrThrow: vi.fn() },
+      candidateCv: { findUniqueOrThrow: vi.fn(), delete: vi.fn() },
       userAccount: { findUniqueOrThrow: vi.fn() },
       authProviderAccount: { create: vi.fn() },
       companyMembership: { create: vi.fn() },
@@ -29,6 +29,17 @@ vi.mock("@/backend/database/prisma", () => ({ prisma: prismaMock }));
 vi.mock("../../helpers/job-board-database-fixture", () => ({
   createJobBoardDatabaseFixture: createBaseMock,
   deleteJobBoardDatabaseFixture: deleteBaseMock,
+}));
+vi.mock("../../helpers/job-application-cv-fixture", () => ({
+  seedCleanJobApplicationCv: vi.fn().mockResolvedValue({
+    candidateCvId: "candidate-cv-secure-fixture-fault",
+    uploadId: "upload-secure-fixture-fault",
+    artifactId: "artifact-secure-fixture-fault",
+    assessmentId: "assessment-secure-fixture-fault",
+    storageLocator: "secure-fixture-locator-00000000000000000000000000000000",
+    checksumSha256: "a".repeat(64),
+    byteSize: 32_000,
+  }),
 }));
 
 import { createCandidateFirstDatabaseFixture } from "../../helpers/candidate-first-database-fixture";

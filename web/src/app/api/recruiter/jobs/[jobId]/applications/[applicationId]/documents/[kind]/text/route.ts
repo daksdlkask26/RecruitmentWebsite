@@ -237,7 +237,15 @@ export async function GET(
         }
         const extracted = await new IsolatedDocumentExtractor().extract({
           kind: parserKind,
-          scanStatus: "CLEAN",
+          // OpenApplicationDocumentService has already enforced the persisted
+          // CLEAN evidence for CVs. Cover letters use the legacy document
+          // path and are not part of the CV admission boundary.
+          scanStatus:
+            kind === "cv"
+              ? result.document.scanStatus === "CLEAN"
+                ? "CLEAN"
+                : "QUEUED"
+              : "CLEAN",
           source: result.stream,
         });
         segments = extracted.segments;

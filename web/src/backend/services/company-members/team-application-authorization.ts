@@ -7,7 +7,8 @@ export class TeamApplicationAuthorizationError extends Error {
   constructor(
     readonly code:
       | "TEAM_APPLICATION_UNAVAILABLE"
-      | "TEAM_APPLICATION_FORBIDDEN",
+      | "TEAM_APPLICATION_FORBIDDEN"
+      | "MEMBERSHIP_REQUIRED",
   ) {
     super(code);
   }

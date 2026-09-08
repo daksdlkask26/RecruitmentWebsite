@@ -1312,11 +1312,30 @@ export const CvParserClass = {
 export type CvParserClass = (typeof CvParserClass)[keyof typeof CvParserClass]
 
 
+export const CvUploadPurpose = {
+  PROFILE_IMPORT: 'PROFILE_IMPORT',
+  PROFILE_DIRECT: 'PROFILE_DIRECT',
+  JOB_APPLICATION_DIRECT: 'JOB_APPLICATION_DIRECT',
+  TEAM_APPLICATION_DIRECT: 'TEAM_APPLICATION_DIRECT'
+} as const
+
+export type CvUploadPurpose = (typeof CvUploadPurpose)[keyof typeof CvUploadPurpose]
+
+
+export const CvProcessingMode = {
+  IMPORT_AND_PARSE: 'IMPORT_AND_PARSE',
+  SCAN_ONLY: 'SCAN_ONLY'
+} as const
+
+export type CvProcessingMode = (typeof CvProcessingMode)[keyof typeof CvProcessingMode]
+
+
 export const CvUploadStatus = {
   AWAITING_CONTENT: 'AWAITING_CONTENT',
   VALIDATION_QUEUED: 'VALIDATION_QUEUED',
   SCAN_QUEUED: 'SCAN_QUEUED',
   SCANNING: 'SCANNING',
+  SECURITY_CLEAN: 'SECURITY_CLEAN',
   EXTRACTION_QUEUED: 'EXTRACTION_QUEUED',
   EXTRACTING: 'EXTRACTING',
   AWAITING_CONSENT: 'AWAITING_CONSENT',

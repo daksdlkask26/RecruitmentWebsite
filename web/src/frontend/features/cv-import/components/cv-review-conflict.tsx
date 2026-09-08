@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 import type { CvReviewConflict } from "../client/use-cv-draft-review";
 import { useWorkspaceLocale } from "../../dashboard/client/workspace-locale";
@@ -29,7 +29,7 @@ export function CvReviewConflictPanel({
   const locale = useWorkspaceLocale();
   const copy = cvCopy(locale).review;
   const heading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => heading.current?.focus(), []);
+  useLayoutEffect(() => heading.current?.focus(), []);
   return (
     <section
       className={styles.root}

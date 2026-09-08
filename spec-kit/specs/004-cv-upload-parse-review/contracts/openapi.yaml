@@ -634,6 +634,7 @@ components:
         - VALIDATION_QUEUED
         - SCAN_QUEUED
         - SCANNING
+        - SECURITY_CLEAN
         - EXTRACTION_QUEUED
         - EXTRACTING
         - AWAITING_CONSENT

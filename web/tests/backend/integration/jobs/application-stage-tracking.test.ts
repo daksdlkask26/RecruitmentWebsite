@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { DIRECT_APPLICATION_CV_ID } from "@/shared/contracts/jobs/actions";
-import { prepareDirectApplicationCv } from "@/backend/services/jobs/prepare-direct-application-cv";
+import { createHash } from "node:crypto";
 import { createCvWorkerStorage } from "@/backend/cv/workers/cv-worker-resources";
-import { createSyntheticPdf } from "../../../helpers/cv-document-buffers";
+import { OpenSafeCvArtifactService } from "@/backend/services/cv-admission/open-safe-cv-artifact-service";
+import { seedCleanJobApplicationCv } from "../../../helpers/job-application-cv-fixture";
 
 const databaseAvailable = Boolean(process.env.DATABASE_URL);
 
@@ -18,6 +18,7 @@ describe.skipIf(!databaseAvailable)(
     let documentLocator: string | undefined;
     let directCvId: string;
     let contentDigest: string;
+    let secureCv: Awaited<ReturnType<typeof seedCleanJobApplicationCv>>;
 
     beforeAll(async () => {
       fixture = await (
@@ -26,23 +27,14 @@ describe.skipIf(!databaseAvailable)(
       const repository = new (
         await import("@/backend/repositories/jobs/prisma-job-application-repository")
       ).PrismaJobApplicationRepository();
-      // Stage tracking needs a real eligible document, not the generic job
-      // fixture's metadata-only profile CV. Preserve the storage/ledger path.
-      const bytes = createSyntheticPdf("application stage tracking");
-      const prepared = await prepareDirectApplicationCv(
-        {
-          fileName: "stage-tracking.pdf",
-          mimeType: "application/pdf",
-          byteSize: bytes.length,
-          source: (async function* () {
-            yield bytes;
-          })(),
-        },
-        { deferStorage: true },
-      );
-      documentLocator = prepared.storageKey;
-      directCvId = prepared.id;
-      contentDigest = prepared.checksumSha256;
+      secureCv = await seedCleanJobApplicationCv({
+        candidateUserId: fixture.userIds[0]!,
+        now: fixture.now,
+        label: "stage-tracking",
+      });
+      documentLocator = secureCv.storageLocator;
+      directCvId = secureCv.candidateCvId;
+      contentDigest = secureCv.checksumSha256;
       const submissionInput = {
         candidateUserId: fixture.userIds[0]!,
         sessionId: "candidate-session",
@@ -50,7 +42,7 @@ describe.skipIf(!databaseAvailable)(
         idempotencyKey: "stage-tracking-key-0001",
         submissionBindingDigest: "c".repeat(64),
         command: {
-          cvId: DIRECT_APPLICATION_CV_ID,
+          cvId: directCvId,
           answers: fixture.jobs.active.questions.map((question) => ({
             questionId: question.id,
             value: question.kind === "BOOLEAN" ? true : "Five years",
@@ -59,7 +51,6 @@ describe.skipIf(!databaseAvailable)(
           consentVersion: "2026-08-01",
           consentAccepted: true as const,
         },
-        directCv: prepared,
         activeConsentVersion: "2026-08-01",
         occurredAt: fixture.now,
         correlationId: "correlation-stage-tracking",
@@ -95,33 +86,22 @@ describe.skipIf(!databaseAvailable)(
       }
     });
 
-    it("binds a direct upload to the concrete CV and one committed digest ledger on replay", async () => {
+    it("binds a scanned upload to the concrete CV and preserves its evidence on replay", async () => {
       const prisma = (await import("@/backend/database/prisma")).prisma;
       const application = await prisma.jobApplication.findUniqueOrThrow({
         where: { id: applicationId },
         include: { applicationDocuments: true },
       });
-      expect(directCvId).not.toBe(DIRECT_APPLICATION_CV_ID);
       expect(application.selectedCvId).toBe(directCvId);
       expect(application.applicationDocuments).toHaveLength(1);
       expect(application.applicationDocuments[0]).toMatchObject({
         sourceCandidateCvId: directCvId,
         storageKeyEncrypted: documentLocator,
         contentDigestHmac: contentDigest,
+        sourceArtifactId: secureCv.artifactId,
+        scanAssessmentId: secureCv.assessmentId,
+        safetyAssessmentId: secureCv.assessmentId,
       });
-      expect(
-        await prisma.applicationArtifactPromotion.findMany({
-          where: {
-            candidateUserId: fixture.userIds[0]!,
-            storageKeyEncrypted: documentLocator,
-          },
-        }),
-      ).toEqual([
-        expect.objectContaining({
-          state: "COMMITTED",
-          contentDigestSha256: contentDigest,
-        }),
-      ]);
       expect(
         await prisma.jobApplication.count({
           where: {
@@ -130,15 +110,21 @@ describe.skipIf(!databaseAvailable)(
           },
         }),
       ).toBe(1);
-      const storage = createCvWorkerStorage();
-      await storage.assertReady();
       const chunks: Uint8Array[] = [];
-      for await (const chunk of storage.open(
-        documentLocator!,
-        application.applicationDocuments[0]!.byteLength,
-      ))
+      const opened = await new OpenSafeCvArtifactService().open({
+        candidateUserId: fixture.userIds[0]!,
+        uploadId: secureCv.uploadId,
+        artifactId: secureCv.artifactId,
+        assessmentId: secureCv.assessmentId,
+        allowedPurposes: [
+          "PROFILE_IMPORT",
+          "PROFILE_DIRECT",
+          "JOB_APPLICATION_DIRECT",
+        ],
+      });
+      for await (const chunk of opened.openStream())
         chunks.push(chunk);
-      const { createHash } = await import("node:crypto");
+      await opened.dispose();
       expect(
         createHash("sha256").update(Buffer.concat(chunks)).digest("hex"),
       ).toBe(contentDigest);

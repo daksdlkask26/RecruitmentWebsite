@@ -2,14 +2,25 @@
 
 import Link from "next/link";
 import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect } from "react";
 import { mutateWithCurrentCsrf } from "@/frontend/features/authentication/client/current-csrf-proof";
 import { useCsrfProof } from "@/frontend/features/authentication/client/csrf-proof-context";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
+import type { CvUploadStatus } from "@/shared/contracts/cv-import/common";
 import {
   candidateTeamApplicationSchema,
   type CandidateTeamApplication,
   type TeamRole,
 } from "@/shared/contracts/company-members/team-applications";
+import {
+  clearCvSecurityUploadId,
+  newCvSecurityIdempotencyKey,
+  pollCvSecurityUpload,
+  readCvSecurityUploadId,
+  requestCvSecurityRetry,
+  saveCvSecurityUploadId,
+  CvSecurityUploadError,
+} from "@/frontend/lib/cv-security-upload";
 import type { CompanyCopy } from "./i18n/company-copy";
 import styles from "./candidate-company-screen.module.css";
 import { getCompanyCopy } from "./i18n/company-copy";
@@ -65,6 +76,7 @@ export function TeamApplicationForm({
   const copy = getCompanyCopy(useWorkspaceLocale());
   const csrf = useCsrfProof();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const admissionIdempotencyKey = useRef<string | null>(null);
   const [role, setRole] = useState<TeamRole>(initialRole);
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -72,6 +84,104 @@ export function TeamApplicationForm({
   const [application, setApplication] =
     useState<CandidateTeamApplication | null>(null);
   const [busy, setBusy] = useState(false);
+  const [securityStatus, setSecurityStatus] = useState<CvUploadStatus | null>(
+    null,
+  );
+  const [securityRetryable, setSecurityRetryable] = useState(false);
+  const securityAbortController = useRef<AbortController | null>(null);
+  const securityScope = `team-application:${companyId}`;
+
+  function securityMessage(caught: unknown) {
+    if (caught instanceof CvSecurityUploadError) {
+      if (caught.status === "INFECTED") return copy.cvInfected;
+      if (caught.retryable || securityRetryable) return copy.cvRetryable;
+      return copy.cvStatusError;
+    }
+    return caught instanceof Error ? caught.message : copy.submitError;
+  }
+
+  async function finalizeCleanUpload(uploadId: string) {
+    const finalizeRes = await mutateWithCurrentCsrf(
+      "/api/candidate/team-applications",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ companyId, role, uploadId }),
+      },
+      csrf,
+    );
+    const finalBody: unknown = await finalizeRes.json().catch(() => null);
+    const existing = candidateTeamApplicationSchema.safeParse(finalBody);
+    if (existing.success) {
+      clearCvSecurityUploadId(securityScope);
+      setSecurityStatus("SECURITY_CLEAN");
+      setSecurityRetryable(false);
+      setApplication(existing.data);
+      admissionIdempotencyKey.current = null;
+      return;
+    }
+    throw new Error(messageFrom(finalBody, copy, copy.submitError));
+  }
+
+  async function waitForCleanUpload(uploadId: string) {
+    saveCvSecurityUploadId(securityScope, uploadId);
+    setSecurityStatus("SCANNING");
+    setSecurityRetryable(false);
+    const controller = new AbortController();
+    securityAbortController.current = controller;
+    try {
+      const result = await pollCvSecurityUpload(uploadId, {
+        signal: controller.signal,
+      });
+      setSecurityStatus(result.status);
+      const retryable = [
+        "SCAN_FAILED",
+        "EXTRACTION_FAILED",
+        "PARSE_FAILED",
+      ].includes(result.status);
+      setSecurityRetryable(retryable);
+      if (!result.clean) {
+        if (!retryable) clearCvSecurityUploadId(securityScope);
+        throw new CvSecurityUploadError(
+          "CV_SECURITY_REJECTED",
+          result.status === "INFECTED" ? copy.cvInfected : copy.cvStatusError,
+          { retryable, status: result.status },
+        );
+      }
+      await finalizeCleanUpload(uploadId);
+    } finally {
+      if (securityAbortController.current === controller)
+        securityAbortController.current = null;
+    }
+  }
+
+  async function resumeSecurityUpload(uploadId: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      await waitForCleanUpload(uploadId);
+    } catch (caught: unknown) {
+      if (caught instanceof DOMException && caught.name === "AbortError") return;
+      setError(securityMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    const uploadId = readCvSecurityUploadId(securityScope);
+    if (!uploadId || application) return;
+    const resumeTimer = window.setTimeout(
+      () => void resumeSecurityUpload(uploadId),
+      0,
+    );
+    return () => {
+      window.clearTimeout(resumeTimer);
+      securityAbortController.current?.abort();
+    };
+    // Resume only the opaque upload id for this company; form fields remain local.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [securityScope]);
 
   function chooseFile(event: ChangeEvent<HTMLInputElement>) {
     const next = event.target.files?.[0] ?? null;
@@ -91,24 +201,68 @@ export function TeamApplicationForm({
     setBusy(true);
     setError(null);
     try {
+      admissionIdempotencyKey.current ??=
+        globalThis.crypto?.randomUUID?.() ??
+        "team-cv-upload-" + Date.now() + "-key";
       const form = new FormData();
       form.append("companyId", companyId);
       form.append("role", role);
       form.append("cv", file!, file!.name);
       const response = await mutateWithCurrentCsrf(
         "/api/candidate/team-applications",
-        { method: "POST", body: form },
+        {
+          method: "POST",
+          headers: { "Idempotency-Key": admissionIdempotencyKey.current },
+          body: form,
+        },
         csrf,
       );
       const body: unknown = await response.json().catch(() => null);
+
+      // Handle 2-step admission: 202 Accepted with uploadId
+      if (
+        response.status === 202 &&
+        body &&
+        typeof body === "object" &&
+        "uploadId" in body
+      ) {
+        const uploadIdValue = (body as { uploadId?: unknown }).uploadId;
+        if (typeof uploadIdValue !== "string" || !uploadIdValue) {
+          throw new Error(copy.submitError);
+        }
+        await waitForCleanUpload(uploadIdValue);
+        return;
+      }
+
       const existing = candidateTeamApplicationSchema.safeParse(body);
       if (existing.success) {
         setApplication(existing.data);
+        admissionIdempotencyKey.current = null;
         return;
       }
       throw new Error(messageFrom(body, copy, copy.submitError));
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : copy.submitError);
+      admissionIdempotencyKey.current = null;
+      setError(securityMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function retrySecurityCheck() {
+    const uploadId = readCvSecurityUploadId(securityScope);
+    if (!uploadId || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await requestCvSecurityRetry(
+        uploadId,
+        newCvSecurityIdempotencyKey("team-cv-retry"),
+        (path, init) => mutateWithCurrentCsrf(path, init, csrf),
+      );
+      await waitForCleanUpload(uploadId);
+    } catch (caught) {
+      setError(securityMessage(caught));
     } finally {
       setBusy(false);
     }
@@ -210,6 +364,27 @@ export function TeamApplicationForm({
             <p className={styles.error} role="alert">
               {error}
             </p>
+          ) : null}
+          {securityStatus && !application ? (
+            <p className={styles.fileHint} role="status" aria-live="polite">
+              {busy
+                ? copy.cvScanning
+                : securityRetryable
+                  ? copy.cvRetryable
+                  : securityStatus === "SECURITY_CLEAN"
+                    ? copy.cvReady
+                    : copy.cvStatusError}
+            </p>
+          ) : null}
+          {securityRetryable && !application ? (
+            <button
+              className={`${styles.button} ${styles.secondary}`}
+              type="button"
+              onClick={() => void retrySecurityCheck()}
+              disabled={busy}
+            >
+              {copy.retryCv}
+            </button>
           ) : null}
           <button className={styles.button} type="submit" disabled={busy}>
             {busy ? copy.submitting : copy.apply(copy.roleLabel(role))}

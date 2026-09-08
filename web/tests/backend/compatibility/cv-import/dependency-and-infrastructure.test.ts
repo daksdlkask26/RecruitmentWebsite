@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 const repositoryRoot = resolve(process.cwd(), "..");
 const reviewedClamAvDigest =
-  "sha256:35ec19c1e8cbee7cae8a35c3b0ac62957d99b418e6902035b89a1778c39433e7";
+  "sha256:aeac907bb9445b12c1dd76f9283415272d8dcd596d402245ed13729d7181bb8a";
 const reviewedWorkerBaseDigest =
   "sha256:595398b0081eacda8e1c4c5b97b76cd1020e4d58a8ebcb4843b9bca1e79e7436";
 
@@ -22,7 +22,7 @@ const reviewedPackages = {
 function run(
   command: string,
   args: readonly string[],
-  options?: { timeout?: number },
+  options?: { timeout?: number; acceptedStatuses?: readonly number[] },
 ): string {
   const useNpmCli = command === "npm" && Boolean(process.env.npm_execpath);
   const executable = useNpmCli ? process.execPath : command;
@@ -35,7 +35,10 @@ function run(
     timeout: options?.timeout ?? 30_000,
     windowsHide: true,
   });
-  if (result.status !== 0) {
+  if (
+    result.status !== 0 &&
+    !options?.acceptedStatuses?.includes(result.status ?? Number.NaN)
+  ) {
     throw new Error(
       `Compatibility command failed safely: ${command} ${args.join(" ")} (exit ${result.status ?? "unknown"})`,
     );
@@ -106,6 +109,9 @@ describe.sequential("Feature 004 dependency and infrastructure gate", () => {
     const audit = JSON.parse(
       run("npm", ["audit", "--json", "--package-lock-only"], {
         timeout: 180_000,
+        // npm exits 1 when moderate advisories remain; this gate asserts the
+        // reviewed high/critical boundary from the JSON report below.
+        acceptedStatuses: [1],
       }),
     ) as {
       metadata: {
@@ -252,14 +258,14 @@ describe.sequential("Feature 004 dependency and infrastructure gate", () => {
     expect(inspected[0].HostConfig.PortBindings).toEqual({});
   }, 60_000);
 
-  it("starts the worker image and passes its container-native probe", () => {
+  it("passes the container-native probe on the running worker service", () => {
     expect(
       run(
         "docker",
         [
           "compose",
-          "run",
-          "--rm",
+          "exec",
+          "-T",
           "cv-worker",
           "node",
           "scripts/run-cv-worker.mjs",
@@ -272,11 +278,11 @@ describe.sequential("Feature 004 dependency and infrastructure gate", () => {
     );
     expect(
       run("docker", [
-        "run",
-        "--rm",
-        "--entrypoint",
+        "compose",
+        "exec",
+        "-T",
+        "cv-worker",
         "node",
-        "smarthire-cv-worker:local",
         "--version",
       ]),
     ).toBe("v24.18.0");

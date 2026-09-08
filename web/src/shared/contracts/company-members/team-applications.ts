@@ -37,8 +37,21 @@ export const teamApplicationSubmitSchema = z
   .object({
     companyId: z.string().trim().min(1).max(128),
     role: teamRoleSchema,
+    uploadId: z.string().trim().min(1).max(128).optional(),
   })
   .strict();
+
+export const teamApplicationFinalizeSchema = z
+  .object({
+    companyId: z.string().trim().min(1).max(128),
+    role: teamRoleSchema,
+    uploadId: z.string().trim().min(1).max(128),
+  })
+  .strict();
+
+export type TeamApplicationFinalize = z.infer<
+  typeof teamApplicationFinalizeSchema
+>;
 
 export const teamApplicationRejectSchema = z
   .object({

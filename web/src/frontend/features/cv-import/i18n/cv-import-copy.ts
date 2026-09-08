@@ -20,6 +20,7 @@ const statuses: Record<CvUploadStatus, Bilingual> = {
     vi: "Đã xếp hàng quét bảo mật",
   },
   SCANNING: { en: "Scanning", vi: "Đang quét" },
+  SECURITY_CLEAN: { en: "Security verified", vi: "Đã xác minh an toàn" },
   EXTRACTION_QUEUED: {
     en: "Queued for text extraction",
     vi: "Đã xếp hàng trích xuất văn bản",

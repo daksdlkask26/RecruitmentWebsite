@@ -2278,6 +2278,20 @@ export type EnumRecruitmentNotificationKindWithAggregatesFilter<$PrismaModel = n
   _max?: Prisma.NestedEnumRecruitmentNotificationKindFilter<$PrismaModel>
 }
 
+export type EnumCvUploadPurposeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CvUploadPurpose | Prisma.EnumCvUploadPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.CvUploadPurpose[] | Prisma.ListEnumCvUploadPurposeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CvUploadPurpose[] | Prisma.ListEnumCvUploadPurposeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCvUploadPurposeFilter<$PrismaModel> | $Enums.CvUploadPurpose
+}
+
+export type EnumCvProcessingModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CvProcessingMode | Prisma.EnumCvProcessingModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CvProcessingMode[] | Prisma.ListEnumCvProcessingModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CvProcessingMode[] | Prisma.ListEnumCvProcessingModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCvProcessingModeFilter<$PrismaModel> | $Enums.CvProcessingMode
+}
+
 export type EnumCvDocumentKindFilter<$PrismaModel = never> = {
   equals?: $Enums.CvDocumentKind | Prisma.EnumCvDocumentKindFieldRefInput<$PrismaModel>
   in?: $Enums.CvDocumentKind[] | Prisma.ListEnumCvDocumentKindFieldRefInput<$PrismaModel>
@@ -2311,6 +2325,26 @@ export type BytesFilter<$PrismaModel = never> = {
   in?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
   notIn?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
   not?: Prisma.NestedBytesFilter<$PrismaModel> | runtime.Bytes
+}
+
+export type EnumCvUploadPurposeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CvUploadPurpose | Prisma.EnumCvUploadPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.CvUploadPurpose[] | Prisma.ListEnumCvUploadPurposeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CvUploadPurpose[] | Prisma.ListEnumCvUploadPurposeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCvUploadPurposeWithAggregatesFilter<$PrismaModel> | $Enums.CvUploadPurpose
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCvUploadPurposeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCvUploadPurposeFilter<$PrismaModel>
+}
+
+export type EnumCvProcessingModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CvProcessingMode | Prisma.EnumCvProcessingModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CvProcessingMode[] | Prisma.ListEnumCvProcessingModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CvProcessingMode[] | Prisma.ListEnumCvProcessingModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCvProcessingModeWithAggregatesFilter<$PrismaModel> | $Enums.CvProcessingMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCvProcessingModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCvProcessingModeFilter<$PrismaModel>
 }
 
 export type EnumCvDocumentKindWithAggregatesFilter<$PrismaModel = never> = {
@@ -5374,6 +5408,20 @@ export type NestedEnumRecruitmentNotificationKindWithAggregatesFilter<$PrismaMod
   _max?: Prisma.NestedEnumRecruitmentNotificationKindFilter<$PrismaModel>
 }
 
+export type NestedEnumCvUploadPurposeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CvUploadPurpose | Prisma.EnumCvUploadPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.CvUploadPurpose[] | Prisma.ListEnumCvUploadPurposeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CvUploadPurpose[] | Prisma.ListEnumCvUploadPurposeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCvUploadPurposeFilter<$PrismaModel> | $Enums.CvUploadPurpose
+}
+
+export type NestedEnumCvProcessingModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CvProcessingMode | Prisma.EnumCvProcessingModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CvProcessingMode[] | Prisma.ListEnumCvProcessingModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CvProcessingMode[] | Prisma.ListEnumCvProcessingModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCvProcessingModeFilter<$PrismaModel> | $Enums.CvProcessingMode
+}
+
 export type NestedEnumCvDocumentKindFilter<$PrismaModel = never> = {
   equals?: $Enums.CvDocumentKind | Prisma.EnumCvDocumentKindFieldRefInput<$PrismaModel>
   in?: $Enums.CvDocumentKind[] | Prisma.ListEnumCvDocumentKindFieldRefInput<$PrismaModel>
@@ -5407,6 +5455,26 @@ export type NestedBytesFilter<$PrismaModel = never> = {
   in?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
   notIn?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
   not?: Prisma.NestedBytesFilter<$PrismaModel> | runtime.Bytes
+}
+
+export type NestedEnumCvUploadPurposeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CvUploadPurpose | Prisma.EnumCvUploadPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.CvUploadPurpose[] | Prisma.ListEnumCvUploadPurposeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CvUploadPurpose[] | Prisma.ListEnumCvUploadPurposeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCvUploadPurposeWithAggregatesFilter<$PrismaModel> | $Enums.CvUploadPurpose
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCvUploadPurposeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCvUploadPurposeFilter<$PrismaModel>
+}
+
+export type NestedEnumCvProcessingModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CvProcessingMode | Prisma.EnumCvProcessingModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CvProcessingMode[] | Prisma.ListEnumCvProcessingModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CvProcessingMode[] | Prisma.ListEnumCvProcessingModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCvProcessingModeWithAggregatesFilter<$PrismaModel> | $Enums.CvProcessingMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCvProcessingModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCvProcessingModeFilter<$PrismaModel>
 }
 
 export type NestedEnumCvDocumentKindWithAggregatesFilter<$PrismaModel = never> = {

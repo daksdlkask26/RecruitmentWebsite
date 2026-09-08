@@ -15,10 +15,7 @@ type PromotionRow = Readonly<{
   contentDigestSha256: string | null;
 }>;
 
-async function markPromotionUnknown(
-  id: string,
-  code: string,
-) {
+async function markPromotionUnknown(id: string, code: string) {
   await prisma.applicationArtifactPromotion
     .update({
       where: { id },
@@ -127,7 +124,10 @@ async function reconcileOrphanPromotion(
     const sameScope =
       linkedDocument.application.candidateUserId === orphan.candidateUserId &&
       linkedDocument.application.jobPostingId === orphan.jobPostingId;
-    if (sameScope && orphan.contentDigestSha256 === linkedDocument.contentDigestHmac) {
+    if (
+      sameScope &&
+      orphan.contentDigestSha256 === linkedDocument.contentDigestHmac
+    ) {
       await prisma.applicationArtifactPromotion.update({
         where: { id: orphan.id },
         data: {
@@ -186,7 +186,12 @@ export async function runApplicationRetentionCycle(
     where: {
       profileSnapshotAccessDeniedAt: null,
       profileSnapshotReviewDueAt: { lte: now },
-      legalHolds: { none: { releasedAt: null, OR: [{ endsAt: null }, { endsAt: { gt: now } }] } },
+      legalHolds: {
+        none: {
+          releasedAt: null,
+          OR: [{ endsAt: null }, { endsAt: { gt: now } }],
+        },
+      },
     },
     data: { profileSnapshotAccessDeniedAt: now },
   });
@@ -205,15 +210,31 @@ export async function runApplicationRetentionCycle(
     where: { deleteAfter: { lte: now }, deletedAt: null },
     orderBy: [{ deleteAfter: "asc" }, { id: "asc" }],
     take: limit,
-    select: { id: true, jobApplicationId: true, storageKeyEncrypted: true },
+    select: {
+      id: true,
+      jobApplicationId: true,
+      kind: true,
+      storageKeyEncrypted: true,
+      sourceArtifactId: true,
+    },
   });
   let deleted = 0;
   for (const document of documents) {
     try {
-      await storage.delete(document.storageKeyEncrypted);
+      // A CV document references the immutable encrypted admission artifact;
+      // it may also be used by the candidate profile or another application.
+      // Retiring this projection must not delete shared source bytes.
+      if (document.kind !== "CV" || !document.sourceArtifactId) {
+        await storage.delete(document.storageKeyEncrypted);
+      }
       await prisma.applicationDocument.update({
         where: { id: document.id },
-        data: { deletedAt: now },
+        data: {
+          deletedAt: now,
+          ...(document.kind === "CV"
+            ? { sourceArtifactId: null, scanAssessmentId: null }
+            : {}),
+        },
       });
       const remaining = await prisma.applicationDocument.count({
         where: { jobApplicationId: document.jobApplicationId, deletedAt: null },
@@ -226,10 +247,12 @@ export async function runApplicationRetentionCycle(
       }
       deleted++;
     } catch {
-      await prisma.applicationDocument.update({
-        where: { id: document.id },
-        data: { ordinaryAccessDeniedAt: { set: now } },
-      }).catch(() => undefined);
+      await prisma.applicationDocument
+        .update({
+          where: { id: document.id },
+          data: { ordinaryAccessDeniedAt: { set: now } },
+        })
+        .catch(() => undefined);
     }
   }
 
@@ -246,7 +269,9 @@ export async function runApplicationRetentionCycle(
   });
   if (textRows.length) {
     await prisma.applicationCoverLetterText.updateMany({
-      where: { jobApplicationId: { in: textRows.map((row) => row.jobApplicationId) } },
+      where: {
+        jobApplicationId: { in: textRows.map((row) => row.jobApplicationId) },
+      },
       data: { deletedAt: now, deleteAfter: now },
     });
   }
@@ -280,9 +305,18 @@ export async function runApplicationRetentionCycle(
       );
     }
   }
-  return { claimed: documents.length, deleted, orphans: orphanRows.length, orphansDeleted };
+  return {
+    claimed: documents.length,
+    deleted,
+    orphans: orphanRows.length,
+    orphansDeleted,
+  };
 }
 
 export async function applicationRetentionProbe() {
-  return { worker: "application-retention", orphanDeadlineHours: ORPHAN_DEADLINE / 3_600_000, cleanupEnabled: true };
+  return {
+    worker: "application-retention",
+    orphanDeadlineHours: ORPHAN_DEADLINE / 3_600_000,
+    cleanupEnabled: true,
+  };
 }

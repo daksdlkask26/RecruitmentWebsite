@@ -22,6 +22,10 @@ import {
   type CvStageProcessContext,
 } from "./pipeline";
 import {
+  CV_SECURITY_POLICY_VERSION,
+  CV_SOURCE_MAX_BYTES,
+} from "@/shared/contracts/cv-import/common";
+import {
   createCvWorkerCryptor,
   createCvWorkerIntegrityReader,
   createCvWorkerStorage,
@@ -103,6 +107,7 @@ function isIntegrityFailure(error: unknown): boolean {
 async function persistRejectedContent(input: {
   uploadId: string;
   accountId: string;
+  assessmentId?: string;
   failureCode: string;
   now: Date;
   commitGuard: CvStageResultCommitGuard;
@@ -113,6 +118,18 @@ async function persistRejectedContent(input: {
   );
   await prisma.$transaction(async (transaction) => {
     await assertCvStageResultCommitAllowed(transaction, input.commitGuard);
+    if (input.assessmentId) {
+      await transaction.cvScanAssessment.update({
+        where: { id: input.assessmentId },
+        data: {
+          status: "INDETERMINATE",
+          failureCode: input.failureCode,
+          leaseOwner: null,
+          leaseExpiresAt: null,
+          completedAt: cvWorkerDatabaseTimestamp(input.now),
+        },
+      });
+    }
     await transaction.cvStoredArtifact.updateMany({
       where: {
         uploadId: input.uploadId,
@@ -144,12 +161,25 @@ async function persistRejectedContent(input: {
 async function persistIndeterminateScanFailure(input: {
   uploadId: string;
   accountId: string;
+  assessmentId?: string;
   failureCode: "SCANNER_UNAVAILABLE" | "SCANNER_DEFINITIONS_STALE";
   now: Date;
   commitGuard: CvStageResultCommitGuard;
 }) {
   await prisma.$transaction(async (transaction) => {
     await assertCvStageResultCommitAllowed(transaction, input.commitGuard);
+    if (input.assessmentId) {
+      await transaction.cvScanAssessment.update({
+        where: { id: input.assessmentId },
+        data: {
+          status: "INDETERMINATE",
+          failureCode: input.failureCode,
+          leaseOwner: null,
+          leaseExpiresAt: null,
+          completedAt: cvWorkerDatabaseTimestamp(input.now),
+        },
+      });
+    }
     await transaction.cvUpload.updateMany({
       where: {
         id: input.uploadId,
@@ -185,6 +215,23 @@ export class ScanStageProcessor {
         accountId: claim.accountId,
         status: "PROCESSING",
         leaseOwner: claim.leaseOwner,
+        policyVersion: CV_SECURITY_POLICY_VERSION,
+        upload: {
+          is: {
+            status: { in: ["VALIDATION_QUEUED", "SCAN_QUEUED", "SCANNING"] },
+            expiresAt: { gt: context.now },
+            contentInaccessibleAt: null,
+            deletedAt: null,
+          },
+        },
+        sourceArtifact: {
+          is: {
+            kind: "SOURCE_DOCUMENT",
+            status: "QUARANTINED",
+            contentInaccessibleAt: null,
+            deletedAt: null,
+          },
+        },
       },
       select: {
         id: true,
@@ -201,6 +248,9 @@ export class ScanStageProcessor {
             documentKind: true,
             declaredMediaType: true,
             expiresAt: true,
+            purpose: true,
+            processingMode: true,
+            policyVersion: true,
           },
         },
         sourceArtifact: {
@@ -262,6 +312,7 @@ export class ScanStageProcessor {
         await persistIndeterminateScanFailure({
           uploadId: upload.id,
           accountId: upload.accountId,
+          assessmentId: work.id,
           failureCode: "SCANNER_UNAVAILABLE",
           now: completion,
           commitGuard: this.resultCommitGuard(claim, completion),
@@ -276,12 +327,19 @@ export class ScanStageProcessor {
       upload.status === "VALIDATION_QUEUED" ||
       upload.status === "SCAN_QUEUED" ||
       upload.status === "SCANNING";
+    const processingContractValid =
+      (upload.purpose === "PROFILE_IMPORT" &&
+        upload.processingMode === "IMPORT_AND_PARSE") ||
+      (upload.purpose !== "PROFILE_IMPORT" &&
+        upload.processingMode === "SCAN_ONLY");
     const metadataValid =
+      upload.policyVersion === CV_SECURITY_POLICY_VERSION &&
+      processingContractValid &&
       artifact.kind === "SOURCE_DOCUMENT" &&
       artifact.accountId === upload.accountId &&
       artifact.plaintextBytes === upload.actualBytes &&
       upload.actualBytes === upload.declaredBytes &&
-      upload.declaredBytes <= 5_000_000 &&
+      upload.declaredBytes <= CV_SOURCE_MAX_BYTES &&
       ((upload.documentKind === "PDF" &&
         upload.declaredMediaType === "application/pdf") ||
         (upload.documentKind === "DOC" &&
@@ -294,6 +352,7 @@ export class ScanStageProcessor {
       await persistRejectedContent({
         uploadId: upload.id,
         accountId: upload.accountId,
+        assessmentId: work.id,
         failureCode: "CONTENT_LENGTH_MISMATCH",
         now: completion,
         commitGuard: this.resultCommitGuard(claim, completion),
@@ -316,6 +375,7 @@ export class ScanStageProcessor {
       await persistRejectedContent({
         uploadId: upload.id,
         accountId: upload.accountId,
+        assessmentId: work.id,
         failureCode: "ARTIFACT_INTEGRITY_FAILED",
         now: completion,
         commitGuard: this.resultCommitGuard(claim, completion),
@@ -352,6 +412,7 @@ export class ScanStageProcessor {
         await persistRejectedContent({
           uploadId: upload.id,
           accountId: upload.accountId,
+          assessmentId: work.id,
           failureCode: "UNSUPPORTED_DOCUMENT",
           now: completion,
           commitGuard: this.resultCommitGuard(claim, completion),
@@ -375,7 +436,10 @@ export class ScanStageProcessor {
       try {
         result = await this.dependencies.scanner.scan(verified.open());
         metadata = this.dependencies.scanner.assessmentMetadata();
-        if (result.outcome === "CLEAN" && !metadata) {
+        if (
+          result.outcome === "CLEAN" &&
+          (!metadata || result.engineVersion !== metadata.engineVersion)
+        ) {
           throw Object.assign(new Error("CV_SCANNER_PROTOCOL_INVALID"), {
             code: "CV_SCANNER_PROTOCOL_INVALID",
           });
@@ -390,6 +454,7 @@ export class ScanStageProcessor {
         await persistIndeterminateScanFailure({
           uploadId: upload.id,
           accountId: upload.accountId,
+          assessmentId: work.id,
           failureCode,
           now: completion,
           commitGuard: this.resultCommitGuard(claim, completion),
@@ -409,16 +474,23 @@ export class ScanStageProcessor {
           );
           await transaction.cvScanAssessment.update({
             where: { id: work.id },
-            data: metadata
-              ? {
-                  engineName: "clamav",
-                  engineVersion: metadata.engineVersion,
-                  signatureVersion: metadata.signatureVersion,
-                  signaturePublishedAt: cvWorkerDatabaseTimestamp(
-                    metadata.publishedAt,
-                  ),
-                }
-              : { engineName: "clamav" },
+            data: {
+              status: "INFECTED",
+              failureCode: "MALWARE_DETECTED",
+              leaseOwner: null,
+              leaseExpiresAt: null,
+              completedAt: cvWorkerDatabaseTimestamp(completion),
+              ...(metadata
+                ? {
+                    engineName: "clamav",
+                    engineVersion: metadata.engineVersion,
+                    signatureVersion: metadata.signatureVersion,
+                    signaturePublishedAt: cvWorkerDatabaseTimestamp(
+                      metadata.publishedAt,
+                    ),
+                  }
+                : { engineName: "clamav" }),
+            },
             select: { id: true },
           });
           await transaction.cvStoredArtifact.updateMany({
@@ -463,6 +535,7 @@ export class ScanStageProcessor {
         await persistIndeterminateScanFailure({
           uploadId: upload.id,
           accountId: upload.accountId,
+          assessmentId: work.id,
           failureCode: "SCANNER_UNAVAILABLE",
           now: completion,
           commitGuard: this.resultCommitGuard(claim, completion),
@@ -480,45 +553,59 @@ export class ScanStageProcessor {
         await transaction.cvScanAssessment.update({
           where: { id: work.id },
           data: {
+            status: "CLEAN",
             engineName: "clamav",
             engineVersion: result.engineVersion,
             signatureVersion: metadata.signatureVersion,
             signaturePublishedAt: cvWorkerDatabaseTimestamp(
               metadata.publishedAt,
             ),
+            failureCode: null,
+            leaseOwner: null,
+            leaseExpiresAt: null,
+            completedAt: cvWorkerDatabaseTimestamp(completion),
           },
           select: { id: true },
         });
-        const existing = await transaction.cvExtraction.findFirst({
-          where: { uploadId: upload.id, attemptNumber: work.attemptNumber },
-          select: { id: true },
-        });
-        if (!existing)
-          await transaction.cvExtraction.create({
-            data: {
-              id: randomUUID(),
-              uploadId: upload.id,
-              sourceArtifactId: artifact.id,
-              scanAssessmentId: work.id,
-              accountId: upload.accountId,
-              attemptNumber: work.attemptNumber,
-              status: "QUEUED",
-            },
+        if (upload.processingMode === "IMPORT_AND_PARSE") {
+          const existing = await transaction.cvExtraction.findFirst({
+            where: { uploadId: upload.id, attemptNumber: work.attemptNumber },
             select: { id: true },
           });
+          if (!existing)
+            await transaction.cvExtraction.create({
+              data: {
+                id: randomUUID(),
+                uploadId: upload.id,
+                sourceArtifactId: artifact.id,
+                scanAssessmentId: work.id,
+                accountId: upload.accountId,
+                attemptNumber: work.attemptNumber,
+                status: "QUEUED",
+              },
+              select: { id: true },
+            });
+        }
         await transaction.cvStoredArtifact.update({
           where: { id: artifact.id },
           data: {
             status: "AVAILABLE",
             availableAt: cvWorkerDatabaseTimestamp(completion),
-            deleteAfter: upload.expiresAt,
+            // AVAILABLE artifacts are retained by their business projection.
+            // Unclaimed admissions are scheduled by CvRetentionService when
+            // the upload expires; a global timestamp here could delete an
+            // active profile/application/team CV after the admission TTL.
+            deleteAfter: null,
           },
           select: { id: true },
         });
         await transaction.cvUpload.update({
           where: { id: upload.id },
           data: {
-            status: "EXTRACTION_QUEUED",
+            status:
+              upload.processingMode === "IMPORT_AND_PARSE"
+                ? "EXTRACTION_QUEUED"
+                : "SECURITY_CLEAN",
             failureCode: null,
           },
           select: { id: true },
@@ -531,6 +618,7 @@ export class ScanStageProcessor {
       await persistRejectedContent({
         uploadId: upload.id,
         accountId: upload.accountId,
+        assessmentId: work.id,
         failureCode: "ARTIFACT_INTEGRITY_FAILED",
         now: completion,
         commitGuard: this.resultCommitGuard(claim, completion),

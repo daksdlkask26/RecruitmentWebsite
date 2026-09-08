@@ -1,6 +1,5 @@
 import "server-only";
 
-import { createHash } from "node:crypto";
 import {
   logCvClassificationOutcome,
   logCvScoringFailure,
@@ -13,12 +12,6 @@ import {
 import { extractDocx } from "@/backend/cv/extraction/docx";
 import { extractPdf } from "@/backend/cv/extraction/pdf";
 import { extractLegacyDocText } from "@/backend/cv/extraction/legacy-doc";
-import {
-  createCvWorkerCryptor,
-  createCvWorkerIntegrityReader,
-  createCvWorkerStorage,
-} from "@/backend/cv/workers/cv-worker-resources";
-import { CvStorageError } from "@/backend/cv/storage/private-cv-storage";
 import {
   Feature012AiEvaluationAdapter,
   Feature012AutomaticMatchingAdapter,
@@ -52,6 +45,7 @@ import {
   PRIVATE_SCORING_CONFIG_VERSION,
 } from "./private-cv-match-service";
 import { jsonRecord } from "./private-match-types";
+import { OpenSafeCvArtifactService } from "@/backend/services/cv-admission/open-safe-cv-artifact-service";
 
 const AI_FALLBACK_CODE = "AI_EVALUATION_UNAVAILABLE";
 const positiveInteger = (name: string, fallback: number) => {
@@ -171,6 +165,7 @@ async function extractText(
   extractor: IsolatedDocumentExtractor,
   kind: "PDF" | "DOC" | "DOCX",
   source: Uint8Array,
+  scanStatus: "CLEAN",
 ): Promise<{ text: string; pageCount: number | null }> {
   if (kind === "DOC") {
     const extracted = extractLegacyDocText(source);
@@ -185,7 +180,7 @@ async function extractText(
   try {
     const extracted = await extractor.extract({
       kind,
-      scanStatus: "CLEAN",
+      scanStatus,
       source,
     });
     return {
@@ -229,134 +224,47 @@ async function sourceCandidateCvText(input: {
   if (!kind) throw new Error("CV_FORMAT_UNSUPPORTED");
   const cv = await prisma.candidateCv.findFirst({
     where: { id: input.cvVersionId, candidateUserId: input.candidateUserId },
-    select: { storageKey: true },
+    select: {
+      checksumSha256: true,
+      sourceArtifactId: true,
+      scanAssessmentId: true,
+      sourceArtifact: { select: { uploadId: true } },
+    },
   });
   if (!cv) throw new Error("CV_SOURCE_UNAVAILABLE");
-  const storage = createCvWorkerStorage();
-  await storage.assertReady();
-  const extractor = new IsolatedDocumentExtractor();
-
-  // Directly uploaded candidate CVs use a private storage locator. Confirmed
-  // imported CVs normally use the materialized locator too, but older/local
-  // projections can lose that plaintext object while the encrypted artifact
-  // remains available. Use the immutable CV id to recover the upload id and
-  // fall back to the encrypted artifact only for a missing direct object.
-  const uploadId = input.cvVersionId.startsWith("candidate-cv-")
-    ? input.cvVersionId.slice("candidate-cv-".length)
-    : cv.storageKey.startsWith("candidate-cv-")
-      ? cv.storageKey.slice("candidate-cv-".length)
-      : null;
-  if (!cv.storageKey.startsWith("candidate-cv-")) {
-    try {
-      const source = await bytesFrom(
-        storage.open(cv.storageKey, input.byteSize),
-        input.byteSize,
-      );
-      const digest = createHash("sha256").update(source).digest("hex");
-      if (digest !== input.checksumSha256.toLowerCase())
-        throw new Error("CV_DIGEST_MISMATCH");
-      return extractText(extractor, kind, source);
-    } catch (error) {
-      if (
-        !uploadId ||
-        !(error instanceof CvStorageError) ||
-        error.code !== "CV_STORAGE_OBJECT_NOT_FOUND"
-      ) {
-        throw error;
-      }
-      // Continue with the encrypted import-artifact recovery below.
-    }
-  }
-
-  if (!uploadId) throw new Error("CV_ARTIFACT_UNAVAILABLE");
-  const rows = await prisma.$queryRaw<
-    Array<{
-      id: string;
-      kind: "SOURCE_DOCUMENT" | "EXTRACTED_TEXT";
-      storageLocator: string;
-      encryptionKeyVersion: number;
-      encryptionIvHex: string;
-      authenticationTagHex: string;
-      plaintextBytes: number;
-      ciphertextBytes: number;
-      plaintextSha256Hex: string;
-    }>
-  >`
-    SELECT artifact."id",
-           artifact."kind"::text AS "kind",
-           artifact."storageLocator",
-           artifact."encryptionKeyVersion",
-           encode(artifact."encryptionIv", 'hex') AS "encryptionIvHex",
-           encode(artifact."authenticationTag", 'hex') AS "authenticationTagHex",
-           artifact."plaintextBytes",
-           artifact."ciphertextBytes",
-           encode(artifact."plaintextSha256", 'hex') AS "plaintextSha256Hex"
-      FROM "CvStoredArtifact" artifact
-     WHERE artifact."uploadId" = ${uploadId}
-       AND artifact."accountId" = ${input.candidateUserId}
-       AND artifact."kind" IN ('SOURCE_DOCUMENT', 'EXTRACTED_TEXT')
-       AND artifact."status" = 'AVAILABLE'
-       AND artifact."contentInaccessibleAt" IS NULL
-       AND artifact."deletedAt" IS NULL
-     ORDER BY CASE WHEN artifact."kind" = 'EXTRACTED_TEXT' THEN 0 ELSE 1 END,
-              artifact."availableAt" DESC NULLS LAST,
-              artifact."createdAt" DESC
-  `;
-  const sourceArtifact = rows.find((row) => row.kind === "SOURCE_DOCUMENT");
   if (
-    sourceArtifact &&
-    (sourceArtifact.plaintextBytes !== input.byteSize ||
-      sourceArtifact.plaintextSha256Hex !== input.checksumSha256)
+    !cv.sourceArtifactId ||
+    !cv.scanAssessmentId ||
+    !cv.sourceArtifact?.uploadId
   ) {
-    throw new Error("CV_DIGEST_MISMATCH");
+    throw new Error("CV_SAFETY_EVIDENCE_UNAVAILABLE");
   }
-  const artifact =
-    rows.find((row) => row.kind === "EXTRACTED_TEXT") ?? sourceArtifact;
-  if (!artifact) throw new Error("CV_ARTIFACT_UNAVAILABLE");
-  const verified = await createCvWorkerIntegrityReader(
-    storage,
-    createCvWorkerCryptor(),
-  ).verify({
-    locator: artifact.storageLocator,
-    ciphertextBytes: artifact.ciphertextBytes,
-    plaintextBytes: artifact.plaintextBytes,
-    plaintextSha256: Buffer.from(artifact.plaintextSha256Hex, "hex"),
-    context: {
-      accountId: input.candidateUserId,
-      uploadId,
-      artifactId: artifact.id,
-      kind: artifact.kind,
-    },
-    envelope: {
-      keyVersion: artifact.encryptionKeyVersion,
-      iv: Buffer.from(artifact.encryptionIvHex, "hex"),
-      authenticationTag: Buffer.from(artifact.authenticationTagHex, "hex"),
-    },
+  const extractor = new IsolatedDocumentExtractor();
+  const opened = await new OpenSafeCvArtifactService().open({
+    candidateUserId: input.candidateUserId,
+    uploadId: cv.sourceArtifact.uploadId,
+    artifactId: cv.sourceArtifactId,
+    assessmentId: cv.scanAssessmentId,
+    allowedPurposes: [
+      "PROFILE_IMPORT",
+      "PROFILE_DIRECT",
+      "JOB_APPLICATION_DIRECT",
+    ],
   });
   try {
-    if (artifact.kind === "EXTRACTED_TEXT") {
-      let serialized = "";
-      for await (const chunk of verified.open())
-        serialized += Buffer.from(chunk).toString("utf8");
-      const extractedText = serialized
-        .split(/\r?\n/u)
-        .map((line) => {
-          try {
-            const value = JSON.parse(line) as { text?: unknown };
-            return typeof value.text === "string" ? value.text : "";
-          } catch {
-            return "";
-          }
-        })
-        .filter(Boolean)
-        .join("\n")
-        .trim();
-      return { text: extractedText, pageCount: null };
+    if (
+      cv.checksumSha256.toLowerCase() !==
+        opened.evidence.checksumSha256.toLowerCase() ||
+      input.checksumSha256.toLowerCase() !==
+        opened.evidence.checksumSha256.toLowerCase() ||
+      input.byteSize !== opened.byteLength
+    ) {
+      throw new Error("CV_DIGEST_MISMATCH");
     }
-    const source = await bytesFrom(verified.open(), artifact.plaintextBytes);
-    return extractText(extractor, kind, source);
+    const source = await bytesFrom(opened.openStream(), opened.byteLength);
+    return extractText(extractor, kind, source, opened.evidence.scanStatus);
   } finally {
-    await verified.dispose();
+    await opened.dispose();
   }
 }
 

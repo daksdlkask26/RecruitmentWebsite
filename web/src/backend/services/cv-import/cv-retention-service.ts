@@ -278,6 +278,17 @@ export class CvRetentionService {
         status: {
           notIn: ["CONFIRMED", "CANCELLED", "DELETED", "EXPIRED"],
         },
+        // The upload expiry is an admission/finalization deadline, not the
+        // retention deadline of a CV already claimed by a business record.
+        artifacts: {
+          none: {
+            OR: [
+              { candidateCvs: { some: { archivedAt: null } } },
+              { applicationDocuments: { some: { deletedAt: null } } },
+              { teamApplications: { some: { cvDeletedAt: null } } },
+            ],
+          },
+        },
       },
       orderBy: [{ expiresAt: "asc" }, { id: "asc" }],
       take: limit,

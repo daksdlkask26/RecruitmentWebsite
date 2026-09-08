@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 export const CV_SOURCE_MAX_BYTES = 5_000_000;
+// Multipart framing (field headers, boundaries and CRLFs) is not part of the
+// uploaded CV bytes. Keep the file limit strict while allowing the envelope.
+export const CV_MULTIPART_MAX_TOTAL_BYTES = CV_SOURCE_MAX_BYTES + 64 * 1024;
+export const CV_SECURITY_POLICY_VERSION = "unified-cv-v1";
 export const CV_EXTRACTED_TEXT_MAX_BYTES = 512 * 1024;
 export const CV_ACCOUNT_MAX_IMPORTS = 10;
 export const CV_ACCOUNT_MAX_STORED_BYTES = 50 * 1024 * 1024;
@@ -16,6 +20,7 @@ export const CV_UPLOAD_STATUSES = [
   "VALIDATION_QUEUED",
   "SCAN_QUEUED",
   "SCANNING",
+  "SECURITY_CLEAN",
   "EXTRACTION_QUEUED",
   "EXTRACTING",
   "AWAITING_CONSENT",

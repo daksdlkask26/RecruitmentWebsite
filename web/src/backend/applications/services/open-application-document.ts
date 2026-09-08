@@ -8,6 +8,8 @@ import { RecruiterApplicationAuthorization } from "../authorization/recruiter-ap
 import { createApplicationDocumentStorage } from "../storage/factory";
 import type { ApplicationDocumentStoragePort } from "../storage/application-document-storage";
 import { applyAutomaticScoreStageRuleForApplication } from "./automatic-viewed-stage-rules";
+import { OpenSafeCvArtifactService } from "@/backend/services/cv-admission/open-safe-cv-artifact-service";
+import { CvSafetyEvidenceService } from "@/backend/services/cv-admission/cv-safety-evidence-service";
 
 export class OpenApplicationDocumentError extends Error {
   constructor(readonly code: "UNAVAILABLE" | "PREVIEW_UNAVAILABLE") {
@@ -122,6 +124,38 @@ export class OpenApplicationDocumentService {
     if (input.preview && !document.previewSupported) {
       throw new OpenApplicationDocumentError("PREVIEW_UNAVAILABLE");
     }
+
+    // A CV is never readable from a legacy storage key or a materialized text
+    // field alone. The caller must have a persisted CLEAN assessment tied to
+    // the exact admitted source artifact; the safe-open service rechecks the
+    // ownership, expiry, policy and checksum invariants below.
+    if (document.kind === "cv") {
+      if (
+        document.scanStatus !== "CLEAN" ||
+        !document.sourceArtifactId ||
+        !document.scanAssessmentId ||
+        !document.uploadId ||
+        !document.candidateUserId
+      ) {
+        throw new OpenApplicationDocumentError("UNAVAILABLE");
+      }
+      try {
+        await new CvSafetyEvidenceService().assertCvArtifactSafeForUse({
+          candidateUserId: document.candidateUserId,
+          uploadId: document.uploadId,
+          artifactId: document.sourceArtifactId,
+          assessmentId: document.scanAssessmentId,
+          allowedPurposes: [
+            "PROFILE_IMPORT",
+            "PROFILE_DIRECT",
+            "JOB_APPLICATION_DIRECT",
+          ],
+        });
+      } catch {
+        throw new OpenApplicationDocumentError("UNAVAILABLE");
+      }
+    }
+
     await this.markViewed({
       userId: input.userId,
       sessionId: input.sessionId,
@@ -141,6 +175,49 @@ export class OpenApplicationDocumentService {
     ) {
       return Object.freeze({ document, stream: null });
     }
+    if (
+      document.kind === "cv" &&
+      document.sourceArtifactId &&
+      document.scanAssessmentId &&
+      document.candidateUserId &&
+      document.uploadId
+    ) {
+      try {
+        const safeService = new OpenSafeCvArtifactService();
+        const opened = await safeService.open({
+          candidateUserId: document.candidateUserId,
+          uploadId: document.uploadId,
+          artifactId: document.sourceArtifactId,
+          assessmentId: document.scanAssessmentId,
+          allowedPurposes: [
+            "PROFILE_IMPORT",
+            "PROFILE_DIRECT",
+            "JOB_APPLICATION_DIRECT",
+          ],
+        });
+        if (
+          opened.byteLength !== document.byteLength ||
+          document.contentVersion?.toLowerCase() !==
+            opened.evidence.checksumSha256.toLowerCase()
+        ) {
+          await opened.dispose();
+          throw new OpenApplicationDocumentError("UNAVAILABLE");
+        }
+        const stream = (async function* () {
+          try {
+            for await (const chunk of opened.openStream()) {
+              yield chunk;
+            }
+          } finally {
+            await opened.dispose();
+          }
+        })();
+        return Object.freeze({ document, stream });
+      } catch {
+        throw new OpenApplicationDocumentError("UNAVAILABLE");
+      }
+    }
+
     if (!document.storageKey) {
       throw new OpenApplicationDocumentError("UNAVAILABLE");
     }

@@ -10,9 +10,10 @@ import {
   type CvArtifactEnvelope,
 } from "@/backend/cv/encryption/artifact-cryptor";
 import { FilesystemPrivateCvStorage } from "@/backend/cv/storage/filesystem";
-import type {
-  PrivateCvStorage,
-  PrivateCvStorageItem,
+import {
+  sensitiveStorageLocator,
+  type PrivateCvStorage,
+  type PrivateCvStorageItem,
 } from "@/backend/cv/storage/private-cv-storage";
 import { S3PrivateCvStorage } from "@/backend/cv/storage/s3";
 import { prisma } from "@/backend/database/prisma";
@@ -29,6 +30,8 @@ type Reservation = Readonly<{
   uploadId: string;
   accountId: string;
   artifactId: string;
+  /** Reserved before storage so an ambiguous write remains reconcilable. */
+  storageLocator?: string;
   documentKind: "PDF" | "DOC" | "DOCX";
   declaredMediaType: string;
   declaredBytes: number;
@@ -117,14 +120,27 @@ function defaultDependencies(): Dependencies {
           status: "AWAITING_CONTENT" | "VALIDATION_QUEUED";
           sourceSha256: string | null;
           idempotencyHex: string;
+          existingArtifactId: string | null;
+          existingStorageLocator: string | null;
         }>
       >`
         SELECT upload."id" AS "uploadId", upload."accountId", upload."documentKind",
                upload."declaredMediaType", upload."declaredBytes", upload."status",
                encode(upload."sourceSha256", 'hex') AS "sourceSha256",
-               encode(upload."idempotencyDigest", 'hex') AS "idempotencyHex"
+               encode(upload."idempotencyDigest", 'hex') AS "idempotencyHex",
+               artifact."id" AS "existingArtifactId",
+               artifact."storageLocator" AS "existingStorageLocator"
           FROM "CvUpload" upload
           JOIN "user" account ON account."id" = upload."accountId"
+     LEFT JOIN LATERAL (
+           SELECT artifact."id", artifact."storageLocator"
+             FROM "CvStoredArtifact" artifact
+            WHERE artifact."uploadId" = upload."id"
+              AND artifact."accountId" = upload."accountId"
+              AND artifact."kind" = 'SOURCE_DOCUMENT'
+            ORDER BY artifact."createdAt" DESC, artifact."id" DESC
+            LIMIT 1
+         ) artifact ON TRUE
          WHERE upload."id" = ${uploadId} AND upload."accountId" = ${accountId}
            AND upload."status" IN ('AWAITING_CONTENT', 'VALIDATION_QUEUED')
            AND account."state" = 'ACTIVE' AND account."deletedAt" IS NULL
@@ -135,7 +151,8 @@ function defaultDependencies(): Dependencies {
         return null;
       return Object.freeze({
         ...row,
-        artifactId: randomUUID(),
+        artifactId: row.existingArtifactId ?? randomUUID(),
+        storageLocator: row.existingStorageLocator ?? row.uploadId,
       });
     },
     cryptor,
@@ -145,6 +162,7 @@ function defaultDependencies(): Dependencies {
       const result = storage.put({
         source: stream,
         expectedBytes: reservation.declaredBytes,
+        locator: reservation.storageLocator ?? reservation.uploadId,
       });
       return {
         writable: stream,
@@ -305,6 +323,9 @@ export class ReceiveCvContentService {
     let reservation: Reservation | null = null;
     let sink: ReturnType<typeof normalizeSink>;
     let stored: PrivateCvStorageItem | null = null;
+    let envelope: CvArtifactEnvelope | null = null;
+    let sha256: Buffer | null = null;
+    let storageCompletionRejected = false;
     try {
       if (
         !Number.isSafeInteger(input.contentLength) ||
@@ -400,14 +421,30 @@ export class ReceiveCvContentService {
         }
         throw error;
       }
+
+      sha256 = createHash("sha256").update(source).digest();
+      if (reservation.status === "VALIDATION_QUEUED") {
+        if (
+          !reservation.sourceSha256 ||
+          reservation.sourceSha256.toLowerCase() !== sha256.toString("hex")
+        ) {
+          throw new CvImportServiceError("IDEMPOTENCY_KEY_REUSED");
+        }
+        return Object.freeze({
+          uploadId: reservation.uploadId,
+          status: "VALIDATION_QUEUED" as const,
+          replayed: true,
+          sha256: sha256.toString("hex"),
+        });
+      }
+
       sink = normalizeSink(
         await this.dependencies.createCiphertextSink(reservation),
       );
-      const hash = createHash("sha256").update(source);
       const plaintext = (async function* () {
         yield source;
       })();
-      const envelope = await this.dependencies.cryptor.encrypt({
+      envelope = await this.dependencies.cryptor.encrypt({
         plaintext,
         ciphertext: sink.writable,
         context: {
@@ -417,18 +454,11 @@ export class ReceiveCvContentService {
           kind: "SOURCE_DOCUMENT",
         },
       });
-      stored = await sink.complete();
-      const sha256 = hash.digest();
-      if (reservation.status === "VALIDATION_QUEUED") {
-        const matches = reservation.sourceSha256 === sha256.toString("hex");
-        if (stored && sink.delete) await sink.delete(stored.locator);
-        if (!matches) throw new CvImportServiceError("IDEMPOTENCY_KEY_REUSED");
-        return Object.freeze({
-          uploadId: reservation.uploadId,
-          status: "VALIDATION_QUEUED",
-          replayed: true,
-          sha256: sha256.toString("hex"),
-        });
+      try {
+        stored = await sink.complete();
+      } catch (error) {
+        storageCompletionRejected = true;
+        throw error;
       }
       const finalized = await this.dependencies.finalize({
         reservation,
@@ -445,15 +475,43 @@ export class ReceiveCvContentService {
         sha256: sha256.toString("hex"),
       });
     } catch (error) {
-      await this.dependencies.scheduleForDeletion({
-        uploadId: input.uploadId,
-        artifactId: reservation?.artifactId,
-        locator: stored?.locator,
-        reason:
-          error instanceof CvImportServiceError
-            ? error.code
-            : "CV_CONTENT_RECEIVE_FAILED",
-      });
+      const ambiguousStorageWrite = Boolean(
+        reservation &&
+          storageCompletionRejected &&
+          !stored &&
+          envelope &&
+          sha256,
+      );
+      if (ambiguousStorageWrite && reservation && envelope && sha256) {
+        // The provider may have committed the deterministic object while its
+        // acknowledgement was lost. Materialize the immutable artifact
+        // reference if the database is available, but never delete this
+        // locator or mark it inaccessible from an UNKNOWN outcome.
+        await this.dependencies
+          .finalize({
+            reservation,
+            envelope,
+            sha256,
+            storage: {
+              locator: sensitiveStorageLocator(
+                reservation.storageLocator ?? reservation.uploadId,
+              ),
+              bytes: envelope.ciphertextBytes,
+            },
+            now: this.dependencies.now(),
+          })
+          .catch(() => false);
+      } else {
+        await this.dependencies.scheduleForDeletion({
+          uploadId: input.uploadId,
+          artifactId: reservation?.artifactId,
+          locator: stored?.locator,
+          reason:
+            error instanceof CvImportServiceError
+              ? error.code
+              : "CV_CONTENT_RECEIVE_FAILED",
+        });
+      }
       throw error;
     }
   }

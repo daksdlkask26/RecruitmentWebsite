@@ -99,11 +99,17 @@ test("runs the Candidate journey from CV import through application and messagin
         response.request().method() === "POST" &&
         new URL(response.url()).pathname === "/api/account/cv-imports",
     );
+    const contentUpload = page.waitForResponse(
+      (response) =>
+        response.request().method() === "PUT" &&
+        new URL(response.url()).pathname.endsWith("/content"),
+    );
     await page.getByRole("button", { name: /upload cv/i }).click();
     const response = await reservation;
     expect(response.status()).toBe(201);
     uploadId = ((await response.json()) as { uploadId: string }).uploadId;
     expect(uploadId).toBeTruthy();
+    expect((await contentUpload).status()).toBe(202);
   });
 
   await step(page, "CV status", async () => {
