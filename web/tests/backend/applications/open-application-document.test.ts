@@ -22,7 +22,6 @@ vi.mock("@/backend/services/cv-admission/cv-safety-evidence-service", () => ({
 
 import { OpenApplicationDocumentService } from "@/backend/applications/services/open-application-document";
 import { PrismaApplicationRepository } from "@/backend/repositories/applications/prisma-application-repository";
-import * as automaticStageRules from "@/backend/applications/services/automatic-viewed-stage-rules";
 import type { ApplicationRepositoryPort } from "@/backend/repositories/applications/application-repository";
 
 type TestDocument = {
@@ -174,16 +173,18 @@ describe("recruiter document review tracking", () => {
     expect(storage.open).not.toHaveBeenCalled();
   });
 
-  it("still opens an authorized document when view automation fails", async () => {
+  it("still opens an authorized document when view acknowledgement fails", async () => {
     class PrismaRepositoryDouble extends PrismaApplicationRepository {
       override findDocument() {
-        return Promise.resolve(document("VIEWED"));
+        return Promise.resolve(document("APPLIED"));
       }
     }
 
-    const automaticRule = vi
-      .spyOn(automaticStageRules, "applyAutomaticScoreStageRuleForApplication")
-      .mockRejectedValue(new Error("database temporarily unavailable"));
+    const stageService = {
+      transition: vi
+        .fn()
+        .mockRejectedValue(new Error("database temporarily unavailable")),
+    };
     const service = new OpenApplicationDocumentService(
       new PrismaRepositoryDouble({} as never),
       {
@@ -193,7 +194,7 @@ describe("recruiter document review tracking", () => {
         }),
       } as never,
       undefined,
-      { transition: vi.fn() } as never,
+      stageService as never,
     );
 
     await expect(
@@ -207,6 +208,6 @@ describe("recruiter document review tracking", () => {
       }),
     ).resolves.toMatchObject({ document: { applicationId: "application-1" } });
 
-    expect(automaticRule).toHaveBeenCalledOnce();
+    expect(stageService.transition).toHaveBeenCalledOnce();
   });
 });

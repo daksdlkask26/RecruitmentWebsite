@@ -46,7 +46,8 @@ const allowedRoles = new Set([
 ]);
 
 const rejectionLabels: Record<string, string> = {
-  REQUIRED_TECHNICAL_EXPERIENCE_NOT_DEMONSTRATED: "Required technical experience not demonstrated",
+  REQUIRED_TECHNICAL_EXPERIENCE_NOT_DEMONSTRATED:
+    "Required technical experience not demonstrated",
   INSUFFICIENT_EXPERIENCE: "Insufficient experience",
   REQUIRED_SKILLS_NOT_DEMONSTRATED: "Required skills not demonstrated",
   POSITION_FILLED: "Position filled",
@@ -56,7 +57,6 @@ const rejectionLabels: Record<string, string> = {
 
 export type StageTransitionActorKind =
   | "recruiter_manual"
-  | "system_auto_score"
   | "candidate_response"
   | "system_capacity_check";
 
@@ -71,7 +71,6 @@ export type StageTransitionSource =
   | "STAGE_ROUTE"
   | "INTERVIEW_ADAPTER"
   | "REJECTION_ADAPTER"
-  | "AUTOMATIC_SCORE_RULE"
   | "CANDIDATE_OFFER_RESPONSE"
   | "CAPACITY_CHECK";
 
@@ -134,7 +133,9 @@ function normalizeText(value: string | null | undefined): string | null {
   return normalized || null;
 }
 
-function normalizeCommand(raw: ApplicationStageTransition | unknown): NormalizedCommand {
+function normalizeCommand(
+  raw: ApplicationStageTransition | unknown,
+): NormalizedCommand {
   const pipeline = stageTransitionCommandSchema.safeParse(raw);
   if (pipeline.success) {
     return {
@@ -143,7 +144,9 @@ function normalizeCommand(raw: ApplicationStageTransition | unknown): Normalized
       intent: pipeline.data.intent ?? "button",
       confirmed: pipeline.data.confirmed ?? false,
       reasonCode: normalizeText(pipeline.data.reasonCode),
-      candidateVisibleReason: normalizeText(pipeline.data.candidateVisibleReason),
+      candidateVisibleReason: normalizeText(
+        pipeline.data.candidateVisibleReason,
+      ),
       internalNote: normalizeText(pipeline.data.internalNote),
     };
   }
@@ -175,7 +178,6 @@ function validateConsequential(
     });
   }
   if (command.targetStage === "REJECTED") {
-    if (actorKind === "system_auto_score") return;
     if (!command.reasonCode) {
       throw new JobServiceError(400, {
         code: "APPLICATION_STAGE_REASON_REQUIRED",
@@ -189,10 +191,7 @@ function validateConsequential(
       });
     }
   }
-  if (
-    command.targetStage === "OFFER_DECLINED" &&
-    !command.reasonCode
-  ) {
+  if (command.targetStage === "OFFER_DECLINED" && !command.reasonCode) {
     throw new JobServiceError(400, {
       code: "APPLICATION_STAGE_REASON_REQUIRED",
       message: "Record why the offer was declined.",
@@ -224,15 +223,16 @@ export function applicationStageCommandDigest(input: {
 }
 
 function eventDigest(metadata: unknown): string | null {
-  if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return null;
+  if (!metadata || typeof metadata !== "object" || Array.isArray(metadata))
+    return null;
   const digest = (metadata as Record<string, unknown>).commandDigest;
   return typeof digest === "string" ? digest : null;
 }
 
-function sourceForActorKind(actorKind: StageTransitionActorKind): StageTransitionSource {
+function sourceForActorKind(
+  actorKind: StageTransitionActorKind,
+): StageTransitionSource {
   switch (actorKind) {
-    case "system_auto_score":
-      return "AUTOMATIC_SCORE_RULE";
     case "candidate_response":
       return "CANDIDATE_OFFER_RESPONSE";
     case "system_capacity_check":
@@ -243,7 +243,11 @@ function sourceForActorKind(actorKind: StageTransitionActorKind): StageTransitio
 }
 
 function databaseActorType(actorKind: StageTransitionActorKind) {
-  return actorKind === "candidate_response" ? "CANDIDATE" : actorKind.startsWith("system_") ? "SYSTEM_MIGRATION" : "RECRUITER";
+  return actorKind === "candidate_response"
+    ? "CANDIDATE"
+    : actorKind.startsWith("system_")
+      ? "SYSTEM_MIGRATION"
+      : "RECRUITER";
 }
 
 function isSystemActor(actorKind: StageTransitionActorKind) {
@@ -278,10 +282,7 @@ function numericFinalScore(value: unknown): number | null {
 }
 
 function promotionScore(
-  application: Pick<
-    WaitlistedApplicationForPromotion,
-    "currentScoringResult"
-  >,
+  application: Pick<WaitlistedApplicationForPromotion, "currentScoringResult">,
 ) {
   const result = application.currentScoringResult;
   if (!result || result.state !== "SCORED") return null;
@@ -327,7 +328,7 @@ export async function promoteWaitlistedApplicationsInTransaction(input: {
     return [];
   }
 
-  // Offer acceptances also lock the parent JobPosting before counting Hired
+  // Offer responses also lock the parent JobPosting before counting Hired
   // rows. Taking the same lock serializes capacity increases with accepts.
   await input.db.$queryRaw`
     SELECT "id" FROM "JobPosting" WHERE "id" = ${input.jobPostingId} FOR UPDATE
@@ -383,8 +384,7 @@ export async function promoteWaitlistedApplicationsInTransaction(input: {
     if (promoted.length >= slots) break;
 
     const nextVersion = application.stageVersion + 1;
-    const idempotencyKey =
-      `capacity-promotion:${input.correlationId}:${application.id}`;
+    const idempotencyKey = `capacity-promotion:${input.correlationId}:${application.id}`;
     const updated = await input.db.jobApplication.updateMany({
       where: {
         id: application.id,
@@ -528,12 +528,21 @@ export class ApplicationStageService {
 
   /**
    * The single application-stage entry point used by recruiter controls,
-   * automatic rules, candidate offer responses, and capacity enforcement.
+   * candidate offer responses and capacity enforcement.
    * Callers describe the actor; only transition() below performs the write.
    */
   async attemptStageTransition(
     input: AttemptStageTransitionInput,
   ): Promise<StageTransitionOutcome> {
+    if (
+      input.actor.kind !== "recruiter_manual" &&
+      input.actor.kind !== "candidate_response"
+    ) {
+      throw new JobServiceError(403, {
+        code: "APPLICATION_STAGE_ACTOR_INVALID",
+        message: "This stage command requires an authorized human actor.",
+      });
+    }
     const application = await this.db.jobApplication.findUnique({
       where: { id: input.candidateApplicationId },
       select: {
@@ -551,8 +560,7 @@ export class ApplicationStageService {
     const now = input.now ?? new Date();
     const expectedStageVersion =
       input.expectedStageVersion ?? application.stageVersion;
-    const actorUserId =
-      input.actor.userId ?? `system:${input.actor.kind}`;
+    const actorUserId = input.actor.userId ?? `system:${input.actor.kind}`;
     const actor: CandidateActor = {
       userId: actorUserId,
       sessionId: input.actor.sessionId ?? `system:${input.actor.kind}`,
@@ -646,15 +654,28 @@ export class ApplicationStageService {
     const intent = boundary?.intent ?? command.intent ?? "button";
     if (boundary) validateConsequential(command, actorKind);
     if (boundary && !boundary.idempotencyKey.trim()) {
-      throw new JobServiceError(400, { code: "IDEMPOTENCY_KEY_REQUIRED", message: "An Idempotency-Key is required." });
+      throw new JobServiceError(400, {
+        code: "IDEMPOTENCY_KEY_REQUIRED",
+        message: "An Idempotency-Key is required.",
+      });
     }
 
     const authorized =
       boundary && actorKind === "recruiter_manual"
-      ? await this.authorization.authorizeApplication(actor.userId, boundary.requestedJobId, applicationId)
-      : null;
-    if (authorized && (!authorized.authorized || authorized.canMoveStages === false)) {
-      throw new JobServiceError(404, { code: "APPLICATION_UNAVAILABLE", message: "This application is unavailable." });
+        ? await this.authorization.authorizeApplication(
+            actor.userId,
+            boundary.requestedJobId,
+            applicationId,
+          )
+        : null;
+    if (
+      authorized &&
+      (!authorized.authorized || authorized.canMoveStages === false)
+    ) {
+      throw new JobServiceError(404, {
+        code: "APPLICATION_UNAVAILABLE",
+        message: "This application is unavailable.",
+      });
     }
     const authorizedJobId = authorized?.authorized
       ? authorized.jobPostingId || boundary?.requestedJobId || null
@@ -749,7 +770,7 @@ export class ApplicationStageService {
               hasDatabaseRecruiterMembership ||
               Boolean(
                 fallbackAuthorization?.authorized &&
-                  fallbackAuthorization.canMoveStages !== false,
+                fallbackAuthorization.canMoveStages !== false,
               );
             if (!hasCompatibleRecruiterAuthorization) {
               throw new JobServiceError(404, {
@@ -759,421 +780,464 @@ export class ApplicationStageService {
             }
           }
 
-        const fromStage = applicationStageSchema.parse(application.stage);
-        const source = boundary?.source ?? "STAGE_ROUTE";
-        const requestedJobId = boundary?.requestedJobId ?? application.jobPostingId;
-        const canonicalJobId = application.jobPostingId || requestedJobId;
-        const digest = applicationStageCommandDigest({ actorUserId: actor.userId, requestedJobId, canonicalJobId, applicationId, command, source });
-        const idempotencyKey = boundary?.idempotencyKey.trim() || null;
+          const fromStage = applicationStageSchema.parse(application.stage);
+          const source = boundary?.source ?? "STAGE_ROUTE";
+          const requestedJobId =
+            boundary?.requestedJobId ?? application.jobPostingId;
+          const canonicalJobId = application.jobPostingId || requestedJobId;
+          const digest = applicationStageCommandDigest({
+            actorUserId: actor.userId,
+            requestedJobId,
+            canonicalJobId,
+            applicationId,
+            command,
+            source,
+          });
+          const idempotencyKey = boundary?.idempotencyKey.trim() || null;
 
-        if (idempotencyKey) {
-          const replay = await tx.applicationStageEvent.findFirst({ where: { applicationId, idempotencyKey }, orderBy: { occurredAt: "desc" } });
-          if (replay) {
-            if (eventDigest(replay.metadata) !== digest) {
-              throw new JobServiceError(409, { code: "IDEMPOTENCY_CONFLICT", message: "This Idempotency-Key was used for a different stage decision." });
-            }
-            const replayMetadata =
-              replay.metadata &&
-              typeof replay.metadata === "object" &&
-              !Array.isArray(replay.metadata)
-                ? (replay.metadata as Record<string, unknown>)
-                : null;
-            const replayFromStage =
-              replayMetadata?.autoShortlisted === true &&
-              typeof replayMetadata.initialFromStage === "string"
-                ? applicationStageSchema.parse(replayMetadata.initialFromStage)
-                : replay.fromStage;
-            return {
-              ...stageTransitionOutcomeSchema.parse({
-                applicationId,
-                fromStage: replayFromStage,
-                stage: replay.toStage,
-                stageVersion: replay.applicationVersion,
-                lastStageChangedAt: replay.occurredAt.toISOString(),
-                stageEventId: replay.id,
-                replayed: true,
-                allowedDestinations: ordinaryApplicationTransitions[replay.toStage],
-              }),
-              auditEventId: replay.id,
-              notificationRequired: replay.notificationRequired,
-              notificationStatus: replay.notificationStatus,
-            };
-          }
-        }
-
-        if (application.stageVersion !== command.expectedStageVersion) {
-          throw new JobServiceError(409, { code: "APPLICATION_STAGE_CONFLICT", message: "This application changed. Refresh it and try again." });
-        }
-        if (application.withdrawalOutcome) {
-          throw new JobServiceError(409, {
-            code: "APPLICATION_WITHDRAWAL_BLOCKED",
-            message: "This application has been withdrawn.",
-          });
-        }
-        const capacityPromotion =
-          actorKind === "system_capacity_check" &&
-          canCapacityPromoteApplicationStage(fromStage, command.targetStage);
-        if (
-          !capacityPromotion &&
-          !canTransitionApplicationStage(fromStage, command.targetStage)
-        ) {
-          throw new JobServiceError(409, { code: "APPLICATION_STAGE_TRANSITION_INVALID", message: "This stage change is not allowed." });
-        }
-
-        const interviewBridge =
-          fromStage === "VIEWED" &&
-          command.targetStage === "INTERVIEWING" &&
-          intent === "button";
-        const strictRecruiterBoundary =
-          boundary?.source === "KANBAN" ||
-          boundary?.source === "INTERVIEW_ADAPTER" ||
-          boundary?.source === "REJECTION_ADAPTER";
-        if (
-          actorKind === "recruiter_manual" &&
-          strictRecruiterBoundary &&
-          !interviewBridge &&
-          !canRecruiterPipelineTransition(
-            fromStage,
-            command.targetStage,
-            intent,
-          )
-        ) {
-          throw new JobServiceError(409, {
-            code: "APPLICATION_STAGE_TRANSITION_INVALID",
-            message: "This stage change is not allowed from the recruitment pipeline.",
-          });
-        }
-        if (
-          actorKind === "candidate_response" &&
-          (fromStage !== "OFFERED" ||
-            !["HIRED", "OFFER_DECLINED"].includes(command.targetStage))
-        ) {
-          throw new JobServiceError(409, {
-            code: "APPLICATION_STAGE_TRANSITION_INVALID",
-            message: "This offer response is no longer available.",
-          });
-        }
-        if (
-          actorKind === "system_auto_score" &&
-          !(
-            (fromStage === "APPLIED" && command.targetStage === "WAITLISTED") ||
-            (fromStage === "VIEWED" &&
-              ["SHORTLISTED", "REJECTED", "WAITLISTED"].includes(
-                command.targetStage,
-              ))
-          )
-        ) {
-          throw new JobServiceError(409, {
-            code: "APPLICATION_STAGE_TRANSITION_INVALID",
-            message: "This automatic stage decision is no longer applicable.",
-          });
-        }
-        if (
-          actorKind === "system_capacity_check" &&
-          command.targetStage !== "WAITLISTED" &&
-          !capacityPromotion
-        ) {
-          throw new JobServiceError(409, {
-            code: "APPLICATION_STAGE_TRANSITION_INVALID",
-            message: "Capacity checks may only waitlist an application.",
-          });
-        }
-
-        if (
-          actorKind === "recruiter_manual" &&
-          ["HIRED", "OFFER_DECLINED"].includes(command.targetStage)
-        ) {
-          throw new JobServiceError(409, {
-            code: "APPLICATION_STAGE_TRANSITION_INVALID",
-            message: "Offer outcomes are recorded by the candidate.",
-          });
-        }
-
-        let targetStage = command.targetStage;
-        let transitionActorKind = actorKind;
-        let effectiveReasonCode = command.reasonCode;
-        let effectiveCandidateVisibleReason = command.candidateVisibleReason;
-        let capacityRedirected = false;
-        if (capacityPromotion) {
-          effectiveReasonCode = "JOB_CAPACITY_INCREASED";
-          effectiveCandidateVisibleReason =
-            "A position became available and your waitlisted application has been moved to hired.";
-        }
-        if (command.targetStage === "HIRED") {
-          const maxPositions = application.jobPosting.numberOfHires;
-          if (typeof maxPositions === "number") {
-            // Serialize all offer acceptances for this job before counting
-            // Hired rows. Serializable isolation detects conflicts; the
-            // parent-row lock also makes the capacity invariant explicit.
-            await tx.$queryRaw`SELECT "id" FROM "JobPosting" WHERE "id" = ${canonicalJobId} FOR UPDATE`;
-            const hiredCount = await tx.jobApplication.count({
-              where: {
-                jobPostingId: canonicalJobId,
-                stage: "HIRED",
-                withdrawalOutcome: null,
-              },
+          if (idempotencyKey) {
+            const replay = await tx.applicationStageEvent.findFirst({
+              where: { applicationId, idempotencyKey },
+              orderBy: { occurredAt: "desc" },
             });
-            if (hiredCount >= maxPositions) {
-              if (capacityPromotion) {
+            if (replay) {
+              if (eventDigest(replay.metadata) !== digest) {
                 throw new JobServiceError(409, {
-                  code: "APPLICATION_CAPACITY_UNAVAILABLE",
-                  message: "No hiring capacity is available for this application.",
+                  code: "IDEMPOTENCY_CONFLICT",
+                  message:
+                    "This Idempotency-Key was used for a different stage decision.",
                 });
               }
-              targetStage = "WAITLISTED";
-              transitionActorKind = "system_capacity_check";
-              effectiveReasonCode = "JOB_CAPACITY_REACHED";
-              effectiveCandidateVisibleReason =
-                "This position is full, so your application has been waitlisted.";
-              capacityRedirected = true;
+              const replayMetadata =
+                replay.metadata &&
+                typeof replay.metadata === "object" &&
+                !Array.isArray(replay.metadata)
+                  ? (replay.metadata as Record<string, unknown>)
+                  : null;
+              const replayFromStage =
+                replayMetadata?.autoShortlisted === true &&
+                typeof replayMetadata.initialFromStage === "string"
+                  ? applicationStageSchema.parse(
+                      replayMetadata.initialFromStage,
+                    )
+                  : replay.fromStage;
+              return {
+                ...stageTransitionOutcomeSchema.parse({
+                  applicationId,
+                  fromStage: replayFromStage,
+                  stage: replay.toStage,
+                  stageVersion: replay.applicationVersion,
+                  lastStageChangedAt: replay.occurredAt.toISOString(),
+                  stageEventId: replay.id,
+                  replayed: true,
+                  allowedDestinations:
+                    ordinaryApplicationTransitions[replay.toStage],
+                }),
+                auditEventId: replay.id,
+                notificationRequired: replay.notificationRequired,
+                notificationStatus: replay.notificationStatus,
+              };
             }
           }
-        }
 
-        const autoShortlistForInterview =
-          actorKind === "recruiter_manual" &&
-          fromStage === "VIEWED" &&
-          command.targetStage === "INTERVIEWING" &&
-          intent === "button" &&
-          (boundary?.source === "INTERVIEW_ADAPTER" ||
-            boundary?.source === "KANBAN");
-        const stageVersionIncrement = autoShortlistForInterview ? 2 : 1;
-        const finalAt = autoShortlistForInterview
-          ? new Date(now.getTime() + 1)
-          : now;
-        const nextVersion = application.stageVersion + stageVersionIncrement;
-        const updated = await tx.jobApplication.updateMany({
-          where: {
-            id: application.id,
-            jobPostingId: canonicalJobId,
-            stage: fromStage,
-            stageVersion: command.expectedStageVersion,
-            withdrawalOutcome: null,
-          },
-          data: {
-            stage: targetStage,
-            stageVersion: { increment: stageVersionIncrement },
-            lastStageChangedAt: finalAt,
-          },
-        });
-        if (updated.count !== 1) throw new JobServiceError(409, { code: "APPLICATION_STAGE_CONFLICT", message: "This application changed. Refresh it and try again." });
+          if (application.stageVersion !== command.expectedStageVersion) {
+            throw new JobServiceError(409, {
+              code: "APPLICATION_STAGE_CONFLICT",
+              message: "This application changed. Refresh it and try again.",
+            });
+          }
+          if (application.withdrawalOutcome) {
+            throw new JobServiceError(409, {
+              code: "APPLICATION_WITHDRAWAL_BLOCKED",
+              message: "This application has been withdrawn.",
+            });
+          }
+          const capacityPromotion =
+            actorKind === "system_capacity_check" &&
+            canCapacityPromoteApplicationStage(fromStage, command.targetStage);
+          if (
+            !capacityPromotion &&
+            !canTransitionApplicationStage(fromStage, command.targetStage)
+          ) {
+            throw new JobServiceError(409, {
+              code: "APPLICATION_STAGE_TRANSITION_INVALID",
+              message: "This stage change is not allowed.",
+            });
+          }
 
-        let shortlistEvent: { id: string };
-        if (autoShortlistForInterview) {
-          shortlistEvent = await tx.applicationStageEvent.create({
+          const interviewBridge =
+            fromStage === "VIEWED" &&
+            command.targetStage === "INTERVIEWING" &&
+            intent === "button";
+          const strictRecruiterBoundary =
+            boundary?.source === "KANBAN" ||
+            boundary?.source === "INTERVIEW_ADAPTER" ||
+            boundary?.source === "REJECTION_ADAPTER";
+          if (
+            actorKind === "recruiter_manual" &&
+            strictRecruiterBoundary &&
+            !interviewBridge &&
+            !canRecruiterPipelineTransition(
+              fromStage,
+              command.targetStage,
+              intent,
+            )
+          ) {
+            throw new JobServiceError(409, {
+              code: "APPLICATION_STAGE_TRANSITION_INVALID",
+              message:
+                "This stage change is not allowed from the recruitment pipeline.",
+            });
+          }
+          if (
+            actorKind === "candidate_response" &&
+            (fromStage !== "OFFERED" ||
+              !["HIRED", "OFFER_DECLINED"].includes(command.targetStage))
+          ) {
+            throw new JobServiceError(409, {
+              code: "APPLICATION_STAGE_TRANSITION_INVALID",
+              message: "This offer response is no longer available.",
+            });
+          }
+          if (
+            actorKind === "system_capacity_check" &&
+            command.targetStage !== "WAITLISTED" &&
+            !capacityPromotion
+          ) {
+            throw new JobServiceError(409, {
+              code: "APPLICATION_STAGE_TRANSITION_INVALID",
+              message: "Capacity checks may only waitlist an application.",
+            });
+          }
+
+          if (
+            actorKind === "recruiter_manual" &&
+            ["HIRED", "OFFER_DECLINED"].includes(command.targetStage)
+          ) {
+            throw new JobServiceError(409, {
+              code: "APPLICATION_STAGE_TRANSITION_INVALID",
+              message: "Offer outcomes are recorded by the candidate.",
+            });
+          }
+
+          let targetStage = command.targetStage;
+          let transitionActorKind = actorKind;
+          let effectiveReasonCode = command.reasonCode;
+          let effectiveCandidateVisibleReason = command.candidateVisibleReason;
+          let capacityRedirected = false;
+          if (capacityPromotion) {
+            effectiveReasonCode = "JOB_CAPACITY_INCREASED";
+            effectiveCandidateVisibleReason =
+              "A position became available and your waitlisted application has been moved to hired.";
+          }
+          if (command.targetStage === "HIRED") {
+            const maxPositions = application.jobPosting.numberOfHires;
+            if (typeof maxPositions === "number") {
+              // Serialize all offer responses for this job before counting
+              // Hired rows. Serializable isolation detects conflicts; the
+              // parent-row lock also makes the capacity invariant explicit.
+              await tx.$queryRaw`SELECT "id" FROM "JobPosting" WHERE "id" = ${canonicalJobId} FOR UPDATE`;
+              const hiredCount = await tx.jobApplication.count({
+                where: {
+                  jobPostingId: canonicalJobId,
+                  stage: "HIRED",
+                  withdrawalOutcome: null,
+                },
+              });
+              if (hiredCount >= maxPositions) {
+                if (capacityPromotion) {
+                  throw new JobServiceError(409, {
+                    code: "APPLICATION_CAPACITY_UNAVAILABLE",
+                    message:
+                      "No hiring capacity is available for this application.",
+                  });
+                }
+                targetStage = "WAITLISTED";
+                transitionActorKind = "system_capacity_check";
+                effectiveReasonCode = "JOB_CAPACITY_REACHED";
+                effectiveCandidateVisibleReason =
+                  "This position is full, so your application has been waitlisted.";
+                capacityRedirected = true;
+              }
+            }
+          }
+
+          const autoShortlistForInterview =
+            actorKind === "recruiter_manual" &&
+            fromStage === "VIEWED" &&
+            command.targetStage === "INTERVIEWING" &&
+            intent === "button" &&
+            (boundary?.source === "INTERVIEW_ADAPTER" ||
+              boundary?.source === "KANBAN");
+          const stageVersionIncrement = autoShortlistForInterview ? 2 : 1;
+          const finalAt = autoShortlistForInterview
+            ? new Date(now.getTime() + 1)
+            : now;
+          const nextVersion = application.stageVersion + stageVersionIncrement;
+          const updated = await tx.jobApplication.updateMany({
+            where: {
+              id: application.id,
+              jobPostingId: canonicalJobId,
+              stage: fromStage,
+              stageVersion: command.expectedStageVersion,
+              withdrawalOutcome: null,
+            },
+            data: {
+              stage: targetStage,
+              stageVersion: { increment: stageVersionIncrement },
+              lastStageChangedAt: finalAt,
+            },
+          });
+          if (updated.count !== 1)
+            throw new JobServiceError(409, {
+              code: "APPLICATION_STAGE_CONFLICT",
+              message: "This application changed. Refresh it and try again.",
+            });
+
+          let shortlistEvent: { id: string };
+          if (autoShortlistForInterview) {
+            shortlistEvent = await tx.applicationStageEvent.create({
+              data: {
+                applicationId: application.id,
+                fromStage: "VIEWED",
+                toStage: "SHORTLISTED",
+                actorUserId: actor.userId,
+                actorType: "RECRUITER",
+                reasonCode: "RECRUITER_AUTO_SHORTLISTED_FOR_INTERVIEW",
+                reasonLabelSnapshot:
+                  "Recruiter recorded shortlist before interview",
+                internalNoteEncrypted: null,
+                candidateVisibleReason:
+                  "Your application has been shortlisted.",
+                candidateVisible: true,
+                occurredAt: now,
+                applicationVersion: application.stageVersion + 1,
+                metadata: {
+                  v: 2,
+                  source,
+                  autoShortlisted: true,
+                  initialFromStage: fromStage,
+                },
+                decisionKind: null,
+                notificationRequired: false,
+                notificationStatus: "NOT_REQUIRED",
+                idempotencyKey: null,
+              },
+            });
+            await tx.applicationPublicUpdate.create({
+              data: {
+                applicationId: application.id,
+                kind: publicUpdateKindForCanonicalStage("SHORTLISTED"),
+                publicStage: publicStageForCanonicalStage("SHORTLISTED"),
+                publicOutcome: publicOutcomeForCanonicalStage("SHORTLISTED"),
+                title: publicUpdateTitleForCanonicalStage("SHORTLISTED"),
+                effectiveAt: now,
+                deduplicationKey: `application:${application.id}:public:stage:${application.stageVersion + 1}`,
+                sourceEventReference: shortlistEvent.id,
+              },
+            });
+          }
+
+          const inAppUpdatesEnabled =
+            application.notificationPreference?.inAppEnabled ?? true;
+          const emailUpdatesEnabled =
+            application.notificationPreference?.emailEnabled ??
+            application.candidate.user.preferences?.applicationUpdatesEmail ??
+            true;
+          const emailRequired =
+            command.targetStage === "HIRED" ||
+            emailUpdatesEnabled ||
+            targetStage === "OFFERED" ||
+            targetStage === "WAITLISTED";
+          const notificationRequired =
+            autoShortlistForInterview ||
+            inAppUpdatesEnabled ||
+            emailRequired ||
+            actorKind === "candidate_response" ||
+            capacityRedirected ||
+            capacityPromotion;
+          const reasonLabelSnapshot =
+            targetStage === "REJECTED" && effectiveReasonCode
+              ? (rejectionLabels[effectiveReasonCode] ?? effectiveReasonCode)
+              : effectiveReasonCode;
+          const event = await tx.applicationStageEvent.create({
             data: {
               applicationId: application.id,
-              fromStage: "VIEWED",
-              toStage: "SHORTLISTED",
-              actorUserId: actor.userId,
-              actorType: "RECRUITER",
-              reasonCode: "RECRUITER_AUTO_SHORTLISTED_FOR_INTERVIEW",
-              reasonLabelSnapshot:
-                "Recruiter recorded shortlist before interview",
-              internalNoteEncrypted: null,
-              candidateVisibleReason:
-                "Your application has been shortlisted.",
+              fromStage: autoShortlistForInterview ? "SHORTLISTED" : fromStage,
+              toStage: targetStage,
+              actorUserId: isSystemActor(transitionActorKind)
+                ? null
+                : actor.userId,
+              actorType: databaseActorType(transitionActorKind),
+              reasonCode: effectiveReasonCode,
+              reasonLabelSnapshot,
+              internalNoteEncrypted: command.internalNote,
+              candidateVisibleReason: effectiveCandidateVisibleReason,
               candidateVisible: true,
-              occurredAt: now,
-              applicationVersion: application.stageVersion + 1,
+              occurredAt: finalAt,
+              applicationVersion: nextVersion,
+              notificationRequired,
+              notificationStatus: notificationRequired
+                ? "PENDING"
+                : "NOT_REQUIRED",
+              idempotencyKey,
+              decisionKind:
+                targetStage === "REJECTED"
+                  ? "REJECT"
+                  : targetStage === "INTERVIEWING"
+                    ? "MOVE_TO_INTERVIEW"
+                    : null,
               metadata: {
                 v: 2,
                 source,
-                autoShortlisted: true,
-                initialFromStage: fromStage,
+                commandDigest: digest,
+                requestedJobId,
+                canonicalJobId,
+                confirmed: command.confirmed,
+                actor: transitionActorKind,
+                requestedTargetStage: command.targetStage,
+                capacityRedirected,
+                capacityPromotion,
+                autoShortlisted: autoShortlistForInterview,
+                initialFromStage: autoShortlistForInterview
+                  ? fromStage
+                  : undefined,
               },
-              decisionKind: null,
-              notificationRequired: false,
-              notificationStatus: "NOT_REQUIRED",
-              idempotencyKey: null,
             },
           });
+
+          const publicStage = publicStageForCanonicalStage(targetStage);
           await tx.applicationPublicUpdate.create({
             data: {
               applicationId: application.id,
-              kind: publicUpdateKindForCanonicalStage("SHORTLISTED"),
-              publicStage: publicStageForCanonicalStage("SHORTLISTED"),
-              publicOutcome: publicOutcomeForCanonicalStage("SHORTLISTED"),
-              title: publicUpdateTitleForCanonicalStage("SHORTLISTED"),
-              effectiveAt: now,
-              deduplicationKey: `application:${application.id}:public:stage:${application.stageVersion + 1}`,
-              sourceEventReference: shortlistEvent.id,
+              kind: publicUpdateKindForCanonicalStage(targetStage),
+              publicStage,
+              publicOutcome: publicOutcomeForCanonicalStage(targetStage),
+              title: publicUpdateTitleForCanonicalStage(targetStage),
+              effectiveAt: finalAt,
+              deduplicationKey: `application:${application.id}:public:stage:${nextVersion}`,
+              sourceEventReference: event.id,
             },
           });
-        }
 
-        const inAppUpdatesEnabled =
-          application.notificationPreference?.inAppEnabled ?? true;
-        const emailUpdatesEnabled =
-          application.notificationPreference?.emailEnabled ??
-          application.candidate.user.preferences?.applicationUpdatesEmail ??
-          true;
-        const emailRequired =
-          (command.targetStage === "HIRED" || emailUpdatesEnabled) ||
-          targetStage === "OFFERED" ||
-          targetStage === "WAITLISTED";
-        const notificationRequired =
-          autoShortlistForInterview ||
-          inAppUpdatesEnabled ||
-          emailRequired ||
-          actorKind === "candidate_response" ||
-          capacityRedirected ||
-          capacityPromotion;
-        const reasonLabelSnapshot =
-          targetStage === "REJECTED" && effectiveReasonCode
-            ? rejectionLabels[effectiveReasonCode] ?? effectiveReasonCode
-            : effectiveReasonCode;
-        const event = await tx.applicationStageEvent.create({
-          data: {
-            applicationId: application.id,
-            fromStage: autoShortlistForInterview ? "SHORTLISTED" : fromStage,
-            toStage: targetStage,
-            actorUserId: isSystemActor(transitionActorKind) ? null : actor.userId,
-            actorType: databaseActorType(transitionActorKind),
-            reasonCode: effectiveReasonCode,
-            reasonLabelSnapshot,
-            internalNoteEncrypted: command.internalNote,
-            candidateVisibleReason: effectiveCandidateVisibleReason,
-            candidateVisible: true,
-            occurredAt: finalAt,
-            applicationVersion: nextVersion,
-            notificationRequired,
-            notificationStatus: notificationRequired ? "PENDING" : "NOT_REQUIRED",
-            idempotencyKey,
-            decisionKind: targetStage === "REJECTED" ? "REJECT" : targetStage === "INTERVIEWING" ? "MOVE_TO_INTERVIEW" : null,
-            metadata: {
-              v: 2,
-              source,
-              commandDigest: digest,
-              requestedJobId,
-              canonicalJobId,
-              confirmed: command.confirmed,
-              actor: transitionActorKind,
-              requestedTargetStage: command.targetStage,
-              capacityRedirected,
-              capacityPromotion,
-              autoShortlisted: autoShortlistForInterview,
-              initialFromStage: autoShortlistForInterview ? fromStage : undefined,
-            },
-          },
-        });
-
-        const publicStage = publicStageForCanonicalStage(targetStage);
-        await tx.applicationPublicUpdate.create({
-          data: {
-            applicationId: application.id,
-            kind: publicUpdateKindForCanonicalStage(targetStage),
-            publicStage,
-            publicOutcome: publicOutcomeForCanonicalStage(targetStage),
-            title: publicUpdateTitleForCanonicalStage(targetStage),
-            effectiveAt: finalAt,
-            deduplicationKey: `application:${application.id}:public:stage:${nextVersion}`,
-            sourceEventReference: event.id,
-          },
-        });
-
-        if (
-          actorKind === "candidate_response" ||
-          capacityRedirected ||
-          capacityPromotion
-        ) {
-          await tx.recruitmentNotificationWork.create({
-            data: {
-              applicationId: application.id,
-              audience: "COMPANY",
-              kind: "APPLICATION_STAGE_CHANGED",
-              targetReference: application.jobPosting.companyId,
-              payloadRef: {
-                v: 2,
-                event: capacityRedirected
-                  ? "APPLICATION_CAPACITY_REDIRECTED"
-                  : capacityPromotion
-                    ? "APPLICATION_WAITLIST_PROMOTED"
-                    : "CANDIDATE_OFFER_RESPONSE",
+          if (
+            actorKind === "candidate_response" ||
+            capacityRedirected ||
+            capacityPromotion
+          ) {
+            await tx.recruitmentNotificationWork.create({
+              data: {
                 applicationId: application.id,
-                requestedStage: command.targetStage,
-                stage: targetStage,
-                decision: actorKind === "candidate_response" ? effectiveReasonCode : null,
-                jobTitle: application.jobPosting.title,
-                companyName: application.jobPosting.company.displayName,
+                audience: "COMPANY",
+                kind: "APPLICATION_STAGE_CHANGED",
+                targetReference: application.jobPosting.companyId,
+                payloadRef: {
+                  v: 2,
+                  event: capacityRedirected
+                    ? "APPLICATION_CAPACITY_REDIRECTED"
+                    : capacityPromotion
+                      ? "APPLICATION_WAITLIST_PROMOTED"
+                      : "CANDIDATE_OFFER_RESPONSE",
+                  applicationId: application.id,
+                  requestedStage: command.targetStage,
+                  stage: targetStage,
+                  decision:
+                    actorKind === "candidate_response"
+                      ? effectiveReasonCode
+                      : null,
+                  jobTitle: application.jobPosting.title,
+                  companyName: application.jobPosting.company.displayName,
+                },
+                idempotencyKey: `application:${application.id}:stage:${nextVersion}:company`,
               },
-              idempotencyKey: `application:${application.id}:stage:${nextVersion}:company`,
-            },
-          });
-        }
-
-        if (inAppUpdatesEnabled) {
-          await createInAppNotification(tx, {
-            recipientUserId: application.candidateUserId,
-            kind: "APPLICATION_STAGE_CHANGED",
-            deduplicationKey: `application:${application.id}:stage:${nextVersion}:candidate`,
-            correlationId: event.id,
-            occurredAt: finalAt,
-            contextType: "APPLICATION",
-            contextId: application.id,
-            variables: { stage: targetStage },
-          });
-        }
-
-        if (emailRequired) {
-          await tx.emailOutbox.create({
-            data: {
-              kind: "APPLICATION_STAGE_CHANGED",
-              userId: application.candidateUserId,
-              recipientRef: application.candidateUserId,
-              templateVersion: "application-stage-changed.v1",
-              payloadRef: { v: 1, applicationId: application.id, stage: targetStage, jobTitle: application.jobPosting.title, companyName: application.jobPosting.company.displayName },
-              idempotencyKey: `application:${application.id}:stage:${nextVersion}:email`,
-            },
-          });
-        }
-
-        const auditEventId = await new PrismaAuditRepository(tx).append({
-          occurredAt: finalAt,
-          actorType: isSystemActor(transitionActorKind) ? "system" : "user",
-          actorUserId: isSystemActor(transitionActorKind) ? null : actor.userId,
-          actorSessionId: isSystemActor(transitionActorKind) ? null : actor.sessionId,
-          action: "job.application.stage_changed",
-          targetType: "job_application",
-          targetId: application.id,
-          result: "SUCCESS",
-          correlationId: event.id,
-          context: {
-            fromStage,
-            toStage: targetStage,
-            applicationVersion: nextVersion,
-            reason: effectiveReasonCode ?? undefined,
-            kind: transitionActorKind,
-            notificationWorkCount:
-              Number(inAppUpdatesEnabled) + Number(emailRequired),
-          },
-        });
-
-        const outcome = !boundary
-          ? applicationStageTransitionOutcomeSchema.parse({
-              applicationId: application.id,
-              fromStage,
-              stage: targetStage,
-              stageVersion: nextVersion,
-              lastStageChangedAt: finalAt.toISOString(),
-              eventId: event.id,
-            })
-          : stageTransitionOutcomeSchema.parse({
-              applicationId: application.id,
-              fromStage,
-              stage: targetStage,
-              stageVersion: nextVersion,
-              lastStageChangedAt: finalAt.toISOString(),
-              stageEventId: event.id,
-              replayed: false,
-              allowedDestinations: ordinaryApplicationTransitions[targetStage],
             });
-        return {
-          ...outcome,
-          auditEventId,
-          notificationRequired,
-          notificationStatus: notificationRequired ? "PENDING" : "NOT_REQUIRED",
-        };
+          }
+
+          if (inAppUpdatesEnabled) {
+            await createInAppNotification(tx, {
+              recipientUserId: application.candidateUserId,
+              kind: "APPLICATION_STAGE_CHANGED",
+              deduplicationKey: `application:${application.id}:stage:${nextVersion}:candidate`,
+              correlationId: event.id,
+              occurredAt: finalAt,
+              contextType: "APPLICATION",
+              contextId: application.id,
+              variables: { stage: targetStage },
+            });
+          }
+
+          if (emailRequired) {
+            await tx.emailOutbox.create({
+              data: {
+                kind: "APPLICATION_STAGE_CHANGED",
+                userId: application.candidateUserId,
+                recipientRef: application.candidateUserId,
+                templateVersion: "application-stage-changed.v1",
+                payloadRef: {
+                  v: 1,
+                  applicationId: application.id,
+                  stage: targetStage,
+                  jobTitle: application.jobPosting.title,
+                  companyName: application.jobPosting.company.displayName,
+                },
+                idempotencyKey: `application:${application.id}:stage:${nextVersion}:email`,
+              },
+            });
+          }
+
+          const auditEventId = await new PrismaAuditRepository(tx).append({
+            occurredAt: finalAt,
+            actorType: isSystemActor(transitionActorKind) ? "system" : "user",
+            actorUserId: isSystemActor(transitionActorKind)
+              ? null
+              : actor.userId,
+            actorSessionId: isSystemActor(transitionActorKind)
+              ? null
+              : actor.sessionId,
+            action: "job.application.stage_changed",
+            targetType: "job_application",
+            targetId: application.id,
+            result: "SUCCESS",
+            correlationId: event.id,
+            context: {
+              fromStage,
+              toStage: targetStage,
+              applicationVersion: nextVersion,
+              reason: effectiveReasonCode ?? undefined,
+              kind: transitionActorKind,
+              notificationWorkCount:
+                Number(inAppUpdatesEnabled) + Number(emailRequired),
+            },
+          });
+
+          const outcome = !boundary
+            ? applicationStageTransitionOutcomeSchema.parse({
+                applicationId: application.id,
+                fromStage,
+                stage: targetStage,
+                stageVersion: nextVersion,
+                lastStageChangedAt: finalAt.toISOString(),
+                eventId: event.id,
+              })
+            : stageTransitionOutcomeSchema.parse({
+                applicationId: application.id,
+                fromStage,
+                stage: targetStage,
+                stageVersion: nextVersion,
+                lastStageChangedAt: finalAt.toISOString(),
+                stageEventId: event.id,
+                replayed: false,
+                allowedDestinations:
+                  ordinaryApplicationTransitions[targetStage],
+              });
+          return {
+            ...outcome,
+            auditEventId,
+            notificationRequired,
+            notificationStatus: notificationRequired
+              ? "PENDING"
+              : "NOT_REQUIRED",
+          };
         },
         { isolationLevel: "Serializable" },
       );
@@ -1193,10 +1257,7 @@ export class ApplicationStageService {
         }
         throw error;
       }
-      if (
-        prismaCode === "P2034" &&
-        (boundary.retryAttempt ?? 0) < 4
-      ) {
+      if (prismaCode === "P2034" && (boundary.retryAttempt ?? 0) < 4) {
         return this.transition(actor, applicationId, rawCommand, now, {
           ...boundary,
           retryAttempt: (boundary.retryAttempt ?? 0) + 1,
@@ -1240,7 +1301,8 @@ export class ApplicationStageService {
         if (eventDigest(replay.metadata) !== digest) {
           throw new JobServiceError(409, {
             code: "IDEMPOTENCY_CONFLICT",
-            message: "This Idempotency-Key was used for a different stage decision.",
+            message:
+              "This Idempotency-Key was used for a different stage decision.",
           });
         }
         const replayMetadata =
@@ -1256,14 +1318,14 @@ export class ApplicationStageService {
             : replay.fromStage;
         return {
           ...stageTransitionOutcomeSchema.parse({
-          applicationId,
-          fromStage: replayFromStage,
-          stage: replay.toStage,
-          stageVersion: replay.applicationVersion,
-          lastStageChangedAt: replay.occurredAt.toISOString(),
-          stageEventId: replay.id,
-          replayed: true,
-          allowedDestinations: ordinaryApplicationTransitions[replay.toStage],
+            applicationId,
+            fromStage: replayFromStage,
+            stage: replay.toStage,
+            stageVersion: replay.applicationVersion,
+            lastStageChangedAt: replay.occurredAt.toISOString(),
+            stageEventId: replay.id,
+            replayed: true,
+            allowedDestinations: ordinaryApplicationTransitions[replay.toStage],
           }),
           auditEventId: replay.id,
           notificationRequired: replay.notificationRequired,
@@ -1280,6 +1342,8 @@ export class ApplicationStageService {
 }
 
 /** Public functional facade for callers that do not need the service object. */
-export async function attemptStageTransition(input: AttemptStageTransitionInput) {
+export async function attemptStageTransition(
+  input: AttemptStageTransitionInput,
+) {
   return new ApplicationStageService().attemptStageTransition(input);
 }

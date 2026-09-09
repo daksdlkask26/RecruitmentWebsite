@@ -119,7 +119,7 @@ test("runs the Candidate journey from CV import through application and messagin
     );
     await expect(page.locator("main").first()).toBeVisible();
     await expect(
-      page.getByRole("status").filter({ hasText: /ready for review/i }),
+      page.getByRole("status").filter({ hasText: /review ready/i }),
     ).toBeVisible({ timeout: 90_000 });
   });
 

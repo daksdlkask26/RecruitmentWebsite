@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -39,10 +41,20 @@ type Props = {
   initialCompanies?: RecruiterCompanySettings[];
   canManageTeam?: boolean;
   initialCompanyId?: string;
+  initialDeletionRequestId?: string;
 };
 type FormState = RecruiterCompanySettingsInput;
 type FieldName = "name" | "industry" | "size" | "address" | "logo";
 type FieldErrors = Partial<Record<FieldName | "website", string>>;
+type DeletionReceiptStatus =
+  | "BLOCKED"
+  | "PENDING"
+  | "RETRY_REQUIRED"
+  | "COMPLETED";
+type DeletionReceipt = Readonly<{
+  requestId: string;
+  status: DeletionReceiptStatus;
+}>;
 
 function emptyForm(): FormState {
   return {
@@ -296,7 +308,9 @@ export function CompanySettingsScreen({
   initialCompanies,
   canManageTeam = false,
   initialCompanyId,
+  initialDeletionRequestId,
 }: Props) {
+  const router = useRouter();
   const locale = useWorkspaceLocale();
   const copy = recruiterWorkspaceCopy(locale);
   const teamCopy = getCompanyTeamCopy(locale);
@@ -304,6 +318,7 @@ export function CompanySettingsScreen({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const deleteConfirmationRef = useRef<HTMLInputElement>(null);
+  const deletionReceiptHeadingRef = useRef<HTMLHeadingElement>(null);
   const [companies, setCompanies] = useState<RecruiterCompanySettings[]>(
     initialCompanies?.length
       ? initialCompanies
@@ -328,6 +343,13 @@ export function CompanySettingsScreen({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [deletionRequestId, setDeletionRequestId] = useState<string | null>(
+    initialDeletionRequestId ?? null,
+  );
+  const [deletionReceipt, setDeletionReceipt] =
+    useState<DeletionReceipt | null>(null);
+  const [deletionReceiptBusy, setDeletionReceiptBusy] = useState(false);
+  const [deletionReceiptError, setDeletionReceiptError] = useState("");
   const [isEditing, setIsEditing] = useState(!initialCompany?.profileComplete);
 
   const activeCompanyId =
@@ -467,6 +489,52 @@ export function CompanySettingsScreen({
     setDeleteConfirmation("");
   }
 
+  const reloadDeletionReceipt = useCallback(async (requestId: string) => {
+    setDeletionRequestId(requestId);
+    setDeletionReceiptBusy(true);
+    setDeletionReceiptError("");
+    try {
+      const response = await fetch(
+        `/api/recruiter/company/deletion/${encodeURIComponent(requestId)}`,
+        { cache: "no-store" },
+      );
+      const payload = (await response.json().catch(() => ({}))) as {
+        requestId?: string;
+        status?: DeletionReceiptStatus;
+      };
+      if (!response.ok || !payload.requestId || !payload.status) {
+        throw new Error(copy.deletionStatusUnavailable);
+      }
+      setDeletionReceipt({
+        requestId: payload.requestId,
+        status: payload.status,
+      });
+      return true;
+    } catch (caught) {
+      setDeletionReceiptError(
+        caught instanceof Error
+          ? caught.message
+          : copy.deletionStatusUnavailable,
+      );
+      return false;
+    } finally {
+      setDeletionReceiptBusy(false);
+    }
+  }, [copy.deletionStatusUnavailable]);
+
+  useEffect(() => {
+    if (!initialDeletionRequestId) return;
+    const refresh = window.setTimeout(() => {
+      void reloadDeletionReceipt(initialDeletionRequestId);
+    }, 0);
+    return () => window.clearTimeout(refresh);
+  }, [initialDeletionRequestId, reloadDeletionReceipt]);
+
+  useEffect(() => {
+    if (!deletionReceipt) return;
+    deletionReceiptHeadingRef.current?.focus();
+  }, [deletionReceipt]);
+
   async function deleteCompany() {
     const selectedCompany = company;
     if (!selectedCompany || busy || deleteBusy) return;
@@ -484,8 +552,40 @@ export function CompanySettingsScreen({
       });
       const payload = (await response.json().catch(() => ({}))) as {
         deleted?: boolean;
+        requestId?: string;
+        status?: "BLOCKED_BY_LEGAL_HOLD" | "PURGE_PENDING";
         message?: string;
       };
+      if (
+        payload.requestId &&
+        (payload.status === "BLOCKED_BY_LEGAL_HOLD" ||
+          payload.status === "PURGE_PENDING")
+      ) {
+        setDeleteDialogOpen(false);
+        setDeleteConfirmation("");
+        router.push(
+          `/recruiter/company-settings?deletionRequestId=${encodeURIComponent(payload.requestId)}`,
+        );
+        await reloadDeletionReceipt(payload.requestId);
+        if (payload.status === "BLOCKED_BY_LEGAL_HOLD") {
+          setMessage(copy.deletionRequestRecorded);
+          return;
+        }
+
+        window.dispatchEvent(new Event(RECRUITER_AUTHORITY_CHANGED_EVENT));
+        const remainingCompanies = companies.filter(
+          (candidate) => candidate.id !== selectedCompany.id,
+        );
+        const nextCompany = remainingCompanies[0] ?? null;
+        setCompanies(remainingCompanies);
+        setCompany(nextCompany);
+        setExplicitCompanyId(nextCompany?.id ?? null);
+        setCompanyId(nextCompany?.id ?? ALL_RECRUITER_COMPANIES);
+        setForm(nextCompany ? formFromCompany(nextCompany) : emptyForm());
+        setIsEditing(nextCompany ? !nextCompany.profileComplete : false);
+        setMessage(copy.deletionRequestRecorded);
+        return;
+      }
       if (!response.ok || !payload.deleted) {
         throw new Error(copy.unableToDelete);
       }
@@ -512,9 +612,39 @@ export function CompanySettingsScreen({
     }
   }
 
+  const deletionReceiptPanel = deletionRequestId ? (
+    <section
+      className={styles.gateCard}
+      aria-labelledby="company-deletion-receipt-title"
+      aria-live="polite"
+      data-testid="company-deletion-receipt"
+    >
+      <p className={styles.gateLabel}>{copy.deletionReceiptTitle}</p>
+      <h2
+        className={styles.gateTitle}
+        id="company-deletion-receipt-title"
+        ref={deletionReceiptHeadingRef}
+        tabIndex={-1}
+      >
+        {deletionReceipt
+          ? copy.deletionStatus[deletionReceipt.status]
+          : deletionReceiptError || copy.deletionRequestRecorded}
+      </h2>
+      <button
+        className={styles.btnOutline}
+        type="button"
+        disabled={deletionReceiptBusy}
+        onClick={() => void reloadDeletionReceipt(deletionRequestId)}
+      >
+        {deletionReceiptBusy ? copy.saving : copy.reloadDeletionStatus}
+      </button>
+    </section>
+  ) : null;
+
   if (!company) {
     return (
       <section className={styles.wrap}>
+        {deletionReceiptPanel}
         <section className={styles.emptySection}>
           <p className={styles.eyebrow}>{copy.settings}</p>
           <h1>{copy.noCompanyTitle}</h1>
@@ -635,7 +765,11 @@ export function CompanySettingsScreen({
             <label htmlFor="company-identity-name">{copy.companyName}</label>
             <div className={styles.lockedBox} id="company-identity-name">
               <span>{company.name}</span>
-              <span className={styles.lock} aria-label={copy.locked}>
+              <span
+                className={styles.lock}
+                role="img"
+                aria-label={copy.locked}
+              >
                 <LockIcon />
               </span>
             </div>
@@ -644,7 +778,11 @@ export function CompanySettingsScreen({
             <label htmlFor="company-identity-tax-code">{copy.taxCode}</label>
             <div className={styles.lockedBox} id="company-identity-tax-code">
               <span>{company.taxCode}</span>
-              <span className={styles.lock} aria-label={copy.locked}>
+              <span
+                className={styles.lock}
+                role="img"
+                aria-label={copy.locked}
+              >
                 <LockIcon />
               </span>
             </div>
@@ -679,6 +817,8 @@ export function CompanySettingsScreen({
           </ul>
         </section>
       ) : null}
+
+      {deletionReceiptPanel}
 
       <div className={styles.grid}>
         {isEditing ? (

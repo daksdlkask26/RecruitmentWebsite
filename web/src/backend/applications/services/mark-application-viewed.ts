@@ -4,7 +4,6 @@ import { prisma } from "@/backend/database/prisma";
 import { RecruiterApplicationAuthorization } from "@/backend/applications/authorization/recruiter-application-authorization";
 import { ApplicationStageService } from "@/backend/services/jobs/application-stage-service";
 import { JobServiceError } from "@/backend/services/jobs/job-types";
-import { applyAutomaticScoreStageRuleForApplication } from "./automatic-viewed-stage-rules";
 import {
   applicationStageSchema,
   applicationViewedOutcomeSchema,
@@ -56,11 +55,13 @@ export class MarkApplicationViewedService {
     });
     if (
       !application ||
-      !(await this.authorization.authorizeApplication(
-        input.userId,
-        application.jobPostingId,
-        application.id,
-      )).authorized
+      !(
+        await this.authorization.authorizeApplication(
+          input.userId,
+          application.jobPostingId,
+          application.id,
+        )
+      ).authorized
     ) {
       throw new JobServiceError(404, {
         code: "APPLICATION_NOT_FOUND",
@@ -78,23 +79,6 @@ export class MarkApplicationViewedService {
         attemptStageTransition?: ApplicationStageService["attemptStageTransition"];
         transition: ApplicationStageService["transition"];
       };
-      if (typeof authority.attemptStageTransition === "function") {
-        const automatic = await applyAutomaticScoreStageRuleForApplication({
-          candidateApplicationId: current.id,
-          db: this.db,
-          stageService: this.stageService,
-          now: input.now,
-        });
-        if (automatic?.stage === "REJECTED") {
-          return applicationViewedOutcomeSchema.parse({
-            applicationId: automatic.applicationId,
-            stage: automatic.stage,
-            stageVersion: automatic.stageVersion,
-            lastStageChangedAt: automatic.lastStageChangedAt,
-            changed: false,
-          });
-        }
-      }
       const transitioned =
         typeof authority.attemptStageTransition === "function"
           ? await authority.attemptStageTransition({

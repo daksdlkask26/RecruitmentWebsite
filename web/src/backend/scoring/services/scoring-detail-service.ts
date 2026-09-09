@@ -9,7 +9,6 @@ import {
   scoringDetailSchema,
   type ScoringState,
 } from "@/shared/contracts/scoring";
-import { applyAutomaticScoreStageRuleForApplication } from "@/backend/applications/services/automatic-viewed-stage-rules";
 
 export class ScoringDetailService {
   constructor(
@@ -69,27 +68,7 @@ export class ScoringDetailService {
     )
       throw new Error("APPLICATION_UNAVAILABLE");
 
-    let automaticLowScoreRejected = false;
-    const supportsCentralTransition =
-      typeof (
-        this.stageService as unknown as {
-          attemptStageTransition?: ApplicationStageService["attemptStageTransition"];
-        }
-      ).attemptStageTransition === "function";
-    if (supportsCentralTransition && sessionId) {
-      const automatic = await applyAutomaticScoreStageRuleForApplication({
-        candidateApplicationId: application.id,
-        db: this.db,
-        stageService: this.stageService,
-      });
-      automaticLowScoreRejected = automatic?.stage === "REJECTED";
-    }
-
-    if (
-      sessionId &&
-      application.stage === "APPLIED" &&
-      !automaticLowScoreRejected
-    ) {
+    if (sessionId && application.stage === "APPLIED") {
       try {
         const authority = this.stageService as unknown as {
           attemptStageTransition?: ApplicationStageService["attemptStageTransition"];

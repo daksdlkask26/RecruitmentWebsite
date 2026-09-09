@@ -1652,3 +1652,56 @@ export const CandidateCvArtifactPromotionState = {
 } as const
 
 export type CandidateCvArtifactPromotionState = (typeof CandidateCvArtifactPromotionState)[keyof typeof CandidateCvArtifactPromotionState]
+
+
+export const CompanyDeletionRequestState = {
+  REQUESTED: 'REQUESTED',
+  ELIGIBLE: 'ELIGIBLE',
+  BLOCKED_BY_LEGAL_HOLD: 'BLOCKED_BY_LEGAL_HOLD',
+  PURGING: 'PURGING',
+  RETRY_REQUIRED: 'RETRY_REQUIRED',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type CompanyDeletionRequestState = (typeof CompanyDeletionRequestState)[keyof typeof CompanyDeletionRequestState]
+
+
+export const CompanyDeletionHoldState = {
+  NOT_EVALUATED: 'NOT_EVALUATED',
+  CLEAR: 'CLEAR',
+  ACTIVE: 'ACTIVE',
+  RELEASED: 'RELEASED'
+} as const
+
+export type CompanyDeletionHoldState = (typeof CompanyDeletionHoldState)[keyof typeof CompanyDeletionHoldState]
+
+
+export const CompanyDeletionPurgeState = {
+  NOT_STARTED: 'NOT_STARTED',
+  BLOCKED: 'BLOCKED',
+  PENDING: 'PENDING',
+  RETRYABLE: 'RETRYABLE',
+  COMPLETE: 'COMPLETE'
+} as const
+
+export type CompanyDeletionPurgeState = (typeof CompanyDeletionPurgeState)[keyof typeof CompanyDeletionPurgeState]
+
+
+export const CompanyDeletionManifestResourceKind = {
+  DATABASE_RECORD: 'DATABASE_RECORD',
+  OBJECT: 'OBJECT'
+} as const
+
+export type CompanyDeletionManifestResourceKind = (typeof CompanyDeletionManifestResourceKind)[keyof typeof CompanyDeletionManifestResourceKind]
+
+
+export const CompanyDeletionManifestState = {
+  PENDING: 'PENDING',
+  DELETED: 'DELETED',
+  RETAINED_SHARED: 'RETAINED_SHARED',
+  BLOCKED_BY_LEGAL_HOLD: 'BLOCKED_BY_LEGAL_HOLD',
+  RETRYABLE: 'RETRYABLE',
+  CONFLICT: 'CONFLICT'
+} as const
+
+export type CompanyDeletionManifestState = (typeof CompanyDeletionManifestState)[keyof typeof CompanyDeletionManifestState]

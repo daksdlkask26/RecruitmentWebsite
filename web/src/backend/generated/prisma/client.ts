@@ -520,6 +520,17 @@ export type CandidateCvArtifactPromotion = Prisma.CandidateCvArtifactPromotionMo
  */
 export type ApplicationDocumentLegalHold = Prisma.ApplicationDocumentLegalHoldModel
 /**
+ * Model CompanyDeletionRequest
+ * Durable deletion request state is intentionally independent of Company so
+ * the receipt and object-level outcomes survive physical company deletion.
+ */
+export type CompanyDeletionRequest = Prisma.CompanyDeletionRequestModel
+/**
+ * Model CompanyDeletionManifestEntry
+ * 
+ */
+export type CompanyDeletionManifestEntry = Prisma.CompanyDeletionManifestEntryModel
+/**
  * Model ProfessionalConnection
  * 
  */

@@ -9,7 +9,10 @@ import type {
   ManualPriority,
   ScoringOperation,
 } from "@/shared/contracts/scoring";
-import { aiScoreReasoningSchema } from "@/shared/contracts/scoring";
+import {
+  aiScoreReasoningSchema,
+  experienceEvidenceSchema,
+} from "@/shared/contracts/scoring";
 import type {
   ScoringRepositoryPort,
   PublishedScoringRecord,
@@ -83,7 +86,10 @@ function humanAiFindingTitle(value: string): string {
 
 type HybridWeight = 0.4 | 0.6;
 
-function storedHybridWeight(value: unknown, fallback: HybridWeight): HybridWeight {
+function storedHybridWeight(
+  value: unknown,
+  fallback: HybridWeight,
+): HybridWeight {
   const weight = Number(value);
   return weight === 0.4 || weight === 0.6 ? weight : fallback;
 }
@@ -116,6 +122,23 @@ function boundedDisplaySummary(value: unknown, maximum = 300): string {
   if (!text) return "Not provided";
   if (text.length <= maximum) return text;
   return `${text.slice(0, Math.max(0, maximum - 3)).trimEnd()}...`;
+}
+
+function persistedExperienceEvidence(
+  experience: AutomaticMatch["detectedExperience"],
+) {
+  if (experience.kind === "NOT_DETECTED") {
+    return experience.incomplete ? { incomplete: true } : undefined;
+  }
+  const intervals = experience.intervals ?? [];
+  const mergedIntervals = experience.mergedIntervals ?? [];
+  if (!intervals.length && !mergedIntervals.length && !experience.incomplete)
+    return undefined;
+  return {
+    ...(intervals.length ? { intervals } : {}),
+    ...(mergedIntervals.length ? { mergedIntervals } : {}),
+    ...(experience.incomplete ? { incomplete: true } : {}),
+  };
 }
 
 function deterministicStrengthFallback(
@@ -357,6 +380,12 @@ export class PrismaScoringRepository implements ScoringRepositoryPort {
         parserVersion: excerpt.parserVersion,
       })),
     }));
+    const experienceEvidenceResult = experienceEvidenceSchema.safeParse(
+      row.experienceEvidence,
+    );
+    const experienceEvidence = experienceEvidenceResult.success
+      ? experienceEvidenceResult.data
+      : {};
     return {
       resultId: row.id,
       score: Number(row.score),
@@ -392,11 +421,16 @@ export class PrismaScoringRepository implements ScoringRepositoryPort {
           : Number(row.minimumExperienceYears),
       detectedExperience:
         row.detectedExperienceYears === null
-          ? { kind: "NOT_DETECTED", label: "Not detected" }
+          ? {
+              kind: "NOT_DETECTED",
+              label: "Not detected",
+              ...experienceEvidence,
+            }
           : {
               kind: "DETECTED",
               years: Number(row.detectedExperienceYears),
               label: `${Number(row.detectedExperienceYears)} years detected`,
+              ...experienceEvidence,
             },
     };
   }
@@ -404,8 +438,7 @@ export class PrismaScoringRepository implements ScoringRepositoryPort {
   private projectAi(
     row: any,
     automatic?: AutomaticMatch,
-    scoreConfig: AutomaticScoreStageRuleConfig =
-      getAutomaticScoreStageRuleConfig(),
+    scoreConfig: AutomaticScoreStageRuleConfig = getAutomaticScoreStageRuleConfig(),
   ): AiAssessment {
     const dataQualityNotes = row.findings
       .filter(
@@ -670,9 +703,10 @@ export class PrismaScoringRepository implements ScoringRepositoryPort {
     // generated state is usable. Older rows with only one or two persisted
     // questions are represented as insufficient data instead of making the
     // strict scoring detail schema reject the entire candidate.
-    const suggestedQuestions = questionItems.length === 3
-      ? questionItems.map((question) => question.question)
-      : [];
+    const suggestedQuestions =
+      questionItems.length === 3
+        ? questionItems.map((question) => question.question)
+        : [];
     const confidenceLevel =
       scoreReasoning.confidence.level === "Low"
         ? "LOW"
@@ -729,17 +763,18 @@ export class PrismaScoringRepository implements ScoringRepositoryPort {
         code: "SENSITIVE_ATTRIBUTES_EXCLUDED",
         label: row.complianceStatementLabel,
       },
-      questions: suggestedQuestions.length === 3
-        ? {
-            kind: "GENERATED",
-            items: questionItems,
-          }
-        : {
-            kind: "INSUFFICIENT_DATA",
-            fallbackMessage:
-              row.questionFallbackLabel ??
-              "There is not enough evidence to generate suggested questions.",
-          },
+      questions:
+        suggestedQuestions.length === 3
+          ? {
+              kind: "GENERATED",
+              items: questionItems,
+            }
+          : {
+              kind: "INSUFFICIENT_DATA",
+              fallbackMessage:
+                row.questionFallbackLabel ??
+                "There is not enough evidence to generate suggested questions.",
+            },
     };
   }
 
@@ -807,6 +842,9 @@ export class PrismaScoringRepository implements ScoringRepositoryPort {
             input.automatic.detectedExperience.kind === "DETECTED"
               ? input.automatic.detectedExperience.years
               : null,
+          experienceEvidence: persistedExperienceEvidence(
+            input.automatic.detectedExperience,
+          ),
           experienceInterpretationCode: input.automatic.detectedExperience.kind,
           experienceInterpretationLabel:
             input.automatic.detectedExperience.label,

@@ -196,6 +196,7 @@ export function createScoringWorkProcessor(
           typeof job.minimumExperienceYears === "number"
             ? job.minimumExperienceYears
             : experienceMinimum(job.experienceLevel),
+        now: new Date(),
       }).result;
     const evidence = [
       ...automatic.foundRequiredSkills,

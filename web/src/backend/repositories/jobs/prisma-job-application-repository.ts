@@ -29,6 +29,10 @@ import { createApplicationDocumentStorage } from "@/backend/applications/storage
 import type { ApplicationDocumentStoragePort } from "@/backend/applications/storage/application-document-storage";
 import { CV_SECURITY_POLICY_VERSION } from "@/shared/contracts/cv-import/common";
 import { OpenSafeCvArtifactService } from "@/backend/services/cv-admission/open-safe-cv-artifact-service";
+import {
+  acquireCompanyDeletionObjectLock,
+  assertCompanyDeletionObjectCanBeReferenced,
+} from "@/backend/services/jobs/company-deletion-object-lock";
 
 type CandidateApplicationForm = {
   job: {
@@ -156,20 +160,24 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
     const staged: string[] = [];
     try {
       for (const artifact of artifacts) {
-        await this.db.applicationArtifactPromotion.create({
-          data: {
-            id: artifact.promotionId,
-            candidateUserId: input.candidateUserId,
-            jobPostingId: input.jobId,
-            kind: artifact.kind,
-            storagePurposeVersion: "application-document-v1",
-            storageKeyEncrypted: artifact.storageKey,
-            contentDigestSha256: artifact.checksumSha256,
-            state: ApplicationArtifactPromotionState.PROMOTED,
-            orphanDeleteAfter: new Date(
-              input.occurredAt.getTime() + 24 * 60 * 60 * 1000,
-            ),
-          },
+        await this.db.$transaction(async (tx) => {
+          await acquireCompanyDeletionObjectLock(tx, artifact.storageKey);
+          await assertCompanyDeletionObjectCanBeReferenced(tx, artifact.storageKey);
+          await tx.applicationArtifactPromotion.create({
+            data: {
+              id: artifact.promotionId,
+              candidateUserId: input.candidateUserId,
+              jobPostingId: input.jobId,
+              kind: artifact.kind,
+              storagePurposeVersion: "application-document-v1",
+              storageKeyEncrypted: artifact.storageKey,
+              contentDigestSha256: artifact.checksumSha256,
+              state: ApplicationArtifactPromotionState.PROMOTED,
+              orphanDeleteAfter: new Date(
+                input.occurredAt.getTime() + 24 * 60 * 60 * 1000,
+              ),
+            },
+          });
         });
         staged.push(artifact.promotionId);
       }
@@ -760,8 +768,19 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
       // Materialize every object only after its durable promotion row exists.
       // A lost storage response is then recoverable by the retention worker.
       await input.directCoverLetter?.ensureStored?.();
+      const objectKeysToCommit = [
+        promotedApplicationDocument?.storageKey,
+        promotedCoverLetterDocument?.storageKey,
+      ]
+        .filter((key): key is string => Boolean(key))
+        .filter((key, index, keys) => keys.indexOf(key) === index)
+        .sort();
       const result = await this.db.$transaction(
         async (tx) => {
+          for (const objectKey of objectKeysToCommit) {
+            await acquireCompanyDeletionObjectLock(tx, objectKey);
+            await assertCompanyDeletionObjectCanBeReferenced(tx, objectKey);
+          }
           const sameKey = await tx.jobApplication.findUnique({
             where: {
               candidateUserId_idempotencyKey: {

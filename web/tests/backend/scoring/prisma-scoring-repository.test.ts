@@ -6,9 +6,7 @@ import {
   type AutomaticMatch,
 } from "@/shared/contracts/scoring";
 import type { prisma } from "@/backend/database/prisma";
-import {
-  PrismaScoringRepository,
-} from "@/backend/scoring/repositories/prisma-scoring-repository";
+import { PrismaScoringRepository } from "@/backend/scoring/repositories/prisma-scoring-repository";
 import type { PublishedScoringRecord } from "@/backend/scoring/repositories/scoring-repository";
 
 describe("PrismaScoringRepository scoring detail compatibility", () => {
@@ -40,6 +38,27 @@ describe("PrismaScoringRepository scoring detail compatibility", () => {
             incompletenessLabel: null,
             minimumExperienceYears: 3,
             detectedExperienceYears: 4,
+            experienceEvidence: {
+              intervals: [
+                {
+                  startMonth: 2020 * 12,
+                  endMonthExclusive: 2022 * 12,
+                  source: "work-history",
+                  startToken: "2020",
+                  endToken: "2022",
+                },
+                {
+                  startMonth: 2021 * 12,
+                  endMonthExclusive: 2023 * 12,
+                  source: "work-history",
+                  startToken: "2021",
+                  endToken: "2023",
+                },
+              ],
+              mergedIntervals: [
+                { startMonth: 2020 * 12, endMonthExclusive: 2023 * 12 },
+              ],
+            },
             parseResults: [
               { documentKind: "CV", status: "PARSED_SUCCESSFULLY" },
               {
@@ -104,6 +123,13 @@ describe("PrismaScoringRepository scoring detail compatibility", () => {
     expect(result?.ai?.breakdown.every((item) => item.length <= 300)).toBe(
       true,
     );
+    expect(result?.automatic.detectedExperience).toMatchObject({
+      kind: "DETECTED",
+      intervals: expect.any(Array),
+      mergedIntervals: [
+        { startMonth: 2020 * 12, endMonthExclusive: 2023 * 12 },
+      ],
+    });
   });
 
   it("uses fresh database ids for findings on every rescore", async () => {
@@ -129,7 +155,30 @@ describe("PrismaScoringRepository scoring detail compatibility", () => {
       missingRequiredSkills: [],
       preferredSkills: [],
       minimumExperienceYears: 3,
-      detectedExperience: { kind: "DETECTED", years: 4, label: "4 years" },
+      detectedExperience: {
+        kind: "DETECTED",
+        years: 4,
+        label: "4 years",
+        intervals: [
+          {
+            startMonth: 2020 * 12,
+            endMonthExclusive: 2022 * 12,
+            source: "work-history",
+            startToken: "2020",
+            endToken: "2022",
+          },
+          {
+            startMonth: 2021 * 12,
+            endMonthExclusive: 2023 * 12,
+            source: "work-history",
+            startToken: "2021",
+            endToken: "2023",
+          },
+        ],
+        mergedIntervals: [
+          { startMonth: 2020 * 12, endMonthExclusive: 2023 * 12 },
+        ],
+      },
     });
     const ai = aiAssessmentSchema.parse({
       assessmentId: "provider-assessment-1",
@@ -201,10 +250,12 @@ describe("PrismaScoringRepository scoring detail compatibility", () => {
         create: vi.fn().mockResolvedValue({ id: "automatic-result-1" }),
       },
       aiAssessment: {
-        create: vi.fn().mockImplementation(async ({ data }: { data: unknown }) => {
-          persistedAssessments.push(data);
-          return { id: `assessment-${persistedAssessments.length}` };
-        }),
+        create: vi
+          .fn()
+          .mockImplementation(async ({ data }: { data: unknown }) => {
+            persistedAssessments.push(data);
+            return { id: `assessment-${persistedAssessments.length}` };
+          }),
       },
       applicationScoringResult: {
         create: vi.fn().mockResolvedValue({ id: "published-result-1" }),
@@ -214,7 +265,10 @@ describe("PrismaScoringRepository scoring detail compatibility", () => {
       },
     };
     const db = {
-      $transaction: vi.fn(async (callback: (value: typeof tx) => Promise<unknown>) => callback(tx)),
+      $transaction: vi.fn(
+        async (callback: (value: typeof tx) => Promise<unknown>) =>
+          callback(tx),
+      ),
     };
     const repository = new PrismaScoringRepository(
       db as unknown as typeof prisma,
@@ -232,6 +286,19 @@ describe("PrismaScoringRepository scoring detail compatibility", () => {
     };
     await repository.publish(publishInput);
     await repository.publish({ ...publishInput, operationId: "operation-2" });
+
+    expect(tx.automaticMatchResult.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          experienceEvidence: {
+            intervals: expect.any(Array),
+            mergedIntervals: [
+              { startMonth: 2020 * 12, endMonthExclusive: 2023 * 12 },
+            ],
+          },
+        }),
+      }),
+    );
 
     const records = persistedAssessments as Array<{
       findings: { create: Array<{ id: string; kind: string }> };

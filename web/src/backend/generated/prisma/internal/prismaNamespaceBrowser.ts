@@ -144,6 +144,8 @@ export const ModelName = {
   ApplicationArtifactPromotion: 'ApplicationArtifactPromotion',
   CandidateCvArtifactPromotion: 'CandidateCvArtifactPromotion',
   ApplicationDocumentLegalHold: 'ApplicationDocumentLegalHold',
+  CompanyDeletionRequest: 'CompanyDeletionRequest',
+  CompanyDeletionManifestEntry: 'CompanyDeletionManifestEntry',
   ProfessionalConnection: 'ProfessionalConnection',
   ProfessionalConnectionProposal: 'ProfessionalConnectionProposal',
   ProfessionalConnectionDecision: 'ProfessionalConnectionDecision',
@@ -2019,6 +2021,47 @@ export const ApplicationDocumentLegalHoldScalarFieldEnum = {
 export type ApplicationDocumentLegalHoldScalarFieldEnum = (typeof ApplicationDocumentLegalHoldScalarFieldEnum)[keyof typeof ApplicationDocumentLegalHoldScalarFieldEnum]
 
 
+export const CompanyDeletionRequestScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  requestedByUserId: 'requestedByUserId',
+  state: 'state',
+  holdState: 'holdState',
+  purgeState: 'purgeState',
+  requestedAt: 'requestedAt',
+  retentionEligibleAt: 'retentionEligibleAt',
+  holdEvaluatedAt: 'holdEvaluatedAt',
+  physicalPurgeStartedAt: 'physicalPurgeStartedAt',
+  completedAt: 'completedAt',
+  lastFailureCode: 'lastFailureCode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CompanyDeletionRequestScalarFieldEnum = (typeof CompanyDeletionRequestScalarFieldEnum)[keyof typeof CompanyDeletionRequestScalarFieldEnum]
+
+
+export const CompanyDeletionManifestEntryScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  identityKey: 'identityKey',
+  resourceKind: 'resourceKind',
+  resourceType: 'resourceType',
+  recordId: 'recordId',
+  objectKeyEncrypted: 'objectKeyEncrypted',
+  objectVersion: 'objectVersion',
+  state: 'state',
+  outcomeCode: 'outcomeCode',
+  attemptCount: 'attemptCount',
+  lastAttemptAt: 'lastAttemptAt',
+  deletedAt: 'deletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CompanyDeletionManifestEntryScalarFieldEnum = (typeof CompanyDeletionManifestEntryScalarFieldEnum)[keyof typeof CompanyDeletionManifestEntryScalarFieldEnum]
+
+
 export const ProfessionalConnectionScalarFieldEnum = {
   id: 'id',
   participantLowId: 'participantLowId',
@@ -2910,6 +2953,7 @@ export const AutomaticMatchResultScalarFieldEnum = {
   preferredSkillBonus: 'preferredSkillBonus',
   minimumExperienceYears: 'minimumExperienceYears',
   detectedExperienceYears: 'detectedExperienceYears',
+  experienceEvidence: 'experienceEvidence',
   experienceInterpretationCode: 'experienceInterpretationCode',
   experienceInterpretationLabel: 'experienceInterpretationLabel',
   mayBeIncomplete: 'mayBeIncomplete',

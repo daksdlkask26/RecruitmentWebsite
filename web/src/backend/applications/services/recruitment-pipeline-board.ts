@@ -17,7 +17,6 @@ import {
   recruiterPipelineButtonTransitions,
   recruiterPipelineDragTransitions,
 } from "@/backend/services/jobs/application-stage-policy";
-import { applyAutomaticViewedStageRules } from "./automatic-viewed-stage-rules";
 import { RecruiterApplicationAuthorization } from "../authorization/recruiter-application-authorization";
 
 export class RecruitmentPipelineBoardService {
@@ -45,12 +44,6 @@ export class RecruitmentPipelineBoardService {
     now?: Date;
   }): Promise<PipelineBoardMetadata> {
     const context = await this.context(input.userId, input.jobId);
-    if (this.repository instanceof PrismaApplicationRepository) {
-      await applyAutomaticViewedStageRules({
-        jobPostingId: context.jobPostingId,
-        now: input.now,
-      });
-    }
     const counts = await this.repository.countPipelineStages(
       context.jobPostingId,
     );
@@ -94,12 +87,6 @@ export class RecruitmentPipelineBoardService {
     now?: Date;
   }): Promise<PipelineStagePage> {
     const context = await this.context(input.userId, input.jobId);
-    if (this.repository instanceof PrismaApplicationRepository) {
-      await applyAutomaticViewedStageRules({
-        jobPostingId: context.jobPostingId,
-        now: input.now,
-      });
-    }
     const page = await this.repository.listPipelineStage({
       jobId: context.jobPostingId,
       stage: input.stage,

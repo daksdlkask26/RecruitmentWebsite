@@ -78,28 +78,28 @@ Kết quả cần đạt:
 
 ## 4. Hiện trạng đã xác minh
 
-| Khu vực | Nền tảng đã có | Khoảng cần xử lý |
-|---|---|---|
-| CV Import | Có `CvUpload`, scan/extraction/parse/draft, SHA-256, idempotency và trang trạng thái theo `uploadId` | Chuyển ownership sau commit; safe artifact reuse; resume UX hiện còn phụ thuộc state trong tab |
-| CV trên Team Application | Có service và retention policy riêng | Chưa dùng đầy đủ admission → quarantine → scan → encrypted storage → safe-to-open gate chung |
-| Application | Có wizard, tracker, repository và idempotency tests ở một số luồng | Snapshot/download/timeline và pagination Candidate cần hoàn thiện đồng bộ |
-| Kinh nghiệm | Có dữ liệu experience và scoring service | Cách tổng hợp hiện có thể lấy khoảng lớn nhất thay vì union các khoảng theo tháng |
-| Home/Discovery | Có Home context, search, Jobs/Company flows và test tương ứng | Home đang trộn public/personal context; cần đo rồi tách cache, tag và invalidation |
-| Realtime | Có Socket.IO gateway, registry/presence và authorization | Disconnect cleanup được đăng ký sau các `await`; multi-instance chưa phải nhu cầu mặc định |
-| UI | Có `--sh-*`, EN/VI copy modules và nhiều accessibility tests | Cần kiểm tra browser thật, cascade, responsive, long data, focus và modal stacking |
+| Khu vực                  | Nền tảng đã có                                                                                       | Khoảng cần xử lý                                                                               |
+| ------------------------ | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| CV Import                | Có `CvUpload`, scan/extraction/parse/draft, SHA-256, idempotency và trang trạng thái theo `uploadId` | Chuyển ownership sau commit; safe artifact reuse; resume UX hiện còn phụ thuộc state trong tab |
+| CV trên Team Application | Có service và retention policy riêng                                                                 | Chưa dùng đầy đủ admission → quarantine → scan → encrypted storage → safe-to-open gate chung   |
+| Application              | Có wizard, tracker, repository và idempotency tests ở một số luồng                                   | Snapshot/download/timeline và pagination Candidate cần hoàn thiện đồng bộ                      |
+| Kinh nghiệm              | Có dữ liệu experience và scoring service                                                             | Cách tổng hợp hiện có thể lấy khoảng lớn nhất thay vì union các khoảng theo tháng              |
+| Home/Discovery           | Có Home context, search, Jobs/Company flows và test tương ứng                                        | Home đang trộn public/personal context; cần đo rồi tách cache, tag và invalidation             |
+| Realtime                 | Có Socket.IO gateway, registry/presence và authorization                                             | Disconnect cleanup được đăng ký sau các `await`; multi-instance chưa phải nhu cầu mặc định     |
+| UI                       | Có `--sh-*`, EN/VI copy modules và nhiều accessibility tests                                         | Cần kiểm tra browser thật, cascade, responsive, long data, focus và modal stacking             |
 
 ## 4.1. Trạng thái lát cắt đầu tiên — 2026-09-05
 
-| Hạng mục | Trạng thái hiện tại | Bằng chứng | Giới hạn còn lại |
-|---|---|---|---|
-| CF-001 | Guard URL fail-closed and namespaced Candidate/base fixtures implemented and verified | `web/tests/helpers/test-database-guard.ts`, contract/rollback tests; `smarthire_candidate_first_test` has 88 migrations/165 tables; create/delete control ran twice consecutively; read-only probe after teardown found 0 users/applications/accounts/memberships/threads/messages/notifications and 0 fixture artifacts; development URL rejected before connection with `TEST_DATABASE_NAME_UNSAFE` | CI provisioning and production-like storage fault integration still need a disposable environment; this is not production evidence |
-| CF-002 | Historical 35-failure baseline retained and final-source triage recorded | [`candidate-first-baseline-triage-2026-09-05.md`](candidate-first-baseline-triage-2026-09-05.md) assigns owner/work item for the original 18 suites/35 tests; the current raw/triage pair is [final-source raw](2026-09-06-gate0-recheck-final-source-raw.json) and [final-source triage](2026-09-06-gate0-recheck-final-source-triage.json) | Broader failures remain visible outside the Stage 0 acceptance scope and are assigned to their owning work items |
-| CF-003 | Candidate smoke reached CV status and scanner/worker deterministic boundaries are verified | Desktop smoke login/upload API returned 200/201; scanner/retry/reconciliation integration passed 3 files/32 tests on the isolated database; storage cleanup reported no error | Live journey still stops at `CV status` because `/run/clamav/clamd.sock` and the worker are unavailable; mobile, review/confirm/apply/download/notification/message remain unclaimed |
-| CF-004 | Home keyboard and responsive browser matrices verified with real Chromium | `home-keyboard-responsive.spec.ts` passed 8/8 and `home-responsive-matrix.spec.ts` passed 8/8 across desktop/mobile projects; checks cover 320/375/768/1280, EN/VI, dark, reduced motion, overflow, focus and screenshot attachments | Home query/p50/p95/p99/pool wait (the dedicated performance gate received 0 active public jobs and required >=1000), realtime 1/10/40/100, full Candidate journey, accessibility score and restore drill still lack evidence |
-| CF-101 | Post-commit ownership, replay and idempotent cleanup fixed in application CV paths | prepare, JobApplicationService, profile-save and TeamApplication ownership/replay tests; confirmed-CV promotion; post-commit fault; cleanup retry; fixture rollback; scanner/retry/reconciliation 32 tests pass | No fault/storage integration with real ClamAV yet; reconciliation/retention metrics and CI provisioning remain open in CF-107/CF-801 |
-| CF-105 | **OPEN** — human-controlled recruitment-stage invariant is not satisfied | `automatic-viewed-stage-rules.ts` still derives `WAITLISTED`, `SHORTLISTED`, and `REJECTED` from a published score; `scoring-worker.ts` invokes the automatic rule after scoring completes | Remove score-driven stage mutation and prove that only an authorized human command changes a consequential recruitment stage |
-| CF-106 | **OPEN** — experience aggregation contract is not satisfied | `automatic-match-calculator.ts` calls `new Date()` inside date parsing and selects `Math.max(...values)` from individual ranges | Implement month-interval union with an injected clock and verify overlap, nesting, adjacency, gaps, open-ended ranges, partial dates, invalid dates, ordering, and EN/VI tokens |
-| CF-107 | **OPEN** — legal-hold-aware deletion workflow is not satisfied | `hardDeleteDatabaseCompany` deletes application rows without first evaluating active `ApplicationDocumentLegalHold` records; the hold relation still cascades with the application and no deletion manifest records object-level outcomes | Separate request, eligibility, hold, purge, and reconciliation states; active holds must block physical purge and every artifact outcome must be traceable |
+| Hạng mục | Trạng thái hiện tại                                                                            | Bằng chứng                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Giới hạn còn lại                                                                                                                                                                                                             |
+| -------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CF-001   | Guard URL fail-closed and namespaced Candidate/base fixtures implemented and verified          | `web/tests/helpers/test-database-guard.ts`, contract/rollback tests; `smarthire_candidate_first_test` has 88 migrations/165 tables; create/delete control ran twice consecutively; read-only probe after teardown found 0 users/applications/accounts/memberships/threads/messages/notifications and 0 fixture artifacts; development URL rejected before connection with `TEST_DATABASE_NAME_UNSAFE`                                                                        | CI provisioning and production-like storage fault integration still need a disposable environment; this is not production evidence                                                                                           |
+| CF-002   | Historical 35-failure baseline retained and final-source triage recorded                       | [`candidate-first-baseline-triage-2026-09-05.md`](candidate-first-baseline-triage-2026-09-05.md) assigns owner/work item for the original 18 suites/35 tests; the current raw/triage pair is [final-source raw](2026-09-06-gate0-recheck-final-source-raw.json) and [final-source triage](2026-09-06-gate0-recheck-final-source-triage.json)                                                                                                                                 | Broader failures remain visible outside the Stage 0 acceptance scope and are assigned to their owning work items                                                                                                             |
+| CF-003   | Candidate smoke reached CV status and scanner/worker deterministic boundaries are verified     | Desktop smoke login/upload API returned 200/201; scanner/retry/reconciliation integration passed 3 files/32 tests on the isolated database; storage cleanup reported no error                                                                                                                                                                                                                                                                                                | Live journey still stops at `CV status` because `/run/clamav/clamd.sock` and the worker are unavailable; mobile, review/confirm/apply/download/notification/message remain unclaimed                                         |
+| CF-004   | Home keyboard and responsive browser matrices verified with real Chromium                      | `home-keyboard-responsive.spec.ts` passed 8/8 and `home-responsive-matrix.spec.ts` passed 8/8 across desktop/mobile projects; checks cover 320/375/768/1280, EN/VI, dark, reduced motion, overflow, focus and screenshot attachments                                                                                                                                                                                                                                         | Home query/p50/p95/p99/pool wait (the dedicated performance gate received 0 active public jobs and required >=1000), realtime 1/10/40/100, full Candidate journey, accessibility score and restore drill still lack evidence |
+| CF-101   | Post-commit ownership, replay and idempotent cleanup fixed in application CV paths             | prepare, JobApplicationService, profile-save and TeamApplication ownership/replay tests; confirmed-CV promotion; post-commit fault; cleanup retry; fixture rollback; scanner/retry/reconciliation 32 tests pass                                                                                                                                                                                                                                                              | No fault/storage integration with real ClamAV yet; reconciliation/retention metrics and CI provisioning remain open in CF-107/CF-801                                                                                         |
+| CF-105   | **VERIFIED** — scores remain advisory and consequential stage changes require a human actor    | Removed the score-to-stage writer and all production callers from scoring worker/runtime, board reads, document open, viewed acknowledgement, and scoring detail; the public stage authority rejects legacy/system actors; focused CF-105 run passed **11 files / 49 tests**, including worker publication, score-band advisory, actor guard, CAS/authorization/idempotency/notification contracts                                                                           | No remaining CF-105-specific limitation identified; ClamAV/CV-import evidence remains owned by its existing work items                                                                                                       |
+| CF-106   | **VERIFIED** — experience aggregation uses deterministic month-interval union                  | Injected `now` at scoring boundaries; normalized year/month/open-ended EN/VI tokens; sorted and merged overlap, nested and adjacent intervals; malformed/reversed ranges set `incomplete`; persisted interval/union evidence through migration `094`; focused CF-106 run passed **3 files / 25 tests**; full scoring suite passed **21 files / 104 tests** and retained one unrelated baseline failure on the isolated PostgreSQL database                                                                             | No remaining CF-106-specific limitation identified                                                                                                                                                                           |
+| CF-107   | **VERIFIED_WITH_SCOPE_LIMITATION** — legal-hold-aware deletion request and manifest purge are durable and retry-safe | Added request retention/hold/purge states and DB/object manifest entries in migration `095`; company deletion records manifest before destructive work and returns a blocked receipt under an active hold; object purge records deleted/already-absent/retryable/conflict outcomes and checks live references before retry; unit run passed **2 files / 28 tests**, PostgreSQL manifest integration passed **1 file / 1 test**, migration sequence passed with 95 migrations; retention worker probe passed with company-deletion reconciliation wiring | Company deletion scope is the verified source boundary; broader account-wide erasure and external object-inventory restore drills remain outside CF-107 evidence and are not claimed complete                                |
 
 Các trạng thái trên chỉ áp dụng cho lát cắt đầu tiên. Không đánh dấu checkbox
 Definition of Done cấp chương trình khi browser, integration, performance và
@@ -281,6 +281,8 @@ Không bắt đầu Đợt 2 trước khi invariant ownership và scan gate củ
 
 **Nghiệm thu:** 2020–2022 cộng 2021–2023 bằng 3 năm theo quy ước; kết quả test không thay đổi theo ngày chạy; evidence chỉ ra khoảng nào được hợp nhất.
 
+**Implementation note (2026-09-09):** source review xác nhận `AutomaticMatchResult` trước đây chỉ persist `detectedExperienceYears`; migration `094` là cần thiết để giữ interval evidence qua worker/repository projection. Migration chỉ thêm nullable JSON evidence, tương thích dữ liệu cũ (legacy rows tiếp tục project như trước), deploy sau `093`, và rollback an toàn bằng cách dừng writers mới rồi drop cột sau khi projection đã fallback về legacy years.
+
 ### CF-107 — Retention, legal hold và deletion manifest (F05)
 
 - Tách user deletion request, retention expiry, legal hold và physical purge.
@@ -289,6 +291,8 @@ Không bắt đầu Đợt 2 trước khi invariant ownership và scan gate củ
 - Candidate nhận receipt/status phù hợp, không tuyên bố đã xóa khi physical purge chưa hoàn tất.
 
 **Nghiệm thu:** legal hold chặn purge; retry worker không xóa nhầm object mới; restore/reconciliation nhận diện object mồ côi và record thiếu object.
+
+**Implementation note (2026-09-09):** source review chứng minh cần migration `095` để tách durable company-deletion request/retention eligibility/legal-hold/purge state và manifest entry theo DB record/object key-version. Hai bảng không giữ FK bắt buộc tới Company để receipt còn tồn tại sau physical deletion; manifest state là append-safe/idempotent, object purge kiểm tra reference mới trước khi delete. Deploy order là sau `094`; rollback là dừng request/purge writers, để repository đọc legacy deletion result, sau đó drop manifest/request tables (không khôi phục dữ liệu company đã xóa).
 
 **Gate Đợt 1:** fault sau commit giữ được CV; mọi upload đi qua safe-to-open gate; replay không lặp pipeline; Candidate không bị tự động quyết định; tính kinh nghiệm và legal hold đạt bộ ca bắt buộc.
 
@@ -528,16 +532,16 @@ Mỗi trang phải có loading, empty, error, success, disabled, permission và 
 
 ### CF-704 — Ma trận accessibility/responsive
 
-| Hạng mục | Phạm vi bắt buộc |
-|---|---|
-| Viewport | 320, 375, 768, 1280 px |
-| Zoom | 200% |
-| Ngôn ngữ | EN và VI |
-| Input | Keyboard-only, pointer, touch target |
-| Trợ năng | Focus visible, label/name/role/value, live status hợp lý |
-| Theme | Light và dark nơi app hỗ trợ |
-| Motion | `prefers-reduced-motion` |
-| Dữ liệu | Tên dài, công ty dài, salary/location dài, empty và 1.000 records |
+| Hạng mục | Phạm vi bắt buộc                                                  |
+| -------- | ----------------------------------------------------------------- |
+| Viewport | 320, 375, 768, 1280 px                                            |
+| Zoom     | 200%                                                              |
+| Ngôn ngữ | EN và VI                                                          |
+| Input    | Keyboard-only, pointer, touch target                              |
+| Trợ năng | Focus visible, label/name/role/value, live status hợp lý          |
+| Theme    | Light và dark nơi app hỗ trợ                                      |
+| Motion   | `prefers-reduced-motion`                                          |
+| Dữ liệu  | Tên dài, công ty dài, salary/location dài, empty và 1.000 records |
 
 ### CF-705 — Browser evidence
 
@@ -581,24 +585,24 @@ Chuẩn hóa boundary cho recruiter/admin mutation có liên quan dữ liệu Ca
 
 ## 7. Bảng theo dõi công việc
 
-| ID | Kết quả bàn giao | Phụ thuộc | Phát hiện | Mức ưu tiên |
-|---|---|---|---|---|
-| CF-001–004 | Hàng rào test, smoke và baseline | — | F18, F19 | P0 mở đường |
-| CF-101 | Artifact ownership đúng sau commit | CF-001 tối thiểu | F04 | P0 |
-| CF-102 | Gate CV dùng chung | CF-101 | F03 | P0 |
-| CF-103 | Retry/reuse an toàn | CF-101, CF-102 | F03, F04 | P0 |
-| CF-104 | Bounded request stream | CF-102 | F02 | P0 |
-| CF-105 | Human-controlled stage | CF-001 | F09 | P0 |
-| CF-106 | Union kinh nghiệm + fixed clock | CF-001 | F23 | P0 |
-| CF-107 | Legal hold và deletion manifest | CF-101, CF-102 | F05 | P0 |
-| CF-201–205 | CV Import resume/review hoàn chỉnh | CF-101–107 | Candidate UX | P1 |
-| CF-301–305 | Apply/history/pagination hoàn chỉnh | CF-101–107, CF-201 | F10 | P1 |
-| CF-401–406 | Discovery nhất quán và có cache đúng | CF-301–305 | F21, F22, F24 | P1 |
-| CF-501–503 | Match minh bạch | CF-105, CF-106, CF-401 | F09, F23 | P1 |
-| CF-601–604 | Realtime ổn định một instance | CF-301 | F14 | P1 |
-| CF-651–653 | Realtime nhiều instance | Quyết định topology | F11 | Có điều kiện |
-| CF-701–705 | UI/accessibility consolidation | CF-201–604 | F25 | P1 |
-| CF-801–805 | Production readiness | Có thể chạy song song sau Đợt 1 | F01, F06–F08, F12–F22 | P0/P1 platform |
+| ID         | Kết quả bàn giao                     | Phụ thuộc                       | Phát hiện             | Mức ưu tiên    |
+| ---------- | ------------------------------------ | ------------------------------- | --------------------- | -------------- |
+| CF-001–004 | Hàng rào test, smoke và baseline     | —                               | F18, F19              | P0 mở đường    |
+| CF-101     | Artifact ownership đúng sau commit   | CF-001 tối thiểu                | F04                   | P0             |
+| CF-102     | Gate CV dùng chung                   | CF-101                          | F03                   | P0             |
+| CF-103     | Retry/reuse an toàn                  | CF-101, CF-102                  | F03, F04              | P0             |
+| CF-104     | Bounded request stream               | CF-102                          | F02                   | P0             |
+| CF-105     | Human-controlled stage               | CF-001                          | F09                   | P0             |
+| CF-106     | Union kinh nghiệm + fixed clock      | CF-001                          | F23                   | P0             |
+| CF-107     | Legal hold và deletion manifest      | CF-101, CF-102                  | F05                   | P0             |
+| CF-201–205 | CV Import resume/review hoàn chỉnh   | CF-101–107                      | Candidate UX          | P1             |
+| CF-301–305 | Apply/history/pagination hoàn chỉnh  | CF-101–107, CF-201              | F10                   | P1             |
+| CF-401–406 | Discovery nhất quán và có cache đúng | CF-301–305                      | F21, F22, F24         | P1             |
+| CF-501–503 | Match minh bạch                      | CF-105, CF-106, CF-401          | F09, F23              | P1             |
+| CF-601–604 | Realtime ổn định một instance        | CF-301                          | F14                   | P1             |
+| CF-651–653 | Realtime nhiều instance              | Quyết định topology             | F11                   | Có điều kiện   |
+| CF-701–705 | UI/accessibility consolidation       | CF-201–604                      | F25                   | P1             |
+| CF-801–805 | Production readiness                 | Có thể chạy song song sau Đợt 1 | F01, F06–F08, F12–F22 | P0/P1 platform |
 
 ## 8. Chiến lược test và lệnh kiểm chứng
 
@@ -652,18 +656,18 @@ Mỗi work item cần ghi:
 
 ## 10. Rủi ro cần theo dõi
 
-| Rủi ro | Dấu hiệu | Cách kiểm soát |
-|---|---|---|
-| Retry tạo pipeline kép | Nhiều scan/OCR job cùng digest/upload | Unique/CAS, idempotency replay test, metric duplicate |
-| Reuse sai scope | Digest trùng giữa hai Candidate dẫn tới chung quyền | Scope-bound lookup, authorization test, không global dedupe |
-| Resume URL lộ dữ liệu | Đoán `uploadId` thấy trạng thái CV khác | Opaque ID, owner authorization, non-enumerating response |
-| Cache lộ dữ liệu cá nhân | Public cache chứa saved/match/account | Tách projection, serialization test, cache inspection |
-| Invalidation chậm khi thu hồi | Job/company bị ẩn vẫn còn hiện | Fail-closed visibility, mutation test, emergency path |
-| Pagination lặp/mất item | Insert đồng thời qua cursor boundary | Stable compound cursor và concurrency test |
-| Score tạo quyết định ngầm | Worker/UI tự đổi stage hoặc copy kết luận | Policy test, audit actor, human action required |
-| Stale presence | Disconnect trong init nhưng registry còn online | Early cleanup, TTL/reconcile, fault test |
-| Test chạm dữ liệu thật | URL DB không thuộc test namespace | Guard fail-fast, least privilege, isolated fixture |
-| UI đẹp nhưng journey hỏng | Component tests xanh, browser flow lỗi | Smoke/E2E gate và evidence theo viewport/locale |
+| Rủi ro                        | Dấu hiệu                                            | Cách kiểm soát                                              |
+| ----------------------------- | --------------------------------------------------- | ----------------------------------------------------------- |
+| Retry tạo pipeline kép        | Nhiều scan/OCR job cùng digest/upload               | Unique/CAS, idempotency replay test, metric duplicate       |
+| Reuse sai scope               | Digest trùng giữa hai Candidate dẫn tới chung quyền | Scope-bound lookup, authorization test, không global dedupe |
+| Resume URL lộ dữ liệu         | Đoán `uploadId` thấy trạng thái CV khác             | Opaque ID, owner authorization, non-enumerating response    |
+| Cache lộ dữ liệu cá nhân      | Public cache chứa saved/match/account               | Tách projection, serialization test, cache inspection       |
+| Invalidation chậm khi thu hồi | Job/company bị ẩn vẫn còn hiện                      | Fail-closed visibility, mutation test, emergency path       |
+| Pagination lặp/mất item       | Insert đồng thời qua cursor boundary                | Stable compound cursor và concurrency test                  |
+| Score tạo quyết định ngầm     | Worker/UI tự đổi stage hoặc copy kết luận           | Policy test, audit actor, human action required             |
+| Stale presence                | Disconnect trong init nhưng registry còn online     | Early cleanup, TTL/reconcile, fault test                    |
+| Test chạm dữ liệu thật        | URL DB không thuộc test namespace                   | Guard fail-fast, least privilege, isolated fixture          |
+| UI đẹp nhưng journey hỏng     | Component tests xanh, browser flow lỗi              | Smoke/E2E gate và evidence theo viewport/locale             |
 
 ## 11. Thứ tự thực hiện đề xuất
 
@@ -718,13 +722,13 @@ Các checkbox trên chỉ được đánh dấu khi có bằng chứng tương �
 
 ### Trạng thái theo Candidate-first work item
 
-| Work item | Trạng thái hiện tại | Bằng chứng chính | Giới hạn còn lại |
-|---|---|---|---|
-| **CF-001** | **HISTORICAL SNAPSHOT** | Guard, fixture rollback và cleanup namespace được kiểm chứng trong các suite dài hạn. | Chỉ dùng mục 18 cho acceptance hiện hành. |
-| **CF-101** | **HISTORICAL SNAPSHOT** | Durable promotion ledger, post-commit ownership, replay/digest mismatch và cleanup retry đã được chuyển vào source/test hiện tại. | Chỉ dùng mục 18 cho acceptance hiện hành. |
+| Work item  | Trạng thái hiện tại     | Bằng chứng chính                                                                                                                                                                       | Giới hạn còn lại                          |
+| ---------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| **CF-001** | **HISTORICAL SNAPSHOT** | Guard, fixture rollback và cleanup namespace được kiểm chứng trong các suite dài hạn.                                                                                                  | Chỉ dùng mục 18 cho acceptance hiện hành. |
+| **CF-101** | **HISTORICAL SNAPSHOT** | Durable promotion ledger, post-commit ownership, replay/digest mismatch và cleanup retry đã được chuyển vào source/test hiện tại.                                                      | Chỉ dùng mục 18 cho acceptance hiện hành. |
 | **CF-002** | **HISTORICAL SNAPSHOT** | Lần full-run này đã được supersede bởi [final-source raw](2026-09-06-gate0-recheck-final-source-raw.json) và [final-source triage](2026-09-06-gate0-recheck-final-source-triage.json). | Chỉ dùng mục 18 cho acceptance hiện hành. |
-| **CF-003** | **HISTORICAL SNAPSHOT** | Scanner và Candidate journey hiện hành được dẫn trong [shared scanner](2026-09-06-cf003-scanner-shared.json) và [Candidate journey](2026-09-06-cf003-candidate-journey-live.json). | Chỉ dùng mục 18 cho acceptance hiện hành. |
-| **CF-004** | **HISTORICAL SNAPSHOT** | Browser, realtime, accessibility và restore hiện hành được dẫn trong các artifact `cf004-*` canonical. | Chỉ dùng mục 18 cho acceptance hiện hành. |
+| **CF-003** | **HISTORICAL SNAPSHOT** | Scanner và Candidate journey hiện hành được dẫn trong [shared scanner](2026-09-06-cf003-scanner-shared.json) và [Candidate journey](2026-09-06-cf003-candidate-journey-live.json).     | Chỉ dùng mục 18 cho acceptance hiện hành. |
+| **CF-004** | **HISTORICAL SNAPSHOT** | Browser, realtime, accessibility và restore hiện hành được dẫn trong các artifact `cf004-*` canonical.                                                                                 | Chỉ dùng mục 18 cho acceptance hiện hành. |
 
 ### Gate 0 và Definition of Done
 
@@ -740,12 +744,12 @@ Checkpoint này cập nhật trực tiếp sau khi chạy lại các gate còn t
 
 ### Trạng thái hiện tại
 
-| Work item | Trạng thái | Bằng chứng mới nhất | Giới hạn còn lại |
-|---|---|---|---|
-| **CF-001** | **HISTORICAL SNAPSHOT** | Isolated guard, fixture rollback và residue probe đã được thay bằng acceptance evidence ở mục 18. | Chỉ dùng mục 18 cho quyết định hiện hành. |
-| **CF-101** | **HISTORICAL SNAPSHOT** | Promotion/retention evidence hiện hành nằm trong focused và selected integration suite được nêu ở mục 18. | Chỉ dùng mục 18 cho quyết định hiện hành. |
-| **CF-002** | **HISTORICAL SNAPSHOT** | Số liệu của lần chạy trước đã được thay thế bởi [final-source raw](2026-09-06-gate0-recheck-final-source-raw.json) và [final-source triage](2026-09-06-gate0-recheck-final-source-triage.json). | Chỉ dùng mục 18 cho quyết định Stage 0 hiện hành. |
-| **CF-003** | **HISTORICAL SNAPSHOT** | Evidence live hiện hành nằm tại [shared scanner](2026-09-06-cf003-scanner-shared.json) và [Candidate journey](2026-09-06-cf003-candidate-journey-live.json). | Chỉ dùng mục 18 cho quyết định Stage 0 hiện hành. |
+| Work item  | Trạng thái              | Bằng chứng mới nhất                                                                                                                                                                                                     | Giới hạn còn lại                                                |
+| ---------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| **CF-001** | **HISTORICAL SNAPSHOT** | Isolated guard, fixture rollback và residue probe đã được thay bằng acceptance evidence ở mục 18.                                                                                                                       | Chỉ dùng mục 18 cho quyết định hiện hành.                       |
+| **CF-101** | **HISTORICAL SNAPSHOT** | Promotion/retention evidence hiện hành nằm trong focused và selected integration suite được nêu ở mục 18.                                                                                                               | Chỉ dùng mục 18 cho quyết định hiện hành.                       |
+| **CF-002** | **HISTORICAL SNAPSHOT** | Số liệu của lần chạy trước đã được thay thế bởi [final-source raw](2026-09-06-gate0-recheck-final-source-raw.json) và [final-source triage](2026-09-06-gate0-recheck-final-source-triage.json).                         | Chỉ dùng mục 18 cho quyết định Stage 0 hiện hành.               |
+| **CF-003** | **HISTORICAL SNAPSHOT** | Evidence live hiện hành nằm tại [shared scanner](2026-09-06-cf003-scanner-shared.json) và [Candidate journey](2026-09-06-cf003-candidate-journey-live.json).                                                            | Chỉ dùng mục 18 cho quyết định Stage 0 hiện hành.               |
 | **CF-004** | **HISTORICAL SNAPSHOT** | Các phép đo backend, realtime, accessibility và restore vẫn được giữ trong artifact `cf004-*`; browser production-mode evidence hiện hành nằm ở [cf004-browser-performance](2026-09-06-cf004-browser-performance.json). | Chỉ dùng mục 18 và artifact canonical cho acceptance hiện hành. |
 
 ### Gate 0 và DoD
@@ -762,15 +766,15 @@ Historical evidence only. The closure below was withdrawn after reproducing the 
 
 This withdrawn closure note is historical. The current decision is the Stage 0 record in mục 18.
 
-| Work item | Current status | Evidence and acceptance result |
-|---|---|---|
-| **CF-001** | **HISTORICAL SNAPSHOT** | Database/fixture isolation evidence was superseded by the final Stage 0 record. |
+| Work item  | Current status          | Evidence and acceptance result                                                              |
+| ---------- | ----------------------- | ------------------------------------------------------------------------------------------- |
+| **CF-001** | **HISTORICAL SNAPSHOT** | Database/fixture isolation evidence was superseded by the final Stage 0 record.             |
 | **CF-101** | **HISTORICAL SNAPSHOT** | CV artifact safety evidence was superseded by the final Stage 0 focused/integration record. |
-| **CF-002** | **HISTORICAL SNAPSHOT** | Test-order and full-run evidence was superseded by the final-source raw/triage pair. |
-| **CF-003** | **HISTORICAL SNAPSHOT** | Scanner and journey evidence is retained in the canonical cf003 artifacts. |
-| **CF-004** | **HISTORICAL SNAPSHOT** | Production-mode performance evidence is retained in the canonical cf004 artifacts. |
+| **CF-002** | **HISTORICAL SNAPSHOT** | Test-order and full-run evidence was superseded by the final-source raw/triage pair.        |
+| **CF-003** | **HISTORICAL SNAPSHOT** | Scanner and journey evidence is retained in the canonical cf003 artifacts.                  |
+| **CF-004** | **HISTORICAL SNAPSHOT** | Production-mode performance evidence is retained in the canonical cf004 artifacts.          |
 
-Historical checkpoint artifacts were superseded. The current machine-readable decision is [2026-09-06-gate0-stage0-final-verification.json](2026-09-06-gate0-stage0-final-verification.json); the raw acceptance report and triage are [2026-09-06-gate0-recheck-final-source-raw.json](2026-09-06-gate0-recheck-final-source-raw.json) and [2026-09-06-gate0-recheck-final-source-triage.json](2026-09-06-gate0-recheck-final-source-triage.json). Supporting scanner, journey, performance, accessibility, realtime and restore evidence remains in the cf003-* and cf004-* canonical artifacts.
+Historical checkpoint artifacts were superseded. The current machine-readable decision is [2026-09-06-gate0-stage0-final-verification.json](2026-09-06-gate0-stage0-final-verification.json); the raw acceptance report and triage are [2026-09-06-gate0-recheck-final-source-raw.json](2026-09-06-gate0-recheck-final-source-raw.json) and [2026-09-06-gate0-recheck-final-source-triage.json](2026-09-06-gate0-recheck-final-source-triage.json). Supporting scanner, journey, performance, accessibility, realtime and restore evidence remains in the cf003-_ and cf004-_ canonical artifacts.
 
 ### Scope decisions and operational record
 
@@ -807,3 +811,92 @@ Checkpoint này đã được superseded bởi mục 18; các số liệu tại 
 Quyết định dùng split evidence cho hai kiểm tra Docker là giới hạn runner, không phải miễn trừ lỗi sản phẩm. Full product vẫn còn **100 failure và 1 opt-in skip ngoài Stage 0**; chúng tiếp tục ở các work item đã triage và không được diễn giải là toàn hệ thống đã xanh. Bằng chứng cuối: [2026-09-06-gate0-stage0-final-verification.json](2026-09-06-gate0-stage0-final-verification.json).
 
 Post-cleanup verification đã chạy lại focused Candidate-first (**16 files, 66/66 PASS, 0 SKIP**) và selected integration CV/Application/Team Application (**8 files, 28/28 PASS, 0 SKIP**) trên database cô lập hậu tố `_test`. Bốn mươi artifact trung gian đã được xóa; bộ audit canonical được parse và kiểm tra liên kết thành công. Các capture `.local/mail` và `.local/cv-storage` dùng chung cho nhiều E2E được giữ nguyên vì chưa xác định được ownership theo riêng Candidate-first.
+## 19. CF-105–107 implementation recheck baseline — 2026-09-09
+
+This section records the CF-105 through CF-107 starting snapshot. The acceptance criteria above are unchanged. CF-107 blocker-closure evidence is superseded by mục 20. The table below records the exact commands and outcomes from the isolated verification database `cf105_106_107_test_20260909`; no test write targeted the shared `smarthire` database during this recheck.
+
+| Work item | Current status | Current evidence | Remaining boundary |
+| --- | --- | --- | --- |
+| CF-105 | **VERIFIED** | Focused run: **11 files, 49 PASS, 0 FAIL, 0 SKIP**. Score publication remains advisory; the public stage command rejects system/legacy automatic actors and preserves CAS, authorization, idempotency, audit and notification contracts. | No CF-105-specific limitation identified. |
+| CF-106 | **VERIFIED** | Focused run: **3 files, 25 PASS, 0 FAIL, 0 SKIP**. Fixed-clock EN/VI parsing, open-ended ranges, overlap/nested/adjacent merge, gap, invalid/reversed ranges and persisted interval evidence are covered. | No CF-106-specific limitation identified. |
+| CF-107 | **VERIFIED_WITH_SCOPE_LIMITATION** | Unit run: **2 files, 28 PASS, 0 FAIL, 0 SKIP**. PostgreSQL manifest integration: **1 file, 1 PASS, 0 FAIL, 0 SKIP**. Migration sequence: **95 migrations, pass=true**. Retention worker probe passed and exposes application, Candidate-CV and company-deletion reconciliation. Legal hold blocks physical purge; retry checks live references; delete/absent/retryable/conflict outcomes are durable. | Verified source boundary is database-backed company deletion plus the existing application-retention reconciliation. Legacy JSON-only company deletion, broader account-wide erasure, and an external object-inventory restore drill remain unverified and are not claimed complete. |
+
+### Verification totals and environment notes
+
+- Candidate-first focused suite: **16 files, 46 PASS, 0 FAIL, 0 SKIP**.
+- Full scoring suite: **22 files, 104 PASS, 1 FAIL, 0 SKIP**. The single failure is the pre-existing frontend title mismatch (`CV PDF preview` versus `Original CV PDF preview`) in `tests/frontend/scoring/documents-tab.test.tsx`; neither the test nor its component is part of this diff.
+- Full Applications suite: **34 files, 119 PASS, 8 FAIL, 0 SKIP**. Failures are existing frontend/architecture/static-contract mismatches in untouched files; the HEAD source confirms the private-note assertion failure predates CF-105 changes. No expected value was changed.
+- Full Job Board suite: **58 files, 256 PASS, 11 FAIL, 0 SKIP**. All failures are in untouched frontend baseline tests/components.
+- Affected CV-import suite: **64 files, 403 PASS, 6 FAIL, 2 SKIP**. The six failures are environment/dependency checks for Docker Compose, Docker Scout and the private scanner boundary; the two skips are pre-existing opt-in scanner coverage. No CV-import production path was bypassed.
+- Static gates: `npm run typecheck`, `npm run lint`, `git diff --check`, `npm run db:validate`, `npm run db:migrations:check` and isolated `npm run db:verify` all **PASS**.
+- ClamAV live boundary: the existing container reported ClamAV **1.4.5**, Unix socket permissions `0660` with `clamav:clamav`, `PONG`, clean fixture `OK`, and the standard EICAR fixture `FOUND`. The existing main Compose stack still publishes TCP `3310`/`7357`, so the strict no-TCP readiness/compatibility check remains an environment limitation and was not altered here.
+- Shared read-only status: `smarthire` remains at migration **093**; `094` and `095` were not deployed there.
+- Cleanup: database `cf105_106_107_test_20260909` was dropped and a read-only query confirmed it is absent. No temporary container, worker, Playwright run, artifact, env file or main-stack service was created or stopped by this recheck.
+
+At that checkpoint the overall Candidate-first program was not marked done. CF-201–205 browser/resume/review evidence and the baseline/environment items remained separate work. The current CF-107 decision is recorded in mục 20.
+
+## 20. CF-107 remaining blocker closure — 2026-09-09
+
+The CF-107 acceptance criteria above are unchanged. This section records the final evidence for the three CF-107 blockers on the isolated PostgreSQL database `cf107_blockers_test_20260909`; no test write targeted the shared `smarthire` database.
+
+| Blocker / gate | Result | Evidence |
+| --- | --- | --- |
+| Active retention and report gate | **PASS** | `company-deletion-retention.test.ts` covers application-document legal hold, activity hold, Job report, Messaging report and Moderation report. `company-deletion-manifest.integration.test.ts` ran **1 file / 3 PASS / 0 FAIL / 0 SKIP**; a real `JobReport` in `PENDING_REVIEW` blocked both database and object manifest entries, left the company data intact, and made **0** storage delete calls. |
+| Reference-check/delete race | **PASS** | Purge uses a PostgreSQL transaction-scoped advisory lock, row CAS on object key and stored object version (including `NULL` legacy versions), then reads references with `READ COMMITTED` after the lock. The concurrent integration case returned `RETRY_REQUIRED` with **1** conflict, made **0** delete calls, retained the `PROMOTED` reference, and recorded `OBJECT_REUSED_AFTER_REQUEST`. |
+| Authorized receipt reload | **PASS** | Owner-scoped receipt service/API and UI reload were covered by the focused run. The API contract returns the safe projection for the owner, maps pending/blocked/retry-required/completed states, and returns content-free `404 { code: "COMPANY_DELETION_NOT_FOUND" }` for unknown or cross-account requests. No company ID, object locator, report detail, actor identity or message content is projected. |
+
+### CF-107 verification totals and environment
+
+- CF-107 unit subset: **2 files, 20 PASS, 0 FAIL, 0 SKIP**.
+- CF-107 focused source/API/UI run: **5 files, 61 PASS, 0 FAIL, 0 SKIP**.
+- Candidate-first focused suite: **16 files, 46 PASS, 0 FAIL, 0 SKIP**.
+- Affected Applications suite: **34 files, 119 PASS, 8 FAIL, 0 SKIP** (**127 tests**). The failures remain the previously proven untouched architecture/frontend baseline; no CF-107 focused test failed and no expected value was changed.
+- Affected Job Board suite on the isolated DB: **60 files, 273 PASS, 11 FAIL, 0 SKIP** (**284 tests**). The failures remain untouched UI baseline tests; the CF-107 integration tests passed.
+- Affected CV-import suite on the isolated DB: **64 files, 407 PASS, 2 FAIL, 2 SKIP** (**411 tests**). The two failures are the existing dependency audit (3 high advisories) and Docker Scout exit 2; the two skips are existing opt-in scanner cases. No CV-import production path was bypassed.
+- Isolated database migration gate: `prisma migrate deploy` applied migrations **001–095**; `db:status` reported **95 migrations found / schema up to date**; `db:verify` passed fresh migration, drift, connectivity, feature-001 and feature-004 checks; `db:migrations:check` returned `migrationCount: 95`, `last: 095_company_deletion_manifest`, `pass: true`.
+- Static gates: `npm run typecheck`, `npm run lint`, `npm run db:validate` and `git diff --check` all **PASS**.
+- Worker probe: application retention, Candidate-CV reconciliation and company-deletion reconciliation all enabled; `legalHoldBlocking`, `objectReferenceConflictCheck`, `objectReferenceAtomicClaim` and `idempotentMissingObjectOutcome` all **true**.
+- CodeGraph: synced after the final source/test edits; **2,794 files, 223,155 nodes, 436,514 edges**, index up to date.
+- Main stack: read-only Docker inspection showed PostgreSQL and ClamAV healthy and all six existing services `Up`; no temporary container or main service was stopped. Read-only shared status showed `smarthire` still at **093**, with **094/095 not applied**.
+- Cleanup: the isolated database `cf107_blockers_test_20260909` and all namespaced test rows/fixtures were removed after verification; no temporary worker, env file, storage object, Playwright artifact or process was left by this closure run.
+
+### Decision
+
+CF-107 is **VERIFIED_WITH_SCOPE_LIMITATION** for the database-backed company/application deletion path and all three blockers examined at that checkpoint are **VERIFIED**. Legacy JSON-only company deletion, broader account-wide erasure and an external object-inventory restore drill remain outside the verified source boundary and are not claimed complete. The dependency decision at this checkpoint is superseded by the complete Pre-Phase 3 closure in Section 21.
+
+## 21. Pre-Phase 3 closure — 2026-09-09
+
+This section supersedes only the current status and dependency decision from the earlier checkpoints; it does not rewrite their historical evidence or acceptance criteria. All data-writing verification used the isolated PostgreSQL databases `pre_phase3_cf107_e2e_test_20260909_0732` and `pre_phase3_cf107_shadow_test_20260909`, both named for test use and migrated through 095. No test write or migration targeted `smarthire`.
+
+| Work item | Final status | Closure evidence |
+| --- | --- | --- |
+| CF-105 | **VERIFIED** | Existing 11-file focused evidence remains **49 PASS, 0 FAIL, 0 SKIP**; no new regression was introduced by this closure. |
+| CF-106 | **VERIFIED** | Existing 3-file focused evidence remains **25 PASS, 0 FAIL, 0 SKIP**; no new regression was introduced by this closure. |
+| CF-107 | **VERIFIED** | Final focused run: **7 files, 70 PASS, 0 FAIL, 0 SKIP**. PostgreSQL integration alone: **1 file, 5 PASS, 0 FAIL, 0 SKIP**. Active Activity legal holds and pending Job reports block purge; release/resolution is re-evaluated; concurrent resume calls converge to one completed request; a new object reference prevents deletion; storage failure remains retryable. |
+| CF-201–CF-205 | **VERIFIED** | Focused Phase 2 aggregate: **130 PASS, 0 FAIL, 0 SKIP**. Candidate-first remains **46 PASS, 0 FAIL, 0 SKIP**. |
+
+### CF-107 behavior and authorization evidence
+
+- A blocked deletion request is durably reused. Reconciliation includes `BLOCKED_BY_LEGAL_HOLD`, re-checks the existing retention sources, and—only after release—atomically transitions the request and eligible blocked manifest entries to retryable states under the existing PostgreSQL advisory lock and row CAS. Concurrent worker/manual attempts converge idempotently instead of creating a second request or duplicate purge.
+- The retention union still covers application-document legal holds, activity holds, Job reports, Messaging reports, Moderation reports and other active report sources already represented by the shared retention query. An applicable active source leaves database/object entries blocked and makes no object-delete call.
+- Object purge keeps the stored-version claim and post-lock live-reference check. A reference created after the request produces a durable conflict/retry result and the referenced object is not deleted. Missing-object deletion remains idempotent; retryable storage errors remain retryable and preserve audit history.
+- Successful deletion creates the canonical owner receipt URL `/recruiter/company-settings?deletionRequestId={requestId}`. Refresh, Back/Forward and a new authenticated tab reload server state. Unknown and foreign request IDs return the same content-free `404` contract. The public projection contains only request ID, coarse hold/purge state, safe counts and timestamps—no company ID, object key/locator, CV/Candidate data, report detail, actor identity or internal failure detail. No request or PII is written to browser storage.
+- Receipt UI evidence covers EN/VI, dark mode, reduced motion, 320 px, keyboard focus, semantic live status and axe serious/critical violations. Completed receipts are read-only.
+
+### Final verification ledger
+
+- Isolated migrations: deploy **001–095 PASS**; status **95 migrations / up to date**; migration sequence **PASS**; shadow diff **no difference detected**.
+- CF-107 focused: **70 PASS, 0 FAIL, 0 SKIP**. Candidate-first: **46 PASS, 0 FAIL, 0 SKIP**. CF-201–CF-205 focused: **130 PASS, 0 FAIL, 0 SKIP**.
+- CF-107 receipt browser matrix: **4 PASS, 0 FAIL, 0 SKIP** across desktop/mobile. Candidate upload → scan → finalize → retained selector → apply/open smoke: **2 PASS, 0 FAIL, 0 SKIP**.
+- CV Import browser matrix first pass: **19 PASS, 1 FAIL, 0 SKIP**; the only failure was a transient desktop confirm sample of `2269ms` against the unchanged `2000ms` bound. The exact unchanged case immediately reran at `1381ms`: **1 PASS, 0 FAIL, 0 SKIP**. All 20 scenarios therefore have passing evidence without assertion or production-code weakening.
+- Applications baseline: **119 PASS, 8 FAIL, 0 SKIP** across 34 files. These are the same previously documented untouched frontend/architecture mismatches; no CF-107 focused test failed and none was reclassified or hidden.
+- Live scanner: ClamAV 1.4.5 readiness **PASS**; clean PDF **CLEAN**; EICAR **INFECTED / MALWARE_DETECTED**. Safe-open and existing storage adapters were preserved.
+- Application-retention worker one-shot on the isolated database: application, Candidate-CV and company-deletion reconciliation enabled; no unhandled error.
+- Static gates after the final patch: typecheck **PASS**, lint **PASS**, `git diff --check` **PASS** (only the existing LF-to-CRLF notice), and migration sequence **PASS** with 95 migrations ending at 095.
+- CodeGraph final sync: **PASS / index up to date**; 2,796 files, 223,181 nodes and 436,590 edges.
+
+### Cleanup and decision
+
+- Removed the temporary CV worker, isolated verification/shadow databases, test app/email processes, 26 test-domain mail captures created by this run, Playwright results, and six requested `web/.local/cf-phase2-*.log` files. Preserved all 26 older mail captures. No temporary env, CV storage fixture, browser artifact, process or output lock remains.
+- Read-only final state: all six main Docker services remain `Up`; PostgreSQL and ClamAV are healthy. `smarthire` remains at **93** completed migrations ending at `093_cv_hybrid_draft_contract`; migrations 094/095 are absent.
+- Pre-Phase 3 is **CLOSED**. CF-105, CF-106, CF-107 and CF-201 through CF-205 are **VERIFIED**. The previously listed baseline Applications failures and explicit Phase 2 environment limitations stay in backlog and do not reopen these dependencies. **CF-301 may begin**, but no CF-301 code was started in this closure.

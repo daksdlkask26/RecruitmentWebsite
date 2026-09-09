@@ -14,6 +14,12 @@ import {
 } from "@/frontend/features/recruiter-workspace/company-settings-screen";
 import { RECRUITER_COMPANY_SCOPE_STORAGE_KEY } from "@/frontend/features/recruiter-workspace/recruiter-company-scope";
 
+const navigationMocks = vi.hoisted(() => ({ push: vi.fn() }));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: navigationMocks.push }),
+}));
+
 vi.mock("@/frontend/features/authentication/client/csrf-proof-context", () => ({
   useCsrfProof: () => "csrf-test-proof",
 }));
@@ -21,6 +27,7 @@ vi.mock("@/frontend/features/authentication/client/csrf-proof-context", () => ({
 describe("company posting gate validation", () => {
   beforeEach(() => {
     window.sessionStorage.clear();
+    navigationMocks.push.mockReset();
   });
 
   afterEach(() => {
@@ -382,6 +389,104 @@ describe("company posting gate validation", () => {
     expect(
       screen.queryByRole("button", { name: "Delete company" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("reloads a blocked deletion receipt without exposing retention details", async () => {
+    vi.spyOn(console, "debug").mockImplementation(() => undefined);
+    const company = {
+      id: "company-1",
+      slug: "dava",
+      name: "Dava",
+      entityType: "Limited liability company",
+      industry: "Game Development",
+      size: "1-50 employees",
+      address: "Ho Chi Minh, District 8",
+      logo: "https://example.com/dava-logo.png",
+      website: "https://example.com/Dava",
+      description: "A verified SmartHire employer.",
+      ownerUserId: "recruiter-1",
+      memberUserIds: [],
+      taxCode: "1234567890",
+      verificationStatus: "approved" as const,
+      role: "OWNER" as const,
+      profileComplete: true,
+      missingProfileFields: [],
+    };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          deleted: false,
+          status: "BLOCKED_BY_LEGAL_HOLD",
+          requestId: "request-1",
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          requestId: "request-1",
+          status: "BLOCKED",
+        }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      createElement(CompanySettingsScreen, {
+        initialCompany: company,
+      }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Delete company" }));
+    const dialog = screen.getByRole("dialog", { name: "Delete Dava?" });
+    fireEvent.change(
+      within(dialog).getByRole("textbox", {
+        name: "Type company name to confirm",
+      }),
+      { target: { value: "Dava" } },
+    );
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Delete company" }),
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("company-deletion-receipt")).toHaveTextContent(
+        "Blocked by an active retention requirement.",
+      );
+    });
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      "/api/recruiter/company/deletion/request-1",
+      { cache: "no-store" },
+    );
+    expect(navigationMocks.push).toHaveBeenCalledWith(
+      "/recruiter/company-settings?deletionRequestId=request-1",
+    );
+  });
+
+  it("reloads an owner receipt from its durable URL state after refresh", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ requestId: "request-refresh", status: "COMPLETED" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      createElement(CompanySettingsScreen, {
+        initialCompany: null,
+        initialCompanies: [],
+        initialDeletionRequestId: "request-refresh",
+      }),
+    );
+
+    const heading = await screen.findByRole("heading", {
+      name: "Completed.",
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/recruiter/company/deletion/request-refresh",
+      { cache: "no-store" },
+    );
+    expect(heading).toHaveFocus();
+    expect(window.localStorage.getItem("request-refresh")).toBeNull();
+    expect(window.sessionStorage.getItem("request-refresh")).toBeNull();
   });
 
   it("closes the delete confirmation when the backdrop is clicked", () => {
