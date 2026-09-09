@@ -1040,6 +1040,7 @@ enum CvParseTrigger {
 enum CvRetryStage {
   SCAN
   PARSE
+  EXTRACTION
 }
 
 enum CvDraftStatus {
@@ -4061,6 +4062,8 @@ model CvExtraction {
   outputArtifact             CvStoredArtifact?     @relation("CvExtractionOutputArtifact", fields: [outputArtifactId], references: [id], onDelete: SetNull)
   parseJobs                  CvParseJob[]
   ocrAttempt                 OcrProcessingAttempt?
+  priorRetryRequests         CvRetryRequest[]     @relation("CvRetryPriorExtraction")
+  newRetryRequests           CvRetryRequest[]     @relation("CvRetryNewExtraction")
 
   @@unique([uploadId, attemptNumber])
   @@index([status, leaseExpiresAt, createdAt], map: "CvExtraction_claim_idx")
@@ -4117,6 +4120,8 @@ model CvRetryRequest {
   scanAssessmentId      String?
   priorParseJobId       String?
   parseJobId            String?
+  priorExtractionId     String?
+  extractionId          String?
   createdAt             DateTime          @default(now())
   account               UserAccount       @relation(fields: [accountId], references: [id], onDelete: Cascade)
   upload                CvUpload          @relation(fields: [uploadId], references: [id], onDelete: Cascade)
@@ -4124,9 +4129,13 @@ model CvRetryRequest {
   scanAssessment        CvScanAssessment? @relation("CvRetryNewScan", fields: [scanAssessmentId], references: [id], onDelete: SetNull)
   priorParseJob         CvParseJob?       @relation("CvRetryPriorParse", fields: [priorParseJobId], references: [id], onDelete: SetNull)
   parseJob              CvParseJob?       @relation("CvRetryNewParse", fields: [parseJobId], references: [id], onDelete: SetNull)
+  priorExtraction       CvExtraction?     @relation("CvRetryPriorExtraction", fields: [priorExtractionId], references: [id], onDelete: SetNull)
+  extraction            CvExtraction?     @relation("CvRetryNewExtraction", fields: [extractionId], references: [id], onDelete: SetNull)
 
   @@unique([accountId, idempotencyDigest])
   @@index([uploadId, createdAt])
+  @@index([priorExtractionId])
+  @@index([extractionId])
 }
 
 model CvDraft {

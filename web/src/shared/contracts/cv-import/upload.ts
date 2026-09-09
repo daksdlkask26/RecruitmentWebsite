@@ -13,11 +13,13 @@ import {
   cvIdempotencyKeySchema,
   cvImportStageSchema,
   cvParserClassSchema,
+  cvProcessingModeSchema,
   cvSafeFailureActionSchema,
   cvUploadIdSchema,
   cvUploadStatusSchema,
   cvUtcTimestampSchema,
   type CvParserClass,
+  type CvProcessingMode,
   type CvUploadStatus,
 } from "./common";
 import { cvConsentNoticeSchema } from "./consent-retention";
@@ -151,6 +153,7 @@ export const cvImportSummarySchema = z
     displayFilename: z.string().max(255).nullable(),
     documentKind: cvDocumentKindSchema,
     parserClass: cvParserClassSchema,
+    processingMode: cvProcessingModeSchema.optional(),
     status: cvUploadStatusSchema,
     createdAt: cvUtcTimestampSchema,
     expiresAt: cvUtcTimestampSchema,
@@ -252,6 +255,7 @@ export const cvImportResourceSchema = z
     displayFilename: z.string().max(255).nullable(),
     documentKind: cvDocumentKindSchema,
     parserClass: cvParserClassSchema,
+    processingMode: cvProcessingModeSchema.optional(),
     status: cvUploadStatusSchema,
     stage: cvImportStageSchema,
     availableActions: z
@@ -259,6 +263,7 @@ export const cvImportResourceSchema = z
       .max(7)
       .refine((values) => new Set(values).size === values.length),
     scanRetriesRemaining: z.number().int().min(0).max(2),
+    extractionRetriesRemaining: z.number().int().min(0).max(2).optional(),
     parseRetriesRemaining: z.number().int().min(0).max(2),
     createdAt: cvUtcTimestampSchema,
     expiresAt: cvUtcTimestampSchema,
@@ -316,7 +321,6 @@ export const cvImportStatusResponseSchema = z.union([
 ]);
 
 const terminalStatuses = new Set<CvUploadStatus>([
-  "SECURITY_CLEAN",
   "REVIEW_READY",
   "VALIDATION_FAILED",
   "INFECTED",
@@ -329,8 +333,39 @@ const terminalStatuses = new Set<CvUploadStatus>([
   "EXPIRED",
 ]);
 
-export function cvStatusPollingAfterMs(status: CvUploadStatus): number | null {
-  return terminalStatuses.has(status) ? null : 2_000;
+export function isCvImportPollingTerminal(input: {
+  status: CvUploadStatus;
+  processingMode?: CvProcessingMode;
+  deleteAfter?: string | null;
+  deletedAt?: string | null;
+  nowMs?: number;
+}): boolean {
+  if (input.status === "SECURITY_CLEAN")
+    return input.processingMode === "SCAN_ONLY";
+  if (input.status === "CANCELLED") {
+    if (input.deletedAt) return true;
+    const deadline = input.deleteAfter
+      ? new Date(input.deleteAfter).getTime()
+      : Number.NaN;
+    return (
+      !Number.isFinite(deadline) || (input.nowMs ?? Date.now()) >= deadline
+    );
+  }
+  return terminalStatuses.has(input.status);
+}
+
+export function cvStatusPollingAfterMs(
+  status: CvUploadStatus,
+  processingMode: CvProcessingMode = "IMPORT_AND_PARSE",
+  cleanup?: {
+    deleteAfter?: string | null;
+    deletedAt?: string | null;
+    nowMs?: number;
+  },
+): number | null {
+  return isCvImportPollingTerminal({ status, processingMode, ...cleanup })
+    ? null
+    : 2_000;
 }
 
 export type CreateCvImportRequest = z.infer<typeof createCvImportRequestSchema>;

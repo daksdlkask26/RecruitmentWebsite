@@ -15,6 +15,7 @@ export const CV_PARSER_CLASSES = [
   "DETERMINISTIC_INTERNAL",
   "EXTERNAL_OPENAI",
 ] as const;
+export const CV_PROCESSING_MODES = ["IMPORT_AND_PARSE", "SCAN_ONLY"] as const;
 export const CV_UPLOAD_STATUSES = [
   "AWAITING_CONTENT",
   "VALIDATION_QUEUED",
@@ -88,6 +89,7 @@ export const CV_API_ERROR_CODES = [
 
 export const cvDocumentKindSchema = z.enum(CV_DOCUMENT_KINDS);
 export const cvParserClassSchema = z.enum(CV_PARSER_CLASSES);
+export const cvProcessingModeSchema = z.enum(CV_PROCESSING_MODES);
 export const cvUploadStatusSchema = z.enum(CV_UPLOAD_STATUSES);
 export const cvImportStageSchema = z.enum(CV_IMPORT_STAGES);
 export const cvAvailableActionSchema = z.enum(CV_AVAILABLE_ACTIONS);
@@ -172,6 +174,8 @@ export const cvApiErrorSchema = z
       .strict(),
   })
   .strict();
+
+export type CvProcessingMode = (typeof CV_PROCESSING_MODES)[number];
 
 function canonicalize(value: unknown, seen: Set<object>): unknown {
   if (

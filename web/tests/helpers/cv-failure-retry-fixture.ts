@@ -26,6 +26,11 @@ export async function seedCvRecoveryImport(
     now: Date;
     expired?: boolean;
     deletedSource?: boolean;
+    failureCode?:
+      | "SCANNER_UNAVAILABLE"
+      | "OCR_UNAVAILABLE"
+      | "PARSER_UNAVAILABLE"
+      | "EXTRACTION_FAILED";
     automaticAttemptsUsed?: number;
     candidateRetriesUsed?: number;
     existingAccount?: Readonly<{ accountId: string; profileId: string }>;
@@ -49,6 +54,13 @@ export async function seedCvRecoveryImport(
   const parserClass = options.parserClass ?? "DETERMINISTIC_INTERNAL";
   const automaticAttemptsUsed = options.automaticAttemptsUsed ?? 1;
   const candidateRetriesUsed = options.candidateRetriesUsed ?? 0;
+  const terminalFailureCode =
+    options.failureCode ??
+    (options.stage === "SCAN"
+      ? "SCANNER_UNAVAILABLE"
+      : options.stage === "EXTRACTION"
+        ? "EXTRACTION_FAILED"
+        : "PARSER_UNAVAILABLE");
   const email = `${suffix}@example.invalid`;
   const uploadStatus =
     mode === "PROCESSING"
@@ -118,11 +130,7 @@ export async function seedCvRecoveryImport(
        'application/pdf', 1, 1, 524289, 0, decode(repeat('31', 32), 'hex'),
        decode(md5($1) || md5($1 || ':fixture'), 'hex'),
        decode(repeat('33', 32), 'hex'),
-       CASE WHEN $6 = 'PROCESSING' THEN NULL ELSE
-         CASE WHEN $7 = 'SCAN' THEN 'SCANNER_UNAVAILABLE'
-              WHEN $7 = 'EXTRACTION' THEN 'EXTRACTION_FAILED'
-              ELSE 'PARSER_UNAVAILABLE' END
-       END,
+       CASE WHEN $6 = 'PROCESSING' THEN NULL ELSE $12 END,
        CASE WHEN $7 = 'SCAN' THEN $8 ELSE 1 END,
        CASE WHEN $7 = 'SCAN' THEN $9 ELSE 0 END,
        CASE WHEN $7 = 'PARSE' THEN $8 ELSE 1 END,
@@ -142,6 +150,7 @@ export async function seedCvRecoveryImport(
       candidateRetriesUsed,
       createdAt,
       expiresAt,
+      terminalFailureCode,
     ],
   );
   await client.query(
@@ -254,7 +263,7 @@ export async function seedCvRecoveryImport(
          CASE WHEN $7 = 'SUCCEEDED' THEN 1 ELSE NULL END,
          CASE WHEN $7 = 'SUCCEEDED' THEN 1 ELSE NULL END,
          CASE WHEN $7 = 'SUCCEEDED' THEN 1 ELSE NULL END,
-         CASE WHEN $7 = 'FAILED' THEN 'EXTRACTION_FAILED' ELSE NULL END,
+         CASE WHEN $7 = 'FAILED' THEN $11 ELSE NULL END,
          CASE WHEN $7 = 'PROCESSING' THEN $8 ELSE NULL END,
          CASE WHEN $7 = 'PROCESSING' THEN $9::timestamp(3) + interval '1 minute' ELSE NULL END,
          $9::timestamp(3),
@@ -272,6 +281,7 @@ export async function seedCvRecoveryImport(
         leaseOwner,
         options.now,
         createdAt,
+        terminalFailureCode,
       ],
     );
   }

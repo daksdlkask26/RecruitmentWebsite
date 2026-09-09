@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import type {
   CvDraftComparison,
@@ -133,6 +134,7 @@ export function useCvDraftReview(input: {
   initial: CvDraftComparison;
   csrfProof: string;
 }) {
+  const router = useRouter();
   const locale = useWorkspaceLocale();
   const [authoritative, setAuthoritative] = useState(input.initial);
   const [proposals, setProposals] = useState<CvEditableProposals>(
@@ -385,6 +387,7 @@ export function useCvDraftReview(input: {
       }
       const next = cvConfirmationReceiptSchema.parse(await response.json());
       setReceipt(next);
+      router.replace(`/profile/cv-imports/${next.uploadId}/receipt`);
       setMessage(
         locale === "vi"
           ? "Đã xác nhận và áp dụng thay đổi CV vào hồ sơ của bạn."
@@ -411,6 +414,7 @@ export function useCvDraftReview(input: {
     dirty,
     input.csrfProof,
     locale,
+    router,
   ]);
 
   const compareLatest = useCallback(async () => {

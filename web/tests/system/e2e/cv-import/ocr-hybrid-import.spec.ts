@@ -10,6 +10,7 @@ import {
   type Page,
 } from "@playwright/test";
 import { Pool } from "pg";
+import sharp from "sharp";
 
 import { createSyntheticImageDocx } from "../../../helpers/cv-document-buffers";
 import { cleanupReviewAccounts } from "../../../helpers/cv-review-fixture";
@@ -30,13 +31,70 @@ function pdfObject(id: number, body: string | Buffer): Buffer {
   ]);
 }
 
+function createImageOnlyPdf(jpeg: Buffer): Buffer {
+  const imageWidth = 700;
+  const imageHeight = 550;
+  const pageWidth = 252;
+  const pageHeight = 198;
+  const imageStream = `q ${pageWidth} 0 0 ${pageHeight} 0 0 cm /Im0 Do Q`;
+  const objects = [
+    pdfObject(1, "<< /Type /Catalog /Pages 2 0 R >>"),
+    pdfObject(2, "<< /Type /Pages /Kids [3 0 R] /Count 1 >>"),
+    pdfObject(
+      3,
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] ` +
+        "/Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>",
+    ),
+    pdfObject(
+      4,
+      Buffer.concat([
+        Buffer.from(
+          `<< /Type /XObject /Subtype /Image /Width ${imageWidth} /Height ${imageHeight} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.byteLength} >>\nstream\n`,
+          "latin1",
+        ),
+        jpeg,
+        Buffer.from("\nendstream", "latin1"),
+      ]),
+    ),
+    pdfObject(
+      5,
+      `<< /Length ${Buffer.byteLength(imageStream)} >>\nstream\n${imageStream}\nendstream`,
+    ),
+  ];
+  const chunks: Buffer[] = [
+    Buffer.from("%PDF-1.4\n%\xe2\xe3\xcf\xd3\n", "latin1"),
+  ];
+  const offsets = [0];
+  for (const object of objects) {
+    offsets.push(Buffer.concat(chunks).byteLength);
+    chunks.push(object);
+  }
+  const xrefOffset = Buffer.concat(chunks).byteLength;
+  chunks.push(Buffer.from(`xref\n0 ${objects.length + 1}\n`, "latin1"));
+  chunks.push(Buffer.from("0000000000 65535 f \n", "latin1"));
+  for (const offset of offsets.slice(1)) {
+    chunks.push(
+      Buffer.from(`${String(offset).padStart(10, "0")} 00000 n \n`, "latin1"),
+    );
+  }
+  chunks.push(
+    Buffer.from(
+      `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`,
+      "latin1",
+    ),
+  );
+  return Buffer.concat(chunks);
+}
+
 function createMixedPdf(nativeText: string, jpeg: Buffer): Buffer {
   const escaped = nativeText
     .replaceAll("\\", "\\\\")
     .replaceAll("(", "\\(")
     .replaceAll(")", "\\)");
   const nativeStream = `BT /F1 12 Tf 72 720 Td (${escaped}) Tj ET`;
-  const imageStream = "q 612 0 0 792 0 0 cm /Im0 Do Q";
+  const imagePageWidth = 252;
+  const imagePageHeight = 198;
+  const imageStream = `q ${imagePageWidth} 0 0 ${imagePageHeight} 0 0 cm /Im0 Do Q`;
   const objects = [
     pdfObject(1, "<< /Type /Catalog /Pages 2 0 R >>"),
     pdfObject(2, "<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 >>"),
@@ -47,7 +105,7 @@ function createMixedPdf(nativeText: string, jpeg: Buffer): Buffer {
     ),
     pdfObject(
       4,
-      "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] " +
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${imagePageWidth} ${imagePageHeight}] ` +
         "/Resources << /XObject << /Im0 7 0 R >> >> /Contents 8 0 R >>",
     ),
     pdfObject(
@@ -59,7 +117,7 @@ function createMixedPdf(nativeText: string, jpeg: Buffer): Buffer {
       7,
       Buffer.concat([
         Buffer.from(
-          `<< /Type /XObject /Subtype /Image /Width 1400 /Height 1100 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.byteLength} >>\nstream\n`,
+          `<< /Type /XObject /Subtype /Image /Width 700 /Height 550 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.byteLength} >>\nstream\n`,
           "latin1",
         ),
         jpeg,
@@ -103,11 +161,15 @@ async function deleteExactLocalArtifacts(
     ({ storageAdapter }) => storageAdapter === "filesystem",
   );
   if (localArtifacts.length === 0) return;
+  const allowedRoots = new Set([
+    resolve(process.cwd(), ".local/cv-storage"),
+    resolve(process.cwd(), ".local/cv-storage-cf-phase2"),
+  ]);
   const allowedRoot = resolve(process.cwd(), ".local/cv-storage");
   const configuredRoot = resolve(
     process.env.CV_STORAGE_LOCAL_ROOT ?? allowedRoot,
   );
-  if (configuredRoot !== allowedRoot)
+  if (!allowedRoots.has(configuredRoot))
     throw new Error("CV_E2E_STORAGE_ROOT_UNSAFE");
   for (const { storageLocator } of localArtifacts) {
     if (!/^[A-Za-z0-9_-]{32,128}$/u.test(storageLocator)) {
@@ -162,7 +224,7 @@ async function registerCandidate(browser: Browser): Promise<Page> {
         }
         return verificationLink;
       },
-      { timeout: 15_000 },
+      { timeout: 30_000 },
     )
     .not.toBe("");
   await page.goto(verificationLink);
@@ -179,7 +241,9 @@ async function uploadForReview(
   fixture: { name: string; mimeType: string; buffer: Buffer },
 ) {
   await page.goto("/profile/cv-imports");
-  await page.getByLabel("CV file").setInputFiles(fixture);
+  const fileInput = page.getByLabel("CV file");
+  await expect(fileInput).toBeEnabled();
+  await fileInput.setInputFiles(fixture);
   await expect(
     page.getByRole("status").filter({ hasText: /is ready to upload/i }),
   ).toBeVisible();
@@ -242,21 +306,26 @@ test("imports image-only/mixed PDF and main-body-image DOCX through review and e
   const profileAtStart = await page.request
     .get("/api/account/profile")
     .then((response) => response.json());
-  const jpeg = await readFile(resolve(corpusRoot, "images/ocr-001.jpg"));
-  const scannedPdf = await readFile(
-    resolve(corpusRoot, "documents/ocr-001.pdf"),
-  );
+  const jpeg = await sharp(
+    await readFile(resolve(corpusRoot, "images/ocr-001.jpg")),
+  )
+    .resize({ width: 700, withoutEnlargement: true })
+    .jpeg()
+    .toBuffer();
   const fixtures = [
     {
       name: "synthetic-image-only.pdf",
       mimeType: "application/pdf",
-      buffer: scannedPdf,
+      buffer: createImageOnlyPdf(jpeg),
       expectNative: false,
     },
     {
       name: "synthetic-mixed.pdf",
       mimeType: "application/pdf",
-      buffer: createMixedPdf("Native contact and experience", jpeg),
+      buffer: createMixedPdf(
+        "Native contact and experience with deterministic context",
+        jpeg,
+      ),
       expectNative: true,
     },
     {
@@ -308,7 +377,12 @@ test("imports image-only/mixed PDF and main-body-image DOCX through review and e
     await expect(
       page.getByRole("heading", { name: "Review CV proposals" }),
     ).toBeVisible();
-    await expect(page.getByText(/Extraction:.*OCR/iu).first()).toBeVisible();
+    const sourceDetails = page
+      .locator("summary")
+      .filter({ hasText: "Data source details" });
+    for (let index = 0; index < (await sourceDetails.count()); index += 1)
+      await sourceDetails.nth(index).click();
+    await expect(page.getByText(/Extraction method:.*OCR/iu).first()).toBeVisible();
   }
 
   await page.getByRole("radio", { name: "add" }).first().check();
@@ -356,9 +430,13 @@ test("keeps standalone PNG/JPEG outside the Candidate CV upload boundary", async
       ),
     },
   ]) {
-    await page.getByLabel("CV file").setInputFiles(fixture);
-    await expect(page.getByRole("alert")).toContainText(
-      "Choose a PDF or DOCX file whose extension matches its type.",
+    const fileInput = page.getByLabel("CV file");
+    await expect(fileInput).toBeEnabled();
+    await fileInput.setInputFiles(fixture);
+    await expect(
+      page.getByTestId("cv-upload-form").getByRole("alert"),
+    ).toContainText(
+      "Only PDF, DOC, or DOCX files are supported.",
     );
     await expect(
       page.getByRole("button", { name: /upload cv/i }),

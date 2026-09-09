@@ -4,10 +4,12 @@ import { cvSafeFailureActionSchema, cvUploadIdSchema } from "./common";
 import { CV_SAFE_FAILURE_CODES } from "./upload";
 
 export const CV_CANDIDATE_SCAN_RETRY_LIMIT = 2;
+export const CV_CANDIDATE_EXTRACTION_RETRY_LIMIT = 2;
 export const CV_CANDIDATE_PARSE_RETRY_LIMIT = 2;
 
 export const CV_RETRY_ACCEPTED_STATUSES = [
   "SCAN_QUEUED",
+  "EXTRACTION_QUEUED",
   "PARSE_QUEUED",
 ] as const;
 
@@ -53,6 +55,12 @@ export const cvRetryRemainingCountsSchema = z
       .int()
       .min(0)
       .max(CV_CANDIDATE_PARSE_RETRY_LIMIT),
+    extractionRetriesRemaining: z
+      .number()
+      .int()
+      .min(0)
+      .max(CV_CANDIDATE_EXTRACTION_RETRY_LIMIT)
+      .optional(),
   })
   .strict();
 
@@ -64,6 +72,8 @@ export const cvRetryAcceptedSchema = z
       cvRetryRemainingCountsSchema.shape.scanRetriesRemaining,
     parseRetriesRemaining:
       cvRetryRemainingCountsSchema.shape.parseRetriesRemaining,
+    extractionRetriesRemaining:
+      cvRetryRemainingCountsSchema.shape.extractionRetriesRemaining,
   })
   .strict();
 
@@ -79,6 +89,12 @@ export const cvRetryUsageSchema = z
       .int()
       .min(0)
       .max(CV_CANDIDATE_PARSE_RETRY_LIMIT),
+    candidateExtractionRetriesUsed: z
+      .number()
+      .int()
+      .min(0)
+      .max(CV_CANDIDATE_EXTRACTION_RETRY_LIMIT)
+      .optional(),
   })
   .strict();
 
@@ -86,14 +102,20 @@ export function projectCvRetryRemainingCounts(
   input: z.input<typeof cvRetryUsageSchema>,
 ): CvRetryRemainingCounts {
   const usage = cvRetryUsageSchema.parse(input);
-  return Object.freeze(
-    cvRetryRemainingCountsSchema.parse({
-      scanRetriesRemaining:
-        CV_CANDIDATE_SCAN_RETRY_LIMIT - usage.candidateScanRetriesUsed,
-      parseRetriesRemaining:
-        CV_CANDIDATE_PARSE_RETRY_LIMIT - usage.candidateParseRetriesUsed,
-    }),
-  );
+  const counts = {
+    scanRetriesRemaining:
+      CV_CANDIDATE_SCAN_RETRY_LIMIT - usage.candidateScanRetriesUsed,
+    parseRetriesRemaining:
+      CV_CANDIDATE_PARSE_RETRY_LIMIT - usage.candidateParseRetriesUsed,
+    ...(typeof usage.candidateExtractionRetriesUsed === "number"
+      ? {
+          extractionRetriesRemaining:
+            CV_CANDIDATE_EXTRACTION_RETRY_LIMIT -
+            usage.candidateExtractionRetriesUsed,
+        }
+      : {}),
+  };
+  return Object.freeze(cvRetryRemainingCountsSchema.parse(counts));
 }
 
 const cvRetryTerminalStateSchema = z
@@ -104,6 +126,8 @@ const cvRetryTerminalStateSchema = z
       cvRetryRemainingCountsSchema.shape.scanRetriesRemaining,
     parseRetriesRemaining:
       cvRetryRemainingCountsSchema.shape.parseRetriesRemaining,
+    extractionRetriesRemaining:
+      cvRetryRemainingCountsSchema.shape.extractionRetriesRemaining,
   })
   .strict();
 
@@ -126,7 +150,7 @@ export function isCvCandidateRetryAvailable(
   }
   if (state.status === "EXTRACTION_FAILED") {
     return (
-      state.scanRetriesRemaining > 0 &&
+      (state.extractionRetriesRemaining ?? 0) > 0 &&
       state.failureCode !== null &&
       retryableOcrFailures.has(state.failureCode)
     );

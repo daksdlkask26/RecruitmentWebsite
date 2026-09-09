@@ -25,6 +25,7 @@ function failureResource(
     stage: "TERMINAL",
     availableActions: ["DELETE", "MANUAL_PROFILE"],
     scanRetriesRemaining: 0,
+    extractionRetriesRemaining: 0,
     parseRetriesRemaining: 0,
     createdAt: "2026-08-01T08:00:00.000Z",
     expiresAt: "2026-08-31T08:00:00.000Z",
@@ -62,6 +63,19 @@ const parserFailure = failureResource({
   parseRetriesRemaining: 1,
   failure: {
     code: "PARSER_TIMEOUT",
+    message:
+      "Processing could not finish. You may retry or update your profile manually.",
+    retryable: true,
+    suggestedActions: ["RETRY", "MANUAL_PROFILE", "DELETE"],
+  },
+});
+
+const extractionFailure = failureResource({
+  status: "EXTRACTION_FAILED",
+  availableActions: ["RETRY", "DELETE", "MANUAL_PROFILE"],
+  extractionRetriesRemaining: 1,
+  failure: {
+    code: "OCR_TIMEOUT",
     message:
       "Processing could not finish. You may retry or update your profile manually.",
     retryable: true,
@@ -200,6 +214,26 @@ describe("CV failure recovery", () => {
     await waitFor(() =>
       expect(screen.getByRole("status")).toHaveTextContent(/retry queued/i),
     );
+  });
+
+  it("offers an extraction retry with its own bounded counter", async () => {
+    const onRetry = vi.fn(async () => undefined);
+    render(
+      <CvFailureRecovery
+        resource={extractionFailure}
+        retryAfterSeconds={null}
+        onDelete={vi.fn()}
+        onRetry={onRetry}
+      />,
+    );
+
+    expect(screen.getByText(/1 extraction retry remaining/i)).toBeVisible();
+    const retry = screen.getByRole("button", { name: /retry extraction/i });
+    await act(async () => {
+      fireEvent.click(retry);
+    });
+    expect(onRetry).toHaveBeenCalledOnce();
+    expect(screen.getByRole("status")).toHaveTextContent(/retry queued/i);
   });
 
   it("removes retry at exhaustion while preserving candidate-owned recovery", () => {

@@ -10,7 +10,9 @@ import { CvFailureRecovery } from "@/frontend/features/cv-import/components/cv-f
 import { CvImportList } from "@/frontend/features/cv-import/components/cv-import-list";
 import { CvImportStatus } from "@/frontend/features/cv-import/components/cv-import-status";
 import { CvReviewConflictPanel } from "@/frontend/features/cv-import/components/cv-review-conflict";
+import { WorkspaceLocaleProvider } from "@/frontend/features/dashboard/client/workspace-locale";
 import { CV_EXTERNAL_CONSENT_NOTICE_TEXT } from "@/shared/contracts/cv-import/consent-retention";
+import { cvCopy } from "@/frontend/features/cv-import/i18n/cv-import-copy";
 import {
   cvConfirmationReceiptFixture,
   cvDraftReviewFixture,
@@ -336,5 +338,132 @@ describe("CV import cross-state accessibility workflow", () => {
     );
     expect(listCss).toContain("min-width: 0");
     expect(listCss).toContain("overflow-wrap: anywhere");
+  });
+
+  it("covers the representative UI matrix without rerunning the CV pipeline", async () => {
+    const originalWidth = window.innerWidth;
+    const originalMatchMedia = window.matchMedia;
+    const widths = [320, 375, 768, 1280] as const;
+    const locales = ["en", "vi"] as const;
+    const themes = ["light", "dark"] as const;
+    const longUploadId = `matrix-${"x".repeat(68)}`;
+    try {
+      for (const width of widths) {
+        Object.defineProperty(window, "innerWidth", {
+          configurable: true,
+          value: width,
+        });
+        for (const theme of themes) {
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+          for (const locale of locales) {
+            Object.defineProperty(window, "matchMedia", {
+              configurable: true,
+              value: vi.fn((query: string) => ({
+                matches: query.includes("prefers-reduced-motion"),
+                media: query,
+                onchange: null,
+                addListener: vi.fn(),
+                removeListener: vi.fn(),
+                addEventListener: vi.fn(),
+                removeEventListener: vi.fn(),
+                dispatchEvent: vi.fn(() => false),
+              })),
+            });
+            const matrix = render(
+              <WorkspaceLocaleProvider initialLocale={locale}>
+                <main data-matrix-width={width} data-matrix-theme={theme}>
+                  <h1>{cvCopy(locale).common.importHistory}</h1>
+                  <CvImportStatus
+                    csrfProof="csrf_matrix"
+                    resource={{
+                      uploadId: longUploadId,
+                      status: "SCAN_FAILED",
+                      stage: "SCAN",
+                      availableActions: [
+                        "RETRY",
+                        "DELETE",
+                        "MANUAL_PROFILE",
+                      ],
+                      pollingAfterMs: null,
+                      scanRetriesRemaining: 2,
+                      extractionRetriesRemaining: 2,
+                      parseRetriesRemaining: 2,
+                      failure: {
+                        code: "SCANNER_UNAVAILABLE",
+                        message: "Scanner unavailable.",
+                        retryable: true,
+                        suggestedActions: [
+                          "RETRY",
+                          "MANUAL_PROFILE",
+                          "DELETE",
+                        ],
+                      },
+                    }}
+                  />
+                  <CvDraftReview
+                    initial={cvDraftReviewFixture}
+                    csrfProof="csrf_matrix"
+                  />
+                  <CvReviewConflictPanel
+                    conflict={{
+                      code: "DRAFT_REVISION_CONFLICT",
+                      message: "A newer saved review is available.",
+                      latest: {
+                        draftRevision: 2,
+                        profileRevision: 4,
+                        draftUpdatedAt: "2026-08-02T00:00:00.000Z",
+                        profileUpdatedAt: "2026-08-02T00:00:00.000Z",
+                      },
+                    }}
+                    unsavedSummary="One proposed value remains unsaved."
+                    unsavedPreview={[
+                      {
+                        id: "headline",
+                        label: "Headline",
+                        value: "Synthetic platform engineer",
+                      },
+                    ]}
+                    latestCompared
+                    pending={false}
+                    onCompareLatest={vi.fn()}
+                    onReapplyLatest={vi.fn()}
+                    onDiscardAndReload={vi.fn()}
+                  />
+                  <CvConfirmationReceipt
+                    receipt={cvConfirmationReceiptFixture}
+                  />
+                </main>
+              </WorkspaceLocaleProvider>,
+            );
+            expect(matrix.container.querySelector("main")).toHaveAttribute(
+              "data-matrix-width",
+              String(width),
+            );
+            expect(matrix.container.querySelector("main")).toHaveAttribute(
+              "data-matrix-theme",
+              theme,
+            );
+            await waitFor(() =>
+              expect(document.documentElement.lang).toBe(locale),
+            );
+            await expectNoAxeViolations(matrix.container);
+            expectKeyboardReachable(matrix.container);
+            matrix.unmount();
+          }
+        }
+      }
+    } finally {
+      Object.defineProperty(window, "innerWidth", {
+        configurable: true,
+        value: originalWidth,
+      });
+      Object.defineProperty(window, "matchMedia", {
+        configurable: true,
+        value: originalMatchMedia,
+      });
+      delete document.documentElement.dataset.theme;
+      document.documentElement.style.colorScheme = "";
+    }
   });
 });

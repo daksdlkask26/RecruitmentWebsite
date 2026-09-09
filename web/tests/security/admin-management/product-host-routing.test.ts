@@ -15,11 +15,11 @@ function request(url: string, headers?: HeadersInit) {
 }
 
 describe("product host shell routing", () => {
-  it("rewrites the exact admin and recruiter hosts to routable segments", () => {
-    const admin = proxy(
+  it("rewrites the exact admin and recruiter hosts to routable segments", async () => {
+    const admin = await proxy(
       request("http://console.admin.localhost:3001/accounts"),
     );
-    const recruiter = proxy(
+    const recruiter = await proxy(
       request("http://console.recruiter.localhost:3001/"),
     );
 
@@ -31,8 +31,8 @@ describe("product host shell routing", () => {
     );
   });
 
-  it("redirects the user-facing admin alias without exposing the internal shell", () => {
-    const candidateAlias = proxy(
+  it("redirects the user-facing admin alias without exposing the internal shell", async () => {
+    const candidateAlias = await proxy(
       request(`http://localhost:3001${INTERNAL_ADMIN_ROUTE}/accounts`),
     );
 
@@ -41,27 +41,27 @@ describe("product host shell routing", () => {
       "http://console.admin.localhost:3001/accounts",
     );
     expect(
-      proxy(
+      (await proxy(
         request(`http://console.admin.localhost:3001${INTERNAL_ADMIN_ROUTE}`),
-      ).status,
+      )).status,
     ).toBe(404);
     expect(
-      proxy(
+      (await proxy(
         request(
           `http://console.recruiter.localhost:3001${INTERNAL_RECRUITER_ROUTE}`,
         ),
-      ).status,
+      )).status,
     ).toBe(404);
     expect(
-      proxy(
+      (await proxy(
         request(`http://localhost:3001${INTERNAL_ADMIN_ROUTE}`, {
           "x-smarthire-internal-admin-shell": "1",
         }),
-      ).status,
+      )).status,
     ).toBe(307);
   });
 
-  it("allows only server-routed internal product shells", () => {
+  it("allows only server-routed internal product shells", async () => {
     const admin = new NextRequest(
       `http://console.admin.localhost:3001${INTERNAL_ADMIN_ROUTE}`,
       {
@@ -81,20 +81,20 @@ describe("product host shell routing", () => {
       },
     );
 
-    expect(proxy(admin).headers.get("x-middleware-next")).toBe("1");
-    expect(proxy(recruiter).headers.get("x-middleware-next")).toBe("1");
+    expect((await proxy(admin)).headers.get("x-middleware-next")).toBe("1");
+    expect((await proxy(recruiter)).headers.get("x-middleware-next")).toBe("1");
   });
 
-  it("leaves candidate pages and APIs to their authoritative handlers", () => {
+  it("leaves candidate pages and APIs to their authoritative handlers", async () => {
     expect(
-      proxy(request("http://localhost:3001/jobs")).headers.get(
+      (await proxy(request("http://localhost:3001/jobs"))).headers.get(
         "x-middleware-next",
       ),
     ).toBe("1");
     expect(
-      proxy(
+      (await proxy(
         request("http://console.admin.localhost:3001/api/admin/dashboard"),
-      ).headers.get("x-middleware-next"),
+      )).headers.get("x-middleware-next"),
     ).toBe("1");
   });
 });

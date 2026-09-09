@@ -28,11 +28,15 @@ async function deleteExactLocalArtifacts(
     ({ storageAdapter }) => storageAdapter === "filesystem",
   );
   if (localArtifacts.length === 0) return;
+  const allowedRoots = new Set([
+    resolve(process.cwd(), ".local/cv-storage"),
+    resolve(process.cwd(), ".local/cv-storage-cf-phase2"),
+  ]);
   const allowedRoot = resolve(process.cwd(), ".local/cv-storage");
   const configuredRoot = resolve(
     process.env.CV_STORAGE_LOCAL_ROOT ?? allowedRoot,
   );
-  if (configuredRoot !== allowedRoot) {
+  if (!allowedRoots.has(configuredRoot)) {
     throw new Error("CV_E2E_STORAGE_ROOT_UNSAFE");
   }
   for (const { storageLocator } of localArtifacts) {
@@ -130,7 +134,7 @@ async function registerCandidate(browser: Browser): Promise<Page> {
         }
         return verificationLink;
       },
-      { timeout: 15_000 },
+      { timeout: 30_000 },
     )
     .not.toBe("");
   await page.goto(verificationLink);

@@ -292,8 +292,9 @@ paths:
       operationId: retryOwnCvImport
       description: >-
         Creates one new durable retry attempt for an eligible terminal state.
-        At most two explicit candidate scan retries and two candidate parser
-        retries are allowed per upload.
+        At most two explicit candidate scan, extraction, and parser retries are
+        allowed per upload. Extraction retries reuse the existing CLEAN scan
+        evidence and bind one prior/new extraction attempt pair.
       security:
         - sessionCookie: []
           csrfToken: []
@@ -627,6 +628,10 @@ components:
       type: string
       enum: [DETERMINISTIC_INTERNAL, EXTERNAL_OPENAI]
 
+    CvProcessingMode:
+      type: string
+      enum: [IMPORT_AND_PARSE, SCAN_ONLY]
+
     CvUploadStatus:
       type: string
       enum:
@@ -789,6 +794,8 @@ components:
           $ref: "#/components/schemas/CvDocumentKind"
         parserClass:
           $ref: "#/components/schemas/CvParserClass"
+        processingMode:
+          $ref: "#/components/schemas/CvProcessingMode"
         status:
           $ref: "#/components/schemas/CvUploadStatus"
         createdAt:
@@ -858,6 +865,8 @@ components:
           $ref: "#/components/schemas/CvDocumentKind"
         parserClass:
           $ref: "#/components/schemas/CvParserClass"
+        processingMode:
+          $ref: "#/components/schemas/CvProcessingMode"
         status:
           $ref: "#/components/schemas/CvUploadStatus"
         stage:
@@ -891,6 +900,10 @@ components:
                 MANUAL_PROFILE,
               ]
         scanRetriesRemaining:
+          type: integer
+          minimum: 0
+          maximum: 2
+        extractionRetriesRemaining:
           type: integer
           minimum: 0
           maximum: 2
@@ -1042,8 +1055,12 @@ components:
           $ref: "#/components/schemas/OpaqueId"
         status:
           type: string
-          enum: [SCAN_QUEUED, PARSE_QUEUED]
+          enum: [SCAN_QUEUED, EXTRACTION_QUEUED, PARSE_QUEUED]
         scanRetriesRemaining:
+          type: integer
+          minimum: 0
+          maximum: 2
+        extractionRetriesRemaining:
           type: integer
           minimum: 0
           maximum: 2

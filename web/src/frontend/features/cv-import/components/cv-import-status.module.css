@@ -289,6 +289,24 @@
   background: var(--sh-color-error);
 }
 
+.timeline [data-state="action-required"] {
+  color: var(--sh-color-warning);
+  font-weight: var(--sh-font-weight-bold);
+}
+
+.timeline [data-state="action-required"] .timelineMarker {
+  border-color: var(--sh-color-warning);
+  color: var(--sh-color-text-primary);
+  background: var(--sh-color-warning-bg);
+}
+
+.failureCategory {
+  margin: 0;
+  color: var(--sh-color-error);
+  font-size: var(--sh-font-size-body-sm);
+  line-height: var(--sh-line-height-body-sm);
+}
+
 @keyframes cvStatusEnter {
   from {
     opacity: 0;

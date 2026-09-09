@@ -16,8 +16,10 @@ import {
 const { toast } = vi.hoisted(() => ({
   toast: { error: vi.fn() },
 }));
+const navigation = vi.hoisted(() => ({ replace: vi.fn() }));
 
 vi.mock("sonner", () => ({ toast }));
+vi.mock("next/navigation", () => ({ useRouter: () => navigation }));
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -336,6 +338,9 @@ describe("CV draft review", () => {
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(fetchMock.mock.calls[0][1].headers["idempotency-key"]).toMatch(
       /^cv-confirm-/u,
+    );
+    expect(navigation.replace).toHaveBeenCalledWith(
+      `/profile/cv-imports/${cvConfirmationReceiptFixture.uploadId}/receipt`,
     );
   });
 });

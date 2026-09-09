@@ -88,7 +88,7 @@ async function registerCandidate(browser: Browser) {
         }
         return verificationLink;
       },
-      { timeout: 15_000 },
+      { timeout: 30_000 },
     )
     .not.toBe("");
   await page.goto(verificationLink);

@@ -88,6 +88,17 @@ describe("CV import retry HTTP contract", () => {
         parseRetriesRemaining: 0,
       }),
     ).toMatchObject({ status: "PARSE_QUEUED" });
+    expect(
+      cvRetryAcceptedSchema.parse({
+        ...acceptedRetry,
+        status: "EXTRACTION_QUEUED",
+        scanRetriesRemaining: 2,
+        extractionRetriesRemaining: 1,
+      }),
+    ).toMatchObject({
+      status: "EXTRACTION_QUEUED",
+      extractionRetriesRemaining: 1,
+    });
 
     for (const invalid of [
       { ...acceptedRetry, status: "PARSE_FAILED" },
@@ -286,9 +297,11 @@ describe("CV import retry HTTP contract", () => {
     expect(idempotencyParameter).toContain("minLength: 16");
     expect(idempotencyParameter).toContain("maxLength: 200");
     expect(retryOutcome).toContain("additionalProperties: false");
-    expect(retryOutcome).toContain("enum: [SCAN_QUEUED, PARSE_QUEUED]");
+    expect(retryOutcome).toContain(
+      "enum: [SCAN_QUEUED, EXTRACTION_QUEUED, PARSE_QUEUED]",
+    );
     expect(retryOutcome).toContain("minimum: 0");
-    expect(retryOutcome.match(/maximum: 2/gu)).toHaveLength(2);
+    expect(retryOutcome.match(/maximum: 2/gu)).toHaveLength(3);
     expect(capResponse).toContain("Retry-After:");
     expect(capResponse).toContain("minimum: 1");
 

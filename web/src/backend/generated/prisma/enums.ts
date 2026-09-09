@@ -1421,7 +1421,8 @@ export type CvParseTrigger = (typeof CvParseTrigger)[keyof typeof CvParseTrigger
 
 export const CvRetryStage = {
   SCAN: 'SCAN',
-  PARSE: 'PARSE'
+  PARSE: 'PARSE',
+  EXTRACTION: 'EXTRACTION'
 } as const
 
 export type CvRetryStage = (typeof CvRetryStage)[keyof typeof CvRetryStage]
