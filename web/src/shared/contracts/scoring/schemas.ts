@@ -45,18 +45,53 @@ export const skillEvidenceSchema = z
   })
   .strict();
 
+export const experienceIntervalSchema = z
+  .object({
+    startMonth: z.number().int().nonnegative(),
+    endMonthExclusive: z.number().int().positive(),
+    source: z.string().min(1).max(80).optional(),
+    startToken: z.string().min(1).max(40).optional(),
+    endToken: z.string().min(1).max(40).optional(),
+  })
+  .strict();
+
+export const mergedExperienceIntervalSchema = z
+  .object({
+    startMonth: z.number().int().nonnegative(),
+    endMonthExclusive: z.number().int().positive(),
+  })
+  .strict();
+
+export const experienceEvidenceSchema = z
+  .object({
+    intervals: z.array(experienceIntervalSchema).max(100).optional(),
+    mergedIntervals: z
+      .array(mergedExperienceIntervalSchema)
+      .max(100)
+      .optional(),
+    incomplete: z.boolean().optional(),
+  })
+  .strict();
+
 export const detectedExperienceSchema = z.discriminatedUnion("kind", [
   z
     .object({
       kind: z.literal("DETECTED"),
       years: z.number().nonnegative(),
       label: z.string().min(1),
+      intervals: z.array(experienceIntervalSchema).max(100).optional(),
+      mergedIntervals: z
+        .array(mergedExperienceIntervalSchema)
+        .max(100)
+        .optional(),
+      incomplete: z.boolean().optional(),
     })
     .strict(),
   z
     .object({
       kind: z.literal("NOT_DETECTED"),
       label: z.literal("Not detected"),
+      incomplete: z.boolean().optional(),
     })
     .strict(),
 ]);

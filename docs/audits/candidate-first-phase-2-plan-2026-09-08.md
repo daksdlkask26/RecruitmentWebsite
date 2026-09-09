@@ -4,7 +4,7 @@
 **Prepared:** 8 September 2026
 **Scope:** CF-201 through CF-205
 **Starting point:** commit `b677ee16` — Pre-Phase 2 `DONE_WITH_LIMITATION`
-**Current status:** `DONE_WITH_LIMITATION` — CF-201 through CF-205 are individually verified and the integrated Candidate-first Phase 2 gate is green. Docker Scout remains `DEFERRED_ENVIRONMENT_LIMITATION`, and the optional live OpenAI compatibility test is intentionally not enabled; neither blocks the Phase 2 scope. CF-301 implementation must wait for the roadmap prerequisites CF-105 through CF-107, which remain open after the 9 September dependency audit. No CF-301 work was started.
+**Current status:** `DONE_WITH_LIMITATION` — CF-201 through CF-205 are individually verified and the integrated Candidate-first Phase 2 gate is green. Docker Scout remains `DEFERRED_ENVIRONMENT_LIMITATION`, and the optional live OpenAI compatibility test is intentionally not enabled; neither blocks the Phase 2 scope. The 9 September Pre-Phase 3 closure has now verified CF-105 through CF-107, so the documented dependencies permit CF-301 to begin. No CF-301 work was started.
 
 ## 1. Purpose
 
@@ -404,7 +404,7 @@ This log records executed evidence without changing the acceptance criteria abov
 
 - Status: `VERIFIED`.
 - Source evidence before editing: `EXTRACTION_FAILED` currently returns retry stage `SCAN` from `prisma-cv-retry-repository.ts`, while `ExtractionStageProcessor` has already persisted a CLEAN scan and failed extraction attempt. `CvRetryStage` contains only `SCAN` and `PARSE`, and `CvRetryRequest` has no prior/new extraction binding. This violates the required matrix because an OCR/extraction retry would repeat the malware scan and cannot be replay-bound to one extraction attempt.
-- Required schema expansion: add the `EXTRACTION` retry stage plus nullable prior/new extraction foreign-key bindings. The final shared database is back at migration 090 with no 091 columns or extraction retry rows; migration 091 was applied only to the verified isolated test database for live evidence.
+- Required schema expansion: add the `EXTRACTION` retry stage plus nullable prior/new extraction foreign-key bindings. At the 8 September Phase 2 verification snapshot, the shared database was restored to migration 090 with no 091 columns or extraction retry rows; migration 091 was applied only to the verified isolated test database for that run. This is historical evidence, not the current shared-database state; the dated 9 September state is recorded in Section 15.
 - Rollback strategy: this is an expand-only migration. Revert application code first to stop producing/reading `EXTRACTION` rows; leave the nullable columns and enum value unused because PostgreSQL cannot safely remove an enum value in-place. If data rollback is required, restore the isolated test database or remove only its namespaced rows. A production rollback would use the same expand-only application rollback followed by a planned backup restore, not an unsafe `DROP VALUE`.
 
 - Root cause fixed: `EXTRACTION_FAILED` now retries the extraction stage against the existing CLEAN scan instead of repeating malware scanning.
@@ -445,3 +445,10 @@ This log records executed evidence without changing the acceptance criteria abov
 ## 14. Historical execution note
 
 The original authorization required the first implementation run to perform CF-201 first, confirm the working tree and CodeGraph impact, preserve commit `b677ee16`, and report evidence before CF-202. That sequential execution has now completed through CF-205; the factual evidence and final gate decision are recorded in Section 13. The acceptance criteria in this plan were not changed.
+
+## 15. Pre-Phase 3 dependency refresh — 2026-09-09
+
+- CF-201 through CF-205 remain `VERIFIED`; their acceptance criteria and evidence in Section 13 are unchanged.
+- The Pre-Phase 3 closure verified CF-105, CF-106, and CF-107. In particular, CF-107 now re-evaluates blocked company deletion requests after applicable holds/reports expire, resumes purge through the existing advisory-lock/CAS path, and exposes a durable owner-scoped receipt URL with content-free cross-account/not-found responses.
+- Current read-only shared-database evidence: `smarthire` has **93** completed migrations, ends at `093_cv_hybrid_draft_contract`, and has **0** ledger entries for migrations 094/095. Migrations 094/095 were exercised only on the isolated Pre-Phase 3 database and were not deployed to `smarthire`.
+- Current dependency decision: Phase 2 remains `DONE_WITH_LIMITATION`; Docker Scout remains `DEFERRED_ENVIRONMENT_LIMITATION`. The roadmap dependencies now permit CF-301 to begin, but no CF-301 implementation was performed during this closure.

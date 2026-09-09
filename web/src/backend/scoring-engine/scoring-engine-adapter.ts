@@ -1,7 +1,5 @@
 import { AutomaticMatchService } from "@/backend/scoring/services/automatic-match-service";
-import {
-  ApprovedAiAssessmentAdapter,
-} from "@/backend/scoring/providers/approved-ai-assessment-adapter";
+import { ApprovedAiAssessmentAdapter } from "@/backend/scoring/providers/approved-ai-assessment-adapter";
 import {
   AiAssessmentProviderError,
   type AiAssessmentProviderPort,
@@ -30,7 +28,9 @@ function evidenceClassification(
 }
 
 function requiredExperienceLabel(years: number | null) {
-  return years === null ? "No stated experience requirement" : `${years} years required`;
+  return years === null
+    ? "No stated experience requirement"
+    : `${years} years required`;
 }
 
 export class Feature012AutomaticMatchingAdapter implements AutomaticMatchingPort {
@@ -62,6 +62,7 @@ export class Feature012AutomaticMatchingAdapter implements AutomaticMatchingPort
       requiredSkills: input.requiredSkills,
       preferredSkills: input.preferredSkills,
       minimumExperienceYears: input.minimumExperienceYears,
+      now: new Date(),
     });
     const automatic = calculation.result;
     const allSkills = [
@@ -116,7 +117,10 @@ export class Feature012AutomaticMatchingAdapter implements AutomaticMatchingPort
       resultId: automatic.resultId,
       score: automatic.score,
       weight: AUTOMATIC_WEIGHT,
-      weightedContribution: roundContribution(automatic.score, AUTOMATIC_WEIGHT),
+      weightedContribution: roundContribution(
+        automatic.score,
+        AUTOMATIC_WEIGHT,
+      ),
       matchedRequirements,
       gaps,
       requiredExperience: automatic.minimumExperienceYears,
@@ -125,7 +129,10 @@ export class Feature012AutomaticMatchingAdapter implements AutomaticMatchingPort
           ? automatic.detectedExperience.years
           : null,
       evidenceCoverage: coverage,
-      evidenceConfidence: Math.min(100, Math.max(0, Math.round(coverage * 0.95))),
+      evidenceConfidence: Math.min(
+        100,
+        Math.max(0, Math.round(coverage * 0.95)),
+      ),
       evidence,
       parserProvenance: {
         parserVersion: cvParsed.status.parserVersion,
@@ -211,7 +218,9 @@ export class Feature012AiEvaluationAdapter implements AiEvaluationPort {
   }
 }
 
-export function isAiProviderError(error: unknown): error is AiAssessmentProviderError {
+export function isAiProviderError(
+  error: unknown,
+): error is AiAssessmentProviderError {
   return error instanceof AiAssessmentProviderError;
 }
 

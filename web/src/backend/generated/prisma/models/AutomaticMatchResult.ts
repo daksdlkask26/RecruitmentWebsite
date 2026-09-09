@@ -99,6 +99,7 @@ export type AutomaticMatchResultCountAggregateOutputType = {
   preferredSkillBonus: number
   minimumExperienceYears: number
   detectedExperienceYears: number
+  experienceEvidence: number
   experienceInterpretationCode: number
   experienceInterpretationLabel: number
   mayBeIncomplete: number
@@ -182,6 +183,7 @@ export type AutomaticMatchResultCountAggregateInputType = {
   preferredSkillBonus?: true
   minimumExperienceYears?: true
   detectedExperienceYears?: true
+  experienceEvidence?: true
   experienceInterpretationCode?: true
   experienceInterpretationLabel?: true
   mayBeIncomplete?: true
@@ -290,6 +292,7 @@ export type AutomaticMatchResultGroupByOutputType = {
   preferredSkillBonus: runtime.Decimal
   minimumExperienceYears: runtime.Decimal | null
   detectedExperienceYears: runtime.Decimal | null
+  experienceEvidence: runtime.JsonValue | null
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete: boolean
@@ -334,6 +337,7 @@ export type AutomaticMatchResultWhereInput = {
   preferredSkillBonus?: Prisma.DecimalFilter<"AutomaticMatchResult"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.DecimalNullableFilter<"AutomaticMatchResult"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.DecimalNullableFilter<"AutomaticMatchResult"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.JsonNullableFilter<"AutomaticMatchResult">
   experienceInterpretationCode?: Prisma.StringFilter<"AutomaticMatchResult"> | string
   experienceInterpretationLabel?: Prisma.StringFilter<"AutomaticMatchResult"> | string
   mayBeIncomplete?: Prisma.BoolFilter<"AutomaticMatchResult"> | boolean
@@ -360,6 +364,7 @@ export type AutomaticMatchResultOrderByWithRelationInput = {
   preferredSkillBonus?: Prisma.SortOrder
   minimumExperienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
   detectedExperienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
+  experienceEvidence?: Prisma.SortOrderInput | Prisma.SortOrder
   experienceInterpretationCode?: Prisma.SortOrder
   experienceInterpretationLabel?: Prisma.SortOrder
   mayBeIncomplete?: Prisma.SortOrder
@@ -389,6 +394,7 @@ export type AutomaticMatchResultWhereUniqueInput = Prisma.AtLeast<{
   preferredSkillBonus?: Prisma.DecimalFilter<"AutomaticMatchResult"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.DecimalNullableFilter<"AutomaticMatchResult"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.DecimalNullableFilter<"AutomaticMatchResult"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.JsonNullableFilter<"AutomaticMatchResult">
   experienceInterpretationCode?: Prisma.StringFilter<"AutomaticMatchResult"> | string
   experienceInterpretationLabel?: Prisma.StringFilter<"AutomaticMatchResult"> | string
   mayBeIncomplete?: Prisma.BoolFilter<"AutomaticMatchResult"> | boolean
@@ -415,6 +421,7 @@ export type AutomaticMatchResultOrderByWithAggregationInput = {
   preferredSkillBonus?: Prisma.SortOrder
   minimumExperienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
   detectedExperienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
+  experienceEvidence?: Prisma.SortOrderInput | Prisma.SortOrder
   experienceInterpretationCode?: Prisma.SortOrder
   experienceInterpretationLabel?: Prisma.SortOrder
   mayBeIncomplete?: Prisma.SortOrder
@@ -444,6 +451,7 @@ export type AutomaticMatchResultScalarWhereWithAggregatesInput = {
   preferredSkillBonus?: Prisma.DecimalWithAggregatesFilter<"AutomaticMatchResult"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.DecimalNullableWithAggregatesFilter<"AutomaticMatchResult"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.DecimalNullableWithAggregatesFilter<"AutomaticMatchResult"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.JsonNullableWithAggregatesFilter<"AutomaticMatchResult">
   experienceInterpretationCode?: Prisma.StringWithAggregatesFilter<"AutomaticMatchResult"> | string
   experienceInterpretationLabel?: Prisma.StringWithAggregatesFilter<"AutomaticMatchResult"> | string
   mayBeIncomplete?: Prisma.BoolWithAggregatesFilter<"AutomaticMatchResult"> | boolean
@@ -465,6 +473,7 @@ export type AutomaticMatchResultCreateInput = {
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -491,6 +500,7 @@ export type AutomaticMatchResultUncheckedCreateInput = {
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -517,6 +527,7 @@ export type AutomaticMatchResultUpdateInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -543,6 +554,7 @@ export type AutomaticMatchResultUncheckedUpdateInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -569,6 +581,7 @@ export type AutomaticMatchResultCreateManyInput = {
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -590,6 +603,7 @@ export type AutomaticMatchResultUpdateManyMutationInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -611,6 +625,7 @@ export type AutomaticMatchResultUncheckedUpdateManyInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -632,6 +647,7 @@ export type AutomaticMatchResultCountOrderByAggregateInput = {
   preferredSkillBonus?: Prisma.SortOrder
   minimumExperienceYears?: Prisma.SortOrder
   detectedExperienceYears?: Prisma.SortOrder
+  experienceEvidence?: Prisma.SortOrder
   experienceInterpretationCode?: Prisma.SortOrder
   experienceInterpretationLabel?: Prisma.SortOrder
   mayBeIncomplete?: Prisma.SortOrder
@@ -788,6 +804,7 @@ export type AutomaticMatchResultCreateWithoutParseResultsInput = {
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -813,6 +830,7 @@ export type AutomaticMatchResultUncheckedCreateWithoutParseResultsInput = {
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -854,6 +872,7 @@ export type AutomaticMatchResultUpdateWithoutParseResultsInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -879,6 +898,7 @@ export type AutomaticMatchResultUncheckedUpdateWithoutParseResultsInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -904,6 +924,7 @@ export type AutomaticMatchResultCreateWithoutSkillEvidenceInput = {
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -929,6 +950,7 @@ export type AutomaticMatchResultUncheckedCreateWithoutSkillEvidenceInput = {
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -970,6 +992,7 @@ export type AutomaticMatchResultUpdateWithoutSkillEvidenceInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -995,6 +1018,7 @@ export type AutomaticMatchResultUncheckedUpdateWithoutSkillEvidenceInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1020,6 +1044,7 @@ export type AutomaticMatchResultCreateWithoutAiAssessmentsInput = {
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -1045,6 +1070,7 @@ export type AutomaticMatchResultUncheckedCreateWithoutAiAssessmentsInput = {
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -1086,6 +1112,7 @@ export type AutomaticMatchResultUpdateWithoutAiAssessmentsInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1111,6 +1138,7 @@ export type AutomaticMatchResultUncheckedUpdateWithoutAiAssessmentsInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1136,6 +1164,7 @@ export type AutomaticMatchResultCreateWithoutAiAssessmentAttemptsInput = {
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -1161,6 +1190,7 @@ export type AutomaticMatchResultUncheckedCreateWithoutAiAssessmentAttemptsInput 
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -1202,6 +1232,7 @@ export type AutomaticMatchResultUpdateWithoutAiAssessmentAttemptsInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1227,6 +1258,7 @@ export type AutomaticMatchResultUncheckedUpdateWithoutAiAssessmentAttemptsInput 
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1252,6 +1284,7 @@ export type AutomaticMatchResultCreateWithoutScoringResultsInput = {
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -1277,6 +1310,7 @@ export type AutomaticMatchResultUncheckedCreateWithoutScoringResultsInput = {
   preferredSkillBonus?: runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode: string
   experienceInterpretationLabel: string
   mayBeIncomplete?: boolean
@@ -1318,6 +1352,7 @@ export type AutomaticMatchResultUpdateWithoutScoringResultsInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1343,6 +1378,7 @@ export type AutomaticMatchResultUncheckedUpdateWithoutScoringResultsInput = {
   preferredSkillBonus?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minimumExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   detectedExperienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  experienceEvidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   experienceInterpretationCode?: Prisma.StringFieldUpdateOperationsInput | string
   experienceInterpretationLabel?: Prisma.StringFieldUpdateOperationsInput | string
   mayBeIncomplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1435,6 +1471,7 @@ export type AutomaticMatchResultSelect<ExtArgs extends runtime.Types.Extensions.
   preferredSkillBonus?: boolean
   minimumExperienceYears?: boolean
   detectedExperienceYears?: boolean
+  experienceEvidence?: boolean
   experienceInterpretationCode?: boolean
   experienceInterpretationLabel?: boolean
   mayBeIncomplete?: boolean
@@ -1462,6 +1499,7 @@ export type AutomaticMatchResultSelectCreateManyAndReturn<ExtArgs extends runtim
   preferredSkillBonus?: boolean
   minimumExperienceYears?: boolean
   detectedExperienceYears?: boolean
+  experienceEvidence?: boolean
   experienceInterpretationCode?: boolean
   experienceInterpretationLabel?: boolean
   mayBeIncomplete?: boolean
@@ -1483,6 +1521,7 @@ export type AutomaticMatchResultSelectUpdateManyAndReturn<ExtArgs extends runtim
   preferredSkillBonus?: boolean
   minimumExperienceYears?: boolean
   detectedExperienceYears?: boolean
+  experienceEvidence?: boolean
   experienceInterpretationCode?: boolean
   experienceInterpretationLabel?: boolean
   mayBeIncomplete?: boolean
@@ -1504,6 +1543,7 @@ export type AutomaticMatchResultSelectScalar = {
   preferredSkillBonus?: boolean
   minimumExperienceYears?: boolean
   detectedExperienceYears?: boolean
+  experienceEvidence?: boolean
   experienceInterpretationCode?: boolean
   experienceInterpretationLabel?: boolean
   mayBeIncomplete?: boolean
@@ -1512,7 +1552,7 @@ export type AutomaticMatchResultSelectScalar = {
   createdAt?: boolean
 }
 
-export type AutomaticMatchResultOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobApplicationId" | "jobDescriptionVersionId" | "cvSnapshotVersionId" | "scoringConfigVersionId" | "parserBundleVersion" | "score" | "requiredSkillPoints" | "experiencePoints" | "preferredSkillBonus" | "minimumExperienceYears" | "detectedExperienceYears" | "experienceInterpretationCode" | "experienceInterpretationLabel" | "mayBeIncomplete" | "incompletenessLabel" | "computedAt" | "createdAt", ExtArgs["result"]["automaticMatchResult"]>
+export type AutomaticMatchResultOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobApplicationId" | "jobDescriptionVersionId" | "cvSnapshotVersionId" | "scoringConfigVersionId" | "parserBundleVersion" | "score" | "requiredSkillPoints" | "experiencePoints" | "preferredSkillBonus" | "minimumExperienceYears" | "detectedExperienceYears" | "experienceEvidence" | "experienceInterpretationCode" | "experienceInterpretationLabel" | "mayBeIncomplete" | "incompletenessLabel" | "computedAt" | "createdAt", ExtArgs["result"]["automaticMatchResult"]>
 export type AutomaticMatchResultInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   scoringResults?: boolean | Prisma.AutomaticMatchResult$scoringResultsArgs<ExtArgs>
   aiAssessments?: boolean | Prisma.AutomaticMatchResult$aiAssessmentsArgs<ExtArgs>
@@ -1546,6 +1586,7 @@ export type $AutomaticMatchResultPayload<ExtArgs extends runtime.Types.Extension
     preferredSkillBonus: runtime.Decimal
     minimumExperienceYears: runtime.Decimal | null
     detectedExperienceYears: runtime.Decimal | null
+    experienceEvidence: runtime.JsonValue | null
     experienceInterpretationCode: string
     experienceInterpretationLabel: string
     mayBeIncomplete: boolean
@@ -1992,6 +2033,7 @@ export interface AutomaticMatchResultFieldRefs {
   readonly preferredSkillBonus: Prisma.FieldRef<"AutomaticMatchResult", 'Decimal'>
   readonly minimumExperienceYears: Prisma.FieldRef<"AutomaticMatchResult", 'Decimal'>
   readonly detectedExperienceYears: Prisma.FieldRef<"AutomaticMatchResult", 'Decimal'>
+  readonly experienceEvidence: Prisma.FieldRef<"AutomaticMatchResult", 'Json'>
   readonly experienceInterpretationCode: Prisma.FieldRef<"AutomaticMatchResult", 'String'>
   readonly experienceInterpretationLabel: Prisma.FieldRef<"AutomaticMatchResult", 'String'>
   readonly mayBeIncomplete: Prisma.FieldRef<"AutomaticMatchResult", 'Boolean'>

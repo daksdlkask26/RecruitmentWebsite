@@ -490,6 +490,8 @@ export const ModelName = {
   ApplicationArtifactPromotion: 'ApplicationArtifactPromotion',
   CandidateCvArtifactPromotion: 'CandidateCvArtifactPromotion',
   ApplicationDocumentLegalHold: 'ApplicationDocumentLegalHold',
+  CompanyDeletionRequest: 'CompanyDeletionRequest',
+  CompanyDeletionManifestEntry: 'CompanyDeletionManifestEntry',
   ProfessionalConnection: 'ProfessionalConnection',
   ProfessionalConnectionProposal: 'ProfessionalConnectionProposal',
   ProfessionalConnectionDecision: 'ProfessionalConnectionDecision',
@@ -577,7 +579,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "userAccount" | "authProviderAccount" | "session" | "verification" | "twoFactor" | "candidateIdentity" | "candidateProfile" | "candidateProfileVisibility" | "profileExperience" | "profileEducation" | "skill" | "candidateProfileSkill" | "socialLink" | "accountPreferences" | "userJobWorkspaceState" | "emailChangeRequest" | "passwordChangeAttemptWindow" | "passwordChangeOperation" | "securityToken" | "passwordResetOperation" | "fullAccountRecoveryOperation" | "authenticationChallenge" | "rateLimitBucket" | "emailOutbox" | "inAppNotification" | "auditEvent" | "company" | "jobIndustry" | "jobSubIndustry" | "jobTaxonomyProposal" | "companyInvitation" | "teamOpportunity" | "teamApplication" | "companyTeamActivity" | "companyMembership" | "platformAdministratorGrant" | "platformAdministratorGrantScopeAssignment" | "administratorSessionPolicy" | "companyMembershipHistory" | "companyAccessPrerequisite" | "recruiterVerificationRequest" | "verificationNotificationEvent" | "employerVerificationPreparation" | "businessRegistryLookupSnapshot" | "companyContactEmailChallenge" | "verificationBusinessFacts" | "businessLicenseEvidence" | "verificationSafetyAttempt" | "verificationDecisionHistory" | "verificationPrivateNote" | "privilegedActionRationale" | "adminCommandReceipt" | "securityNotificationWork" | "adminDashboardSnapshot" | "moderationReport" | "moderationReportHistory" | "moderationPrivateNote" | "jobPosting" | "jobSearchProjection" | "jobPostReviewAggregate" | "jobPostRevisionRequest" | "jobPostFeaturedPlacement" | "jobPostEnforcementAction" | "jobPostEnforcementTarget" | "moderationReportEnforcementLink" | "jobPostOperationalHistory" | "jobPostReviewVersion" | "jobPostReviewHistory" | "jobPostReviewPrivateNote" | "jobCatalogueWriteLease" | "jobPostingSkill" | "applicationQuestion" | "candidateCv" | "privateCvMatchCheck" | "privateCvMatchAttempt" | "privateAutomaticMatchResult" | "privateAiEvaluationResult" | "privateMatchEvidence" | "privateCvMatchCommandReceipt" | "savedJob" | "jobReport" | "candidateApplicationDraft" | "applicationIntake" | "applicationPublicUpdate" | "applicationNotificationPreference" | "jobApplication" | "jobApplicationContactConsent" | "jobApplicationAttemptCounter" | "applicationDocument" | "applicationCoverLetterText" | "applicationArtifactPromotion" | "candidateCvArtifactPromotion" | "applicationDocumentLegalHold" | "professionalConnection" | "professionalConnectionProposal" | "professionalConnectionDecision" | "professionalConnectionProposalHistory" | "professionalConnectionNotification" | "professionalConnectionCommandReceipt" | "supportConversation" | "supportMessage" | "supportAssignment" | "supportInternalNote" | "supportConversationHistory" | "recruitmentThread" | "recruitmentMessage" | "messagingConversation" | "messagingConversationParticipant" | "messagingMessage" | "userMessagingBlock" | "messagingReport" | "messagingReportReviewEvent" | "messagingReportPrivateNote" | "applicationStageEvent" | "applicationAnswer" | "recruitmentNotificationWork" | "cvAccountQuota" | "cvUpload" | "cvStoredArtifact" | "cvScanAssessment" | "cvExtraction" | "cvParseJob" | "cvRetryRequest" | "cvDraft" | "cvProcessingConsent" | "cvImportConfirmation" | "ocrProcessingAttempt" | "ocrUnitOutcome" | "searchImageQuery" | "searchStoredArtifact" | "searchScanAssessment" | "searchImageDecodeAttempt" | "searchIntentAttempt" | "searchProcessingConsent" | "imageSearchAdmissionEvent" | "imageSearchOperationalEvidence" | "automaticMatchResult" | "documentParseResult" | "skillEvidenceExtraction" | "cvEvidenceExcerpt" | "aiAssessment" | "aiAssessmentFinding" | "aiSuggestedInterviewQuestion" | "scoringOperation" | "scoringWorkItem" | "aiAssessmentAttempt" | "applicationScoringResult" | "manualApplicationPriority" | "rankingSnapshot" | "rankingSnapshotRow" | "jobPostingViewFact" | "jobPostingLifecycleFact" | "exportRequest" | "backupConfiguration" | "backupRun" | "activityLegalHold" | "searchCatalogVersion" | "searchOccupation" | "searchJobTitle" | "searchJobTitleTranslation" | "searchAlias" | "searchFacet" | "searchTitleFacet" | "searchMappingReview" | "searchProjectionReconciliationRun"
+    modelProps: "userAccount" | "authProviderAccount" | "session" | "verification" | "twoFactor" | "candidateIdentity" | "candidateProfile" | "candidateProfileVisibility" | "profileExperience" | "profileEducation" | "skill" | "candidateProfileSkill" | "socialLink" | "accountPreferences" | "userJobWorkspaceState" | "emailChangeRequest" | "passwordChangeAttemptWindow" | "passwordChangeOperation" | "securityToken" | "passwordResetOperation" | "fullAccountRecoveryOperation" | "authenticationChallenge" | "rateLimitBucket" | "emailOutbox" | "inAppNotification" | "auditEvent" | "company" | "jobIndustry" | "jobSubIndustry" | "jobTaxonomyProposal" | "companyInvitation" | "teamOpportunity" | "teamApplication" | "companyTeamActivity" | "companyMembership" | "platformAdministratorGrant" | "platformAdministratorGrantScopeAssignment" | "administratorSessionPolicy" | "companyMembershipHistory" | "companyAccessPrerequisite" | "recruiterVerificationRequest" | "verificationNotificationEvent" | "employerVerificationPreparation" | "businessRegistryLookupSnapshot" | "companyContactEmailChallenge" | "verificationBusinessFacts" | "businessLicenseEvidence" | "verificationSafetyAttempt" | "verificationDecisionHistory" | "verificationPrivateNote" | "privilegedActionRationale" | "adminCommandReceipt" | "securityNotificationWork" | "adminDashboardSnapshot" | "moderationReport" | "moderationReportHistory" | "moderationPrivateNote" | "jobPosting" | "jobSearchProjection" | "jobPostReviewAggregate" | "jobPostRevisionRequest" | "jobPostFeaturedPlacement" | "jobPostEnforcementAction" | "jobPostEnforcementTarget" | "moderationReportEnforcementLink" | "jobPostOperationalHistory" | "jobPostReviewVersion" | "jobPostReviewHistory" | "jobPostReviewPrivateNote" | "jobCatalogueWriteLease" | "jobPostingSkill" | "applicationQuestion" | "candidateCv" | "privateCvMatchCheck" | "privateCvMatchAttempt" | "privateAutomaticMatchResult" | "privateAiEvaluationResult" | "privateMatchEvidence" | "privateCvMatchCommandReceipt" | "savedJob" | "jobReport" | "candidateApplicationDraft" | "applicationIntake" | "applicationPublicUpdate" | "applicationNotificationPreference" | "jobApplication" | "jobApplicationContactConsent" | "jobApplicationAttemptCounter" | "applicationDocument" | "applicationCoverLetterText" | "applicationArtifactPromotion" | "candidateCvArtifactPromotion" | "applicationDocumentLegalHold" | "companyDeletionRequest" | "companyDeletionManifestEntry" | "professionalConnection" | "professionalConnectionProposal" | "professionalConnectionDecision" | "professionalConnectionProposalHistory" | "professionalConnectionNotification" | "professionalConnectionCommandReceipt" | "supportConversation" | "supportMessage" | "supportAssignment" | "supportInternalNote" | "supportConversationHistory" | "recruitmentThread" | "recruitmentMessage" | "messagingConversation" | "messagingConversationParticipant" | "messagingMessage" | "userMessagingBlock" | "messagingReport" | "messagingReportReviewEvent" | "messagingReportPrivateNote" | "applicationStageEvent" | "applicationAnswer" | "recruitmentNotificationWork" | "cvAccountQuota" | "cvUpload" | "cvStoredArtifact" | "cvScanAssessment" | "cvExtraction" | "cvParseJob" | "cvRetryRequest" | "cvDraft" | "cvProcessingConsent" | "cvImportConfirmation" | "ocrProcessingAttempt" | "ocrUnitOutcome" | "searchImageQuery" | "searchStoredArtifact" | "searchScanAssessment" | "searchImageDecodeAttempt" | "searchIntentAttempt" | "searchProcessingConsent" | "imageSearchAdmissionEvent" | "imageSearchOperationalEvidence" | "automaticMatchResult" | "documentParseResult" | "skillEvidenceExtraction" | "cvEvidenceExcerpt" | "aiAssessment" | "aiAssessmentFinding" | "aiSuggestedInterviewQuestion" | "scoringOperation" | "scoringWorkItem" | "aiAssessmentAttempt" | "applicationScoringResult" | "manualApplicationPriority" | "rankingSnapshot" | "rankingSnapshotRow" | "jobPostingViewFact" | "jobPostingLifecycleFact" | "exportRequest" | "backupConfiguration" | "backupRun" | "activityLegalHold" | "searchCatalogVersion" | "searchOccupation" | "searchJobTitle" | "searchJobTitleTranslation" | "searchAlias" | "searchFacet" | "searchTitleFacet" | "searchMappingReview" | "searchProjectionReconciliationRun"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -7460,6 +7462,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ApplicationDocumentLegalHoldCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ApplicationDocumentLegalHoldCountAggregateOutputType> | number
+        }
+      }
+    }
+    CompanyDeletionRequest: {
+      payload: Prisma.$CompanyDeletionRequestPayload<ExtArgs>
+      fields: Prisma.CompanyDeletionRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CompanyDeletionRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CompanyDeletionRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.CompanyDeletionRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CompanyDeletionRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionRequestPayload>
+        }
+        findMany: {
+          args: Prisma.CompanyDeletionRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionRequestPayload>[]
+        }
+        create: {
+          args: Prisma.CompanyDeletionRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionRequestPayload>
+        }
+        createMany: {
+          args: Prisma.CompanyDeletionRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CompanyDeletionRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.CompanyDeletionRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionRequestPayload>
+        }
+        update: {
+          args: Prisma.CompanyDeletionRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.CompanyDeletionRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CompanyDeletionRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CompanyDeletionRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.CompanyDeletionRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.CompanyDeletionRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCompanyDeletionRequest>
+        }
+        groupBy: {
+          args: Prisma.CompanyDeletionRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyDeletionRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CompanyDeletionRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyDeletionRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    CompanyDeletionManifestEntry: {
+      payload: Prisma.$CompanyDeletionManifestEntryPayload<ExtArgs>
+      fields: Prisma.CompanyDeletionManifestEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CompanyDeletionManifestEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionManifestEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CompanyDeletionManifestEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionManifestEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.CompanyDeletionManifestEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionManifestEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CompanyDeletionManifestEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionManifestEntryPayload>
+        }
+        findMany: {
+          args: Prisma.CompanyDeletionManifestEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionManifestEntryPayload>[]
+        }
+        create: {
+          args: Prisma.CompanyDeletionManifestEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionManifestEntryPayload>
+        }
+        createMany: {
+          args: Prisma.CompanyDeletionManifestEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CompanyDeletionManifestEntryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionManifestEntryPayload>[]
+        }
+        delete: {
+          args: Prisma.CompanyDeletionManifestEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionManifestEntryPayload>
+        }
+        update: {
+          args: Prisma.CompanyDeletionManifestEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionManifestEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.CompanyDeletionManifestEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CompanyDeletionManifestEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CompanyDeletionManifestEntryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionManifestEntryPayload>[]
+        }
+        upsert: {
+          args: Prisma.CompanyDeletionManifestEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyDeletionManifestEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.CompanyDeletionManifestEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCompanyDeletionManifestEntry>
+        }
+        groupBy: {
+          args: Prisma.CompanyDeletionManifestEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyDeletionManifestEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CompanyDeletionManifestEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyDeletionManifestEntryCountAggregateOutputType> | number
         }
       }
     }
@@ -14615,6 +14765,47 @@ export const ApplicationDocumentLegalHoldScalarFieldEnum = {
 export type ApplicationDocumentLegalHoldScalarFieldEnum = (typeof ApplicationDocumentLegalHoldScalarFieldEnum)[keyof typeof ApplicationDocumentLegalHoldScalarFieldEnum]
 
 
+export const CompanyDeletionRequestScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  requestedByUserId: 'requestedByUserId',
+  state: 'state',
+  holdState: 'holdState',
+  purgeState: 'purgeState',
+  requestedAt: 'requestedAt',
+  retentionEligibleAt: 'retentionEligibleAt',
+  holdEvaluatedAt: 'holdEvaluatedAt',
+  physicalPurgeStartedAt: 'physicalPurgeStartedAt',
+  completedAt: 'completedAt',
+  lastFailureCode: 'lastFailureCode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CompanyDeletionRequestScalarFieldEnum = (typeof CompanyDeletionRequestScalarFieldEnum)[keyof typeof CompanyDeletionRequestScalarFieldEnum]
+
+
+export const CompanyDeletionManifestEntryScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  identityKey: 'identityKey',
+  resourceKind: 'resourceKind',
+  resourceType: 'resourceType',
+  recordId: 'recordId',
+  objectKeyEncrypted: 'objectKeyEncrypted',
+  objectVersion: 'objectVersion',
+  state: 'state',
+  outcomeCode: 'outcomeCode',
+  attemptCount: 'attemptCount',
+  lastAttemptAt: 'lastAttemptAt',
+  deletedAt: 'deletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CompanyDeletionManifestEntryScalarFieldEnum = (typeof CompanyDeletionManifestEntryScalarFieldEnum)[keyof typeof CompanyDeletionManifestEntryScalarFieldEnum]
+
+
 export const ProfessionalConnectionScalarFieldEnum = {
   id: 'id',
   participantLowId: 'participantLowId',
@@ -15506,6 +15697,7 @@ export const AutomaticMatchResultScalarFieldEnum = {
   preferredSkillBonus: 'preferredSkillBonus',
   minimumExperienceYears: 'minimumExperienceYears',
   detectedExperienceYears: 'detectedExperienceYears',
+  experienceEvidence: 'experienceEvidence',
   experienceInterpretationCode: 'experienceInterpretationCode',
   experienceInterpretationLabel: 'experienceInterpretationLabel',
   mayBeIncomplete: 'mayBeIncomplete',
@@ -17404,6 +17596,76 @@ export type ListEnumCandidateCvArtifactPromotionStateFieldRefInput<$PrismaModel>
 
 
 /**
+ * Reference to a field of type 'CompanyDeletionRequestState'
+ */
+export type EnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompanyDeletionRequestState'>
+    
+
+
+/**
+ * Reference to a field of type 'CompanyDeletionRequestState[]'
+ */
+export type ListEnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompanyDeletionRequestState[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CompanyDeletionHoldState'
+ */
+export type EnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompanyDeletionHoldState'>
+    
+
+
+/**
+ * Reference to a field of type 'CompanyDeletionHoldState[]'
+ */
+export type ListEnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompanyDeletionHoldState[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CompanyDeletionPurgeState'
+ */
+export type EnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompanyDeletionPurgeState'>
+    
+
+
+/**
+ * Reference to a field of type 'CompanyDeletionPurgeState[]'
+ */
+export type ListEnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompanyDeletionPurgeState[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CompanyDeletionManifestResourceKind'
+ */
+export type EnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompanyDeletionManifestResourceKind'>
+    
+
+
+/**
+ * Reference to a field of type 'CompanyDeletionManifestResourceKind[]'
+ */
+export type ListEnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompanyDeletionManifestResourceKind[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CompanyDeletionManifestState'
+ */
+export type EnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompanyDeletionManifestState'>
+    
+
+
+/**
+ * Reference to a field of type 'CompanyDeletionManifestState[]'
+ */
+export type ListEnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompanyDeletionManifestState[]'>
+    
+
+
+/**
  * Reference to a field of type 'ProfessionalConnectionStatus'
  */
 export type EnumProfessionalConnectionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProfessionalConnectionStatus'>
@@ -18598,6 +18860,8 @@ export type GlobalOmitConfig = {
   applicationArtifactPromotion?: Prisma.ApplicationArtifactPromotionOmit
   candidateCvArtifactPromotion?: Prisma.CandidateCvArtifactPromotionOmit
   applicationDocumentLegalHold?: Prisma.ApplicationDocumentLegalHoldOmit
+  companyDeletionRequest?: Prisma.CompanyDeletionRequestOmit
+  companyDeletionManifestEntry?: Prisma.CompanyDeletionManifestEntryOmit
   professionalConnection?: Prisma.ProfessionalConnectionOmit
   professionalConnectionProposal?: Prisma.ProfessionalConnectionProposalOmit
   professionalConnectionDecision?: Prisma.ProfessionalConnectionDecisionOmit

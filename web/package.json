@@ -86,7 +86,7 @@
     "test:scoring": "vitest run tests/backend/scoring tests/shared/scoring tests/security/scoring tests/frontend/scoring tests/architecture/scoring --passWithNoTests",
     "test:candidate-application-private-match": "vitest run tests/shared/private-cv-match tests/backend/private-cv-match tests/frontend/private-cv-match tests/security/private-cv-match tests/security/candidate-application-private-match tests/architecture/candidate-application-private-match-boundaries.test.ts --passWithNoTests",
     "applications:migration:verify": "node scripts/verify-application-migration.mjs",
-    "applications:retention": "node scripts/run-application-retention-worker.mjs",
+    "applications:retention": "node --conditions=react-server --import tsx scripts/run-application-retention-worker.mjs",
     "applications:intake": "node --conditions=react-server --import tsx scripts/run-application-intake-worker.mjs",
     "applications:intake:watch": "node --conditions=react-server --import tsx scripts/run-application-intake-worker.mjs --watch",
     "applications:scoring": "node --conditions=react-server --import tsx scripts/run-application-scoring-worker.mjs",

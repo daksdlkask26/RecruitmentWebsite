@@ -3413,6 +3413,90 @@ model ApplicationDocumentLegalHold {
   @@index([issuedByAdminUserId, createdAt])
 }
 
+enum CompanyDeletionRequestState {
+  REQUESTED
+  ELIGIBLE
+  BLOCKED_BY_LEGAL_HOLD
+  PURGING
+  RETRY_REQUIRED
+  COMPLETED
+}
+
+enum CompanyDeletionHoldState {
+  NOT_EVALUATED
+  CLEAR
+  ACTIVE
+  RELEASED
+}
+
+enum CompanyDeletionPurgeState {
+  NOT_STARTED
+  BLOCKED
+  PENDING
+  RETRYABLE
+  COMPLETE
+}
+
+enum CompanyDeletionManifestResourceKind {
+  DATABASE_RECORD
+  OBJECT
+}
+
+enum CompanyDeletionManifestState {
+  PENDING
+  DELETED
+  RETAINED_SHARED
+  BLOCKED_BY_LEGAL_HOLD
+  RETRYABLE
+  CONFLICT
+}
+
+/// Durable deletion request state is intentionally independent of Company so
+/// the receipt and object-level outcomes survive physical company deletion.
+model CompanyDeletionRequest {
+  id                    String                    @id @default(cuid())
+  companyId             String                    @db.VarChar(128)
+  requestedByUserId     String                    @db.VarChar(128)
+  state                 CompanyDeletionRequestState @default(REQUESTED)
+  holdState             CompanyDeletionHoldState  @default(NOT_EVALUATED)
+  purgeState            CompanyDeletionPurgeState @default(NOT_STARTED)
+  requestedAt           DateTime                  @default(now())
+  retentionEligibleAt   DateTime
+  holdEvaluatedAt       DateTime?
+  physicalPurgeStartedAt DateTime?
+  completedAt           DateTime?
+  lastFailureCode       String?                   @db.VarChar(160)
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+  manifestEntries       CompanyDeletionManifestEntry[]
+
+  @@index([companyId, requestedAt])
+  @@index([state, retentionEligibleAt])
+}
+
+model CompanyDeletionManifestEntry {
+  id                    String                           @id @default(cuid())
+  requestId             String
+  identityKey           String                           @db.VarChar(2048)
+  resourceKind          CompanyDeletionManifestResourceKind
+  resourceType          String                           @db.VarChar(80)
+  recordId              String?                          @db.VarChar(128)
+  objectKeyEncrypted    String?                          @db.VarChar(2048)
+  objectVersion         String?                          @db.VarChar(80)
+  state                 CompanyDeletionManifestState     @default(PENDING)
+  outcomeCode           String?                          @db.VarChar(160)
+  attemptCount          Int                              @default(0)
+  lastAttemptAt         DateTime?
+  deletedAt             DateTime?
+  createdAt             DateTime                         @default(now())
+  updatedAt             DateTime                         @updatedAt
+  deletionRequest       CompanyDeletionRequest           @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, identityKey])
+  @@index([requestId, state])
+  @@index([resourceKind, state])
+}
+
 model ProfessionalConnection {
   id                 String                               @id @default(cuid())
   participantLowId   String
@@ -4533,6 +4617,7 @@ model AutomaticMatchResult {
   preferredSkillBonus   Decimal                   @db.Decimal(5, 2) @default(0)
   minimumExperienceYears Decimal?                 @db.Decimal(5, 2)
   detectedExperienceYears Decimal?                @db.Decimal(5, 2)
+  experienceEvidence    Json?
   experienceInterpretationCode String
   experienceInterpretationLabel String
   mayBeIncomplete       Boolean                   @default(false)

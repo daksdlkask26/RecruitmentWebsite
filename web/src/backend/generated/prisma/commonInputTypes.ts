@@ -1921,6 +1921,91 @@ export type EnumCandidateCvArtifactPromotionStateWithAggregatesFilter<$PrismaMod
   _max?: Prisma.NestedEnumCandidateCvArtifactPromotionStateFilter<$PrismaModel>
 }
 
+export type EnumCompanyDeletionRequestStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionRequestState | Prisma.EnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionRequestState[] | Prisma.ListEnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionRequestState[] | Prisma.ListEnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionRequestStateFilter<$PrismaModel> | $Enums.CompanyDeletionRequestState
+}
+
+export type EnumCompanyDeletionHoldStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionHoldState | Prisma.EnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionHoldState[] | Prisma.ListEnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionHoldState[] | Prisma.ListEnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionHoldStateFilter<$PrismaModel> | $Enums.CompanyDeletionHoldState
+}
+
+export type EnumCompanyDeletionPurgeStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionPurgeState | Prisma.EnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionPurgeState[] | Prisma.ListEnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionPurgeState[] | Prisma.ListEnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionPurgeStateFilter<$PrismaModel> | $Enums.CompanyDeletionPurgeState
+}
+
+export type EnumCompanyDeletionRequestStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionRequestState | Prisma.EnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionRequestState[] | Prisma.ListEnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionRequestState[] | Prisma.ListEnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionRequestStateWithAggregatesFilter<$PrismaModel> | $Enums.CompanyDeletionRequestState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCompanyDeletionRequestStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCompanyDeletionRequestStateFilter<$PrismaModel>
+}
+
+export type EnumCompanyDeletionHoldStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionHoldState | Prisma.EnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionHoldState[] | Prisma.ListEnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionHoldState[] | Prisma.ListEnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionHoldStateWithAggregatesFilter<$PrismaModel> | $Enums.CompanyDeletionHoldState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCompanyDeletionHoldStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCompanyDeletionHoldStateFilter<$PrismaModel>
+}
+
+export type EnumCompanyDeletionPurgeStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionPurgeState | Prisma.EnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionPurgeState[] | Prisma.ListEnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionPurgeState[] | Prisma.ListEnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionPurgeStateWithAggregatesFilter<$PrismaModel> | $Enums.CompanyDeletionPurgeState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCompanyDeletionPurgeStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCompanyDeletionPurgeStateFilter<$PrismaModel>
+}
+
+export type EnumCompanyDeletionManifestResourceKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionManifestResourceKind | Prisma.EnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionManifestResourceKind[] | Prisma.ListEnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionManifestResourceKind[] | Prisma.ListEnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionManifestResourceKindFilter<$PrismaModel> | $Enums.CompanyDeletionManifestResourceKind
+}
+
+export type EnumCompanyDeletionManifestStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionManifestState | Prisma.EnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionManifestState[] | Prisma.ListEnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionManifestState[] | Prisma.ListEnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionManifestStateFilter<$PrismaModel> | $Enums.CompanyDeletionManifestState
+}
+
+export type EnumCompanyDeletionManifestResourceKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionManifestResourceKind | Prisma.EnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionManifestResourceKind[] | Prisma.ListEnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionManifestResourceKind[] | Prisma.ListEnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionManifestResourceKindWithAggregatesFilter<$PrismaModel> | $Enums.CompanyDeletionManifestResourceKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCompanyDeletionManifestResourceKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCompanyDeletionManifestResourceKindFilter<$PrismaModel>
+}
+
+export type EnumCompanyDeletionManifestStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionManifestState | Prisma.EnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionManifestState[] | Prisma.ListEnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionManifestState[] | Prisma.ListEnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionManifestStateWithAggregatesFilter<$PrismaModel> | $Enums.CompanyDeletionManifestState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCompanyDeletionManifestStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCompanyDeletionManifestStateFilter<$PrismaModel>
+}
+
 export type EnumProfessionalConnectionStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.ProfessionalConnectionStatus | Prisma.EnumProfessionalConnectionStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ProfessionalConnectionStatus[] | Prisma.ListEnumProfessionalConnectionStatusFieldRefInput<$PrismaModel>
@@ -5049,6 +5134,91 @@ export type NestedEnumCandidateCvArtifactPromotionStateWithAggregatesFilter<$Pri
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCandidateCvArtifactPromotionStateFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCandidateCvArtifactPromotionStateFilter<$PrismaModel>
+}
+
+export type NestedEnumCompanyDeletionRequestStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionRequestState | Prisma.EnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionRequestState[] | Prisma.ListEnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionRequestState[] | Prisma.ListEnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionRequestStateFilter<$PrismaModel> | $Enums.CompanyDeletionRequestState
+}
+
+export type NestedEnumCompanyDeletionHoldStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionHoldState | Prisma.EnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionHoldState[] | Prisma.ListEnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionHoldState[] | Prisma.ListEnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionHoldStateFilter<$PrismaModel> | $Enums.CompanyDeletionHoldState
+}
+
+export type NestedEnumCompanyDeletionPurgeStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionPurgeState | Prisma.EnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionPurgeState[] | Prisma.ListEnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionPurgeState[] | Prisma.ListEnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionPurgeStateFilter<$PrismaModel> | $Enums.CompanyDeletionPurgeState
+}
+
+export type NestedEnumCompanyDeletionRequestStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionRequestState | Prisma.EnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionRequestState[] | Prisma.ListEnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionRequestState[] | Prisma.ListEnumCompanyDeletionRequestStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionRequestStateWithAggregatesFilter<$PrismaModel> | $Enums.CompanyDeletionRequestState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCompanyDeletionRequestStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCompanyDeletionRequestStateFilter<$PrismaModel>
+}
+
+export type NestedEnumCompanyDeletionHoldStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionHoldState | Prisma.EnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionHoldState[] | Prisma.ListEnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionHoldState[] | Prisma.ListEnumCompanyDeletionHoldStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionHoldStateWithAggregatesFilter<$PrismaModel> | $Enums.CompanyDeletionHoldState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCompanyDeletionHoldStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCompanyDeletionHoldStateFilter<$PrismaModel>
+}
+
+export type NestedEnumCompanyDeletionPurgeStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionPurgeState | Prisma.EnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionPurgeState[] | Prisma.ListEnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionPurgeState[] | Prisma.ListEnumCompanyDeletionPurgeStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionPurgeStateWithAggregatesFilter<$PrismaModel> | $Enums.CompanyDeletionPurgeState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCompanyDeletionPurgeStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCompanyDeletionPurgeStateFilter<$PrismaModel>
+}
+
+export type NestedEnumCompanyDeletionManifestResourceKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionManifestResourceKind | Prisma.EnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionManifestResourceKind[] | Prisma.ListEnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionManifestResourceKind[] | Prisma.ListEnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionManifestResourceKindFilter<$PrismaModel> | $Enums.CompanyDeletionManifestResourceKind
+}
+
+export type NestedEnumCompanyDeletionManifestStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionManifestState | Prisma.EnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionManifestState[] | Prisma.ListEnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionManifestState[] | Prisma.ListEnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionManifestStateFilter<$PrismaModel> | $Enums.CompanyDeletionManifestState
+}
+
+export type NestedEnumCompanyDeletionManifestResourceKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionManifestResourceKind | Prisma.EnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionManifestResourceKind[] | Prisma.ListEnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionManifestResourceKind[] | Prisma.ListEnumCompanyDeletionManifestResourceKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionManifestResourceKindWithAggregatesFilter<$PrismaModel> | $Enums.CompanyDeletionManifestResourceKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCompanyDeletionManifestResourceKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCompanyDeletionManifestResourceKindFilter<$PrismaModel>
+}
+
+export type NestedEnumCompanyDeletionManifestStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CompanyDeletionManifestState | Prisma.EnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CompanyDeletionManifestState[] | Prisma.ListEnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CompanyDeletionManifestState[] | Prisma.ListEnumCompanyDeletionManifestStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCompanyDeletionManifestStateWithAggregatesFilter<$PrismaModel> | $Enums.CompanyDeletionManifestState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCompanyDeletionManifestStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCompanyDeletionManifestStateFilter<$PrismaModel>
 }
 
 export type NestedEnumProfessionalConnectionStatusFilter<$PrismaModel = never> = {

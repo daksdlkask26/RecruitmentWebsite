@@ -14,6 +14,8 @@ import {
   withdrawManagedJobPostReview,
 } from "@/backend/jobs/review/job-post-review-service";
 import { applyRecruiterCapacityIncrease } from "@/backend/services/jobs/recruiter-capacity-service";
+import { purgeCompanyDeletionRequest } from "./company-deletion-manifest-service";
+import { findActiveCompanyDeletionRetentionBlock } from "./company-deletion-retention";
 import {
   companyCatalogSchema,
   companyLogoSchema,
@@ -1956,7 +1958,9 @@ function settingsFromCompany(
 }
 
 export class RecruiterCompanyDeletionError extends Error {
-  constructor(readonly code: "NOT_FOUND" | "OWNER_REQUIRED") {
+  constructor(
+    readonly code: "NOT_FOUND" | "OWNER_REQUIRED" | "LEGAL_HOLD_ACTIVE",
+  ) {
     super(code);
   }
 }
@@ -2064,7 +2068,31 @@ async function hardDeleteDatabaseCompany(
   companyId: string,
   userId: string,
   now: Date,
-) {
+  existingRequestId?: string,
+): Promise<Readonly<{ requestId: string; blocked: boolean }>> {
+  if (existingRequestId) {
+    await transaction.$queryRaw`
+      SELECT 1::integer AS locked
+      FROM (
+        SELECT pg_advisory_xact_lock(
+          hashtextextended(${`company-deletion-request:${existingRequestId}`}, 0)
+        )
+      ) AS advisory_lock
+    `;
+    const existingRequest = await transaction.companyDeletionRequest.findFirst({
+      where: {
+        id: existingRequestId,
+        companyId,
+        requestedByUserId: userId,
+      },
+      select: { id: true, state: true },
+    });
+    if (!existingRequest) throw new RecruiterCompanyDeletionError("NOT_FOUND");
+    if (existingRequest.state !== "BLOCKED_BY_LEGAL_HOLD") {
+      return { requestId: existingRequest.id, blocked: false };
+    }
+  }
+
   const owner = await transaction.companyMembership.findFirst({
     where: {
       companyId,
@@ -2097,6 +2125,221 @@ async function hardDeleteDatabaseCompany(
       })
     : [];
   const applicationIds = applicationRows.map(({ id }) => id);
+
+  const documentRows = applicationIds.length
+    ? await transaction.applicationDocument.findMany({
+        where: { jobApplicationId: { in: applicationIds } },
+        select: {
+          id: true,
+          storageKeyEncrypted: true,
+          storagePurposeVersion: true,
+          sourceArtifactId: true,
+        },
+      })
+    : [];
+  const promotionRows = jobIds.length
+    ? await transaction.applicationArtifactPromotion.findMany({
+        where: { jobPostingId: { in: jobIds } },
+        select: {
+          id: true,
+          storageKeyEncrypted: true,
+          storagePurposeVersion: true,
+        },
+      })
+    : [];
+  const threadRows = await transaction.recruitmentThread.findMany({
+    where: jobIds.length
+      ? { OR: [{ companyId }, { jobPostingId: { in: jobIds } }] }
+      : { companyId },
+    select: { id: true },
+  });
+  const threadIds = threadRows.map(({ id }) => id);
+  const conversationRows = await transaction.messagingConversation.findMany({
+    where: applicationIds.length
+      ? { OR: [{ companyId }, { applicationId: { in: applicationIds } }] }
+      : { companyId },
+    select: { id: true },
+  });
+  const conversationIds = conversationRows.map(({ id }) => id);
+  const retentionBlock = await findActiveCompanyDeletionRetentionBlock(
+    transaction,
+    {
+      companyId,
+      jobIds,
+      applicationIds,
+      threadIds,
+      conversationIds,
+      now,
+    },
+  );
+
+  const deletionRequest = existingRequestId
+    ? { id: existingRequestId }
+    : await transaction.companyDeletionRequest.create({
+        data: {
+          companyId,
+          requestedByUserId: userId,
+          requestedAt: now,
+          retentionEligibleAt: now,
+        },
+        select: { id: true },
+      });
+  const databaseManifestEntries = [
+    { resourceType: "COMPANY", recordId: companyId },
+    ...jobIds.map((id) => ({ resourceType: "JOB_POSTING", recordId: id })),
+    ...applicationIds.map((id) => ({
+      resourceType: "JOB_APPLICATION",
+      recordId: id,
+    })),
+    ...threadIds.map((id) => ({
+      resourceType: "RECRUITMENT_THREAD",
+      recordId: id,
+    })),
+    ...conversationIds.map((id) => ({
+      resourceType: "MESSAGING_CONVERSATION",
+      recordId: id,
+    })),
+    ...documentRows.map(({ id }) => ({
+      resourceType: "APPLICATION_DOCUMENT",
+      recordId: id,
+    })),
+    ...promotionRows.map(({ id }) => ({
+      resourceType: "ARTIFACT_PROMOTION",
+      recordId: id,
+    })),
+  ];
+  const objectEntries = new Map<
+    string,
+    Readonly<{
+      objectKeyEncrypted: string;
+      objectVersion: string;
+      state: "PENDING" | "RETAINED_SHARED";
+      outcomeCode: string | null;
+    }>
+  >();
+  for (const row of documentRows) {
+    const existing = objectEntries.get(row.storageKeyEncrypted);
+    objectEntries.set(row.storageKeyEncrypted, {
+      objectKeyEncrypted: row.storageKeyEncrypted,
+      objectVersion: row.storagePurposeVersion,
+      state:
+        row.sourceArtifactId || existing?.state === "RETAINED_SHARED"
+          ? "RETAINED_SHARED"
+          : "PENDING",
+      outcomeCode:
+        row.sourceArtifactId || existing?.state === "RETAINED_SHARED"
+          ? "OBJECT_SHARED_SOURCE"
+          : null,
+    });
+  }
+  for (const row of promotionRows) {
+    if (!objectEntries.has(row.storageKeyEncrypted)) {
+      objectEntries.set(row.storageKeyEncrypted, {
+        objectKeyEncrypted: row.storageKeyEncrypted,
+        objectVersion: row.storagePurposeVersion,
+        state: "PENDING",
+        outcomeCode: null,
+      });
+    }
+  }
+  await transaction.companyDeletionManifestEntry.createMany({
+    data: [
+      ...databaseManifestEntries.map(({ resourceType, recordId }) => ({
+        requestId: deletionRequest.id,
+        identityKey: `database:${resourceType}:${recordId}`,
+        resourceKind: "DATABASE_RECORD" as const,
+        resourceType,
+        recordId,
+      })),
+      ...[...objectEntries.values()].map((entry) => ({
+        requestId: deletionRequest.id,
+        identityKey: `object:${entry.objectKeyEncrypted}`,
+        resourceKind: "OBJECT" as const,
+        resourceType: "APPLICATION_DOCUMENT_OBJECT",
+        objectKeyEncrypted: entry.objectKeyEncrypted,
+        objectVersion: entry.objectVersion,
+        state: entry.state,
+        outcomeCode: entry.outcomeCode,
+      })),
+    ],
+    skipDuplicates: Boolean(existingRequestId),
+  });
+
+  if (retentionBlock) {
+    await transaction.companyDeletionManifestEntry.updateMany({
+      where: { requestId: deletionRequest.id, state: "PENDING" },
+      data: {
+        state: "BLOCKED_BY_LEGAL_HOLD",
+        outcomeCode: retentionBlock.code,
+      },
+    });
+    await transaction.companyDeletionRequest.update({
+      where: { id: deletionRequest.id },
+      data: {
+        state: "BLOCKED_BY_LEGAL_HOLD",
+        holdState: "ACTIVE",
+        purgeState: "BLOCKED",
+        holdEvaluatedAt: now,
+        lastFailureCode: retentionBlock.code,
+      },
+    });
+    return { requestId: deletionRequest.id, blocked: true };
+  }
+
+  if (existingRequestId) {
+    const released = await transaction.companyDeletionRequest.updateMany({
+      where: {
+        id: deletionRequest.id,
+        state: "BLOCKED_BY_LEGAL_HOLD",
+      },
+      data: {
+        state: "ELIGIBLE",
+        holdState: "RELEASED",
+        purgeState: "PENDING",
+        holdEvaluatedAt: now,
+        lastFailureCode: null,
+      },
+    });
+    if (released.count !== 1) {
+      return { requestId: deletionRequest.id, blocked: false };
+    }
+    await transaction.companyDeletionManifestEntry.updateMany({
+      where: {
+        requestId: deletionRequest.id,
+        state: "BLOCKED_BY_LEGAL_HOLD",
+      },
+      data: {
+        state: "PENDING",
+        outcomeCode: "RETENTION_RELEASED",
+        lastAttemptAt: now,
+      },
+    });
+    await transaction.auditEvent.create({
+      data: {
+        occurredAt: now,
+        actorType: "system",
+        action: "company.deletion.retention_released",
+        targetType: "company",
+        targetId: companyId,
+        result: "SUCCESS",
+        correlationId: randomUUID(),
+        context: {
+          deletionRequestId: deletionRequest.id,
+          resultingState: "ELIGIBLE",
+        },
+      },
+    });
+  }
+
+  await transaction.companyDeletionRequest.update({
+    where: { id: deletionRequest.id },
+    data: {
+      state: "ELIGIBLE",
+      holdState: existingRequestId ? "RELEASED" : "CLEAR",
+      purgeState: "PENDING",
+      holdEvaluatedAt: now,
+    },
+  });
 
   const reviewAggregates = await transaction.jobPostReviewAggregate.findMany({
     where: jobIds.length
@@ -2153,21 +2396,6 @@ async function hardDeleteDatabaseCompany(
       where: { id: { in: aggregateIds } },
     });
   }
-
-  const threadRows = await transaction.recruitmentThread.findMany({
-    where: jobIds.length
-      ? { OR: [{ companyId }, { jobPostingId: { in: jobIds } }] }
-      : { companyId },
-    select: { id: true },
-  });
-  const threadIds = threadRows.map(({ id }) => id);
-  const conversationRows = await transaction.messagingConversation.findMany({
-    where: applicationIds.length
-      ? { OR: [{ companyId }, { applicationId: { in: applicationIds } }] }
-      : { companyId },
-    select: { id: true },
-  });
-  const conversationIds = conversationRows.map(({ id }) => id);
 
   // Reports use RESTRICT for their conversation relation. Remove the report
   // rows first; their review notes/events are configured to cascade with them.
@@ -2266,6 +2494,28 @@ async function hardDeleteDatabaseCompany(
     where: { targetCompanyId: companyId },
   });
   await transaction.company.delete({ where: { id: companyId } });
+  await transaction.companyDeletionManifestEntry.updateMany({
+    where: {
+      requestId: deletionRequest.id,
+      resourceKind: "DATABASE_RECORD",
+      state: "PENDING",
+    },
+    data: {
+      state: "DELETED",
+      outcomeCode: "DATABASE_RECORD_DELETED",
+      attemptCount: { increment: 1 },
+      lastAttemptAt: now,
+      deletedAt: now,
+    },
+  });
+  await transaction.companyDeletionRequest.update({
+    where: { id: deletionRequest.id },
+    data: {
+      state: "PURGING",
+      purgeState: "PENDING",
+      physicalPurgeStartedAt: now,
+    },
+  });
   await transaction.auditEvent.create({
     data: {
       occurredAt: now,
@@ -2281,10 +2531,65 @@ async function hardDeleteDatabaseCompany(
         priorState: "ACTIVE",
         resultingState: "DELETED",
         deletionResult: "HARD_DELETED",
+        deletionRequestId: deletionRequest.id,
         deletedJobCount: jobIds.length,
         deletedApplicationCount: applicationIds.length,
+        deletionManifestEntryCount:
+          databaseManifestEntries.length + objectEntries.size,
       },
     },
+  });
+  return { requestId: deletionRequest.id, blocked: false };
+}
+
+/**
+ * Re-evaluates one durable deletion request after its retention block may have
+ * expired. The request advisory lock serializes worker/manual retries across
+ * processes; object deletion remains protected by the per-locator lock/CAS in
+ * the manifest service.
+ */
+export async function resumeBlockedRecruiterCompanyDeletion(
+  requestId: string,
+  now = new Date(),
+) {
+  return withWriteLock(async () => {
+    const request = await prisma.companyDeletionRequest.findUnique({
+      where: { id: requestId },
+      select: {
+        id: true,
+        companyId: true,
+        requestedByUserId: true,
+        state: true,
+      },
+    });
+    if (!request) {
+      return purgeCompanyDeletionRequest(requestId, { now });
+    }
+
+    if (request.state === "BLOCKED_BY_LEGAL_HOLD") {
+      const databaseDeletion = await prisma.$transaction((transaction) =>
+        hardDeleteDatabaseCompany(
+          transaction,
+          request.companyId,
+          request.requestedByUserId,
+          now,
+          request.id,
+        ),
+      );
+      if (databaseDeletion.blocked) {
+        return {
+          requestId,
+          status: "BLOCKED_BY_LEGAL_HOLD" as const,
+          deletedObjects: 0,
+          alreadyAbsentObjects: 0,
+          retainedSharedObjects: 0,
+          retryableObjects: 0,
+          conflictingObjects: 0,
+        };
+      }
+    }
+
+    return purgeCompanyDeletionRequest(requestId, { now });
   });
 }
 
@@ -2368,18 +2673,42 @@ export async function deleteRecruiterCompany(
     if (!isOwner) throw new RecruiterCompanyDeletionError("OWNER_REQUIRED");
 
     const now = new Date();
+    const databaseCompanyId = company.databaseId;
+    let databaseDeletion: Readonly<{
+      requestId: string;
+      blocked: boolean;
+    }> | null = null;
+    if (company.databaseBacked && databaseCompanyId) {
+      databaseDeletion = await prisma.$transaction(async (transaction) =>
+        hardDeleteDatabaseCompany(transaction, databaseCompanyId, userId, now),
+      );
+      if (databaseDeletion.blocked) {
+        invalidateCatalogueCache();
+        return {
+          companyId: company.id,
+          deleted: false as const,
+          status: "BLOCKED_BY_LEGAL_HOLD" as const,
+          requestId: databaseDeletion.requestId,
+        };
+      }
+    }
+
     await deleteLegacyCompanyData(company, rawJobs, rawCompanies);
 
-    const databaseCompanyId = company.databaseId;
-    if (company.databaseBacked && databaseCompanyId) {
-      await prisma.$transaction(async (transaction) => {
-        await hardDeleteDatabaseCompany(
-          transaction,
-          databaseCompanyId,
-          userId,
-          now,
-        );
-      });
+    if (databaseDeletion) {
+      const purge = await purgeCompanyDeletionRequest(
+        databaseDeletion.requestId,
+        { now },
+      );
+      if (purge.status !== "COMPLETED") {
+        invalidateCatalogueCache();
+        return {
+          companyId: company.id,
+          deleted: false as const,
+          status: "PURGE_PENDING" as const,
+          requestId: databaseDeletion.requestId,
+        };
+      }
     }
 
     invalidateCatalogueCache();

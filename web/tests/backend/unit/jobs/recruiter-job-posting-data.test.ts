@@ -27,6 +27,12 @@ const prismaMocks = vi.hoisted(() => {
     companyMembership: { findFirst: vi.fn() },
     jobPosting: { findMany: vi.fn(), deleteMany: vi.fn() },
     jobApplication: { findMany: vi.fn(), deleteMany: vi.fn() },
+    applicationDocument: { findMany: vi.fn() },
+    applicationDocumentLegalHold: { findFirst: vi.fn() },
+    activityLegalHold: { findFirst: vi.fn() },
+    jobReport: { findFirst: vi.fn(), deleteMany: vi.fn() },
+    moderationReport: { findFirst: vi.fn() },
+    messagingReport: { findFirst: vi.fn(), deleteMany: vi.fn() },
     jobPostReviewAggregate: {
       findMany: vi.fn(),
       updateMany: vi.fn(),
@@ -41,11 +47,17 @@ const prismaMocks = vi.hoisted(() => {
     jobPostOperationalHistory: { deleteMany: vi.fn() },
     recruitmentThread: { findMany: vi.fn(), deleteMany: vi.fn() },
     messagingConversation: { findMany: vi.fn(), deleteMany: vi.fn() },
-    messagingReport: { deleteMany: vi.fn() },
     privateCvMatchCheck: { updateMany: vi.fn(), deleteMany: vi.fn() },
     savedJob: { deleteMany: vi.fn() },
-    jobReport: { deleteMany: vi.fn() },
-    applicationArtifactPromotion: { deleteMany: vi.fn() },
+    applicationArtifactPromotion: {
+      findMany: vi.fn(),
+      deleteMany: vi.fn(),
+    },
+    companyDeletionRequest: { create: vi.fn(), update: vi.fn() },
+    companyDeletionManifestEntry: {
+      createMany: vi.fn(),
+      updateMany: vi.fn(),
+    },
     exportRequest: { deleteMany: vi.fn() },
     aiSuggestedInterviewQuestion: { deleteMany: vi.fn() },
     applicationScoringResult: { deleteMany: vi.fn() },
@@ -55,6 +67,7 @@ const prismaMocks = vi.hoisted(() => {
     automaticMatchResult: { deleteMany: vi.fn() },
     recruiterVerificationRequest: { deleteMany: vi.fn() },
     auditEvent: { create: vi.fn() },
+    $queryRaw: vi.fn(),
   };
   return {
     company: {
@@ -68,6 +81,15 @@ const prismaMocks = vi.hoisted(() => {
     },
     jobPosting: {
       findUnique: vi.fn(),
+    },
+    applicationDocument: { findFirst: vi.fn() },
+    applicationArtifactPromotion: { findFirst: vi.fn() },
+    companyDeletionRequest: { findUnique: vi.fn(), update: vi.fn() },
+    companyDeletionManifestEntry: {
+      findMany: vi.fn(),
+      count: vi.fn(),
+      updateMany: vi.fn(),
+      update: vi.fn(),
     },
     transaction,
     $transaction: vi.fn(async (callback: (tx: typeof transaction) => unknown) =>
@@ -164,7 +186,11 @@ describe("recruiter JSON job persistence", () => {
     prismaMocks.jobPosting.findUnique.mockReset();
     prismaMocks.jobPosting.findUnique.mockResolvedValue(null);
     for (const delegate of Object.values(prismaMocks.transaction)) {
-      for (const method of Object.values(delegate)) method.mockReset();
+      for (const method of Object.values(delegate)) {
+        if (typeof method === "function" && "mockReset" in method) {
+          method.mockReset();
+        }
+      }
     }
     prismaMocks.transaction.companyMembership.findFirst.mockResolvedValue({
       id: "membership-1",
@@ -175,6 +201,28 @@ describe("recruiter JSON job persistence", () => {
     });
     prismaMocks.transaction.jobPosting.findMany.mockResolvedValue([]);
     prismaMocks.transaction.jobApplication.findMany.mockResolvedValue([]);
+    prismaMocks.transaction.applicationDocument.findMany.mockResolvedValue([]);
+    prismaMocks.transaction.applicationArtifactPromotion.findMany.mockResolvedValue(
+      [],
+    );
+    prismaMocks.transaction.applicationDocumentLegalHold.findFirst.mockResolvedValue(
+      null,
+    );
+    prismaMocks.transaction.activityLegalHold.findFirst.mockResolvedValue(null);
+    prismaMocks.transaction.jobReport.findFirst.mockResolvedValue(null);
+    prismaMocks.transaction.moderationReport.findFirst.mockResolvedValue(null);
+    prismaMocks.transaction.messagingReport.findFirst.mockResolvedValue(null);
+    prismaMocks.transaction.$queryRaw.mockResolvedValue([]);
+    prismaMocks.transaction.companyDeletionRequest.create.mockResolvedValue({
+      id: "deletion-request-1",
+    });
+    prismaMocks.transaction.companyDeletionRequest.update.mockResolvedValue({});
+    prismaMocks.transaction.companyDeletionManifestEntry.createMany.mockResolvedValue(
+      { count: 1 },
+    );
+    prismaMocks.transaction.companyDeletionManifestEntry.updateMany.mockResolvedValue(
+      { count: 1 },
+    );
     prismaMocks.transaction.jobPostReviewAggregate.findMany.mockResolvedValue(
       [],
     );
@@ -185,6 +233,19 @@ describe("recruiter JSON job persistence", () => {
     );
     prismaMocks.transaction.company.delete.mockResolvedValue({});
     prismaMocks.transaction.auditEvent.create.mockResolvedValue({});
+    prismaMocks.companyDeletionRequest.findUnique.mockResolvedValue({
+      id: "deletion-request-1",
+      state: "PURGING",
+      purgeState: "PENDING",
+      retentionEligibleAt: new Date("2026-01-01T00:00:00.000Z"),
+    });
+    prismaMocks.companyDeletionManifestEntry.findMany.mockResolvedValue([]);
+    prismaMocks.companyDeletionManifestEntry.count.mockResolvedValue(0);
+    prismaMocks.companyDeletionManifestEntry.updateMany.mockResolvedValue({
+      count: 0,
+    });
+    prismaMocks.companyDeletionManifestEntry.update.mockResolvedValue({});
+    prismaMocks.companyDeletionRequest.update.mockResolvedValue({});
   });
 
   it("maps an old public posting notification to an authorized catalogue job", async () => {
@@ -863,6 +924,145 @@ describe("recruiter JSON job persistence", () => {
     );
     expect(prismaMocks.company.update).not.toHaveBeenCalled();
   });
+
+  it("records a deletion request and blocks all physical deletion under an active legal hold", async () => {
+    prismaMocks.company.findMany.mockResolvedValue([
+      {
+        id: "db-company-1",
+        slug: "northstar-labs",
+        legalName: "Northstar Labs",
+        displayName: "Northstar Labs",
+        logoUrl: null,
+        websiteUrl: null,
+        publicDescription: null,
+        publicLocation: null,
+        size: "51-200 employees",
+        industry: "Technology",
+        address: "Ho Chi Minh City",
+        entityType: null,
+        normalizedTaxIdentifier: "1234567890",
+        memberships: [{ userId: "recruiter-1", role: "OWNER" }],
+      },
+    ]);
+    fsMocks.readFile.mockImplementation(async (path: string) => {
+      if (path.endsWith("jobs.json")) return "[]";
+      if (path.endsWith("companies.json")) return "[]";
+      throw new Error("Unexpected mock path: " + path);
+    });
+    prismaMocks.transaction.jobPosting.findMany.mockResolvedValue([
+      { id: "job-1" },
+    ]);
+    prismaMocks.transaction.jobApplication.findMany.mockResolvedValue([
+      { id: "application-1" },
+    ]);
+    prismaMocks.transaction.applicationDocument.findMany.mockResolvedValue([
+      {
+        id: "document-1",
+        storageKeyEncrypted: "application-locator-1",
+        storagePurposeVersion: "application-document-v1",
+        sourceArtifactId: null,
+      },
+    ]);
+    prismaMocks.transaction.applicationDocumentLegalHold.findFirst.mockResolvedValue(
+      { id: "hold-1" },
+    );
+
+    await expect(
+      deleteRecruiterCompany("recruiter-1", "db-company-1"),
+    ).resolves.toEqual({
+      companyId: "db-company-1",
+      deleted: false,
+      status: "BLOCKED_BY_LEGAL_HOLD",
+      requestId: "deletion-request-1",
+    });
+    expect(prismaMocks.transaction.company.delete).not.toHaveBeenCalled();
+    expect(
+      prismaMocks.transaction.jobApplication.deleteMany,
+    ).not.toHaveBeenCalled();
+    expect(
+      prismaMocks.transaction.companyDeletionRequest.update,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          state: "BLOCKED_BY_LEGAL_HOLD",
+          holdState: "ACTIVE",
+          purgeState: "BLOCKED",
+        }),
+      }),
+    );
+    expect(fsMocks.writeFile).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["job", "jobReport", "JOB_REPORT_ACTIVE"],
+    ["moderation", "moderationReport", "MODERATION_REPORT_ACTIVE"],
+    ["messaging", "messagingReport", "MESSAGING_REPORT_ACTIVE"],
+  ] as const)(
+    "blocks company deletion when an active %s report requires retention",
+    async (_kind, source, code) => {
+      prismaMocks.company.findMany.mockResolvedValue([
+        {
+          id: "db-company-1",
+          slug: "northstar-labs",
+          legalName: "Northstar Labs",
+          displayName: "Northstar Labs",
+          logoUrl: null,
+          websiteUrl: null,
+          publicDescription: null,
+          publicLocation: null,
+          size: "51-200 employees",
+          industry: "Technology",
+          address: "Ho Chi Minh City",
+          entityType: null,
+          normalizedTaxIdentifier: "1234567890",
+          memberships: [{ userId: "recruiter-1", role: "OWNER" }],
+        },
+      ]);
+      fsMocks.readFile.mockImplementation(async (path: string) => {
+        if (path.endsWith("jobs.json")) return "[]";
+        if (path.endsWith("companies.json")) return "[]";
+        throw new Error("Unexpected mock path: " + path);
+      });
+      if (source === "jobReport") {
+        prismaMocks.transaction.jobPosting.findMany.mockResolvedValue([
+          { id: "job-1" },
+        ]);
+        prismaMocks.transaction.jobReport.findFirst.mockResolvedValue({
+          id: "report-1",
+        });
+      } else if (source === "messagingReport") {
+        prismaMocks.transaction.recruitmentThread.findMany.mockResolvedValue([
+          { id: "thread-1" },
+        ]);
+        prismaMocks.transaction.messagingReport.findFirst.mockResolvedValue({
+          id: "report-1",
+        });
+      } else {
+        prismaMocks.transaction.moderationReport.findFirst.mockResolvedValue({
+          id: "report-1",
+        });
+      }
+
+      await expect(
+        deleteRecruiterCompany("recruiter-1", "db-company-1"),
+      ).resolves.toMatchObject({
+        companyId: "db-company-1",
+        deleted: false,
+        status: "BLOCKED_BY_LEGAL_HOLD",
+        requestId: "deletion-request-1",
+      });
+      expect(prismaMocks.transaction.company.delete).not.toHaveBeenCalled();
+      expect(prismaMocks.transaction.companyDeletionRequest.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            holdState: "ACTIVE",
+            purgeState: "BLOCKED",
+            lastFailureCode: code,
+          }),
+        }),
+      );
+    },
+  );
 
   it("rejects company deletion for an authorized non-owner", async () => {
     const memberCompany = {

@@ -108,6 +108,10 @@ export async function createCandidateFirstDatabaseFixture(
       where: { id: candidateUserId },
       select: { email: true },
     });
+    const employer = await prisma.userAccount.findUniqueOrThrow({
+      where: { id: employerUserId },
+      select: { email: true },
+    });
 
     await prisma.authProviderAccount.create({
       data: {
@@ -115,6 +119,15 @@ export async function createCandidateFirstDatabaseFixture(
         accountId: candidateUserId,
         providerId: "credential",
         userId: candidateUserId,
+        password: await hashPassword(password),
+      },
+    });
+    await prisma.authProviderAccount.create({
+      data: {
+        id: `account-employer-candidate-first-${databaseFixture.suffix}`,
+        accountId: employerUserId,
+        providerId: "credential",
+        userId: employerUserId,
         password: await hashPassword(password),
       },
     });
@@ -280,6 +293,8 @@ export async function createCandidateFirstDatabaseFixture(
       ...databaseFixture,
       candidateUserId,
       employerUserId,
+      employerEmail: employer.email,
+      employerPassword: password,
       candidateEmail: candidate.email,
       candidatePassword: password,
       confirmedCvId,

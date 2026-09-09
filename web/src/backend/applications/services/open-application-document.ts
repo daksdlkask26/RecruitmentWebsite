@@ -7,7 +7,6 @@ import { JobServiceError } from "@/backend/services/jobs/job-types";
 import { RecruiterApplicationAuthorization } from "../authorization/recruiter-application-authorization";
 import { createApplicationDocumentStorage } from "../storage/factory";
 import type { ApplicationDocumentStoragePort } from "../storage/application-document-storage";
-import { applyAutomaticScoreStageRuleForApplication } from "./automatic-viewed-stage-rules";
 import { OpenSafeCvArtifactService } from "@/backend/services/cv-admission/open-safe-cv-artifact-service";
 import { CvSafetyEvidenceService } from "@/backend/services/cv-admission/cv-safety-evidence-service";
 
@@ -35,20 +34,6 @@ export class OpenApplicationDocumentService {
     const document = input.document;
     if (!input.sessionId || !document) {
       return;
-    }
-    if (this.repository instanceof PrismaApplicationRepository) {
-      try {
-        const automatic = await applyAutomaticScoreStageRuleForApplication({
-          candidateApplicationId: input.applicationId,
-          stageService: this.stageService,
-          now: input.now,
-        });
-        if (automatic?.stage === "REJECTED") return;
-      } catch {
-        // Stage automation is an acknowledgement side effect. A transient
-        // automation/database failure must not make an authorized document
-        // unavailable to the recruiter.
-      }
     }
     try {
       if (document.stage !== "APPLIED" || document.stageVersion === undefined) {

@@ -23,9 +23,51 @@ try {
       payload?.label ?? "smoke",
       fixtureNow,
     );
+  } else if (command === "create-deletion-receipt") {
+    const fixture = payload?.fixture;
+    if (!fixture) throw new Error("create-deletion-receipt requires fixture");
+    const requestId = `cf107-receipt-${fixture.suffix}`;
+    const requestedAt = new Date("2026-09-09T00:00:00.000Z");
+    await prisma.companyDeletionRequest.create({
+      data: {
+        id: requestId,
+        companyId: fixture.company.id,
+        requestedByUserId: fixture.employerUserId,
+        state: "COMPLETED",
+        holdState: "CLEAR",
+        purgeState: "COMPLETE",
+        requestedAt,
+        retentionEligibleAt: requestedAt,
+        holdEvaluatedAt: requestedAt,
+        physicalPurgeStartedAt: requestedAt,
+        completedAt: new Date(requestedAt.getTime() + 1_000),
+        manifestEntries: {
+          create: {
+            identityKey: `database:COMPANY:${fixture.company.id}`,
+            resourceKind: "DATABASE_RECORD",
+            resourceType: "COMPANY",
+            recordId: fixture.company.id,
+            state: "DELETED",
+            outcomeCode: "DATABASE_RECORD_DELETED",
+            attemptCount: 1,
+            lastAttemptAt: requestedAt,
+            deletedAt: requestedAt,
+          },
+        },
+      },
+    });
+    result = { requestId };
   } else if (command === "delete") {
     const fixture = payload?.fixture;
     if (!fixture) throw new Error("delete requires fixture");
+
+    await prisma.companyDeletionRequest.deleteMany({
+      where: {
+        requestedByUserId: {
+          in: [fixture.candidateUserId, fixture.employerUserId],
+        },
+      },
+    });
 
     // Physical CV/application files are owned by this fixture. Delete them
     // before mutable database rows; immutable audit events stay retained.

@@ -138,6 +138,11 @@ export async function DELETE(request: Request) {
     if (error instanceof RecruiterCompanyDeletionError) {
       if (error.code === "OWNER_REQUIRED")
         return response("Only the company owner can delete this company.", 403);
+      if (error.code === "LEGAL_HOLD_ACTIVE")
+        return response(
+          "The deletion request was recorded, but an active legal hold blocks physical purge.",
+          409,
+        );
       return response("Recruiter company not found.", 404);
     }
     if (error instanceof Error && error.message === "CATALOGUE_WRITER_REQUIRED")

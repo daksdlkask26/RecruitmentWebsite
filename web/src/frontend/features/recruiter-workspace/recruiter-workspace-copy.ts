@@ -107,6 +107,17 @@ export function recruiterWorkspaceCopy(locale: WorkspaceLocale) {
         unableToSave: "Không thể lưu cài đặt công ty.",
         companyDeleted: "Đã xóa công ty.",
         unableToDelete: "Không thể xóa công ty.",
+        deletionRequestRecorded:
+          "Yêu cầu xóa đã được ghi nhận. Bạn có thể tải lại biên nhận trạng thái.",
+        deletionReceiptTitle: "Trạng thái yêu cầu xóa",
+        reloadDeletionStatus: "Tải lại trạng thái",
+        deletionStatus: {
+          BLOCKED: "Đang bị chặn bởi yêu cầu lưu giữ dữ liệu.",
+          PENDING: "Đang chờ hoàn tất.",
+          RETRY_REQUIRED: "Cần thử lại việc dọn dẹp an toàn.",
+          COMPLETED: "Đã hoàn tất.",
+        },
+        deletionStatusUnavailable: "Không thể tải trạng thái yêu cầu xóa.",
         chooseValidImage: "Hãy chọn tệp ảnh hợp lệ.",
         role: {
           owner: "Chủ sở hữu",
@@ -566,6 +577,17 @@ export function recruiterWorkspaceCopy(locale: WorkspaceLocale) {
         unableToSave: "Unable to save company settings.",
         companyDeleted: "Company deleted.",
         unableToDelete: "Unable to delete company.",
+        deletionRequestRecorded:
+          "The deletion request was recorded. Reload the receipt for its current status.",
+        deletionReceiptTitle: "Deletion request status",
+        reloadDeletionStatus: "Reload status",
+        deletionStatus: {
+          BLOCKED: "Blocked by an active retention requirement.",
+          PENDING: "Waiting for completion.",
+          RETRY_REQUIRED: "Safe cleanup needs another retry.",
+          COMPLETED: "Completed.",
+        },
+        deletionStatusUnavailable: "Unable to load the deletion request status.",
         chooseValidImage: "Choose a valid image file.",
         role: {
           owner: "Owner",

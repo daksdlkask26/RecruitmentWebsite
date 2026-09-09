@@ -8,7 +8,10 @@ export const dynamic = "force-dynamic";
 export default async function RecruiterCompanySettingsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ companyId?: string | string[] }>;
+  searchParams?: Promise<{
+    companyId?: string | string[];
+    deletionRequestId?: string | string[];
+  }>;
 }) {
   const context = await getWorkspaceContext();
   if (!context) redirect("/login?returnTo=%2Frecruiter%2Fcompany-settings");
@@ -17,6 +20,13 @@ export default async function RecruiterCompanySettingsPage({
   const requestedCompanyId = Array.isArray(query.companyId)
     ? query.companyId[0]
     : query.companyId;
+  const requestedDeletionId = Array.isArray(query.deletionRequestId)
+    ? query.deletionRequestId[0]
+    : query.deletionRequestId;
+  const deletionRequestId =
+    requestedDeletionId && /^[A-Za-z0-9_-]{1,128}$/u.test(requestedDeletionId)
+      ? requestedDeletionId
+      : undefined;
   const company =
     companies.find(
       (candidate) =>
@@ -37,6 +47,7 @@ export default async function RecruiterCompanySettingsPage({
       initialCompanies={companies}
       canManageTeam={company?.role === "OWNER"}
       initialCompanyId={companySelectedByQuery ? company?.id : undefined}
+      initialDeletionRequestId={deletionRequestId}
     />
   );
 }
