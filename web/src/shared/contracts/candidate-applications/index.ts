@@ -174,9 +174,24 @@ export const applicationReviewSchema = z
         title: z.string().trim().min(1).max(200),
         companyName: z.string().trim().min(1).max(160),
         location: z.string().trim().min(1).max(300),
-        employmentType: z.string().trim().min(1).max(80).default("Not specified"),
-        experienceLevel: z.string().trim().min(1).max(80).default("Not specified"),
-        workArrangement: z.string().trim().min(1).max(80).default("Not specified"),
+        employmentType: z
+          .string()
+          .trim()
+          .min(1)
+          .max(80)
+          .default("Not specified"),
+        experienceLevel: z
+          .string()
+          .trim()
+          .min(1)
+          .max(80)
+          .default("Not specified"),
+        workArrangement: z
+          .string()
+          .trim()
+          .min(1)
+          .max(80)
+          .default("Not specified"),
         applicationDeadline: isoDateTime.nullable().default(null),
         isOpen: z.boolean(),
       })
@@ -271,14 +286,40 @@ export const publicUpdateKindSchema = z.enum([
   "TECHNICAL_UPDATE",
 ]);
 
+/**
+ * Stable, locale-neutral identifiers for the Candidate timeline.  Labels and
+ * descriptions belong to the workspace copy boundary; these codes are the
+ * transport contract and must not be translated by the API.
+ */
+export const publicTimelineEventCodeSchema = z.enum([
+  "APPLICATION_SUBMITTED",
+  "APPLICATION_VIEWED",
+  "APPLICATION_SHORTLISTED",
+  "INTERVIEW_STARTED",
+  "OFFER_SENT",
+  "OFFER_ACCEPTED",
+  "OFFER_DECLINED",
+  "APPLICATION_REJECTED",
+  "APPLICATION_WAITLISTED",
+  "APPLICATION_WITHDRAWN",
+  "FILE_PROCESSING_UPDATED",
+]);
+
+export type PublicTimelineEventCode = z.infer<
+  typeof publicTimelineEventCodeSchema
+>;
+
 export const applicationPublicUpdateSchema = z
   .object({
     id: idSchema,
+    eventCode: publicTimelineEventCodeSchema,
     kind: publicUpdateKindSchema,
     publicStage: publicStageSchema.nullable().optional(),
     publicOutcome: publicOutcomeSchema.nullable().optional(),
     canonicalStage: applicationStageSchema.nullable().optional(),
     title: z.string().trim().min(1).max(160),
+    /** Candidate-visible author text is never localized or machine-translated. */
+    userMessage: z.string().max(500).nullable().optional(),
     occurredAt: isoDateTime,
   })
   .strict();
@@ -302,6 +343,148 @@ export type ApplicationNotificationPreference = z.infer<
 
 const publicFileSchema = applicationFileDescriptorSchema;
 
+/**
+ * A candidate can see whether a submitted artifact remains available without
+ * receiving any storage, malware, retention, or legal-hold internals.
+ */
+export const applicationDocumentAvailabilitySchema = z.enum([
+  "AVAILABLE",
+  "EXPIRED",
+  "DELETED",
+  "HELD",
+  "TEMPORARILY_UNAVAILABLE",
+]);
+
+const submittedCalendarDateSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{4}-\d{2}-\d{2}$/u)
+  .nullable();
+
+const submittedProfileEntrySchema = z
+  .object({
+    title: z.string().trim().min(1).max(200),
+    company: z.string().trim().min(1).max(200),
+    startDate: submittedCalendarDateSchema,
+    endDate: submittedCalendarDateSchema,
+  })
+  .strict();
+
+const submittedEducationEntrySchema = z
+  .object({
+    institution: z.string().trim().min(1).max(200),
+    degree: z.string().trim().min(1).max(200),
+    field: z.string().trim().max(200).nullable(),
+    startDate: submittedCalendarDateSchema,
+    endDate: submittedCalendarDateSchema,
+  })
+  .strict();
+
+export const submittedProfileSnapshotSchema = z.discriminatedUnion("status", [
+  z
+    .object({
+      status: z.literal("AVAILABLE"),
+      fullName: z.string().trim().min(1).max(150),
+      headline: z.string().trim().max(200).nullable(),
+      summary: z.string().trim().max(5_000).nullable(),
+      skills: z.array(z.string().trim().min(1).max(80)).max(50),
+      experience: z.array(submittedProfileEntrySchema).max(50),
+      education: z.array(submittedEducationEntrySchema).max(50),
+    })
+    .strict(),
+  z.object({ status: z.literal("UNAVAILABLE") }).strict(),
+]);
+
+export const submittedContactSnapshotSchema = z.discriminatedUnion("status", [
+  z
+    .object({
+      status: z.literal("AVAILABLE"),
+      fullName: z.string().trim().min(1).max(150),
+      email: z.string().trim().email().max(254),
+      phone: z.string().trim().min(1).max(20),
+      location: z.string().trim().max(160).nullable(),
+    })
+    .strict(),
+  z.object({ status: z.literal("UNAVAILABLE") }).strict(),
+]);
+
+export const submittedConsentSnapshotSchema = z.discriminatedUnion("status", [
+  z
+    .object({
+      status: z.literal("AVAILABLE"),
+      version: z.string().trim().min(1).max(64),
+      consentedAt: isoDateTime,
+    })
+    .strict(),
+  z.object({ status: z.literal("UNAVAILABLE") }).strict(),
+]);
+
+export const submittedApplicationSnapshotSchema = z
+  .object({
+    profile: submittedProfileSnapshotSchema,
+    contact: submittedContactSnapshotSchema,
+    consent: submittedConsentSnapshotSchema,
+    job: z
+      .object({
+        available: z.boolean(),
+        title: z.string().trim().min(1).max(200).nullable(),
+        companyName: z.string().trim().min(1).max(160).nullable(),
+        location: z.string().trim().min(1).max(300).nullable(),
+        employmentType: z.string().trim().min(1).max(80).nullable(),
+        experienceLevel: z.string().trim().min(1).max(80).nullable(),
+        workArrangement: z.string().trim().min(1).max(80).nullable(),
+        requiredSkills: z.array(z.string().trim().min(1).max(160)).max(100),
+        version: z.number().int().positive().nullable(),
+      })
+      .strict(),
+    cv: z
+      .object({
+        availability: applicationDocumentAvailabilitySchema,
+        file: applicationFileDescriptorSchema.nullable(),
+        previewSupported: z.boolean(),
+      })
+      .strict(),
+    coverLetter: z.discriminatedUnion("kind", [
+      z
+        .object({
+          kind: z.literal("NONE"),
+          availability: z.literal("NOT_PROVIDED"),
+        })
+        .strict(),
+      z
+        .object({
+          kind: z.literal("TEXT"),
+          availability: applicationDocumentAvailabilitySchema,
+          text: z.string().trim().min(1).max(10_000).nullable(),
+        })
+        .strict(),
+      z
+        .object({
+          kind: z.literal("FILE"),
+          availability: applicationDocumentAvailabilitySchema,
+          file: applicationFileDescriptorSchema.nullable(),
+          previewSupported: z.boolean(),
+        })
+        .strict(),
+    ]),
+    answers: z
+      .array(
+        z
+          .object({
+            question: z.string().trim().min(1).max(500),
+            answer: z.union([z.string().trim().max(3_000), z.boolean()]),
+          })
+          .strict(),
+      )
+      .max(20),
+    message: z.string().trim().min(1).max(2_000).nullable(),
+  })
+  .strict();
+
+export type SubmittedApplicationSnapshot = z.infer<
+  typeof submittedApplicationSnapshotSchema
+>;
+
 export const applicationTrackerSchema = z
   .object({
     applicationId: idSchema,
@@ -313,9 +496,24 @@ export const applicationTrackerSchema = z
         companyName: z.string().trim().min(1).max(160),
         companyLogoUrl: z.string().url().nullable(),
         location: z.string().trim().min(1).max(300),
-        employmentType: z.string().trim().min(1).max(80).default("Not specified"),
-        experienceLevel: z.string().trim().min(1).max(80).default("Not specified"),
-        workArrangement: z.string().trim().min(1).max(80).default("Not specified"),
+        employmentType: z
+          .string()
+          .trim()
+          .min(1)
+          .max(80)
+          .default("Not specified"),
+        experienceLevel: z
+          .string()
+          .trim()
+          .min(1)
+          .max(80)
+          .default("Not specified"),
+        workArrangement: z
+          .string()
+          .trim()
+          .min(1)
+          .max(80)
+          .default("Not specified"),
         applicationDeadline: isoDateTime.nullable().default(null),
         jobAvailable: z.boolean(),
       })
@@ -330,8 +528,12 @@ export const applicationTrackerSchema = z
     intake: applicationIntakeSchema,
     updates: z.array(applicationPublicUpdateSchema).max(500),
     files: z.array(publicFileSchema).min(1).max(2),
+    submission: submittedApplicationSnapshotSchema,
     notificationPreference: notificationPreferenceSchema,
-    contactConsent: z.object({ shared: z.boolean(), version: z.number().int().positive() }).strict().optional(),
+    contactConsent: z
+      .object({ shared: z.boolean(), version: z.number().int().positive() })
+      .strict()
+      .optional(),
     canWithdraw: z.boolean(),
   })
   .strict();
@@ -421,9 +623,55 @@ export const candidateApplicationSummarySchema = z
 export const candidateApplicationListResponseSchema = z
   .object({
     applications: z.array(candidateApplicationSummarySchema).max(100),
-    nextCursor: idSchema.nullable(),
+    nextCursor: z.string().min(1).max(1024).nullable(),
+    hasMore: z.boolean(),
+    total: z.number().int().nonnegative(),
+    counts: z
+      .object({
+        ALL: z.number().int().nonnegative(),
+        APPLICATION_SUBMITTED: z.number().int().nonnegative(),
+        UNDER_REVIEW: z.number().int().nonnegative(),
+        INTERVIEW: z.number().int().nonnegative(),
+        OUTCOME: z.number().int().nonnegative(),
+        WITHDRAWN: z.number().int().nonnegative(),
+      })
+      .strict(),
+    filter: z.enum([
+      "ALL",
+      "APPLICATION_SUBMITTED",
+      "UNDER_REVIEW",
+      "INTERVIEW",
+      "OUTCOME",
+      "WITHDRAWN",
+    ]),
+    sort: z.enum(["SUBMITTED_DESC", "SUBMITTED_ASC"]),
   })
   .strict();
+
+export const candidateApplicationListQuerySchema = z
+  .object({
+    cursor: z.string().min(1).max(1024).optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(24),
+    filter: z
+      .enum([
+        "ALL",
+        "APPLICATION_SUBMITTED",
+        "UNDER_REVIEW",
+        "INTERVIEW",
+        "OUTCOME",
+        "WITHDRAWN",
+      ])
+      .default("ALL"),
+    sort: z.enum(["SUBMITTED_DESC", "SUBMITTED_ASC"]).default("SUBMITTED_DESC"),
+  })
+  .strict();
+
+export type CandidateApplicationListFilter = z.infer<
+  typeof candidateApplicationListResponseSchema
+>["filter"];
+export type CandidateApplicationListSort = z.infer<
+  typeof candidateApplicationListResponseSchema
+>["sort"];
 
 export type CandidateApplicationSummary = z.infer<
   typeof candidateApplicationSummarySchema
@@ -468,6 +716,31 @@ export function publicUpdateKindForCanonicalStage(
   if (stage === "VIEWED" || stage === "SHORTLISTED") return "UNDER_REVIEW";
   if (stage === "INTERVIEWING") return "INTERVIEW";
   return "OUTCOME";
+}
+
+export function publicTimelineEventCodeForCanonicalStage(
+  stage: ApplicationStage,
+): PublicTimelineEventCode {
+  switch (stage) {
+    case "APPLIED":
+      return "APPLICATION_SUBMITTED";
+    case "VIEWED":
+      return "APPLICATION_VIEWED";
+    case "SHORTLISTED":
+      return "APPLICATION_SHORTLISTED";
+    case "INTERVIEWING":
+      return "INTERVIEW_STARTED";
+    case "OFFERED":
+      return "OFFER_SENT";
+    case "HIRED":
+      return "OFFER_ACCEPTED";
+    case "OFFER_DECLINED":
+      return "OFFER_DECLINED";
+    case "REJECTED":
+      return "APPLICATION_REJECTED";
+    case "WAITLISTED":
+      return "APPLICATION_WAITLISTED";
+  }
 }
 
 export function publicUpdateTitleForCanonicalStage(stage: ApplicationStage) {

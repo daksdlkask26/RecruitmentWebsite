@@ -43,6 +43,8 @@ export type RecruitmentNotificationWorkMinAggregateOutputType = {
   idempotencyKey: string | null
   status: $Enums.OutboxStatus | null
   attempts: number | null
+  leaseOwner: string | null
+  leaseExpiresAt: Date | null
   nextAttemptAt: Date | null
   safeErrorCode: string | null
   createdAt: Date | null
@@ -58,6 +60,8 @@ export type RecruitmentNotificationWorkMaxAggregateOutputType = {
   idempotencyKey: string | null
   status: $Enums.OutboxStatus | null
   attempts: number | null
+  leaseOwner: string | null
+  leaseExpiresAt: Date | null
   nextAttemptAt: Date | null
   safeErrorCode: string | null
   createdAt: Date | null
@@ -74,6 +78,8 @@ export type RecruitmentNotificationWorkCountAggregateOutputType = {
   idempotencyKey: number
   status: number
   attempts: number
+  leaseOwner: number
+  leaseExpiresAt: number
   nextAttemptAt: number
   safeErrorCode: number
   createdAt: number
@@ -99,6 +105,8 @@ export type RecruitmentNotificationWorkMinAggregateInputType = {
   idempotencyKey?: true
   status?: true
   attempts?: true
+  leaseOwner?: true
+  leaseExpiresAt?: true
   nextAttemptAt?: true
   safeErrorCode?: true
   createdAt?: true
@@ -114,6 +122,8 @@ export type RecruitmentNotificationWorkMaxAggregateInputType = {
   idempotencyKey?: true
   status?: true
   attempts?: true
+  leaseOwner?: true
+  leaseExpiresAt?: true
   nextAttemptAt?: true
   safeErrorCode?: true
   createdAt?: true
@@ -130,6 +140,8 @@ export type RecruitmentNotificationWorkCountAggregateInputType = {
   idempotencyKey?: true
   status?: true
   attempts?: true
+  leaseOwner?: true
+  leaseExpiresAt?: true
   nextAttemptAt?: true
   safeErrorCode?: true
   createdAt?: true
@@ -233,6 +245,8 @@ export type RecruitmentNotificationWorkGroupByOutputType = {
   idempotencyKey: string
   status: $Enums.OutboxStatus
   attempts: number
+  leaseOwner: string | null
+  leaseExpiresAt: Date | null
   nextAttemptAt: Date
   safeErrorCode: string | null
   createdAt: Date
@@ -272,6 +286,8 @@ export type RecruitmentNotificationWorkWhereInput = {
   idempotencyKey?: Prisma.StringFilter<"RecruitmentNotificationWork"> | string
   status?: Prisma.EnumOutboxStatusFilter<"RecruitmentNotificationWork"> | $Enums.OutboxStatus
   attempts?: Prisma.IntFilter<"RecruitmentNotificationWork"> | number
+  leaseOwner?: Prisma.StringNullableFilter<"RecruitmentNotificationWork"> | string | null
+  leaseExpiresAt?: Prisma.DateTimeNullableFilter<"RecruitmentNotificationWork"> | Date | string | null
   nextAttemptAt?: Prisma.DateTimeFilter<"RecruitmentNotificationWork"> | Date | string
   safeErrorCode?: Prisma.StringNullableFilter<"RecruitmentNotificationWork"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RecruitmentNotificationWork"> | Date | string
@@ -289,6 +305,8 @@ export type RecruitmentNotificationWorkOrderByWithRelationInput = {
   idempotencyKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
+  leaseOwner?: Prisma.SortOrderInput | Prisma.SortOrder
+  leaseExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   nextAttemptAt?: Prisma.SortOrder
   safeErrorCode?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -309,6 +327,8 @@ export type RecruitmentNotificationWorkWhereUniqueInput = Prisma.AtLeast<{
   payloadRef?: Prisma.JsonFilter<"RecruitmentNotificationWork">
   status?: Prisma.EnumOutboxStatusFilter<"RecruitmentNotificationWork"> | $Enums.OutboxStatus
   attempts?: Prisma.IntFilter<"RecruitmentNotificationWork"> | number
+  leaseOwner?: Prisma.StringNullableFilter<"RecruitmentNotificationWork"> | string | null
+  leaseExpiresAt?: Prisma.DateTimeNullableFilter<"RecruitmentNotificationWork"> | Date | string | null
   nextAttemptAt?: Prisma.DateTimeFilter<"RecruitmentNotificationWork"> | Date | string
   safeErrorCode?: Prisma.StringNullableFilter<"RecruitmentNotificationWork"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RecruitmentNotificationWork"> | Date | string
@@ -326,6 +346,8 @@ export type RecruitmentNotificationWorkOrderByWithAggregationInput = {
   idempotencyKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
+  leaseOwner?: Prisma.SortOrderInput | Prisma.SortOrder
+  leaseExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   nextAttemptAt?: Prisma.SortOrder
   safeErrorCode?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -350,6 +372,8 @@ export type RecruitmentNotificationWorkScalarWhereWithAggregatesInput = {
   idempotencyKey?: Prisma.StringWithAggregatesFilter<"RecruitmentNotificationWork"> | string
   status?: Prisma.EnumOutboxStatusWithAggregatesFilter<"RecruitmentNotificationWork"> | $Enums.OutboxStatus
   attempts?: Prisma.IntWithAggregatesFilter<"RecruitmentNotificationWork"> | number
+  leaseOwner?: Prisma.StringNullableWithAggregatesFilter<"RecruitmentNotificationWork"> | string | null
+  leaseExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RecruitmentNotificationWork"> | Date | string | null
   nextAttemptAt?: Prisma.DateTimeWithAggregatesFilter<"RecruitmentNotificationWork"> | Date | string
   safeErrorCode?: Prisma.StringNullableWithAggregatesFilter<"RecruitmentNotificationWork"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RecruitmentNotificationWork"> | Date | string
@@ -365,6 +389,8 @@ export type RecruitmentNotificationWorkCreateInput = {
   idempotencyKey: string
   status?: $Enums.OutboxStatus
   attempts?: number
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
   nextAttemptAt?: Date | string
   safeErrorCode?: string | null
   createdAt?: Date | string
@@ -382,6 +408,8 @@ export type RecruitmentNotificationWorkUncheckedCreateInput = {
   idempotencyKey: string
   status?: $Enums.OutboxStatus
   attempts?: number
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
   nextAttemptAt?: Date | string
   safeErrorCode?: string | null
   createdAt?: Date | string
@@ -397,6 +425,8 @@ export type RecruitmentNotificationWorkUpdateInput = {
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOutboxStatusFieldUpdateOperationsInput | $Enums.OutboxStatus
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAttemptAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   safeErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -414,6 +444,8 @@ export type RecruitmentNotificationWorkUncheckedUpdateInput = {
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOutboxStatusFieldUpdateOperationsInput | $Enums.OutboxStatus
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAttemptAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   safeErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -430,6 +462,8 @@ export type RecruitmentNotificationWorkCreateManyInput = {
   idempotencyKey: string
   status?: $Enums.OutboxStatus
   attempts?: number
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
   nextAttemptAt?: Date | string
   safeErrorCode?: string | null
   createdAt?: Date | string
@@ -445,6 +479,8 @@ export type RecruitmentNotificationWorkUpdateManyMutationInput = {
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOutboxStatusFieldUpdateOperationsInput | $Enums.OutboxStatus
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAttemptAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   safeErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -461,6 +497,8 @@ export type RecruitmentNotificationWorkUncheckedUpdateManyInput = {
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOutboxStatusFieldUpdateOperationsInput | $Enums.OutboxStatus
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAttemptAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   safeErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -487,6 +525,8 @@ export type RecruitmentNotificationWorkCountOrderByAggregateInput = {
   idempotencyKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
+  leaseOwner?: Prisma.SortOrder
+  leaseExpiresAt?: Prisma.SortOrder
   nextAttemptAt?: Prisma.SortOrder
   safeErrorCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -506,6 +546,8 @@ export type RecruitmentNotificationWorkMaxOrderByAggregateInput = {
   idempotencyKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
+  leaseOwner?: Prisma.SortOrder
+  leaseExpiresAt?: Prisma.SortOrder
   nextAttemptAt?: Prisma.SortOrder
   safeErrorCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -521,6 +563,8 @@ export type RecruitmentNotificationWorkMinOrderByAggregateInput = {
   idempotencyKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
+  leaseOwner?: Prisma.SortOrder
+  leaseExpiresAt?: Prisma.SortOrder
   nextAttemptAt?: Prisma.SortOrder
   safeErrorCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -590,6 +634,8 @@ export type RecruitmentNotificationWorkCreateWithoutApplicationInput = {
   idempotencyKey: string
   status?: $Enums.OutboxStatus
   attempts?: number
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
   nextAttemptAt?: Date | string
   safeErrorCode?: string | null
   createdAt?: Date | string
@@ -605,6 +651,8 @@ export type RecruitmentNotificationWorkUncheckedCreateWithoutApplicationInput = 
   idempotencyKey: string
   status?: $Enums.OutboxStatus
   attempts?: number
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
   nextAttemptAt?: Date | string
   safeErrorCode?: string | null
   createdAt?: Date | string
@@ -650,6 +698,8 @@ export type RecruitmentNotificationWorkScalarWhereInput = {
   idempotencyKey?: Prisma.StringFilter<"RecruitmentNotificationWork"> | string
   status?: Prisma.EnumOutboxStatusFilter<"RecruitmentNotificationWork"> | $Enums.OutboxStatus
   attempts?: Prisma.IntFilter<"RecruitmentNotificationWork"> | number
+  leaseOwner?: Prisma.StringNullableFilter<"RecruitmentNotificationWork"> | string | null
+  leaseExpiresAt?: Prisma.DateTimeNullableFilter<"RecruitmentNotificationWork"> | Date | string | null
   nextAttemptAt?: Prisma.DateTimeFilter<"RecruitmentNotificationWork"> | Date | string
   safeErrorCode?: Prisma.StringNullableFilter<"RecruitmentNotificationWork"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RecruitmentNotificationWork"> | Date | string
@@ -665,6 +715,8 @@ export type RecruitmentNotificationWorkCreateManyApplicationInput = {
   idempotencyKey: string
   status?: $Enums.OutboxStatus
   attempts?: number
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
   nextAttemptAt?: Date | string
   safeErrorCode?: string | null
   createdAt?: Date | string
@@ -680,6 +732,8 @@ export type RecruitmentNotificationWorkUpdateWithoutApplicationInput = {
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOutboxStatusFieldUpdateOperationsInput | $Enums.OutboxStatus
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAttemptAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   safeErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -695,6 +749,8 @@ export type RecruitmentNotificationWorkUncheckedUpdateWithoutApplicationInput = 
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOutboxStatusFieldUpdateOperationsInput | $Enums.OutboxStatus
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAttemptAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   safeErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -710,6 +766,8 @@ export type RecruitmentNotificationWorkUncheckedUpdateManyWithoutApplicationInpu
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOutboxStatusFieldUpdateOperationsInput | $Enums.OutboxStatus
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAttemptAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   safeErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -728,6 +786,8 @@ export type RecruitmentNotificationWorkSelect<ExtArgs extends runtime.Types.Exte
   idempotencyKey?: boolean
   status?: boolean
   attempts?: boolean
+  leaseOwner?: boolean
+  leaseExpiresAt?: boolean
   nextAttemptAt?: boolean
   safeErrorCode?: boolean
   createdAt?: boolean
@@ -745,6 +805,8 @@ export type RecruitmentNotificationWorkSelectCreateManyAndReturn<ExtArgs extends
   idempotencyKey?: boolean
   status?: boolean
   attempts?: boolean
+  leaseOwner?: boolean
+  leaseExpiresAt?: boolean
   nextAttemptAt?: boolean
   safeErrorCode?: boolean
   createdAt?: boolean
@@ -762,6 +824,8 @@ export type RecruitmentNotificationWorkSelectUpdateManyAndReturn<ExtArgs extends
   idempotencyKey?: boolean
   status?: boolean
   attempts?: boolean
+  leaseOwner?: boolean
+  leaseExpiresAt?: boolean
   nextAttemptAt?: boolean
   safeErrorCode?: boolean
   createdAt?: boolean
@@ -779,13 +843,15 @@ export type RecruitmentNotificationWorkSelectScalar = {
   idempotencyKey?: boolean
   status?: boolean
   attempts?: boolean
+  leaseOwner?: boolean
+  leaseExpiresAt?: boolean
   nextAttemptAt?: boolean
   safeErrorCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RecruitmentNotificationWorkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "applicationId" | "audience" | "kind" | "targetReference" | "payloadRef" | "idempotencyKey" | "status" | "attempts" | "nextAttemptAt" | "safeErrorCode" | "createdAt" | "updatedAt", ExtArgs["result"]["recruitmentNotificationWork"]>
+export type RecruitmentNotificationWorkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "applicationId" | "audience" | "kind" | "targetReference" | "payloadRef" | "idempotencyKey" | "status" | "attempts" | "leaseOwner" | "leaseExpiresAt" | "nextAttemptAt" | "safeErrorCode" | "createdAt" | "updatedAt", ExtArgs["result"]["recruitmentNotificationWork"]>
 export type RecruitmentNotificationWorkInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   application?: boolean | Prisma.JobApplicationDefaultArgs<ExtArgs>
 }
@@ -811,6 +877,8 @@ export type $RecruitmentNotificationWorkPayload<ExtArgs extends runtime.Types.Ex
     idempotencyKey: string
     status: $Enums.OutboxStatus
     attempts: number
+    leaseOwner: string | null
+    leaseExpiresAt: Date | null
     nextAttemptAt: Date
     safeErrorCode: string | null
     createdAt: Date
@@ -1248,6 +1316,8 @@ export interface RecruitmentNotificationWorkFieldRefs {
   readonly idempotencyKey: Prisma.FieldRef<"RecruitmentNotificationWork", 'String'>
   readonly status: Prisma.FieldRef<"RecruitmentNotificationWork", 'OutboxStatus'>
   readonly attempts: Prisma.FieldRef<"RecruitmentNotificationWork", 'Int'>
+  readonly leaseOwner: Prisma.FieldRef<"RecruitmentNotificationWork", 'String'>
+  readonly leaseExpiresAt: Prisma.FieldRef<"RecruitmentNotificationWork", 'DateTime'>
   readonly nextAttemptAt: Prisma.FieldRef<"RecruitmentNotificationWork", 'DateTime'>
   readonly safeErrorCode: Prisma.FieldRef<"RecruitmentNotificationWork", 'String'>
   readonly createdAt: Prisma.FieldRef<"RecruitmentNotificationWork", 'DateTime'>

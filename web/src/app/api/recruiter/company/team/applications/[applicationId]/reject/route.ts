@@ -17,6 +17,8 @@ export async function POST(
   try {
     const account = await requireAccountRequest(request, { mutation: true });
     const { applicationId } = await context.params;
+    const companyId =
+      new URL(request.url).searchParams.get("companyId") ?? undefined;
     const input = await parseBoundedJson(
       request,
       teamApplicationRejectSchema,
@@ -27,6 +29,7 @@ export async function POST(
         account.userId,
         applicationId,
         input.reason,
+        companyId,
       ),
     );
   } catch (error) {
@@ -36,7 +39,10 @@ export async function POST(
           ? 403
           : error.code === "TEAM_APPLICATION_UNAVAILABLE"
             ? 404
-            : 409;
+            : error.code === "TEAM_APPLICATION_LIST_REQUEST_INVALID" ||
+                error.code === "TEAM_APPLICATION_CURSOR_INVALID"
+              ? 400
+              : 409;
       return accountJson(
         {
           code: error.code,

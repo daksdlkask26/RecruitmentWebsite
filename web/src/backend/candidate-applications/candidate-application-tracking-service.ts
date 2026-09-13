@@ -10,10 +10,12 @@ import {
   applicationIntakeSchema,
   applicationPublicUpdateSchema,
   applicationTrackerSchema,
+  candidateApplicationListQuerySchema,
   candidateApplicationListResponseSchema,
   candidateApplicationSummarySchema,
   notificationPreferenceSchema,
   publicOutcomeForCanonicalStage,
+  publicTimelineEventCodeForCanonicalStage,
   publicUpdateKindForCanonicalStage,
   publicUpdateTitleForCanonicalStage,
   publicStageForCanonicalStage,
@@ -24,6 +26,10 @@ import {
 } from "@/shared/contracts/candidate-applications";
 import type { CandidateActor } from "@/backend/services/jobs/job-types";
 import { CandidateApplicationError } from "./candidate-application-errors";
+import {
+  decodeApplicationListCursor,
+  encodeApplicationListCursor,
+} from "@/backend/applications/application-list-cursor";
 import {
   PrismaCandidateApplicationRepository,
   type CandidateApplicationSummaryRow,
@@ -47,6 +53,30 @@ function text(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
+function boundedText(value: unknown, maximum: number) {
+  const normalized = text(value);
+  return normalized && normalized.length <= maximum ? normalized : null;
+}
+
+function calendarDate(value: unknown) {
+  const normalized = boundedText(value, 10);
+  return normalized && /^\d{4}-\d{2}-\d{2}$/u.test(normalized)
+    ? normalized
+    : null;
+}
+
+function isoDateTime(value: unknown) {
+  const candidate =
+    value instanceof Date
+      ? value
+      : typeof value === "string"
+        ? new Date(value)
+        : null;
+  return candidate && Number.isFinite(candidate.getTime())
+    ? candidate.toISOString()
+    : null;
+}
+
 function publicUpdateTitle(kind: string) {
   switch (kind) {
     case "SUBMITTED":
@@ -64,6 +94,25 @@ function publicUpdateTitle(kind: string) {
     default:
       return null;
   }
+}
+
+function exactCandidateMessage(value: unknown) {
+  return typeof value === "string" && value.length <= 500 ? value : null;
+}
+
+function eventCodeForPublicUpdate(input: {
+  kind: string;
+  canonicalStage: ApplicationStage | null;
+  publicOutcome: string | null | undefined;
+}) {
+  if (input.kind === "WITHDRAWN" || input.publicOutcome === "WITHDRAWN")
+    return "APPLICATION_WITHDRAWN" as const;
+  if (input.kind === "TECHNICAL_UPDATE")
+    return "FILE_PROCESSING_UPDATED" as const;
+  if (input.canonicalStage)
+    return publicTimelineEventCodeForCanonicalStage(input.canonicalStage);
+  if (input.kind === "SUBMITTED") return "APPLICATION_SUBMITTED" as const;
+  return "FILE_PROCESSING_UPDATED" as const;
 }
 
 function safeFilename(value: string | null | undefined, fallback: string) {
@@ -120,13 +169,323 @@ function fileFromDocument(
     document.kind === "COVER_LETTER" ? "cover-letter.pdf" : "candidate-cv.pdf";
   const parsed = applicationFileDescriptorSchema.safeParse({
     versionId: document.id,
-    displayName: safeFilename(document.originalFilenameEncrypted, fallback),
-    fileName: safeFilename(document.originalFilenameEncrypted, fallback),
+    // ApplicationDocument.originalFilenameEncrypted is an internal storage
+    // field. Candidate projections use a neutral name instead of ever
+    // guessing whether its value is plaintext or encrypted metadata.
+    displayName: fallback,
+    fileName: fallback,
     mimeType: document.mediaType,
     byteSize: document.byteLength,
     parseStatus: "NOT_APPLICABLE",
   });
   return parsed.success ? parsed.data : null;
+}
+
+function decodeCoverLetterText(value: string | null | undefined) {
+  if (!value) return null;
+  if (!value.startsWith("b64:v1:")) return text(value);
+  try {
+    return text(
+      Buffer.from(value.slice("b64:v1:".length), "base64").toString("utf8"),
+    );
+  } catch {
+    return null;
+  }
+}
+
+function hasActiveHold(row: CandidateApplicationTrackerRow, now: Date) {
+  return (row.legalHolds ?? []).some(
+    (hold) =>
+      hold.releasedAt === null &&
+      hold.startsAt <= now &&
+      (hold.endsAt === null || hold.endsAt > now),
+  );
+}
+
+function documentAvailability(
+  row: CandidateApplicationTrackerRow,
+  document:
+    | CandidateApplicationTrackerRow["applicationDocuments"][number]
+    | undefined,
+  now: Date,
+) {
+  if (row.documentDeletedAt || document?.deletedAt) return "DELETED" as const;
+  if (hasActiveHold(row, now)) return "HELD" as const;
+  if (
+    (row.documentAccessDeniedAt && row.documentAccessDeniedAt <= now) ||
+    (document?.ordinaryAccessDeniedAt &&
+      document.ordinaryAccessDeniedAt <= now) ||
+    (document?.deleteAfter && document.deleteAfter <= now)
+  ) {
+    return "EXPIRED" as const;
+  }
+  if (
+    document?.kind === "CV" &&
+    (document.scanAssessment?.status !== "CLEAN" ||
+      !document.sourceArtifactId ||
+      !document.scanAssessmentId ||
+      !document.sourceArtifact ||
+      !["QUARANTINED", "AVAILABLE"].includes(document.sourceArtifact.status) ||
+      document.sourceArtifact.contentInaccessibleAt ||
+      document.sourceArtifact.deletedAt)
+  ) {
+    return "TEMPORARILY_UNAVAILABLE" as const;
+  }
+  return document
+    ? ("AVAILABLE" as const)
+    : ("TEMPORARILY_UNAVAILABLE" as const);
+}
+
+function textAvailability(row: CandidateApplicationTrackerRow, now: Date) {
+  const coverLetter = row.coverLetterText;
+  if (row.documentDeletedAt || coverLetter?.deletedAt)
+    return "DELETED" as const;
+  if (hasActiveHold(row, now)) return "HELD" as const;
+  if (
+    (row.documentAccessDeniedAt && row.documentAccessDeniedAt <= now) ||
+    (coverLetter?.ordinaryAccessDeniedAt &&
+      coverLetter.ordinaryAccessDeniedAt <= now) ||
+    (coverLetter?.deleteAfter && coverLetter.deleteAfter <= now)
+  ) {
+    return "EXPIRED" as const;
+  }
+  return "AVAILABLE" as const;
+}
+
+function submittedCvFile(row: CandidateApplicationTrackerRow) {
+  const snapshot = object(row.cvSnapshot);
+  const parsed = applicationFileDescriptorSchema.safeParse({
+    versionId: text(snapshot.cvId),
+    displayName: text(snapshot.displayName),
+    fileName: safeFilename(text(snapshot.fileName), "candidate-cv.pdf"),
+    mimeType: text(snapshot.mimeType),
+    byteSize: snapshot.byteSize,
+    version: snapshot.cvVersion,
+    parseStatus: "READY",
+    confirmedAt: text(snapshot.confirmedAt) ?? undefined,
+  });
+  return parsed.success ? parsed.data : null;
+}
+
+function unavailableSubmittedProfile() {
+  return { status: "UNAVAILABLE" as const };
+}
+
+function submittedProfile(row: CandidateApplicationTrackerRow) {
+  if (row.profileSnapshotAccessDeniedAt) {
+    return unavailableSubmittedProfile();
+  }
+  const snapshot = object(row.profileSnapshot);
+  const fullName = boundedText(snapshot.candidateName, 150);
+  const sourceSkills = snapshot.skills;
+  const sourceExperience = snapshot.experience;
+  const sourceEducation = snapshot.education;
+  if (
+    !fullName ||
+    !Array.isArray(sourceSkills) ||
+    sourceSkills.length > 50 ||
+    !Array.isArray(sourceExperience) ||
+    sourceExperience.length > 50 ||
+    !Array.isArray(sourceEducation) ||
+    sourceEducation.length > 50
+  ) {
+    return unavailableSubmittedProfile();
+  }
+
+  const skills = sourceSkills.map((skill) =>
+    typeof skill === "string"
+      ? boundedText(skill, 80)
+      : boundedText(object(skill).label, 80),
+  );
+  if (skills.some((skill) => !skill)) return unavailableSubmittedProfile();
+
+  const experience = sourceExperience.map((entry) => {
+    const value = object(entry);
+    const title = boundedText(value.title, 200);
+    const company = boundedText(value.company, 200);
+    if (!title || !company) return null;
+    return {
+      title,
+      company,
+      startDate: calendarDate(value.startDate),
+      endDate: calendarDate(value.endDate),
+    };
+  });
+  const education = sourceEducation.map((entry) => {
+    const value = object(entry);
+    const institution = boundedText(value.institution, 200);
+    const degree = boundedText(value.degree, 200);
+    if (!institution || !degree) return null;
+    return {
+      institution,
+      degree,
+      field: boundedText(value.field, 200),
+      startDate: calendarDate(value.startDate),
+      endDate: calendarDate(value.endDate),
+    };
+  });
+  if (experience.some((entry) => !entry) || education.some((entry) => !entry)) {
+    return unavailableSubmittedProfile();
+  }
+
+  return {
+    status: "AVAILABLE" as const,
+    fullName,
+    headline: boundedText(snapshot.headline, 200),
+    summary: boundedText(snapshot.summary, 5_000),
+    skills: skills as string[],
+    experience: experience as NonNullable<(typeof experience)[number]>[],
+    education: education as NonNullable<(typeof education)[number]>[],
+  };
+}
+
+function submittedContact(row: CandidateApplicationTrackerRow) {
+  const snapshot = object(row.contactSnapshot);
+  const fullName = boundedText(snapshot.fullName, 150);
+  const email = boundedText(snapshot.email, 254);
+  const phone = boundedText(snapshot.phone, 20);
+  if (
+    !fullName ||
+    !email ||
+    !phone ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(email)
+  ) {
+    return { status: "UNAVAILABLE" as const };
+  }
+  return {
+    status: "AVAILABLE" as const,
+    fullName,
+    email,
+    phone,
+    location: boundedText(snapshot.location, 160),
+  };
+}
+
+function submittedConsent(row: CandidateApplicationTrackerRow) {
+  const version = boundedText(row.consentVersion, 64);
+  const consentedAt = isoDateTime(row.consentedAt);
+  if (!version || !consentedAt) return { status: "UNAVAILABLE" as const };
+  return { status: "AVAILABLE" as const, version, consentedAt };
+}
+
+function submittedAnswers(row: CandidateApplicationTrackerRow) {
+  return (row.answers ?? []).flatMap((answer) => {
+    const question = text(object(answer.questionSnapshot).prompt);
+    if (
+      !question ||
+      (typeof answer.answer !== "string" && typeof answer.answer !== "boolean")
+    ) {
+      return [];
+    }
+    return [{ question, answer: answer.answer }];
+  });
+}
+
+function submission(row: CandidateApplicationTrackerRow) {
+  const now = new Date();
+  const job = object(row.jobSnapshot);
+  const title = text(job.title);
+  const companyName = text(job.companyName);
+  const location = text(job.location);
+  const employmentType = text(job.employmentType);
+  const experienceLevel = text(job.experienceLevel);
+  const workArrangement = text(job.workArrangement);
+  const requiredSkills = Array.isArray(job.requiredSkills)
+    ? job.requiredSkills.flatMap((skill) => (text(skill) ? [text(skill)!] : []))
+    : [];
+  const jobVersion =
+    typeof job.jobVersion === "number" &&
+    Number.isInteger(job.jobVersion) &&
+    job.jobVersion > 0
+      ? job.jobVersion
+      : null;
+  const snapshotAvailable = Boolean(
+    title &&
+    companyName &&
+    location &&
+    employmentType &&
+    experienceLevel &&
+    workArrangement &&
+    jobVersion,
+  );
+  const cvDocument = row.applicationDocuments.find(
+    (document) => document.kind === "CV" && document.committedAt !== null,
+  );
+  const cvAvailability = documentAvailability(row, cvDocument, now);
+  const cv = submittedCvFile(row);
+  const coverLetterDocument = row.applicationDocuments.find(
+    (document) =>
+      document.kind === "COVER_LETTER" && document.committedAt !== null,
+  );
+  const coverLetterFileAvailability = documentAvailability(
+    row,
+    coverLetterDocument,
+    now,
+  );
+  const coverLetterFile = coverLetterDocument
+    ? fileFromDocument(coverLetterDocument)
+    : null;
+  const normalizedCoverLetterText = decodeCoverLetterText(
+    row.coverLetterText?.textEncrypted,
+  );
+  const legacyCoverLetterText =
+    row.coverLetterText === null
+      ? decodeCoverLetterText(row.coverLetter)
+      : null;
+  const coverLetterText = normalizedCoverLetterText ?? legacyCoverLetterText;
+  const hasStoredText =
+    row.coverLetterText !== null && row.coverLetterText !== undefined
+      ? true
+      : legacyCoverLetterText !== null;
+
+  return {
+    job: {
+      available: snapshotAvailable,
+      title,
+      companyName,
+      location,
+      employmentType,
+      experienceLevel,
+      workArrangement,
+      requiredSkills,
+      version: jobVersion,
+    },
+    cv: {
+      availability:
+        cvAvailability === "AVAILABLE" && !cv
+          ? "TEMPORARILY_UNAVAILABLE"
+          : cvAvailability,
+      file: cv,
+      previewSupported: cv?.mimeType === "application/pdf",
+    },
+    coverLetter: coverLetterDocument
+      ? {
+          kind: "FILE" as const,
+          availability:
+            coverLetterFileAvailability === "AVAILABLE" && !coverLetterFile
+              ? "TEMPORARILY_UNAVAILABLE"
+              : coverLetterFileAvailability,
+          file: coverLetterFile,
+          previewSupported: coverLetterFile?.mimeType === "application/pdf",
+        }
+      : hasStoredText
+        ? {
+            kind: "TEXT" as const,
+            availability: coverLetterText
+              ? textAvailability(row, now)
+              : ("TEMPORARILY_UNAVAILABLE" as const),
+            text:
+              textAvailability(row, now) === "AVAILABLE"
+                ? coverLetterText
+                : null,
+          }
+        : { kind: "NONE" as const, availability: "NOT_PROVIDED" as const },
+    answers: submittedAnswers(row),
+    message: text(row.submissionMessage),
+    profile: submittedProfile(row),
+    contact: submittedContact(row),
+    consent: submittedConsent(row),
+  };
 }
 
 function intake(row: CandidateApplicationTrackerRow): ApplicationIntake {
@@ -180,28 +539,39 @@ function stageUpdate(
   event: CandidateApplicationTrackerRow["stageEvents"][number],
 ): ApplicationPublicUpdate | null {
   const stage = applicationStageSchema.parse(event.toStage);
-  if (stage === "APPLIED") return null;
   const publicStage = publicStageForCanonicalStage(stage);
   const kind = publicUpdateKindForCanonicalStage(stage);
   const title = publicUpdateTitleForCanonicalStage(stage);
   return applicationPublicUpdateSchema.parse({
     id: event.id,
+    eventCode: publicTimelineEventCodeForCanonicalStage(stage),
     kind,
     publicStage,
     publicOutcome: publicOutcomeForCanonicalStage(stage),
     canonicalStage: stage,
     title,
+    userMessage: exactCandidateMessage(event.candidateVisibleReason),
     occurredAt: event.occurredAt.toISOString(),
   });
 }
 
 function publicUpdates(row: CandidateApplicationTrackerRow) {
-  const stageEventsById = new Map(
-    row.stageEvents.map((event) => [event.id, event]),
+  const visibleStageEvents = row.stageEvents.filter(
+    (event) => event.candidateVisible !== false,
   );
-  const updates = row.publicUpdates.flatMap((update) => {
+  const stageEventsById = new Map(
+    visibleStageEvents.map((event) => [event.id, event]),
+  );
+  const updates: ApplicationPublicUpdate[] = [];
+  const logicalKeys = new Set<string>();
+  const addUpdate = (update: ApplicationPublicUpdate, logicalKey: string) => {
+    if (logicalKeys.has(logicalKey)) return;
+    logicalKeys.add(logicalKey);
+    updates.push(update);
+  };
+  row.publicUpdates.forEach((update) => {
     const title = update.title.trim() || publicUpdateTitle(update.kind);
-    if (!title) return [];
+    if (!title) return;
     const isWithdrawalUpdate =
       update.kind === "WITHDRAWN" || update.publicOutcome === "WITHDRAWN";
     const sourceEvent = update.sourceEventReference
@@ -224,53 +594,47 @@ function publicUpdates(row: CandidateApplicationTrackerRow) {
       : canonicalStage
         ? publicOutcomeForCanonicalStage(canonicalStage)
         : update.publicOutcome;
-    return [
-      applicationPublicUpdateSchema.parse({
-        id: update.id,
-        kind: isWithdrawalUpdate
-          ? "WITHDRAWN"
-          : canonicalStage
-            ? publicUpdateKindForCanonicalStage(canonicalStage)
-            : update.kind,
-        publicStage,
-        publicOutcome,
-        canonicalStage,
-        title: isWithdrawalUpdate
-          ? "Application withdrawn"
-          : canonicalStage
-            ? publicUpdateTitleForCanonicalStage(canonicalStage)
-            : title,
-        occurredAt: update.effectiveAt.toISOString(),
-      }),
-    ];
+    const kind = isWithdrawalUpdate
+      ? "WITHDRAWN"
+      : canonicalStage
+        ? publicUpdateKindForCanonicalStage(canonicalStage)
+        : update.kind;
+    const eventCode = eventCodeForPublicUpdate({
+      kind,
+      canonicalStage,
+      publicOutcome,
+    });
+    const projected = applicationPublicUpdateSchema.parse({
+      id: update.id,
+      eventCode,
+      kind,
+      publicStage,
+      publicOutcome,
+      canonicalStage,
+      title: isWithdrawalUpdate
+        ? "Application withdrawn"
+        : canonicalStage
+          ? publicUpdateTitleForCanonicalStage(canonicalStage)
+          : title,
+      userMessage: sourceEvent
+        ? exactCandidateMessage(sourceEvent.candidateVisibleReason)
+        : null,
+      occurredAt: update.effectiveAt.toISOString(),
+    });
+    const logicalKey = sourceEvent
+      ? `stage:${sourceEvent.id}`
+      : `public:${update.id}`;
+    addUpdate(projected, logicalKey);
   });
-  const known = new Set(updates.map((update) => update.id));
   const knownEventReferences = new Set(
     row.publicUpdates
       .map((update) => update.sourceEventReference)
       .filter((reference): reference is string => Boolean(reference)),
   );
-  for (const event of row.stageEvents) {
+  for (const event of visibleStageEvents) {
     const update = stageUpdate(event);
-    if (update && !known.has(update.id) && !knownEventReferences.has(event.id))
-      updates.push(update);
-  }
-  if (row.withdrawalOutcome && row.withdrawnAt) {
-    const id = `withdrawal:${row.id}`;
-    const hasWithdrawalUpdate = updates.some(
-      (update) => update.kind === "WITHDRAWN",
-    );
-    if (!hasWithdrawalUpdate) {
-      updates.push(
-        applicationPublicUpdateSchema.parse({
-          id,
-          kind: "WITHDRAWN",
-          publicStage: "OUTCOME",
-          publicOutcome: "WITHDRAWN",
-          title: "Application withdrawn",
-          occurredAt: row.withdrawnAt.toISOString(),
-        }),
-      );
+    if (update && !knownEventReferences.has(event.id)) {
+      addUpdate(update, `stage:${event.id}`);
     }
   }
   return updates
@@ -329,13 +693,13 @@ function tracker(row: CandidateApplicationTrackerRow): ApplicationTracker {
     job: {
       jobId: row.jobPostingId,
       slug: row.jobPosting.slug,
-      title: text(object(row.jobSnapshot).title) ?? row.jobPosting.title,
-      companyName:
-        text(object(row.jobSnapshot).companyName) ??
-        row.jobPosting.company.displayName,
+      // This object is the intentionally live public listing context used for
+      // navigation/status guidance. Submitted evidence is projected below
+      // from jobSnapshot and must never fall back to these mutable values.
+      title: row.jobPosting.title,
+      companyName: row.jobPosting.company.displayName,
       companyLogoUrl: row.jobPosting.company.logoUrl,
-      location:
-        text(object(row.jobSnapshot).location) ?? row.jobPosting.location,
+      location: row.jobPosting.location,
       employmentType: row.jobPosting.employmentType,
       experienceLevel: row.jobPosting.experienceLevel,
       workArrangement: row.jobPosting.workArrangement,
@@ -361,16 +725,22 @@ function tracker(row: CandidateApplicationTrackerRow): ApplicationTracker {
     intake: intake(row),
     updates: publicUpdates(row),
     files: files.slice(0, 2),
+    submission: submission(row),
     notificationPreference: preference,
     contactConsent: {
-      shared: Boolean(row.contactConsent?.sharedAt && !row.contactConsent.withdrawnAt),
+      shared: Boolean(
+        row.contactConsent?.sharedAt && !row.contactConsent.withdrawnAt,
+      ),
       version: row.contactConsent?.version ?? 1,
     },
-    canWithdraw: withdrawableStages.has(canonicalStage) && !row.withdrawalOutcome,
+    canWithdraw:
+      withdrawableStages.has(canonicalStage) && !row.withdrawalOutcome,
   });
 }
 
-function summary(row: CandidateApplicationSummaryRow): CandidateApplicationSummary {
+function summary(
+  row: CandidateApplicationSummaryRow,
+): CandidateApplicationSummary {
   const canonicalStage = applicationStageSchema.parse(row.stage);
   const publicOutcome =
     row.withdrawalOutcome === "CANDIDATE_WITHDRAWN"
@@ -426,15 +796,70 @@ export class CandidateApplicationTrackingService {
 
   async list(
     actor: CandidateActor,
-    input: { limit?: number; cursor?: string } = {},
+    input: {
+      limit?: number;
+      cursor?: string;
+      filter?: string;
+      sort?: string;
+    } = {},
   ) {
-    const limit = Math.min(Math.max(input.limit ?? 24, 1), 100);
-    const rows = await this.repository.list(actor.userId, limit, input.cursor);
-    const hasNext = rows.length > limit;
-    const visible = hasNext ? rows.slice(0, limit) : rows;
+    const parsed = candidateApplicationListQuerySchema.safeParse(input);
+    if (!parsed.success) {
+      throw new CandidateApplicationError(
+        400,
+        "APPLICATION_LIST_REQUEST_INVALID",
+        "Choose valid application list filters.",
+      );
+    }
+    const query = parsed.data;
+    const cursor = query.cursor
+      ? decodeApplicationListCursor(query.cursor, {
+          list: "CANDIDATE_JOB_APPLICATIONS",
+          subjectId: actor.userId,
+          scopeId: null,
+          filter: query.filter,
+          sort: query.sort,
+        })
+      : null;
+    if (query.cursor && !cursor) {
+      throw new CandidateApplicationError(
+        400,
+        "APPLICATION_LIST_CURSOR_INVALID",
+        "This page has expired. Restart the application list.",
+      );
+    }
+    const page = await this.repository.list({
+      candidateUserId: actor.userId,
+      limit: query.limit,
+      filter: query.filter,
+      sort: query.sort,
+      cursor: cursor
+        ? { submittedAt: new Date(cursor.submittedAt), id: cursor.id }
+        : null,
+    });
+    const hasMore = page.rows.length > query.limit;
+    const visible = hasMore ? page.rows.slice(0, query.limit) : page.rows;
+    const last = visible.at(-1);
+    const nextCursor =
+      hasMore && last
+        ? encodeApplicationListCursor({
+            list: "CANDIDATE_JOB_APPLICATIONS",
+            subjectId: actor.userId,
+            scopeId: null,
+            filter: query.filter,
+            sort: query.sort,
+            submittedAt: last.submittedAt.toISOString(),
+            id: last.id,
+          })
+        : null;
     return candidateApplicationListResponseSchema.parse({
       applications: visible.map(summary),
-      nextCursor: hasNext ? (visible.at(-1)?.id ?? null) : null,
+      nextCursor,
+      hasMore,
+      total: page.total,
+      counts: page.counts,
+      filter: query.filter,
+      sort: query.sort,
     });
   }
 

@@ -11,6 +11,7 @@ import {
   applicationSubmitCommandSchema,
   candidatePersonalInfoSchema,
   coverLetterDraftSchema,
+  type ApplicationSubmitCommand,
   type ApplicationReceipt,
 } from "@/shared/contracts/candidate-applications";
 import { applicationReceiptSchema } from "@/shared/contracts/candidate-applications";
@@ -30,6 +31,36 @@ function normalizedPhone(value: string) {
 
 function submissionError(code: string, message: string): never {
   throw new CandidateApplicationError(400, code, message);
+}
+
+function record(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+type ReplayDecision = "MATCH" | "MISMATCH" | "LEGACY_UNVERIFIABLE";
+
+function classifyReplay(
+  replay: { jobPostingId: string; jobSnapshot: unknown },
+  actor: CandidateActor,
+  command: ApplicationSubmitCommand,
+): ReplayDecision {
+  const snapshot = record(replay.jobSnapshot);
+  const binding = snapshot ? record(snapshot.submissionBinding) : null;
+  // A pre-CF-301 row has no persisted draft/revision/consent binding. Once
+  // its draft has been consumed, accepting the same key would make a changed
+  // command indistinguishable from an exact replay. Fail closed instead of
+  // fabricating compatibility from the key alone.
+  if (!binding || binding.v !== 1) return "LEGACY_UNVERIFIABLE";
+  return binding.candidateUserId === actor.userId &&
+    binding.jobId === replay.jobPostingId &&
+    binding.draftId === command.draftId &&
+    binding.expectedDraftRevision === command.expectedRevision &&
+    binding.shareContactWithRecruiter ===
+      (command.shareContactWithRecruiter === true)
+    ? "MATCH"
+    : "MISMATCH";
 }
 
 export class CandidateApplicationSubmissionService {
@@ -70,9 +101,18 @@ export class CandidateApplicationSubmissionService {
           idempotencyKey,
         },
       },
-      select: { id: true },
+      select: { id: true, jobPostingId: true, jobSnapshot: true },
     });
-    if (replay) return this.receipt(actor, replay.id);
+    if (replay) {
+      if (classifyReplay(replay, actor, command) !== "MATCH") {
+        throw new CandidateApplicationError(
+          409,
+          "APPLICATION_IDEMPOTENCY_KEY_REUSED",
+          "This submission key belongs to a different application request. Refresh the review page and try again.",
+        );
+      }
+      return this.receipt(actor, replay.id);
+    }
     const draft = await this.drafts.getForSubmission(
       actor,
       command.draftId,

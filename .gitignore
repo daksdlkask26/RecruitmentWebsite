@@ -92,3 +92,6 @@ web/tsconfig.tsbuildinfo
 /backupwoker/
 
 /.codegraph/
+
+AGENTS.md
+.codex/

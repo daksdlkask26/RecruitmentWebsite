@@ -71,6 +71,13 @@
   color: var(--sh-color-brand-primary);
 }
 
+:global(:root[data-theme="dark"]) .eyebrow,
+:global(:root[data-theme="dark"]) .statusBadge,
+:global(:root[data-theme="dark"]) .button.secondary,
+:global(:root[data-theme="dark"]) .link.secondary {
+  color: var(--sh-color-brand-accent);
+}
+
 .notice {
   min-height: 20px;
   margin: 18px 0 0;
@@ -262,6 +269,7 @@
 .button.danger {
   border-color: var(--sh-color-error, #b42318);
   background: var(--sh-color-error, #b42318);
+  color: var(--sh-color-on-error, #fff);
 }
 
 .button:disabled {

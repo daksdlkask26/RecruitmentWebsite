@@ -5,7 +5,14 @@ import { resolve } from "node:path";
 const execFileAsync = promisify(execFile);
 
 export async function runCandidateFirstE2EControl<T>(
-  command: "create" | "create-deletion-receipt" | "delete",
+  command:
+    | "create"
+    | "create-deletion-receipt"
+    | "seed-timeline"
+    | "read-job"
+    | "update-job"
+    | "expire-application-document"
+    | "delete",
   payload: unknown = null,
 ) {
   const script = resolve(

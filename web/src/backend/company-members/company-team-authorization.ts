@@ -22,6 +22,7 @@ export async function requireActiveCompanyOwner(
       company: {
         verificationState: "ACTIVE",
         verificationInactiveAt: null,
+        moderationState: "ACTIVE",
       },
     },
     select: { companyId: true, company: { select: { displayName: true } } },

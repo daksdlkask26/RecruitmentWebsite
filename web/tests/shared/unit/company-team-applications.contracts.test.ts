@@ -13,6 +13,11 @@ describe("Team Applications shared contracts", () => {
   it("keeps the candidate projection free of Owner-only fields", () => {
     const candidate = candidateTeamApplicationListSchema.parse({
       items: [teamApplicationFixture()],
+      nextCursor: null,
+      hasMore: false,
+      total: 1,
+      filter: { status: null, role: null },
+      sort: "SUBMITTED_DESC",
     });
     expect(candidate.items[0]).not.toHaveProperty("candidateName");
     expect(candidate.items[0]).not.toHaveProperty("rejectionReason");

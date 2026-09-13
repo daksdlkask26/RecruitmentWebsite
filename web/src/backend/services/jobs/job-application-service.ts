@@ -27,11 +27,23 @@ import {
 } from "@/backend/services/cv-admission/finalize-candidate-cv";
 
 function binding(
+  candidateUserId: string,
+  jobId: string,
   command: ApplicationSubmission,
   directCv?: PreparedDirectApplicationDocument,
   directCoverLetter?: PreparedDirectApplicationDocument,
+  draftBinding?: { draftId: string; expectedRevision: number },
 ) {
   const stable = {
+    v: 2,
+    candidateUserId,
+    jobId,
+    draft: draftBinding
+      ? {
+          id: draftBinding.draftId,
+          expectedRevision: draftBinding.expectedRevision,
+        }
+      : null,
     ...command,
     directCv: directCv
       ? {
@@ -258,7 +270,14 @@ export class JobApplicationService {
         sessionId: actor.sessionId,
         jobId,
         idempotencyKey: key,
-        submissionBindingDigest: binding(command, undefined, directCoverLetter),
+        submissionBindingDigest: binding(
+          actor.userId,
+          jobId,
+          command,
+          undefined,
+          directCoverLetter,
+          draftBinding,
+        ),
         command,
         directCv: undefined,
         directCoverLetter,

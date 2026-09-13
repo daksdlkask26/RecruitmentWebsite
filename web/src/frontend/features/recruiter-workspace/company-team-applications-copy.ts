@@ -7,6 +7,20 @@ type Copy = {
   pendingDecision: (count: number) => string;
   manageTeamLink: string;
   refreshSelection: string;
+  companyScope: string;
+  chooseCompany: string;
+  allCompanies: string;
+  filterApplications: string;
+  allStatuses: string;
+  allRoles: string;
+  sortApplications: string;
+  newestFirst: string;
+  oldestFirst: string;
+  loadMoreApplications: string;
+  loadingApplications: string;
+  loadMoreError: string;
+  retryLoadMore: string;
+  noMatchingApplications: string;
   candidateCvs: string;
   applicationCount: (count: number) => string;
   applicationDetail: string;
@@ -57,6 +71,20 @@ const englishCopy: Copy = {
   pendingDecision: (count) => `${count} awaiting decision`,
   manageTeamLink: "Manage team",
   refreshSelection: "Select an application to refresh its details.",
+  companyScope: "Company scope",
+  chooseCompany: "Choose a company to view its Team Applications.",
+  allCompanies: "Choose a company",
+  filterApplications: "Filter applications",
+  allStatuses: "All statuses",
+  allRoles: "All roles",
+  sortApplications: "Sort applications",
+  newestFirst: "Newest submitted",
+  oldestFirst: "Oldest submitted",
+  loadMoreApplications: "Next page",
+  loadingApplications: "Loading applications...",
+  loadMoreError: "The next page could not be loaded.",
+  retryLoadMore: "Retry next page",
+  noMatchingApplications: "No applications match these filters.",
   candidateCvs: "Candidate CVs",
   applicationCount: (count) => `${count} application${count === 1 ? "" : "s"}`,
   applicationDetail: "Application detail",
@@ -118,6 +146,10 @@ const englishCopy: Copy = {
         "This team application is no longer available for this action.",
       TEAM_MEMBER_EXISTS: "This candidate is already a member of the company.",
       TEAM_ROLE_INVALID: "Choose a valid invitation role.",
+      TEAM_APPLICATION_CURSOR_INVALID:
+        "This page has expired. Restart the list.",
+      TEAM_APPLICATION_LIST_REQUEST_INVALID:
+        "Choose valid application filters.",
     })[code ?? ""] ?? null,
 };
 
@@ -129,6 +161,20 @@ const vietnameseCopy: Copy = {
   pendingDecision: (count) => `${count} hồ sơ đang chờ quyết định`,
   manageTeamLink: "Quản lý đội ngũ",
   refreshSelection: "Chọn một hồ sơ để làm mới thông tin chi tiết.",
+  companyScope: "Phạm vi công ty",
+  chooseCompany: "Chọn công ty để xem hồ sơ ứng tuyển đội ngũ.",
+  allCompanies: "Chọn công ty",
+  filterApplications: "Lọc hồ sơ",
+  allStatuses: "Tất cả trạng thái",
+  allRoles: "Tất cả vị trí",
+  sortApplications: "Sắp xếp hồ sơ",
+  newestFirst: "Nộp gần nhất",
+  oldestFirst: "Nộp lâu nhất",
+  loadMoreApplications: "Trang tiếp theo",
+  loadingApplications: "Đang tải hồ sơ...",
+  loadMoreError: "Không thể tải trang tiếp theo.",
+  retryLoadMore: "Thử lại trang tiếp theo",
+  noMatchingApplications: "Không có hồ sơ nào phù hợp với bộ lọc.",
   candidateCvs: "CV ứng viên",
   applicationCount: (count) => `${count} hồ sơ`,
   applicationDetail: "Chi tiết hồ sơ",
@@ -199,6 +245,9 @@ const vietnameseCopy: Copy = {
         "Hồ sơ ứng tuyển đội ngũ không còn khả dụng cho thao tác này.",
       TEAM_MEMBER_EXISTS: "Ứng viên này đã là thành viên của công ty.",
       TEAM_ROLE_INVALID: "Hãy chọn một vị trí hợp lệ trong lời mời.",
+      TEAM_APPLICATION_CURSOR_INVALID:
+        "Trang này đã hết hiệu lực. Hãy tải lại danh sách.",
+      TEAM_APPLICATION_LIST_REQUEST_INVALID: "Hãy chọn bộ lọc hợp lệ.",
     })[code ?? ""] ?? null,
 };
 
@@ -212,5 +261,6 @@ export function formatCompanyTeamApplicationDate(
 ) {
   return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-US", {
     dateStyle: "medium",
+    timeZone: "Asia/Ho_Chi_Minh",
   }).format(new Date(value));
 }

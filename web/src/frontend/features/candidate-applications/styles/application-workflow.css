@@ -977,6 +977,15 @@
   text-decoration: underline;
 }
 
+/* The filled brand token stays deliberately dark for primary controls. Small
+ * accent text needs the lighter semantic info foreground on dark surfaces to
+ * meet WCAG AA without changing button contrast across the workspace. */
+:root[data-theme="dark"] .candidate-application-list-page__team-link,
+:root[data-theme="dark"] .candidate-application-list-page__count,
+:root[data-theme="dark"] .candidate-application-filter__count {
+  color: var(--sh-color-info);
+}
+
 .candidate-application-filter {
   display: grid;
   width: min(100%, 340px);
@@ -1484,10 +1493,13 @@
 }
 
 .candidate-application-list-page__count {
-  width: var(--sh-control-height-sm);
+  width: auto;
+  min-width: var(--sh-control-height-sm);
   height: var(--sh-control-height-sm);
-  flex-basis: var(--sh-control-height-sm);
+  flex-basis: auto;
+  padding: 0 var(--sh-space-3);
   font-size: var(--sh-font-size-label);
+  white-space: nowrap;
 }
 
 .candidate-application-filter {
@@ -2939,6 +2951,14 @@
 }
 .application-ui--tracker .application-ui-timeline li.is-highlighted {
   background: var(--app-blue-50);
+}
+.application-ui--tracker .application-ui-timeline li.is-technical {
+  border-inline-start: 3px solid var(--sh-color-text-secondary);
+  background: var(--sh-color-surface-subtle);
+}
+.application-ui--tracker .application-ui-timeline li.is-technical > span {
+  color: var(--sh-color-text-secondary);
+  background: var(--sh-color-surface-card);
 }
 .application-ui--tracker .application-ui-timeline li > span {
   width: 30px;
@@ -5472,6 +5492,36 @@
   .application-ui-timeline
   li:not(:last-child)::before {
   background-color: var(--sh-color-border-subtle);
+}
+
+/* The tracker has a legacy local palette. Map every text-facing alias to the
+ * shared dark tokens so submitted evidence remains readable in dark mode. */
+:root[data-theme="dark"] .application-ui--tracker {
+  --app-blue-50: var(--sh-color-info-bg);
+  --app-blue-100: var(--sh-color-border-subtle);
+  --app-blue-700: var(--sh-color-info);
+  --app-ink: var(--sh-color-text-primary);
+  --app-ink-700: var(--sh-color-text-secondary);
+  --app-muted: var(--sh-color-text-secondary);
+  --app-muted-light: var(--sh-color-text-muted);
+  --app-line: var(--sh-color-border-subtle);
+  --app-line-soft: var(--sh-color-border-subtle);
+  --app-green: var(--sh-color-success);
+  --app-green-700: var(--sh-color-success);
+}
+
+:root[data-theme="dark"]
+  .application-ui--tracker
+  :is(
+    .application-ui-timeline li,
+    .application-ui-job-info,
+    .application-ui-tags span
+  ) {
+  background: var(--sh-color-surface-subtle);
+}
+
+:root[data-theme="dark"] .application-ui--tracker .application-ui-file-action {
+  color: var(--sh-color-info);
 }
 
 :root[data-theme="dark"]

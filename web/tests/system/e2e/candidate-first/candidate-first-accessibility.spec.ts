@@ -50,7 +50,16 @@ async function axeSeriousOrCritical(page: Page) {
   return page.evaluate(async () => {
     const report = await (
       window as typeof window & {
-        axe: { run: () => Promise<{ violations: Array<{ id: string; impact?: string | null; help: string; nodes: Array<{ target: string[] }> }> }> };
+        axe: {
+          run: () => Promise<{
+            violations: Array<{
+              id: string;
+              impact?: string | null;
+              help: string;
+              nodes: Array<{ target: string[] }>;
+            }>;
+          }>;
+        };
       }
     ).axe.run();
     return report.violations
@@ -66,7 +75,9 @@ async function axeSeriousOrCritical(page: Page) {
 
 async function hasHorizontalOverflow(page: Page) {
   return page.evaluate(
-    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    () =>
+      document.documentElement.scrollWidth >
+      document.documentElement.clientWidth + 1,
   );
 }
 
@@ -135,7 +146,9 @@ test.afterAll(async () => {
   );
 });
 
-test("Candidate pages have no serious/critical axe findings at required breakpoints", async ({ page }) => {
+test("Candidate pages have no serious/critical axe findings at required breakpoints", async ({
+  page,
+}) => {
   test.skip(
     !enabled,
     "Set RUN_CANDIDATE_FIRST_E2E=1 with an isolated *_test database to run Candidate accessibility evidence.",
@@ -153,7 +166,10 @@ test("Candidate pages have no serious/critical axe findings at required breakpoi
   ];
 
   for (const viewport of viewports) {
-    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.setViewportSize({
+      width: viewport.width,
+      height: viewport.height,
+    });
     for (const route of routes) {
       const item: Result = {
         route,
@@ -171,8 +187,18 @@ test("Candidate pages have no serious/critical axe findings at required breakpoi
         item.horizontalOverflow = await hasHorizontalOverflow(page);
         await page.keyboard.press("Tab");
         item.keyboardFocusVisible = await page.locator(":focus").isVisible();
-        if (violations.length || item.horizontalOverflow || !item.keyboardFocusVisible) {
-          throw new Error(JSON.stringify({ violations, horizontalOverflow: item.horizontalOverflow, keyboardFocusVisible: item.keyboardFocusVisible }));
+        if (
+          violations.length ||
+          item.horizontalOverflow ||
+          !item.keyboardFocusVisible
+        ) {
+          throw new Error(
+            JSON.stringify({
+              violations,
+              horizontalOverflow: item.horizontalOverflow,
+              keyboardFocusVisible: item.keyboardFocusVisible,
+            }),
+          );
         }
         item.status = "PASS";
       } catch (error) {
@@ -204,13 +230,26 @@ test("Candidate pages have no serious/critical axe findings at required breakpoi
     zoomItem.horizontalOverflow = await hasHorizontalOverflow(page);
     await page.keyboard.press("Tab");
     zoomItem.keyboardFocusVisible = await page.locator(":focus").isVisible();
-    if (violations.length || zoomItem.horizontalOverflow || !zoomItem.keyboardFocusVisible) {
-      throw new Error(JSON.stringify({ violations, horizontalOverflow: zoomItem.horizontalOverflow, keyboardFocusVisible: zoomItem.keyboardFocusVisible }));
+    if (
+      violations.length ||
+      zoomItem.horizontalOverflow ||
+      !zoomItem.keyboardFocusVisible
+    ) {
+      throw new Error(
+        JSON.stringify({
+          violations,
+          horizontalOverflow: zoomItem.horizontalOverflow,
+          keyboardFocusVisible: zoomItem.keyboardFocusVisible,
+        }),
+      );
     }
     zoomItem.status = "PASS";
   } catch (error) {
     zoomItem.error = error instanceof Error ? error.message : String(error);
   }
   results.push(zoomItem);
-  expect(results.filter((result) => result.status === "FAIL"), JSON.stringify(results, null, 2)).toEqual([]);
+  expect(
+    results.filter((result) => result.status === "FAIL"),
+    JSON.stringify(results, null, 2),
+  ).toEqual([]);
 });

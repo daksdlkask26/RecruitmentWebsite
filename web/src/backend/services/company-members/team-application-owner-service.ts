@@ -12,8 +12,13 @@ import {
   ownerTeamApplicationSchema,
   teamApplicationAcceptSchema,
   teamApplicationRejectSchema,
+  teamApplicationListQuerySchema,
   type TeamRole,
 } from "@/shared/contracts/company-members/team-applications";
+import {
+  decodeApplicationListCursor,
+  encodeApplicationListCursor,
+} from "@/backend/applications/application-list-cursor";
 import { requireActiveCompanyOwner } from "@/backend/company-members/company-team-authorization";
 import { requireTeamApplicationOwner } from "./team-application-authorization";
 import {
@@ -34,7 +39,9 @@ export class TeamApplicationOwnerError extends Error {
       | "TEAM_APPLICATION_UNAVAILABLE"
       | "TEAM_APPLICATION_CONFLICT"
       | "TEAM_MEMBER_EXISTS"
-      | "TEAM_ROLE_INVALID",
+      | "TEAM_ROLE_INVALID"
+      | "TEAM_APPLICATION_LIST_REQUEST_INVALID"
+      | "TEAM_APPLICATION_CURSOR_INVALID",
   ) {
     super(code);
   }
@@ -129,8 +136,49 @@ export class TeamApplicationOwnerService {
     private readonly applications = new TeamApplicationService(),
   ) {}
 
-  async list(ownerUserId: string, companyId?: string) {
+  async listEligibleCompanies(ownerUserId: string) {
+    const memberships = await prisma.companyMembership.findMany({
+      where: {
+        userId: ownerUserId,
+        role: "OWNER",
+        status: "ACTIVE",
+        removedAt: null,
+        company: {
+          verificationState: "ACTIVE",
+          verificationInactiveAt: null,
+          moderationState: "ACTIVE",
+        },
+      },
+      select: { companyId: true, company: { select: { displayName: true } } },
+    });
+    return memberships
+      .map((membership) => ({
+        id: membership.companyId,
+        name: membership.company.displayName,
+      }))
+      .sort((left, right) => left.name.localeCompare(right.name));
+  }
+
+  async list(ownerUserId: string, companyId?: string, rawInput: unknown = {}) {
+    const parsed = teamApplicationListQuerySchema.safeParse(rawInput);
+    if (!parsed.success)
+      throw new TeamApplicationOwnerError(
+        "TEAM_APPLICATION_LIST_REQUEST_INVALID",
+      );
+    const query = parsed.data;
     const owner = await ownerCompany(ownerUserId, companyId);
+    const filter = `${query.status ?? "ALL"}:${query.role ?? "ALL"}`;
+    const cursor = query.cursor
+      ? decodeApplicationListCursor(query.cursor, {
+          list: "OWNER_TEAM_APPLICATIONS",
+          subjectId: ownerUserId,
+          scopeId: owner.companyId,
+          filter,
+          sort: query.sort,
+        })
+      : null;
+    if (query.cursor && !cursor)
+      throw new TeamApplicationOwnerError("TEAM_APPLICATION_CURSOR_INVALID");
     const now = new Date();
     await prisma.companyInvitation.updateMany({
       where: {
@@ -152,10 +200,39 @@ export class TeamApplicationOwnerService {
       },
       data: { cvDeleteAfter: teamApplicationCvDeleteAfter(now) },
     });
-    const rows = await this.repository.listForOwner(owner.companyId);
-    const statuses = await invitationEmailStatuses(rows);
+    const page = await this.repository.listForOwner({
+      ...query,
+      companyId: owner.companyId,
+      cursor: cursor
+        ? { submittedAt: new Date(cursor.submittedAt), id: cursor.id }
+        : null,
+    });
+    // This metric is scoped to the authorized company and active list filters.
+    // It is an authoritative actionable-queue count rather than a loaded-page
+    // count. A terminal status filter therefore truthfully reports zero.
+    const pendingCount = await this.repository.countActionableForOwner(
+      owner.companyId,
+      query.role,
+      query.status,
+    );
+    const hasMore = page.rows.length > query.limit;
+    const visible = hasMore ? page.rows.slice(0, query.limit) : page.rows;
+    const statuses = await invitationEmailStatuses(visible);
+    const last = visible.at(-1);
+    const nextCursor =
+      hasMore && last
+        ? encodeApplicationListCursor({
+            list: "OWNER_TEAM_APPLICATIONS",
+            subjectId: ownerUserId,
+            scopeId: owner.companyId,
+            filter,
+            sort: query.sort,
+            submittedAt: last.submittedAt.toISOString(),
+            id: last.id,
+          })
+        : null;
     return ownerTeamApplicationListSchema.parse({
-      items: rows.map((row) =>
+      items: visible.map((row) =>
         ownerProjection(
           row,
           row.invitation
@@ -164,21 +241,32 @@ export class TeamApplicationOwnerService {
             : null,
         ),
       ),
+      nextCursor,
+      hasMore,
+      total: page.total,
+      pendingCount,
+      filter: { status: query.status ?? null, role: query.role ?? null },
+      sort: query.sort,
     });
   }
 
-  async get(ownerUserId: string, applicationId: string) {
+  async get(ownerUserId: string, applicationId: string, companyId?: string) {
     let authorization;
     try {
       authorization = await requireTeamApplicationOwner(
         ownerUserId,
         applicationId,
+        companyId,
       );
     } catch {
       throw new TeamApplicationOwnerError("TEAM_OWNER_FORBIDDEN");
     }
     try {
-      await this.applications.markOwnerViewed(ownerUserId, applicationId);
+      await this.applications.markOwnerViewed(
+        ownerUserId,
+        applicationId,
+        authorization.owner.companyId,
+      );
       const row = await this.repository.findForOwner(
         authorization.owner.companyId,
         applicationId,
@@ -198,7 +286,12 @@ export class TeamApplicationOwnerService {
     }
   }
 
-  async accept(ownerUserId: string, applicationId: string, rawRole: unknown) {
+  async accept(
+    ownerUserId: string,
+    applicationId: string,
+    rawRole: unknown,
+    companyId?: string,
+  ) {
     const parsed = teamApplicationAcceptSchema.safeParse({ role: rawRole });
     if (!parsed.success)
       throw new TeamApplicationOwnerError("TEAM_ROLE_INVALID");
@@ -207,6 +300,7 @@ export class TeamApplicationOwnerService {
       authorization = await requireTeamApplicationOwner(
         ownerUserId,
         applicationId,
+        companyId,
       );
     } catch {
       throw new TeamApplicationOwnerError("TEAM_OWNER_FORBIDDEN");
@@ -375,7 +469,12 @@ export class TeamApplicationOwnerService {
     }
   }
 
-  async reject(ownerUserId: string, applicationId: string, rawReason: unknown) {
+  async reject(
+    ownerUserId: string,
+    applicationId: string,
+    rawReason: unknown,
+    companyId?: string,
+  ) {
     const parsed = teamApplicationRejectSchema.safeParse({
       reason: rawReason,
     });
@@ -386,6 +485,7 @@ export class TeamApplicationOwnerService {
       authorization = await requireTeamApplicationOwner(
         ownerUserId,
         applicationId,
+        companyId,
       );
     } catch {
       throw new TeamApplicationOwnerError("TEAM_OWNER_FORBIDDEN");

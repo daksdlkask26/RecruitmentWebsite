@@ -89,8 +89,33 @@ export type CandidateTeamApplication = z.infer<
 >;
 
 export const candidateTeamApplicationListSchema = z
-  .object({ items: z.array(candidateTeamApplicationSchema).max(100) })
+  .object({
+    items: z.array(candidateTeamApplicationSchema).max(100),
+    nextCursor: z.string().min(1).max(1024).nullable(),
+    hasMore: z.boolean(),
+    total: z.number().int().nonnegative(),
+    filter: z
+      .object({
+        status: teamApplicationStatusSchema.nullable(),
+        role: teamRoleSchema.nullable(),
+      })
+      .strict(),
+    sort: z.enum(["SUBMITTED_DESC", "SUBMITTED_ASC"]),
+  })
   .strict();
+
+export const teamApplicationListQuerySchema = z
+  .object({
+    cursor: z.string().min(1).max(1024).optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(24),
+    status: teamApplicationStatusSchema.optional(),
+    role: teamRoleSchema.optional(),
+    sort: z.enum(["SUBMITTED_DESC", "SUBMITTED_ASC"]).default("SUBMITTED_DESC"),
+  })
+  .strict();
+export type TeamApplicationListQuery = z.infer<
+  typeof teamApplicationListQuerySchema
+>;
 
 export const ownerTeamApplicationSchema = candidateTeamApplicationSchema
   .extend({
@@ -107,7 +132,20 @@ export const ownerTeamApplicationSchema = candidateTeamApplicationSchema
 export type OwnerTeamApplication = z.infer<typeof ownerTeamApplicationSchema>;
 
 export const ownerTeamApplicationListSchema = z
-  .object({ items: z.array(ownerTeamApplicationSchema).max(100) })
+  .object({
+    items: z.array(ownerTeamApplicationSchema).max(100),
+    nextCursor: z.string().min(1).max(1024).nullable(),
+    hasMore: z.boolean(),
+    total: z.number().int().nonnegative(),
+    pendingCount: z.number().int().nonnegative(),
+    filter: z
+      .object({
+        status: teamApplicationStatusSchema.nullable(),
+        role: teamRoleSchema.nullable(),
+      })
+      .strict(),
+    sort: z.enum(["SUBMITTED_DESC", "SUBMITTED_ASC"]),
+  })
   .strict();
 
 export const teamApplicationStatusLabels: Record<

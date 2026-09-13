@@ -142,6 +142,7 @@ function isInternalFilename(value: string | null): boolean {
 async function originalFilename(input: {
   db: typeof prisma;
   kind: "cv" | "cover-letter";
+  candidateOwned?: boolean;
   application: {
     candidateUserId: string;
     selectedCvId: string;
@@ -152,6 +153,12 @@ async function originalFilename(input: {
     sourceCandidateCvId: string | null;
   };
 }): Promise<string> {
+  if (input.candidateOwned) {
+    // The source column is named *Encrypted* and may contain an internal
+    // envelope. Candidate routes receive a neutral filename; storage and
+    // encryption metadata never crosses that boundary.
+    return input.kind === "cv" ? "candidate-cv.pdf" : "cover-letter.pdf";
+  }
   const stored = input.document.originalFilenameEncrypted;
   if (!isInternalFilename(stored)) return stored;
   const sourceId =
@@ -536,7 +543,8 @@ export class PrismaApplicationRepository
   }
 
   async findDocument(input: {
-    jobId: string;
+    jobId?: string;
+    candidateUserId?: string;
     applicationId: string;
     kind: "cv" | "cover-letter";
     now?: Date;
@@ -545,7 +553,21 @@ export class PrismaApplicationRepository
     const application = await this.db.jobApplication.findFirst({
       where: {
         id: input.applicationId,
-        jobPostingId: input.jobId,
+        ...(input.jobId ? { jobPostingId: input.jobId } : {}),
+        ...(input.candidateUserId
+          ? { candidateUserId: input.candidateUserId }
+          : {}),
+        ...(input.candidateUserId
+          ? {
+              legalHolds: {
+                none: {
+                  releasedAt: null,
+                  startsAt: { lte: now },
+                  OR: [{ endsAt: null }, { endsAt: { gt: now } }],
+                },
+              },
+            }
+          : {}),
         legacyDocumentState: { not: "UNAVAILABLE" },
         documentDeletedAt: null,
         OR: [
@@ -568,6 +590,8 @@ export class PrismaApplicationRepository
             kind: input.kind === "cv" ? "CV" : "COVER_LETTER",
             committedAt: { not: null },
             deletedAt: null,
+            ordinaryAccessDeniedAt: null,
+            OR: [{ deleteAfter: null }, { deleteAfter: { gt: now } }],
           },
           select: {
             kind: true,
@@ -596,6 +620,8 @@ export class PrismaApplicationRepository
           select: {
             textEncrypted: true,
             characterCount: true,
+            ordinaryAccessDeniedAt: true,
+            deleteAfter: true,
             deletedAt: true,
           },
         },
@@ -607,9 +633,13 @@ export class PrismaApplicationRepository
       application.applicationDocuments.length === 0
     ) {
       const text =
-        application.coverLetterText && !application.coverLetterText.deletedAt
+        application.coverLetterText &&
+        !application.coverLetterText.deletedAt &&
+        !application.coverLetterText.ordinaryAccessDeniedAt &&
+        (!application.coverLetterText.deleteAfter ||
+          application.coverLetterText.deleteAfter > now)
           ? decodeCoverLetterText(application.coverLetterText.textEncrypted)
-          : application.coverLetter
+          : !application.coverLetterText && application.coverLetter
             ? decodeCoverLetterText(application.coverLetter)
             : null;
       if (!text || text.length === 0) return null;
@@ -641,6 +671,7 @@ export class PrismaApplicationRepository
       fileName: await originalFilename({
         db: this.db,
         kind: input.kind,
+        candidateOwned: Boolean(input.candidateUserId),
         application,
         document,
       }),

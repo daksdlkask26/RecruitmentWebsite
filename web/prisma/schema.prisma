@@ -131,6 +131,7 @@ enum EmailKind {
   COMPANY_INVITATION
   COMPANY_INVITATION_RESPONSE
   TEAM_APPLICATION_REJECTED
+  RECRUITMENT_NOTIFICATION
 }
 
 enum InAppNotificationSeverity {
@@ -3965,6 +3966,8 @@ model RecruitmentNotificationWork {
   idempotencyKey  String                          @unique
   status          OutboxStatus                    @default(PENDING)
   attempts        Int                             @default(0)
+  leaseOwner      String?
+  leaseExpiresAt  DateTime?
   nextAttemptAt   DateTime                        @default(now())
   safeErrorCode   String?
   createdAt       DateTime                        @default(now())
@@ -3972,6 +3975,7 @@ model RecruitmentNotificationWork {
   application     JobApplication                  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   @@index([status, nextAttemptAt])
+  @@index([leaseExpiresAt])
   @@index([applicationId])
 }
 

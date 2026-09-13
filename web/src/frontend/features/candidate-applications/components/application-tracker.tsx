@@ -29,6 +29,7 @@ import { mutateWithCurrentCsrf } from "@/frontend/features/authentication/client
 import { NOTIFICATION_CHANGED_EVENT } from "@/frontend/features/notifications/client/use-notification-context-read";
 import { useOptionalJobInteraction } from "@/frontend/features/jobs/components/job-interaction-provider";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
+import { ANALYTICS_PLATFORM_TIME_ZONE } from "@/shared/contracts/analytics";
 import {
   applicationCopy,
   applicationErrorMessage,
@@ -59,7 +60,22 @@ function date(value: string, locale: ApplicationLocale) {
   return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-US", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: ANALYTICS_PLATFORM_TIME_ZONE,
   }).format(new Date(value));
+}
+
+function profileDate(
+  value: string | null,
+  locale: ApplicationLocale,
+  present: string,
+) {
+  if (!value) return present;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  if (!Number.isFinite(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-US", {
+    dateStyle: "medium",
+    timeZone: "UTC",
+  }).format(parsed);
 }
 
 function label(value: string, locale: ApplicationLocale) {
@@ -74,6 +90,13 @@ function label(value: string, locale: ApplicationLocale) {
     .toLowerCase()
     .replaceAll("_", " ")
     .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function availabilityLabel(
+  value: "EXPIRED" | "DELETED" | "HELD" | "TEMPORARILY_UNAVAILABLE",
+  copy: ApplicationCopy["tracker"],
+) {
+  return copy.availability[value];
 }
 
 function stageCopy(
@@ -95,6 +118,22 @@ function stageCopy(
 }
 
 function updateDescription(
+  update: ApplicationTracker["updates"][number],
+  copy: ApplicationCopy,
+) {
+  if (update.userMessage !== undefined && update.userMessage !== null)
+    return update.userMessage;
+  return copy.tracker.timelineDescriptions[update.eventCode];
+}
+
+function updateTitle(
+  update: ApplicationTracker["updates"][number],
+  copy: ApplicationCopy,
+) {
+  return copy.tracker.timelineTitles[update.eventCode];
+}
+
+function legacyUpdateDescription(
   update: ApplicationTracker["updates"][number],
   copy: ApplicationCopy,
 ) {
@@ -124,6 +163,8 @@ function updateIcon(update: ApplicationTracker["updates"][number]) {
     case "APPLIED":
       return <Check aria-hidden="true" />;
   }
+  if (update.eventCode === "FILE_PROCESSING_UPDATED")
+    return <FileText aria-hidden="true" />;
   if (update.kind === "UNDER_REVIEW") return <SearchCheck aria-hidden="true" />;
   if (update.kind === "INTERVIEW" || update.kind === "OUTCOME")
     return <Clock3 aria-hidden="true" />;
@@ -707,7 +748,17 @@ export function ApplicationTracker({
                 {[...tracker.updates].reverse().map((update, index) => (
                   <li
                     key={update.id}
-                    className={index === 0 ? "is-highlighted" : undefined}
+                    className={
+                      [
+                        index === 0 ? "is-highlighted" : "",
+                        update.eventCode === "FILE_PROCESSING_UPDATED"
+                          ? "is-technical"
+                          : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ") || undefined
+                    }
+                    data-event-code={update.eventCode}
                   >
                     <span
                       className={
@@ -719,8 +770,14 @@ export function ApplicationTracker({
                       {updateIcon(update)}
                     </span>
                     <div>
-                      <strong>{update.title}</strong>
-                      <p>{updateDescription(update, copy)}</p>
+                      <strong>{updateTitle(update, copy)}</strong>
+                      <p>
+                        {update.userMessage !== null &&
+                        update.userMessage !== undefined
+                          ? update.userMessage
+                          : updateDescription(update, copy) ||
+                            legacyUpdateDescription(update, copy)}
+                      </p>
                     </div>
                     <time dateTime={update.occurredAt}>
                       {date(update.occurredAt, locale)}
@@ -747,28 +804,275 @@ export function ApplicationTracker({
                 {trackerCopy.versionLocked}
               </span>
             </div>
+            {tracker.submission.job.available ? (
+              <div className="application-ui-disclosure application-ui-disclosure--compact">
+                <div>
+                  <strong>{trackerCopy.submittedEvidence}</strong>
+                  <p>
+                    {tracker.submission.job.title} ·{" "}
+                    {tracker.submission.job.companyName}
+                  </p>
+                  <p>
+                    {tracker.submission.job.location} ·{" "}
+                    {label(tracker.submission.job.employmentType!, locale)} ·{" "}
+                    {label(tracker.submission.job.experienceLevel!, locale)} ·{" "}
+                    {label(tracker.submission.job.workArrangement!, locale)}
+                  </p>
+                  <p>
+                    {trackerCopy.jobVersion}: {tracker.submission.job.version}
+                  </p>
+                  {tracker.submission.job.requiredSkills.length ? (
+                    <p>
+                      {trackerCopy.requiredSkills}:{" "}
+                      {tracker.submission.job.requiredSkills.join(", ")}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            ) : (
+              <p className="application-ui-muted">
+                {trackerCopy.snapshotUnavailable}
+              </p>
+            )}
+            <div className="application-ui-submission-evidence">
+              <section
+                className="application-ui-disclosure application-ui-disclosure--compact"
+                aria-labelledby="submitted-profile-title"
+              >
+                <div>
+                  <h3 id="submitted-profile-title">
+                    {trackerCopy.submittedProfile}
+                  </h3>
+                  {tracker.submission.profile.status === "AVAILABLE" ? (
+                    <>
+                      <dl className="application-ui-personal">
+                        <div>
+                          <dt>{trackerCopy.fullName}</dt>
+                          <dd>{tracker.submission.profile.fullName}</dd>
+                        </div>
+                        {tracker.submission.profile.headline ? (
+                          <div>
+                            <dt>{trackerCopy.headline}</dt>
+                            <dd>{tracker.submission.profile.headline}</dd>
+                          </div>
+                        ) : null}
+                      </dl>
+                      {tracker.submission.profile.summary ? (
+                        <p>
+                          <strong>{trackerCopy.summary}:</strong>{" "}
+                          {tracker.submission.profile.summary}
+                        </p>
+                      ) : null}
+                      {tracker.submission.profile.skills.length ? (
+                        <p>
+                          <strong>{trackerCopy.skills}:</strong>{" "}
+                          {tracker.submission.profile.skills.join(", ")}
+                        </p>
+                      ) : null}
+                      {tracker.submission.profile.experience.length ? (
+                        <div>
+                          <strong>{trackerCopy.experience}</strong>
+                          {tracker.submission.profile.experience.map(
+                            (entry) => (
+                              <p key={`${entry.title}:${entry.company}`}>
+                                {entry.title} · {entry.company} ·{" "}
+                                {profileDate(
+                                  entry.startDate,
+                                  locale,
+                                  trackerCopy.present,
+                                )}{" "}
+                                –{" "}
+                                {profileDate(
+                                  entry.endDate,
+                                  locale,
+                                  trackerCopy.present,
+                                )}
+                              </p>
+                            ),
+                          )}
+                        </div>
+                      ) : null}
+                      {tracker.submission.profile.education.length ? (
+                        <div>
+                          <strong>{trackerCopy.education}</strong>
+                          {tracker.submission.profile.education.map((entry) => (
+                            <p key={`${entry.institution}:${entry.degree}`}>
+                              {entry.institution} · {entry.degree}
+                              {entry.field ? ` · ${entry.field}` : ""}
+                            </p>
+                          ))}
+                        </div>
+                      ) : null}
+                    </>
+                  ) : (
+                    <p className="application-ui-muted" role="status">
+                      {trackerCopy.submittedProfileUnavailable}
+                    </p>
+                  )}
+                </div>
+              </section>
+              <section
+                className="application-ui-disclosure application-ui-disclosure--compact"
+                aria-labelledby="submitted-contact-title"
+              >
+                <div>
+                  <h3 id="submitted-contact-title">
+                    {trackerCopy.submittedContact}
+                  </h3>
+                  {tracker.submission.contact.status === "AVAILABLE" ? (
+                    <dl className="application-ui-personal">
+                      <div>
+                        <dt>{trackerCopy.fullName}</dt>
+                        <dd>{tracker.submission.contact.fullName}</dd>
+                      </div>
+                      <div>
+                        <dt>{trackerCopy.emailAddress}</dt>
+                        <dd>{tracker.submission.contact.email}</dd>
+                      </div>
+                      <div>
+                        <dt>{trackerCopy.phone}</dt>
+                        <dd>{tracker.submission.contact.phone}</dd>
+                      </div>
+                      {tracker.submission.contact.location ? (
+                        <div>
+                          <dt>{trackerCopy.location}</dt>
+                          <dd>{tracker.submission.contact.location}</dd>
+                        </div>
+                      ) : null}
+                    </dl>
+                  ) : (
+                    <p className="application-ui-muted" role="status">
+                      {trackerCopy.submittedContactUnavailable}
+                    </p>
+                  )}
+                </div>
+              </section>
+              <section
+                className="application-ui-disclosure application-ui-disclosure--compact"
+                aria-labelledby="submitted-consent-title"
+              >
+                <div>
+                  <h3 id="submitted-consent-title">
+                    {trackerCopy.submittedConsent}
+                  </h3>
+                  {tracker.submission.consent.status === "AVAILABLE" ? (
+                    <dl className="application-ui-personal">
+                      <div>
+                        <dt>{trackerCopy.consentVersion}</dt>
+                        <dd>{tracker.submission.consent.version}</dd>
+                      </div>
+                      <div>
+                        <dt>{trackerCopy.consentedAt}</dt>
+                        <dd>
+                          {date(tracker.submission.consent.consentedAt, locale)}
+                        </dd>
+                      </div>
+                    </dl>
+                  ) : (
+                    <p className="application-ui-muted" role="status">
+                      {trackerCopy.submittedConsentUnavailable}
+                    </p>
+                  )}
+                </div>
+              </section>
+            </div>
             <ul className="application-ui-file-list">
-              {tracker.files.map((file) => (
-                <li key={file.versionId}>
-                  <span className="application-ui-file-icon">
-                    <FileText aria-hidden="true" />
-                  </span>
-                  <span>
-                    <strong>{file.displayName}</strong>
-                  </span>
-                  <button
-                    className="application-ui-file-action"
-                    type="button"
-                    disabled
-                    aria-label={trackerCopy.viewUnavailableFor(
-                      file.displayName,
-                    )}
-                  >
-                    {trackerCopy.viewUnavailable}
-                  </button>
-                </li>
-              ))}
+              {[
+                tracker.submission.cv,
+                tracker.submission.coverLetter.kind === "FILE"
+                  ? tracker.submission.coverLetter
+                  : null,
+              ]
+                .filter(
+                  (item): item is NonNullable<typeof item> => item !== null,
+                )
+                .map((item) => {
+                  const file = item.file;
+                  const kind =
+                    item === tracker.submission.cv ? "cv" : "cover-letter";
+                  return (
+                    <li key={`${kind}:${file?.versionId ?? "unavailable"}`}>
+                      <span className="application-ui-file-icon">
+                        <FileText aria-hidden="true" />
+                      </span>
+                      <span>
+                        <strong>
+                          {file?.displayName ??
+                            (kind === "cv"
+                              ? copy.applicationDetail.cv
+                              : trackerCopy.coverLetter)}
+                        </strong>
+                      </span>
+                      {item.availability === "AVAILABLE" && file ? (
+                        <span>
+                          {item.previewSupported ? (
+                            <>
+                              <a
+                                className="application-ui-file-action"
+                                href={`/api/candidate/applications/${tracker.applicationId}/documents/${kind}`}
+                              >
+                                {trackerCopy.open}
+                              </a>{" "}
+                            </>
+                          ) : null}
+                          <a
+                            className="application-ui-file-action"
+                            href={`/api/candidate/applications/${tracker.applicationId}/documents/${kind}?download=1`}
+                          >
+                            {trackerCopy.download}
+                          </a>
+                        </span>
+                      ) : (
+                        <span className="application-ui-muted" role="status">
+                          {item.availability === "AVAILABLE"
+                            ? trackerCopy.documentUnavailable
+                            : availabilityLabel(item.availability, trackerCopy)}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
             </ul>
+            {tracker.submission.cv.file ? (
+              <p className="application-ui-muted">
+                {trackerCopy.cvVersion}: {tracker.submission.cv.file.version}
+              </p>
+            ) : null}
+            {tracker.submission.coverLetter.kind === "TEXT" ? (
+              <div className="application-ui-disclosure application-ui-disclosure--compact">
+                <strong>{trackerCopy.coverLetter}</strong>
+                <p>
+                  {tracker.submission.coverLetter.text ??
+                    (tracker.submission.coverLetter.availability === "AVAILABLE"
+                      ? trackerCopy.documentUnavailable
+                      : availabilityLabel(
+                          tracker.submission.coverLetter.availability,
+                          trackerCopy,
+                        ))}
+                </p>
+              </div>
+            ) : null}
+            {tracker.submission.coverLetter.kind === "NONE" ? (
+              <p className="application-ui-muted">
+                {trackerCopy.coverLetter}: {trackerCopy.notProvided}
+              </p>
+            ) : null}
+            {tracker.submission.answers.length ? (
+              <div className="application-ui-disclosure application-ui-disclosure--compact">
+                <strong>{trackerCopy.screeningAnswers}</strong>
+                {tracker.submission.answers.map((answer) => (
+                  <p key={answer.question}>
+                    {answer.question}: {String(answer.answer)}
+                  </p>
+                ))}
+              </div>
+            ) : null}
+            {tracker.submission.message ? (
+              <div className="application-ui-disclosure application-ui-disclosure--compact">
+                <strong>{trackerCopy.message}</strong>
+                <p>{tracker.submission.message}</p>
+              </div>
+            ) : null}
             <div className="application-ui-disclosure application-ui-disclosure--compact">
               <LockKeyhole aria-hidden="true" />
               <p>
@@ -782,7 +1086,9 @@ export function ApplicationTracker({
         <aside className="application-ui__sidebar">
           <section className="application-ui-card application-ui-job-card">
             <span className="application-ui-job-card__eyebrow">
-              {trackerCopy.applicationEyebrow}
+              {tracker.job.jobAvailable
+                ? trackerCopy.currentListing
+                : trackerCopy.applicationEyebrow}
             </span>
             <h2>{tracker.job.title}</h2>
             <p>{tracker.job.companyName}</p>
@@ -794,6 +1100,18 @@ export function ApplicationTracker({
               <span>{label(tracker.job.employmentType, locale)}</span>
               <span>{label(tracker.job.experienceLevel, locale)}</span>
             </div>
+            {tracker.job.jobAvailable && tracker.job.slug ? (
+              <Link
+                className="application-ui-file-action"
+                href={`/jobs/${encodeURIComponent(tracker.job.slug)}`}
+              >
+                {trackerCopy.currentListing}
+              </Link>
+            ) : (
+              <p className="application-ui-muted" role="status">
+                {trackerCopy.jobNoLongerAvailable}
+              </p>
+            )}
             <div className="application-ui-job-info">
               <div>
                 <span>{trackerCopy.submitted}</span>

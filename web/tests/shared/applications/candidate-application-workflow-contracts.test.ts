@@ -18,7 +18,9 @@ const file = {
 
 describe("candidate application workflow contracts", () => {
   it("models cover letters as one discriminated text-or-file field", () => {
-    expect(coverLetterDraftSchema.parse({ kind: "TEXT", text: "Hello" })).toEqual({
+    expect(
+      coverLetterDraftSchema.parse({ kind: "TEXT", text: "Hello" }),
+    ).toEqual({
       kind: "TEXT",
       text: "Hello",
     });
@@ -53,7 +55,11 @@ describe("candidate application workflow contracts", () => {
         state: "RECEIVED",
         progressPercent: 0,
         steps: [
-          { code: "APPLICATION_RECEIVED", status: "COMPLETE", timestamp: "2026-08-17T00:00:00.000Z" },
+          {
+            code: "APPLICATION_RECEIVED",
+            status: "COMPLETE",
+            timestamp: "2026-08-17T00:00:00.000Z",
+          },
           { code: "CHECKING_FILES", status: "PENDING", timestamp: null },
           { code: "SENT_TO_RECRUITER", status: "PENDING", timestamp: null },
         ],
@@ -62,6 +68,48 @@ describe("candidate application workflow contracts", () => {
       },
       updates: [],
       files: [applicationFileDescriptorSchema.parse(file)],
+      submission: {
+        profile: {
+          status: "AVAILABLE",
+          fullName: "Candidate",
+          headline: null,
+          summary: null,
+          skills: [],
+          experience: [],
+          education: [],
+        },
+        contact: {
+          status: "AVAILABLE",
+          fullName: "Candidate",
+          email: "candidate@example.com",
+          phone: "0901234567",
+          location: null,
+        },
+        consent: {
+          status: "AVAILABLE",
+          version: "2026-08-01",
+          consentedAt: "2026-08-17T00:00:00.000Z",
+        },
+        job: {
+          available: true,
+          title: "Role",
+          companyName: "Company",
+          location: "Remote",
+          employmentType: "FULL_TIME",
+          experienceLevel: "MID",
+          workArrangement: "REMOTE",
+          requiredSkills: [],
+          version: 1,
+        },
+        cv: {
+          availability: "AVAILABLE",
+          file: applicationFileDescriptorSchema.parse(file),
+          previewSupported: true,
+        },
+        coverLetter: { kind: "NONE", availability: "NOT_PROVIDED" },
+        answers: [],
+        message: null,
+      },
       notificationPreference: {
         emailEnabled: true,
         inAppEnabled: true,

@@ -15,10 +15,13 @@ export async function GET(
   try {
     const account = await requireAccountRequest(request);
     const { applicationId } = await context.params;
+    const companyId =
+      new URL(request.url).searchParams.get("companyId") ?? undefined;
     return accountJson(
       await new TeamApplicationOwnerService().get(
         account.userId,
         applicationId,
+        companyId,
       ),
     );
   } catch (error) {

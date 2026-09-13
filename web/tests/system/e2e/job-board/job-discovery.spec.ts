@@ -31,15 +31,26 @@ test("browses, filters, opens public details, and remains usable at the project 
 }) => {
   await page.goto("/jobs");
   await expect(page.getByRole("heading", { name: "Jobs" })).toBeVisible();
-  const isMobile =
-    (page.viewportSize()?.width ?? Number.POSITIVE_INFINITY) <= 320;
+  const usesMobileFilterDrawer =
+    (page.viewportSize()?.width ?? Number.POSITIVE_INFINITY) <= 720;
   await page
     .getByRole("combobox", {
       name: "Search jobs, skills, or companies",
     })
     .fill(fixture.jobs.active.title);
-  if (!isMobile)
-    await page.getByLabel("Work arrangement").selectOption("HYBRID");
+  if (usesMobileFilterDrawer) {
+    await page.getByRole("button", { name: /^Filters/u }).click();
+    await expect(
+      page.getByRole("dialog", { name: "Filters", exact: true }),
+    ).toBeVisible();
+  }
+  await page.getByLabel("Work arrangement").selectOption("HYBRID");
+  if (usesMobileFilterDrawer) {
+    await page
+      .getByRole("dialog", { name: "Filters", exact: true })
+      .getByRole("button", { name: "Close filters", exact: true })
+      .click();
+  }
   await page.getByRole("button", { name: "Search jobs", exact: true }).click();
   await expect(page).toHaveURL(/q=/u);
   await expect(

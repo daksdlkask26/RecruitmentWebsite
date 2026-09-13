@@ -41,7 +41,9 @@ export class TokenProtector {
     ].join(".");
   }
   unseal(value: string): string {
-    const [version, iv, tag, ciphertext] = value.split(".");
+    const parts = value.split(".");
+    if (parts.length !== 4) throw new Error("INVALID_PROTECTED_TOKEN");
+    const [version, iv, tag, ciphertext] = parts;
     if (version !== "v1" || !iv || !tag || !ciphertext)
       throw new Error("INVALID_PROTECTED_TOKEN");
     const decipher = createDecipheriv(

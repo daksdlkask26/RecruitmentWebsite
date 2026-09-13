@@ -18,6 +18,12 @@ describe("Owner Team Application contract", () => {
           invitationEmailStatus: "SENT",
         },
       ],
+      nextCursor: null,
+      hasMore: false,
+      total: 1,
+      pendingCount: 1,
+      filter: { status: null, role: null },
+      sort: "SUBMITTED_DESC",
     });
     expect(result.items[0]?.cvByteSize).toBe(5_000_000);
   });

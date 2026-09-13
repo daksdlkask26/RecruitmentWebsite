@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { CandidateApplicationTrackingService } from "@/backend/candidate-applications/candidate-application-tracking-service";
 import { CandidateApplicationSubmissionService } from "@/backend/candidate-applications/candidate-application-submission-service";
 import {
@@ -13,17 +12,11 @@ import {
 } from "@/backend/security/job-request-boundary";
 import {
   applicationSubmitCommandSchema,
+  candidateApplicationListQuerySchema,
   candidateApplicationListResponseSchema,
 } from "@/shared/contracts/candidate-applications";
 import { idempotencyKeySchema } from "@/shared/contracts/jobs/actions";
 import { withServerTiming } from "@/backend/observability/server-timing";
-
-const querySchema = z
-  .object({
-    cursor: z.string().min(1).max(128).optional(),
-    limit: z.coerce.number().int().min(1).max(100).default(24),
-  })
-  .strict();
 
 function errorResponse(error: unknown) {
   return jobErrorResponse(candidateApplicationError(error));
@@ -34,7 +27,7 @@ export async function GET(request: Request) {
   try {
     const actor = await requireJobActor(request, { mutation: false });
     const authenticatedAt = performance.now();
-    const parsed = querySchema.safeParse(
+    const parsed = candidateApplicationListQuerySchema.safeParse(
       Object.fromEntries(new URL(request.url).searchParams.entries()),
     );
     if (!parsed.success) {

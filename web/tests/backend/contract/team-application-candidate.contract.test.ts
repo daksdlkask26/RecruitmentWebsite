@@ -24,6 +24,11 @@ describe("Candidate Team Application contract", () => {
   it("returns candidate-safe status fields", () => {
     const response = candidateTeamApplicationListSchema.parse({
       items: [teamApplicationFixture()],
+      nextCursor: null,
+      hasMore: false,
+      total: 1,
+      filter: { status: null, role: null },
+      sort: "SUBMITTED_DESC",
     });
     expect(response.items[0]).toMatchObject({
       companyId: "company-team-028",
