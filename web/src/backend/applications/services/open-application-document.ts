@@ -24,6 +24,130 @@ export class OpenApplicationDocumentService {
     private readonly stageService = new ApplicationStageService(),
   ) {}
 
+  async executeForCandidate(input: {
+    candidateUserId: string;
+    applicationId: string;
+    kind: "cv" | "cover-letter";
+    preview: boolean;
+    streamPolicy?: "REQUIRED" | "SKIP_PDF";
+    now?: Date;
+  }) {
+    const document = await this.repository.findDocument({
+      candidateUserId: input.candidateUserId,
+      applicationId: input.applicationId,
+      kind: input.kind,
+      now: input.now,
+    });
+    if (!document) throw new OpenApplicationDocumentError("UNAVAILABLE");
+    return this.openDocument(input, document);
+  }
+
+  private async openDocument(
+    input: {
+      kind: "cv" | "cover-letter";
+      preview: boolean;
+      streamPolicy?: "REQUIRED" | "SKIP_PDF";
+    },
+    document: NonNullable<
+      Awaited<ReturnType<ApplicationRepositoryPort["findDocument"]>>
+    >,
+  ) {
+    if (input.preview && !document.previewSupported) {
+      throw new OpenApplicationDocumentError("PREVIEW_UNAVAILABLE");
+    }
+    if (document.kind === "cv") {
+      if (
+        document.scanStatus !== "CLEAN" ||
+        !document.sourceArtifactId ||
+        !document.scanAssessmentId ||
+        !document.uploadId ||
+        !document.candidateUserId
+      )
+        throw new OpenApplicationDocumentError("UNAVAILABLE");
+      try {
+        await new CvSafetyEvidenceService().assertCvArtifactSafeForUse({
+          candidateUserId: document.candidateUserId,
+          uploadId: document.uploadId,
+          artifactId: document.sourceArtifactId,
+          assessmentId: document.scanAssessmentId,
+          allowedPurposes: [
+            "PROFILE_IMPORT",
+            "PROFILE_DIRECT",
+            "JOB_APPLICATION_DIRECT",
+          ],
+        });
+      } catch {
+        throw new OpenApplicationDocumentError("UNAVAILABLE");
+      }
+    }
+    if (document.text !== null)
+      return Object.freeze({ document, stream: null });
+    if (
+      input.streamPolicy === "SKIP_PDF" &&
+      document.mediaType === "application/pdf"
+    ) {
+      return Object.freeze({ document, stream: null });
+    }
+    if (document.kind === "cv") {
+      try {
+        const opened = await new OpenSafeCvArtifactService().open({
+          candidateUserId: document.candidateUserId!,
+          uploadId: document.uploadId!,
+          artifactId: document.sourceArtifactId!,
+          assessmentId: document.scanAssessmentId!,
+          allowedPurposes: [
+            "PROFILE_IMPORT",
+            "PROFILE_DIRECT",
+            "JOB_APPLICATION_DIRECT",
+          ],
+        });
+        if (
+          opened.byteLength !== document.byteLength ||
+          document.contentVersion?.toLowerCase() !==
+            opened.evidence.checksumSha256.toLowerCase()
+        ) {
+          await opened.dispose();
+          throw new OpenApplicationDocumentError("UNAVAILABLE");
+        }
+        const stream = (async function* () {
+          try {
+            for await (const chunk of opened.openStream()) yield chunk;
+          } finally {
+            await opened.dispose();
+          }
+        })();
+        return Object.freeze({ document, stream });
+      } catch (error) {
+        if (error instanceof OpenApplicationDocumentError) throw error;
+        throw new OpenApplicationDocumentError("UNAVAILABLE");
+      }
+    }
+    if (!document.storageKey)
+      throw new OpenApplicationDocumentError("UNAVAILABLE");
+    try {
+      const storage = this.storage ?? createApplicationDocumentStorage();
+      await storage.assertReady();
+      const source = storage.open(document.storageKey, document.byteLength);
+      const iterator = source[Symbol.asyncIterator]();
+      const first = await iterator.next();
+      const stream = (async function* () {
+        try {
+          if (!first.done) yield first.value;
+          while (true) {
+            const next = await iterator.next();
+            if (next.done) return;
+            yield next.value;
+          }
+        } finally {
+          await iterator.return?.();
+        }
+      })();
+      return Object.freeze({ document, stream });
+    } catch {
+      throw new OpenApplicationDocumentError("UNAVAILABLE");
+    }
+  }
+
   private async markViewed(input: {
     userId: string;
     sessionId?: string;

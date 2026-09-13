@@ -57,7 +57,8 @@ export type ApplicationRepositoryPort = Readonly<{
     now?: Date;
   }): Promise<ApplicationPage>;
   findDocument(input: {
-    jobId: string;
+    jobId?: string;
+    candidateUserId?: string;
     applicationId: string;
     kind: "cv" | "cover-letter";
     now?: Date;

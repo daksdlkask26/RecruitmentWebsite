@@ -131,6 +131,30 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
     return this.applicationStorage ?? createApplicationDocumentStorage();
   }
 
+  private async submitSerializable<T>(
+    operation: (transaction: Prisma.TransactionClient) => Promise<T>,
+  ): Promise<T> {
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        return await this.db.$transaction(operation, {
+          isolationLevel: "Serializable",
+        });
+      } catch (error) {
+        const retryable =
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === "P2034";
+        if (!retryable || attempt === maxAttempts) throw error;
+        // Only the callback is retried. Its writes are all in the serializable
+        // transaction, so no provider delivery or post-commit work repeats.
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, attempt * 10);
+        });
+      }
+    }
+    throw new Error("APPLICATION_SUBMISSION_RETRY_EXHAUSTED");
+  }
+
   private markArtifactsOwned(input: {
     directCv?: DirectApplicationCv;
     directCoverLetter?: DirectApplicationCv;
@@ -162,7 +186,10 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
       for (const artifact of artifacts) {
         await this.db.$transaction(async (tx) => {
           await acquireCompanyDeletionObjectLock(tx, artifact.storageKey);
-          await assertCompanyDeletionObjectCanBeReferenced(tx, artifact.storageKey);
+          await assertCompanyDeletionObjectCanBeReferenced(
+            tx,
+            artifact.storageKey,
+          );
           await tx.applicationArtifactPromotion.create({
             data: {
               id: artifact.promotionId,
@@ -775,553 +802,561 @@ export class PrismaJobApplicationRepository implements ApplicationRepositoryPort
         .filter((key): key is string => Boolean(key))
         .filter((key, index, keys) => keys.indexOf(key) === index)
         .sort();
-      const result = await this.db.$transaction(
-        async (tx) => {
-          for (const objectKey of objectKeysToCommit) {
-            await acquireCompanyDeletionObjectLock(tx, objectKey);
-            await assertCompanyDeletionObjectCanBeReferenced(tx, objectKey);
-          }
-          const sameKey = await tx.jobApplication.findUnique({
-            where: {
-              candidateUserId_idempotencyKey: {
-                candidateUserId: input.candidateUserId,
-                idempotencyKey: input.idempotencyKey,
-              },
+      const result = await this.submitSerializable(async (tx) => {
+        for (const objectKey of objectKeysToCommit) {
+          await acquireCompanyDeletionObjectLock(tx, objectKey);
+          await assertCompanyDeletionObjectCanBeReferenced(tx, objectKey);
+        }
+        const sameKey = await tx.jobApplication.findUnique({
+          where: {
+            candidateUserId_idempotencyKey: {
+              candidateUserId: input.candidateUserId,
+              idempotencyKey: input.idempotencyKey,
             },
-          });
-          if (sameKey) {
-            if (
-              sameKey.submissionBindingDigest !== input.submissionBindingDigest
-            )
-              throw new ApplicationRepositoryError("IDEMPOTENCY_KEY_REUSED");
-            return { application: outcome(sameKey, false), created: false };
-          }
-          await tx.$queryRaw`
+          },
+        });
+        if (sameKey) {
+          if (sameKey.submissionBindingDigest !== input.submissionBindingDigest)
+            throw new ApplicationRepositoryError("IDEMPOTENCY_KEY_REUSED");
+          return { application: outcome(sameKey, false), created: false };
+        }
+        await tx.$queryRaw`
             SELECT "userId"
             FROM "CandidateIdentity"
             WHERE "userId" = ${input.candidateUserId}
             FOR UPDATE
           `;
-          const duplicate = await tx.jobApplication.findFirst({
+        const duplicate = await tx.jobApplication.findFirst({
+          where: {
+            candidateUserId: input.candidateUserId,
+            jobPostingId: input.jobId,
+            withdrawalOutcome: null,
+            stage: { not: "REJECTED" },
+          },
+          orderBy: [{ submittedAt: "desc" }, { id: "desc" }],
+        });
+        if (duplicate && isActiveApplication(duplicate))
+          return { application: outcome(duplicate, false), created: false };
+
+        const attemptCounter = await tx.jobApplicationAttemptCounter.findUnique(
+          {
             where: {
-              candidateUserId: input.candidateUserId,
-              jobPostingId: input.jobId,
-              withdrawalOutcome: null,
-              stage: { not: "REJECTED" },
-            },
-            orderBy: [{ submittedAt: "desc" }, { id: "desc" }],
-          });
-          if (duplicate && isActiveApplication(duplicate))
-            return { application: outcome(duplicate, false), created: false };
-
-          const attemptCounter =
-            await tx.jobApplicationAttemptCounter.findUnique({
-              where: {
-                candidateUserId_jobPostingId: {
-                  candidateUserId: input.candidateUserId,
-                  jobPostingId: input.jobId,
-                },
-              },
-              select: { applicationCount: true },
-            });
-          const currentApplicationCount = attemptCounter?.applicationCount ?? 0;
-          if (hasReachedApplicationLimit(currentApplicationCount)) {
-            throw new ApplicationRepositoryError("APPLICATION_MAX_ATTEMPTS");
-          }
-          const nextApplicationAttemptNumber = currentApplicationCount + 1;
-
-          if (input.draftId) {
-            const draft = await tx.candidateApplicationDraft.findFirst({
-              where: {
-                id: input.draftId,
+              candidateUserId_jobPostingId: {
                 candidateUserId: input.candidateUserId,
                 jobPostingId: input.jobId,
-                expiresAt: { gt: input.occurredAt },
               },
-              select: {
-                id: true,
-                revision: true,
-                confirmationAccepted: true,
-              },
-            });
-            if (
-              !draft ||
-              draft.revision !== input.expectedDraftRevision ||
-              !draft.confirmationAccepted
-            ) {
-              throw new ApplicationRepositoryError(
-                !draft || draft.revision !== input.expectedDraftRevision
-                  ? "APPLICATION_DRAFT_CONFLICT"
-                  : "APPLICATION_CONFIRMATION_REQUIRED",
-              );
-            }
-          }
+            },
+            select: { applicationCount: true },
+          },
+        );
+        const currentApplicationCount = attemptCounter?.applicationCount ?? 0;
+        if (hasReachedApplicationLimit(currentApplicationCount)) {
+          throw new ApplicationRepositoryError("APPLICATION_MAX_ATTEMPTS");
+        }
+        const nextApplicationAttemptNumber = currentApplicationCount + 1;
 
-          const candidate = await tx.candidateIdentity.findFirst({
-            where: { userId: input.candidateUserId, user: { state: "ACTIVE" } },
-            include: {
-              user: { select: { name: true, email: true } },
-              profile: {
-                include: {
-                  skills: {
-                    orderBy: { position: "asc" },
-                    include: { skill: true },
-                  },
-                  experiences: { orderBy: { position: "asc" } },
-                  education: { orderBy: { position: "asc" } },
-                },
-              },
+        if (input.draftId) {
+          const draft = await tx.candidateApplicationDraft.findFirst({
+            where: {
+              id: input.draftId,
+              candidateUserId: input.candidateUserId,
+              jobPostingId: input.jobId,
+              expiresAt: { gt: input.occurredAt },
+            },
+            select: {
+              id: true,
+              revision: true,
+              confirmationAccepted: true,
             },
           });
           if (
-            input.directCv &&
-            input.command.cvId !== DIRECT_APPLICATION_CV_ID
+            !draft ||
+            draft.revision !== input.expectedDraftRevision ||
+            !draft.confirmationAccepted
           ) {
-            throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
-          }
-          const cv = input.directCv
-            ? await tx.candidateCv.create({
-                data: {
-                  id: input.directCv.id,
-                  candidateUserId: input.candidateUserId,
-                  displayName: input.directCv.displayName,
-                  fileName: input.directCv.fileName,
-                  mimeType: input.directCv.mimeType,
-                  byteSize: input.directCv.byteSize,
-                  storageKey: input.directCv.storageKey,
-                  checksumSha256: input.directCv.checksumSha256,
-                  version: 1,
-                  confirmedAt: input.occurredAt,
-                },
-              })
-            : await tx.candidateCv.findUnique({
-                where: { id: input.command.cvId },
-              });
-          if (!cv || cv.candidateUserId !== input.candidateUserId) {
-            throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
-          }
-          // A CV document must carry the exact evidence pair that was opened
-          // above. The nullable columns exist only for legacy rows; they are
-          // never a valid fallback for a newly committed application.
-          if (!cv.sourceArtifactId || !cv.scanAssessmentId) {
-            throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
-          }
-          const job = await tx.jobPosting.findFirst({
-            where: {
-              id: input.jobId,
-              status: "ACTIVE",
-              approvedAt: { not: null },
-              publishedAt: { not: null, lte: input.occurredAt },
-              OR: [
-                { applicationDeadline: null },
-                { applicationDeadline: { gt: input.occurredAt } },
-              ],
-              company: { verifiedAt: { not: null } },
-            },
-            include: {
-              company: { select: { id: true, displayName: true } },
-              reviewAggregate: { select: { jobId: true } },
-              skills: {
-                where: { required: true },
-                orderBy: { position: "asc" },
-                select: { displayName: true },
-              },
-              questions: {
-                where: { active: true },
-                orderBy: { position: "asc" },
-              },
-            },
-          });
-          if (!candidate?.profile)
             throw new ApplicationRepositoryError(
-              "APPLICATION_PROFILE_INCOMPLETE",
+              !draft || draft.revision !== input.expectedDraftRevision
+                ? "APPLICATION_DRAFT_CONFLICT"
+                : "APPLICATION_CONFIRMATION_REQUIRED",
             );
-          if (!job)
-            throw new ApplicationRepositoryError(
-              "JOB_NO_LONGER_ACCEPTING_APPLICATIONS",
-            );
-          const prepared = prepareApplicationSubmission(
-            {
-              candidate: {
-                userId: candidate.userId,
-                name: candidate.user.name,
-                email: candidate.user.email,
-                headline: candidate.profile.headline,
-                summary: candidate.profile.summary,
-                phone: candidate.profile.phone,
-                location: candidate.profile.location,
-                skills: candidate.profile.skills.map((item) => ({
-                  id: item.skillId,
-                  label: item.displayName,
-                })),
-                experience: candidate.profile.experiences.map((item) => ({
-                  title: item.title,
-                  company: item.company,
-                  startDate: item.startDate,
-                  endDate: item.endDate,
-                })),
-                education: candidate.profile.education.map((item) => ({
-                  institution: item.institution,
-                  degree: item.degree,
-                  field: item.field,
-                })),
-              },
-              cv,
-              job: {
-                id: job.id,
-                version: job.version,
-                title: job.title,
-                companyId: job.company.id,
-                companyName: job.company.displayName,
-                location: job.location,
-                employmentType: job.employmentType,
-                experienceLevel: job.experienceLevel,
-                workArrangement: job.workArrangement,
-                requiredSkills: job.skills.map((skill) => skill.displayName),
-              },
-              questions: input.draftId
-                ? []
-                : job.questions.map((question) => ({
-                    id: question.id,
-                    prompt: question.prompt,
-                    description: question.description,
-                    kind: question.kind,
-                    required: question.required,
-                    options: Array.isArray(question.options)
-                      ? question.options.filter(
-                          (value): value is string => typeof value === "string",
-                        )
-                      : null,
-                    version: question.version,
-                  })),
-            },
-            {
-              ...input.command,
-              // The transport sentinel was checked before creating this CV.
-              // Domain validation must compare against the concrete owned row,
-              // not reject the materialized application-CV bridge.
-              ...(input.directCv ? { cvId: cv.id } : {}),
-              ...(input.directCoverLetter ? { coverLetter: null } : {}),
-            },
-            input.activeConsentVersion,
-            input.occurredAt,
-          );
-          const cvFileRef =
-            input.command.cvFileRef &&
-            input.command.cvFileRef !== input.command.cvId
-              ? input.command.cvFileRef
-              : prepared.cvSnapshot.storageKey;
-          if (attemptCounter) {
-            const counterUpdated =
-              await tx.jobApplicationAttemptCounter.updateMany({
-                where: {
-                  candidateUserId: input.candidateUserId,
-                  jobPostingId: input.jobId,
-                  applicationCount: currentApplicationCount,
+          }
+        }
+
+        const candidate = await tx.candidateIdentity.findFirst({
+          where: { userId: input.candidateUserId, user: { state: "ACTIVE" } },
+          include: {
+            user: { select: { name: true, email: true } },
+            profile: {
+              include: {
+                skills: {
+                  orderBy: { position: "asc" },
+                  include: { skill: true },
                 },
-                data: { applicationCount: nextApplicationAttemptNumber },
-              });
-            if (counterUpdated.count !== 1) {
-              throw new ApplicationRepositoryError(
-                "APPLICATION_ATTEMPT_COUNTER_CONFLICT",
-              );
-            }
-          } else {
-            await tx.jobApplicationAttemptCounter.create({
+                experiences: { orderBy: { position: "asc" } },
+                education: { orderBy: { position: "asc" } },
+              },
+            },
+          },
+        });
+        if (input.directCv && input.command.cvId !== DIRECT_APPLICATION_CV_ID) {
+          throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
+        }
+        const cv = input.directCv
+          ? await tx.candidateCv.create({
               data: {
+                id: input.directCv.id,
+                candidateUserId: input.candidateUserId,
+                displayName: input.directCv.displayName,
+                fileName: input.directCv.fileName,
+                mimeType: input.directCv.mimeType,
+                byteSize: input.directCv.byteSize,
+                storageKey: input.directCv.storageKey,
+                checksumSha256: input.directCv.checksumSha256,
+                version: 1,
+                confirmedAt: input.occurredAt,
+              },
+            })
+          : await tx.candidateCv.findUnique({
+              where: { id: input.command.cvId },
+            });
+        if (!cv || cv.candidateUserId !== input.candidateUserId) {
+          throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
+        }
+        // A CV document must carry the exact evidence pair that was opened
+        // above. The nullable columns exist only for legacy rows; they are
+        // never a valid fallback for a newly committed application.
+        if (!cv.sourceArtifactId || !cv.scanAssessmentId) {
+          throw new ApplicationRepositoryError("APPLICATION_CV_INELIGIBLE");
+        }
+        const job = await tx.jobPosting.findFirst({
+          where: {
+            id: input.jobId,
+            status: "ACTIVE",
+            approvedAt: { not: null },
+            publishedAt: { not: null, lte: input.occurredAt },
+            OR: [
+              { applicationDeadline: null },
+              { applicationDeadline: { gt: input.occurredAt } },
+            ],
+            company: { verifiedAt: { not: null } },
+          },
+          include: {
+            company: { select: { id: true, displayName: true } },
+            reviewAggregate: { select: { jobId: true } },
+            skills: {
+              where: { required: true },
+              orderBy: { position: "asc" },
+              select: { displayName: true },
+            },
+            questions: {
+              where: { active: true },
+              orderBy: { position: "asc" },
+            },
+          },
+        });
+        if (!candidate?.profile)
+          throw new ApplicationRepositoryError(
+            "APPLICATION_PROFILE_INCOMPLETE",
+          );
+        if (!job)
+          throw new ApplicationRepositoryError(
+            "JOB_NO_LONGER_ACCEPTING_APPLICATIONS",
+          );
+        const prepared = prepareApplicationSubmission(
+          {
+            candidate: {
+              userId: candidate.userId,
+              name: candidate.user.name,
+              email: candidate.user.email,
+              headline: candidate.profile.headline,
+              summary: candidate.profile.summary,
+              phone: candidate.profile.phone,
+              location: candidate.profile.location,
+              skills: candidate.profile.skills.map((item) => ({
+                id: item.skillId,
+                label: item.displayName,
+              })),
+              experience: candidate.profile.experiences.map((item) => ({
+                title: item.title,
+                company: item.company,
+                startDate: item.startDate,
+                endDate: item.endDate,
+              })),
+              education: candidate.profile.education.map((item) => ({
+                institution: item.institution,
+                degree: item.degree,
+                field: item.field,
+              })),
+            },
+            cv,
+            job: {
+              id: job.id,
+              version: job.version,
+              title: job.title,
+              companyId: job.company.id,
+              companyName: job.company.displayName,
+              location: job.location,
+              employmentType: job.employmentType,
+              experienceLevel: job.experienceLevel,
+              workArrangement: job.workArrangement,
+              requiredSkills: job.skills.map((skill) => skill.displayName),
+            },
+            questions: input.draftId
+              ? []
+              : job.questions.map((question) => ({
+                  id: question.id,
+                  prompt: question.prompt,
+                  description: question.description,
+                  kind: question.kind,
+                  required: question.required,
+                  options: Array.isArray(question.options)
+                    ? question.options.filter(
+                        (value): value is string => typeof value === "string",
+                      )
+                    : null,
+                  version: question.version,
+                })),
+          },
+          {
+            ...input.command,
+            // The transport sentinel was checked before creating this CV.
+            // Domain validation must compare against the concrete owned row,
+            // not reject the materialized application-CV bridge.
+            ...(input.directCv ? { cvId: cv.id } : {}),
+            ...(input.directCoverLetter ? { coverLetter: null } : {}),
+          },
+          input.activeConsentVersion,
+          input.occurredAt,
+        );
+        const cvFileRef =
+          input.command.cvFileRef &&
+          input.command.cvFileRef !== input.command.cvId
+            ? input.command.cvFileRef
+            : prepared.cvSnapshot.storageKey;
+        if (attemptCounter) {
+          const counterUpdated =
+            await tx.jobApplicationAttemptCounter.updateMany({
+              where: {
                 candidateUserId: input.candidateUserId,
                 jobPostingId: input.jobId,
-                applicationCount: nextApplicationAttemptNumber,
+                applicationCount: currentApplicationCount,
               },
+              data: { applicationCount: nextApplicationAttemptNumber },
             });
+          if (counterUpdated.count !== 1) {
+            throw new ApplicationRepositoryError(
+              "APPLICATION_ATTEMPT_COUNTER_CONFLICT",
+            );
           }
-          const created = await tx.jobApplication.create({
+        } else {
+          await tx.jobApplicationAttemptCounter.create({
             data: {
               candidateUserId: input.candidateUserId,
               jobPostingId: input.jobId,
-              applicationAttemptNumber: nextApplicationAttemptNumber,
-              selectedCvId: cv.id,
-              cvFileRef,
-              contactSnapshot: input.command.contactSnapshot
-                ? (input.command.contactSnapshot as Prisma.InputJsonValue)
-                : undefined,
-              contactConsent: {
-                create: {
-                  sharedAt:
-                    input.command.shareContactWithRecruiter === true
-                      ? input.occurredAt
-                      : null,
-                  withdrawnAt:
-                    input.command.shareContactWithRecruiter === true
-                      ? null
-                      : input.occurredAt,
-                  version: 1,
-                },
-              },
-              aiAnalysisConsent: input.command.aiAnalysisConsent ?? false,
-              // Group 1 does not calculate or infer a score. Later scoring
-              // groups own the versioned evaluation records.
-              aiMatchScore: null,
-              scoringStatus: input.command.aiAnalysisConsent
-                ? "PENDING"
-                : "NOT_REQUESTED",
-              stage: "APPLIED",
-              coverLetter: prepared.coverLetter,
-              profileSnapshot:
-                prepared.profileSnapshot as Prisma.InputJsonValue,
-              cvSnapshot: prepared.cvSnapshot as Prisma.InputJsonValue,
-              jobSnapshot: prepared.jobSnapshot as Prisma.InputJsonValue,
-              consentVersion: input.command.consentVersion,
-              consentedAt: prepared.consentedAt,
-              idempotencyKey: input.idempotencyKey,
-              submissionBindingDigest: input.submissionBindingDigest,
-              submittedAt: input.occurredAt,
-              stageVersion: 1,
-              lastStageChangedAt: input.occurredAt,
-              submissionMessage: input.command.message ?? null,
-              legacyDocumentState: "CURRENT",
-              applicationDocuments: {
-                create: [
-                  {
-                    kind: ApplicationDocumentKind.CV,
-                    storagePurposeVersion: "application-document-v1",
-                    storageKeyEncrypted:
-                      promotedApplicationDocument?.storageKey ??
-                      prepared.cvSnapshot.storageKey,
-                    originalFilenameEncrypted:
-                      promotedApplicationDocument?.fileName ??
-                      prepared.cvSnapshot.fileName,
-                    mediaType:
-                      promotedApplicationDocument?.mediaType ??
-                      prepared.cvSnapshot.mimeType,
-                    byteLength:
-                      promotedApplicationDocument?.byteLength ??
-                      prepared.cvSnapshot.byteSize,
-                    contentDigestHmac:
-                      promotedApplicationDocument?.checksumSha256 ??
-                      prepared.cvSnapshot.checksumSha256,
-                    sourceCandidateCvId:
-                      promotedApplicationDocument?.sourceCvId ?? cv.id,
-                    sourceCandidateCvVersion:
-                      promotedApplicationDocument?.sourceCvVersion ??
-                      cv.version,
-                    // The legacy non-FK column remains for compatibility only;
-                    // it is populated from the same evidence FK, never from a
-                    // synthetic/random assessment identifier.
-                    safetyAssessmentId: cv.scanAssessmentId,
-                    sourceArtifactId: cv.sourceArtifactId,
-                    scanAssessmentId: cv.scanAssessmentId,
-                    committedAt: input.occurredAt,
-                  },
-                  ...(promotedCoverLetterDocument
-                    ? [
-                        {
-                          kind: ApplicationDocumentKind.COVER_LETTER,
-                          storagePurposeVersion: "application-document-v1",
-                          storageKeyEncrypted:
-                            promotedCoverLetterDocument.storageKey,
-                          originalFilenameEncrypted:
-                            promotedCoverLetterDocument.fileName,
-                          mediaType: promotedCoverLetterDocument.mediaType,
-                          byteLength: promotedCoverLetterDocument.byteLength,
-                          contentDigestHmac:
-                            promotedCoverLetterDocument.checksumSha256,
-                          safetyAssessmentId: `application-safety-${promotedCoverLetterDocument.promotionId}`,
-                          committedAt: input.occurredAt,
-                        },
-                      ]
-                    : []),
-                ],
-              },
-              ...(prepared.coverLetter
-                ? {
-                    coverLetterText: {
-                      create: {
-                        textEncrypted: prepared.coverLetter,
-                        characterCount: Array.from(prepared.coverLetter).length,
-                      },
-                    },
-                  }
-                : {}),
-              answers: {
-                create: prepared.answers.map((answer) => ({
-                  questionId: answer.questionId,
-                  questionSnapshot:
-                    answer.questionSnapshot as Prisma.InputJsonValue,
-                  answer: answer.answer as Prisma.InputJsonValue,
-                })),
-              },
-              stageEvents: {
-                create: {
-                  fromStage: null,
-                  toStage: "APPLIED",
-                  actorUserId: input.candidateUserId,
-                  actorType: "CANDIDATE",
-                  candidateVisible: true,
-                  occurredAt: input.occurredAt,
-                  applicationVersion: 1,
-                  metadata: { v: 1, source: "application-submission" },
-                },
-              },
+              applicationCount: nextApplicationAttemptNumber,
             },
           });
-          if (stagedPromotionIds.length) {
-            const promoted = await tx.applicationArtifactPromotion.updateMany({
-              where: {
-                id: { in: stagedPromotionIds },
-                state: ApplicationArtifactPromotionState.PROMOTED,
-                jobApplicationId: null,
+        }
+        const submittedStageEventId = randomUUID();
+        const created = await tx.jobApplication.create({
+          data: {
+            candidateUserId: input.candidateUserId,
+            jobPostingId: input.jobId,
+            applicationAttemptNumber: nextApplicationAttemptNumber,
+            selectedCvId: cv.id,
+            cvFileRef,
+            contactSnapshot: input.command.contactSnapshot
+              ? (input.command.contactSnapshot as Prisma.InputJsonValue)
+              : undefined,
+            contactConsent: {
+              create: {
+                sharedAt:
+                  input.command.shareContactWithRecruiter === true
+                    ? input.occurredAt
+                    : null,
+                withdrawnAt:
+                  input.command.shareContactWithRecruiter === true
+                    ? null
+                    : input.occurredAt,
+                version: 1,
               },
-              data: {
-                jobApplicationId: created.id,
-                state: ApplicationArtifactPromotionState.COMMITTED,
-              },
-            });
-            if (promoted.count !== stagedPromotionIds.length) {
-              throw new ApplicationRepositoryError(
-                "APPLICATION_ARTIFACT_PROMOTION_CONFLICT",
-              );
-            }
-          }
-          if (input.command.aiAnalysisConsent) {
-            const scoringOperation = await tx.scoringOperation.create({
-              data: {
-                kind: "INITIAL",
-                jobPostingId: input.jobId,
-                jobApplicationId: created.id,
-                requestedByUserId: input.candidateUserId,
-                requestedAt: input.occurredAt,
-                confirmationIntent: true,
-                idempotencyKey: `initial-scoring:${created.id}`,
-                targetJobDescriptionVersionId: `job-${job.id}-v${job.version}`,
-                targetScoringConfigVersionId: "hybrid-60-40-v1",
-                totalCount: 1,
-              },
-            });
-            await tx.scoringWorkItem.create({
-              data: {
-                operationId: scoringOperation.id,
-                jobApplicationId: created.id,
-              },
-            });
-            await tx.jobApplication.update({
-              where: { id: created.id },
-              data: { scoringStatus: "PROCESSING" },
-            });
-          }
-          await tx.applicationIntake.create({
-            data: {
-              applicationId: created.id,
-              state: "RECEIVED",
-              progressPercent: 0,
-              receivedAt: input.occurredAt,
-              version: 1,
             },
-          });
-          const accountPreferences = await tx.accountPreferences.findUnique({
-            where: { userId: input.candidateUserId },
-            select: { applicationUpdatesEmail: true },
-          });
-          await tx.applicationNotificationPreference.create({
-            data: {
-              applicationId: created.id,
-              emailEnabled: accountPreferences?.applicationUpdatesEmail ?? true,
-              inAppEnabled: true,
-              version: 1,
-            },
-          });
-          await tx.applicationPublicUpdate.create({
-            data: {
-              applicationId: created.id,
-              kind: "SUBMITTED",
-              publicStage: "APPLICATION_SUBMITTED",
-              title: "Application submitted",
-              effectiveAt: input.occurredAt,
-              deduplicationKey: `application:${created.id}:public:submitted`,
-              sourceEventReference: null,
-            },
-          });
-          await tx.recruitmentNotificationWork.create({
-            data: {
-              applicationId: created.id,
-              audience: "CANDIDATE",
-              kind: "APPLICATION_SUBMITTED",
-              targetReference: input.candidateUserId,
-              payloadRef: {
+            aiAnalysisConsent: input.command.aiAnalysisConsent ?? false,
+            // Group 1 does not calculate or infer a score. Later scoring
+            // groups own the versioned evaluation records.
+            aiMatchScore: null,
+            scoringStatus: input.command.aiAnalysisConsent
+              ? "PENDING"
+              : "NOT_REQUESTED",
+            stage: "APPLIED",
+            coverLetter: prepared.coverLetter,
+            profileSnapshot: prepared.profileSnapshot as Prisma.InputJsonValue,
+            cvSnapshot: prepared.cvSnapshot as Prisma.InputJsonValue,
+            jobSnapshot: {
+              ...prepared.jobSnapshot,
+              // The draft is consumed in this transaction. Keep the
+              // normalized replay inputs with the immutable submission
+              // snapshot so CandidateApplicationSubmissionService can
+              // reject a rebound idempotency key without reopening a draft.
+              submissionBinding: {
                 v: 1,
-                event: "APPLICATION_SUBMITTED",
-                applicationId: created.id,
-                jobTitle: job.title,
-                companyName: job.company.displayName,
+                candidateUserId: input.candidateUserId,
+                jobId: input.jobId,
+                draftId: input.draftId ?? null,
+                expectedDraftRevision: input.expectedDraftRevision ?? null,
+                shareContactWithRecruiter:
+                  input.command.shareContactWithRecruiter === true,
               },
-              idempotencyKey: `application:${created.id}:receipt`,
+            } as Prisma.InputJsonValue,
+            consentVersion: input.command.consentVersion,
+            consentedAt: prepared.consentedAt,
+            idempotencyKey: input.idempotencyKey,
+            submissionBindingDigest: input.submissionBindingDigest,
+            submittedAt: input.occurredAt,
+            stageVersion: 1,
+            lastStageChangedAt: input.occurredAt,
+            submissionMessage: input.command.message ?? null,
+            legacyDocumentState: "CURRENT",
+            applicationDocuments: {
+              create: [
+                {
+                  kind: ApplicationDocumentKind.CV,
+                  storagePurposeVersion: "application-document-v1",
+                  storageKeyEncrypted:
+                    promotedApplicationDocument?.storageKey ??
+                    prepared.cvSnapshot.storageKey,
+                  originalFilenameEncrypted:
+                    promotedApplicationDocument?.fileName ??
+                    prepared.cvSnapshot.fileName,
+                  mediaType:
+                    promotedApplicationDocument?.mediaType ??
+                    prepared.cvSnapshot.mimeType,
+                  byteLength:
+                    promotedApplicationDocument?.byteLength ??
+                    prepared.cvSnapshot.byteSize,
+                  contentDigestHmac:
+                    promotedApplicationDocument?.checksumSha256 ??
+                    prepared.cvSnapshot.checksumSha256,
+                  sourceCandidateCvId:
+                    promotedApplicationDocument?.sourceCvId ?? cv.id,
+                  sourceCandidateCvVersion:
+                    promotedApplicationDocument?.sourceCvVersion ?? cv.version,
+                  // The legacy non-FK column remains for compatibility only;
+                  // it is populated from the same evidence FK, never from a
+                  // synthetic/random assessment identifier.
+                  safetyAssessmentId: cv.scanAssessmentId,
+                  sourceArtifactId: cv.sourceArtifactId,
+                  scanAssessmentId: cv.scanAssessmentId,
+                  committedAt: input.occurredAt,
+                },
+                ...(promotedCoverLetterDocument
+                  ? [
+                      {
+                        kind: ApplicationDocumentKind.COVER_LETTER,
+                        storagePurposeVersion: "application-document-v1",
+                        storageKeyEncrypted:
+                          promotedCoverLetterDocument.storageKey,
+                        originalFilenameEncrypted:
+                          promotedCoverLetterDocument.fileName,
+                        mediaType: promotedCoverLetterDocument.mediaType,
+                        byteLength: promotedCoverLetterDocument.byteLength,
+                        contentDigestHmac:
+                          promotedCoverLetterDocument.checksumSha256,
+                        safetyAssessmentId: `application-safety-${promotedCoverLetterDocument.promotionId}`,
+                        committedAt: input.occurredAt,
+                      },
+                    ]
+                  : []),
+              ],
+            },
+            ...(prepared.coverLetter
+              ? {
+                  coverLetterText: {
+                    create: {
+                      textEncrypted: prepared.coverLetter,
+                      characterCount: Array.from(prepared.coverLetter).length,
+                    },
+                  },
+                }
+              : {}),
+            answers: {
+              create: prepared.answers.map((answer) => ({
+                questionId: answer.questionId,
+                questionSnapshot:
+                  answer.questionSnapshot as Prisma.InputJsonValue,
+                answer: answer.answer as Prisma.InputJsonValue,
+              })),
+            },
+            stageEvents: {
+              create: {
+                id: submittedStageEventId,
+                fromStage: null,
+                toStage: "APPLIED",
+                actorUserId: input.candidateUserId,
+                actorType: "CANDIDATE",
+                candidateVisible: true,
+                occurredAt: input.occurredAt,
+                applicationVersion: 1,
+                metadata: { v: 1, source: "application-submission" },
+              },
+            },
+          },
+        });
+        if (stagedPromotionIds.length) {
+          const promoted = await tx.applicationArtifactPromotion.updateMany({
+            where: {
+              id: { in: stagedPromotionIds },
+              state: ApplicationArtifactPromotionState.PROMOTED,
+              jobApplicationId: null,
+            },
+            data: {
+              jobApplicationId: created.id,
+              state: ApplicationArtifactPromotionState.COMMITTED,
             },
           });
-          await createInAppNotification(tx, {
-            recipientUserId: input.candidateUserId,
+          if (promoted.count !== stagedPromotionIds.length) {
+            throw new ApplicationRepositoryError(
+              "APPLICATION_ARTIFACT_PROMOTION_CONFLICT",
+            );
+          }
+        }
+        if (input.command.aiAnalysisConsent) {
+          const scoringOperation = await tx.scoringOperation.create({
+            data: {
+              kind: "INITIAL",
+              jobPostingId: input.jobId,
+              jobApplicationId: created.id,
+              requestedByUserId: input.candidateUserId,
+              requestedAt: input.occurredAt,
+              confirmationIntent: true,
+              idempotencyKey: `initial-scoring:${created.id}`,
+              targetJobDescriptionVersionId: `job-${job.id}-v${job.version}`,
+              targetScoringConfigVersionId: "hybrid-60-40-v1",
+              totalCount: 1,
+            },
+          });
+          await tx.scoringWorkItem.create({
+            data: {
+              operationId: scoringOperation.id,
+              jobApplicationId: created.id,
+            },
+          });
+          await tx.jobApplication.update({
+            where: { id: created.id },
+            data: { scoringStatus: "PROCESSING" },
+          });
+        }
+        await tx.applicationIntake.create({
+          data: {
+            applicationId: created.id,
+            state: "RECEIVED",
+            progressPercent: 0,
+            receivedAt: input.occurredAt,
+            version: 1,
+          },
+        });
+        const accountPreferences = await tx.accountPreferences.findUnique({
+          where: { userId: input.candidateUserId },
+          select: { applicationUpdatesEmail: true },
+        });
+        await tx.applicationNotificationPreference.create({
+          data: {
+            applicationId: created.id,
+            emailEnabled: accountPreferences?.applicationUpdatesEmail ?? true,
+            inAppEnabled: true,
+            version: 1,
+          },
+        });
+        await tx.applicationPublicUpdate.create({
+          data: {
+            applicationId: created.id,
+            kind: "SUBMITTED",
+            publicStage: "APPLICATION_SUBMITTED",
+            title: "Application submitted",
+            effectiveAt: input.occurredAt,
+            deduplicationKey: `application:${created.id}:public:submitted`,
+            sourceEventReference: submittedStageEventId,
+          },
+        });
+        await tx.recruitmentNotificationWork.create({
+          data: {
+            applicationId: created.id,
+            audience: "CANDIDATE",
             kind: "APPLICATION_SUBMITTED",
-            deduplicationKey: `application:${created.id}:candidate`,
+            targetReference: input.candidateUserId,
+            payloadRef: {
+              v: 1,
+              event: "APPLICATION_SUBMITTED",
+              applicationId: created.id,
+              jobTitle: job.title,
+              companyName: job.company.displayName,
+            },
+            idempotencyKey: `application:${created.id}:receipt`,
+          },
+        });
+        await createInAppNotification(tx, {
+          recipientUserId: input.candidateUserId,
+          kind: "APPLICATION_SUBMITTED",
+          deduplicationKey: `application:${created.id}:candidate`,
+          correlationId: input.correlationId,
+          occurredAt: input.occurredAt,
+          contextType: "APPLICATION",
+          contextId: created.id,
+        });
+        const companyRecipients = await new NotificationRecipientPolicy(
+          tx,
+        ).activeCompanyRecipients(job.company.id);
+        for (const recipientUserId of companyRecipients) {
+          await createInAppNotification(tx, {
+            recipientUserId,
+            kind: "APPLICATION_RECEIVED",
+            deduplicationKey: `application:${created.id}:company:${recipientUserId}`,
             correlationId: input.correlationId,
             occurredAt: input.occurredAt,
             contextType: "APPLICATION",
             contextId: created.id,
-          });
-          const companyRecipients = await new NotificationRecipientPolicy(
-            tx,
-          ).activeCompanyRecipients(job.company.id);
-          for (const recipientUserId of companyRecipients) {
-            await createInAppNotification(tx, {
-              recipientUserId,
-              kind: "APPLICATION_RECEIVED",
-              deduplicationKey: `application:${created.id}:company:${recipientUserId}`,
-              correlationId: input.correlationId,
-              occurredAt: input.occurredAt,
-              contextType: "APPLICATION",
-              contextId: created.id,
-              variables: {
-                recipientRole: "RECRUITER",
-                // Candidate applications use the public JobPosting ID. The
-                // recruiter workspace uses the catalogue/review job ID, so
-                // persist the latter when this posting has a review mapping.
-                jobId: job.reviewAggregate?.jobId ?? input.jobId,
-              },
-            });
-          }
-          if (input.directCv) {
-            await tx.candidateCv.update({
-              where: { id: input.directCv.id },
-              data: { archivedAt: input.occurredAt },
-            });
-          }
-          if (input.draftId) {
-            await tx.candidateApplicationDraft.deleteMany({
-              where: {
-                id: input.draftId,
-                candidateUserId: input.candidateUserId,
-                jobPostingId: input.jobId,
-                revision: input.expectedDraftRevision,
-              },
-            });
-          }
-          await new PrismaAuditRepository(tx).append({
-            occurredAt: input.occurredAt,
-            actorType: "user",
-            actorUserId: input.candidateUserId,
-            actorSessionId: input.sessionId,
-            action: "job.application.submitted",
-            targetType: "job_application",
-            targetId: created.id,
-            result: "SUCCESS",
-            correlationId: input.correlationId,
-            context: {
-              stage: "APPLIED",
-              notificationWorkCount: companyRecipients.length + 2,
+            variables: {
+              recipientRole: "RECRUITER",
+              // Candidate applications use the public JobPosting ID. The
+              // recruiter workspace uses the catalogue/review job ID, so
+              // persist the latter when this posting has a review mapping.
+              jobId: job.reviewAggregate?.jobId ?? input.jobId,
             },
           });
-          return { application: outcome(created, true), created: true };
-        },
-        { isolationLevel: "Serializable" },
-      );
+        }
+        if (input.directCv) {
+          await tx.candidateCv.update({
+            where: { id: input.directCv.id },
+            data: { archivedAt: input.occurredAt },
+          });
+        }
+        if (input.draftId) {
+          await tx.candidateApplicationDraft.deleteMany({
+            where: {
+              id: input.draftId,
+              candidateUserId: input.candidateUserId,
+              jobPostingId: input.jobId,
+              revision: input.expectedDraftRevision,
+            },
+          });
+        }
+        await new PrismaAuditRepository(tx).append({
+          occurredAt: input.occurredAt,
+          actorType: "user",
+          actorUserId: input.candidateUserId,
+          actorSessionId: input.sessionId,
+          action: "job.application.submitted",
+          targetType: "job_application",
+          targetId: created.id,
+          result: "SUCCESS",
+          correlationId: input.correlationId,
+          context: {
+            stage: "APPLIED",
+            notificationWorkCount: companyRecipients.length + 2,
+          },
+        });
+        return { application: outcome(created, true), created: true };
+      });
       if (result.created) {
         // Marking the temporary request objects owned before returning also
         // protects against a caller/projection error after the commit.

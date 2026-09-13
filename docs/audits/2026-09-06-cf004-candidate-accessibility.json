@@ -1,6 +1,6 @@
 {
   "schemaVersion": "candidate-first-cf004-accessibility-v1",
-  "generatedAt": "2026-09-08T03:37:10.520Z",
+  "generatedAt": "2026-09-12T20:49:32.677Z",
   "mode": "LOCAL_CHROMIUM",
   "axeImpactThreshold": [
     "serious",
@@ -88,7 +88,7 @@
       "status": "PASS"
     },
     {
-      "route": "/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad",
+      "route": "/jobs/applied/application-candidate-first-e883ca22-2d18-416c-9370-69c54dac91ea",
       "viewport": {
         "name": "mobile-320",
         "width": 320,
@@ -101,7 +101,7 @@
       "status": "PASS"
     },
     {
-      "route": "/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad/messages",
+      "route": "/jobs/applied/application-candidate-first-e883ca22-2d18-416c-9370-69c54dac91ea/messages",
       "viewport": {
         "name": "mobile-320",
         "width": 320,
@@ -166,7 +166,7 @@
       "status": "PASS"
     },
     {
-      "route": "/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad",
+      "route": "/jobs/applied/application-candidate-first-e883ca22-2d18-416c-9370-69c54dac91ea",
       "viewport": {
         "name": "mobile-375",
         "width": 375,
@@ -179,7 +179,7 @@
       "status": "PASS"
     },
     {
-      "route": "/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad/messages",
+      "route": "/jobs/applied/application-candidate-first-e883ca22-2d18-416c-9370-69c54dac91ea/messages",
       "viewport": {
         "name": "mobile-375",
         "width": 375,
@@ -238,39 +238,36 @@
         "height": 1024
       },
       "zoom": "100%",
-      "axeSeriousOrCritical": -1,
-      "horizontalOverflow": true,
-      "keyboardFocusVisible": false,
-      "status": "FAIL",
-      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/jobs/applied\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/jobs/applied\", waiting until \"domcontentloaded\"\u001b[22m\n"
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
     },
     {
-      "route": "/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad",
+      "route": "/jobs/applied/application-candidate-first-e883ca22-2d18-416c-9370-69c54dac91ea",
       "viewport": {
         "name": "tablet-768",
         "width": 768,
         "height": 1024
       },
       "zoom": "100%",
-      "axeSeriousOrCritical": -1,
-      "horizontalOverflow": true,
-      "keyboardFocusVisible": false,
-      "status": "FAIL",
-      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad\", waiting until \"domcontentloaded\"\u001b[22m\n"
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
     },
     {
-      "route": "/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad/messages",
+      "route": "/jobs/applied/application-candidate-first-e883ca22-2d18-416c-9370-69c54dac91ea/messages",
       "viewport": {
         "name": "tablet-768",
         "width": 768,
         "height": 1024
       },
       "zoom": "100%",
-      "axeSeriousOrCritical": -1,
-      "horizontalOverflow": true,
-      "keyboardFocusVisible": false,
-      "status": "FAIL",
-      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad/messages\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad/messages\", waiting until \"domcontentloaded\"\u001b[22m\n"
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
     },
     {
       "route": "/",
@@ -280,11 +277,10 @@
         "height": 800
       },
       "zoom": "100%",
-      "axeSeriousOrCritical": -1,
-      "horizontalOverflow": true,
-      "keyboardFocusVisible": false,
-      "status": "FAIL",
-      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
     },
     {
       "route": "/profile",
@@ -294,11 +290,10 @@
         "height": 800
       },
       "zoom": "100%",
-      "axeSeriousOrCritical": -1,
-      "horizontalOverflow": true,
-      "keyboardFocusVisible": false,
-      "status": "FAIL",
-      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/profile\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/profile\", waiting until \"domcontentloaded\"\u001b[22m\n"
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
     },
     {
       "route": "/profile/cv-imports",
@@ -308,11 +303,10 @@
         "height": 800
       },
       "zoom": "100%",
-      "axeSeriousOrCritical": -1,
-      "horizontalOverflow": true,
-      "keyboardFocusVisible": false,
-      "status": "FAIL",
-      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/profile/cv-imports\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/profile/cv-imports\", waiting until \"domcontentloaded\"\u001b[22m\n"
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
     },
     {
       "route": "/jobs/applied",
@@ -322,47 +316,57 @@
         "height": 800
       },
       "zoom": "100%",
-      "axeSeriousOrCritical": -1,
-      "horizontalOverflow": true,
-      "keyboardFocusVisible": false,
-      "status": "FAIL",
-      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/jobs/applied\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/jobs/applied\", waiting until \"domcontentloaded\"\u001b[22m\n"
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
     },
     {
-      "route": "/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad",
+      "route": "/jobs/applied/application-candidate-first-e883ca22-2d18-416c-9370-69c54dac91ea",
       "viewport": {
         "name": "desktop-1280",
         "width": 1280,
         "height": 800
       },
       "zoom": "100%",
-      "axeSeriousOrCritical": -1,
-      "horizontalOverflow": true,
-      "keyboardFocusVisible": false,
-      "status": "FAIL",
-      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad\", waiting until \"domcontentloaded\"\u001b[22m\n"
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
     },
     {
-      "route": "/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad/messages",
+      "route": "/jobs/applied/application-candidate-first-e883ca22-2d18-416c-9370-69c54dac91ea/messages",
       "viewport": {
         "name": "desktop-1280",
         "width": 1280,
         "height": 800
       },
       "zoom": "100%",
-      "axeSeriousOrCritical": -1,
-      "horizontalOverflow": true,
-      "keyboardFocusVisible": false,
-      "status": "FAIL",
-      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad/messages\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3001/jobs/applied/application-candidate-first-a99ed52f-2140-4100-a787-3bf9772363ad/messages\", waiting until \"domcontentloaded\"\u001b[22m\n"
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
+    },
+    {
+      "route": "/profile",
+      "viewport": {
+        "name": "zoom-640",
+        "width": 640,
+        "height": 720
+      },
+      "zoom": "200%",
+      "axeSeriousOrCritical": 0,
+      "horizontalOverflow": false,
+      "keyboardFocusVisible": true,
+      "status": "PASS"
     }
   ],
   "summary": {
-    "totalCases": 24,
-    "passed": 15,
-    "failed": 9,
-    "seriousOrCriticalAxeViolations": -9,
-    "horizontalOverflowCases": 9
+    "totalCases": 25,
+    "passed": 25,
+    "failed": 0,
+    "seriousOrCriticalAxeViolations": 0,
+    "horizontalOverflowCases": 0
   },
   "limitations": [
     "Axe runs on the authenticated Candidate pages listed in this file.",

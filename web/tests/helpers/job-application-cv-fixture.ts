@@ -23,7 +23,10 @@ export async function seedCleanJobApplicationCv(input: {
   profileId?: string;
   now: Date;
   label: string;
-  purpose?: "PROFILE_IMPORT" | "JOB_APPLICATION_DIRECT";
+  purpose?:
+    | "PROFILE_IMPORT"
+    | "JOB_APPLICATION_DIRECT"
+    | "TEAM_APPLICATION_DIRECT";
   processingMode?: "IMPORT_AND_PARSE" | "SCAN_ONLY";
 }) {
   const purpose = input.purpose ?? "JOB_APPLICATION_DIRECT";

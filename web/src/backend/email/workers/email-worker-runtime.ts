@@ -1,12 +1,15 @@
 import "server-only";
 import { prisma } from "@/backend/database/prisma";
 import { DueOutboxProcessor } from "./due-outbox-processor";
-const processor = new DueOutboxProcessor();
+import { RecruitmentNotificationWorkProcessor } from "./recruitment-notification-work";
+const emailProcessor = new DueOutboxProcessor();
+const recruitmentProcessor = new RecruitmentNotificationWorkProcessor();
 let shutdownPromise: Promise<void> | null = null;
 function shutdown(exitCode = 0) {
   if (shutdownPromise) return shutdownPromise;
   shutdownPromise = (async () => {
-    processor.stop();
+    emailProcessor.stop();
+    recruitmentProcessor.stop();
     try {
       await prisma.$disconnect();
     } finally {
@@ -29,8 +32,7 @@ if (process.platform === "win32") {
   process.once("SIGBREAK", () => requestShutdown(0));
 }
 
-processor
-  .run()
+Promise.all([emailProcessor.run(), recruitmentProcessor.run()])
   .then(() => shutdown())
   .catch(async () => {
     await shutdown(1);

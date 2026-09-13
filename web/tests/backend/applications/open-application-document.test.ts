@@ -29,7 +29,7 @@ type TestDocument = {
   jobId: string;
   stage: "APPLIED" | "VIEWED";
   stageVersion: number;
-  kind: "cv";
+  kind: "cv" | "cover-letter";
   fileName: string;
   mediaType: string;
   byteLength: number;
@@ -41,6 +41,7 @@ type TestDocument = {
   uploadId: string;
   candidateUserId: string;
   scanStatus: "CLEAN";
+  contentVersion?: string | null;
 };
 
 function document(stage: "APPLIED" | "VIEWED"): TestDocument {
@@ -209,5 +210,210 @@ describe("recruiter document review tracking", () => {
     ).resolves.toMatchObject({ document: { applicationId: "application-1" } });
 
     expect(stageService.transition).toHaveBeenCalledOnce();
+  });
+});
+
+describe("candidate-owned application documents", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    safetyEvidenceMock.mockResolvedValue({});
+  });
+
+  it("derives document access from the candidate and never changes recruiter stage", async () => {
+    const repo = repository(document("APPLIED"));
+    const stageService = { transition: vi.fn() };
+    const service = new OpenApplicationDocumentService(
+      repo,
+      {} as never,
+      undefined,
+      stageService as never,
+    );
+
+    await expect(
+      service.executeForCandidate({
+        candidateUserId: "candidate-1",
+        applicationId: "application-1",
+        kind: "cv",
+        preview: false,
+      }),
+    ).resolves.toMatchObject({ document: { applicationId: "application-1" } });
+
+    expect(repo.findDocument).toHaveBeenCalledWith({
+      candidateUserId: "candidate-1",
+      applicationId: "application-1",
+      kind: "cv",
+      now: undefined,
+    });
+    expect(stageService.transition).not.toHaveBeenCalled();
+  });
+
+  it("does not distinguish a missing or foreign application document", async () => {
+    const repo = {
+      findDocument: vi.fn().mockResolvedValue(null),
+    } as unknown as ApplicationRepositoryPort;
+    const service = new OpenApplicationDocumentService(repo, {} as never);
+
+    await expect(
+      service.executeForCandidate({
+        candidateUserId: "candidate-2",
+        applicationId: "application-1",
+        kind: "cv",
+        preview: false,
+      }),
+    ).rejects.toMatchObject({ code: "UNAVAILABLE" });
+  });
+
+  it("keeps an unsupported Candidate preview unavailable without opening storage", async () => {
+    const repo = repository({
+      ...document("VIEWED"),
+      previewSupported: false,
+      text: null,
+      storageKey: "applications/application-1/cv.pdf",
+    });
+    const storage = {
+      assertReady: vi.fn(),
+      open: vi.fn(),
+    };
+    const service = new OpenApplicationDocumentService(
+      repo,
+      {} as never,
+      storage as never,
+    );
+
+    await expect(
+      service.executeForCandidate({
+        candidateUserId: "candidate-1",
+        applicationId: "application-1",
+        kind: "cv",
+        preview: true,
+      }),
+    ).rejects.toMatchObject({ code: "PREVIEW_UNAVAILABLE" });
+
+    expect(storage.assertReady).not.toHaveBeenCalled();
+    expect(storage.open).not.toHaveBeenCalled();
+  });
+
+  it("streams a CLEAN CV and disposes the safe reader after consumption", async () => {
+    const dispose = vi.fn().mockResolvedValue(undefined);
+    openSafeCvArtifactMock.mockResolvedValue({
+      byteLength: 3,
+      evidence: { checksumSha256: "a".repeat(64) },
+      openStream: async function* () {
+        yield new Uint8Array([1, 2, 3]);
+      },
+      dispose,
+    });
+    const repo = repository({
+      ...document("VIEWED"),
+      text: null,
+      contentVersion: "a".repeat(64),
+      byteLength: 3,
+    });
+    const service = new OpenApplicationDocumentService(repo, {} as never);
+    const opened = await service.executeForCandidate({
+      candidateUserId: "candidate-1",
+      applicationId: "application-1",
+      kind: "cv",
+      preview: true,
+    });
+    const chunks: Uint8Array[] = [];
+    for await (const chunk of opened.stream!) chunks.push(chunk);
+    expect(chunks).toEqual([new Uint8Array([1, 2, 3])]);
+    expect(dispose).toHaveBeenCalledOnce();
+  });
+
+  it("fails closed and disposes the safe reader on checksum or length mismatch", async () => {
+    const dispose = vi.fn().mockResolvedValue(undefined);
+    openSafeCvArtifactMock.mockResolvedValue({
+      byteLength: 4,
+      evidence: { checksumSha256: "b".repeat(64) },
+      openStream: async function* () {
+        yield new Uint8Array([1]);
+      },
+      dispose,
+    });
+    const repo = repository({
+      ...document("VIEWED"),
+      text: null,
+      contentVersion: "a".repeat(64),
+      byteLength: 3,
+    });
+    const service = new OpenApplicationDocumentService(repo, {} as never);
+    await expect(
+      service.executeForCandidate({
+        candidateUserId: "candidate-1",
+        applicationId: "application-1",
+        kind: "cv",
+        preview: false,
+      }),
+    ).rejects.toMatchObject({ code: "UNAVAILABLE" });
+    expect(dispose).toHaveBeenCalledOnce();
+  });
+
+  it("never returns bytes for unsafe assessment or missing application storage", async () => {
+    const unsafe = repository({
+      ...document("VIEWED"),
+      scanStatus: "PENDING" as never,
+    });
+    const service = new OpenApplicationDocumentService(unsafe, {} as never);
+    await expect(
+      service.executeForCandidate({
+        candidateUserId: "candidate-1",
+        applicationId: "application-1",
+        kind: "cv",
+        preview: false,
+      }),
+    ).rejects.toMatchObject({ code: "UNAVAILABLE" });
+
+    const missingStorage = repository({
+      ...document("VIEWED"),
+      kind: "cover-letter" as const,
+      text: null,
+      storageKey: null,
+    });
+    const coverService = new OpenApplicationDocumentService(
+      missingStorage,
+      {} as never,
+    );
+    await expect(
+      coverService.executeForCandidate({
+        candidateUserId: "candidate-1",
+        applicationId: "application-1",
+        kind: "cover-letter",
+        preview: false,
+      }),
+    ).rejects.toMatchObject({ code: "UNAVAILABLE" });
+  });
+
+  it("fails closed when the Candidate document storage is temporarily unavailable", async () => {
+    const repo = repository({
+      ...document("VIEWED"),
+      kind: "cover-letter" as const,
+      text: null,
+      storageKey: "applications/application-1/cover-letter.pdf",
+    });
+    const storage = {
+      assertReady: vi
+        .fn()
+        .mockRejectedValue(new Error("temporary storage failure")),
+      open: vi.fn(),
+    };
+    const service = new OpenApplicationDocumentService(
+      repo,
+      {} as never,
+      storage as never,
+    );
+
+    await expect(
+      service.executeForCandidate({
+        candidateUserId: "candidate-1",
+        applicationId: "application-1",
+        kind: "cover-letter",
+        preview: false,
+      }),
+    ).rejects.toMatchObject({ code: "UNAVAILABLE" });
+
+    expect(storage.assertReady).toHaveBeenCalledOnce();
+    expect(storage.open).not.toHaveBeenCalled();
   });
 });

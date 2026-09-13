@@ -36,13 +36,23 @@ function commandResponse(error: TeamApplicationCommandError) {
     TEAM_APPLICATION_UNAVAILABLE: "This application is unavailable.",
     TEAM_APPLICATION_CONFLICT: "This application has already changed.",
     TEAM_APPLICATION_DUPLICATE: "You have already applied for this role.",
+    TEAM_APPLICATION_LIST_REQUEST_INVALID: "Choose valid application filters.",
+    TEAM_APPLICATION_CURSOR_INVALID: "This page has expired. Restart the list.",
   };
   return accountJson(
     {
       code: error.code,
       message: messages[error.code] ?? "Unable to submit the application.",
     },
-    { status: error.code === "TEAM_APPLICATION_UNAVAILABLE" ? 404 : 409 },
+    {
+      status:
+        error.code === "TEAM_APPLICATION_UNAVAILABLE"
+          ? 404
+          : error.code === "TEAM_APPLICATION_LIST_REQUEST_INVALID" ||
+              error.code === "TEAM_APPLICATION_CURSOR_INVALID"
+            ? 400
+            : 409,
+    },
   );
 }
 
@@ -65,8 +75,12 @@ function cvResponse(error: TeamApplicationCvError) {
 export async function GET(request: Request) {
   try {
     const account = await requireAccountRequest(request);
+    const searchParams = new URL(request.url).searchParams;
     return accountJson(
-      await new TeamApplicationService().listCandidate(account.userId),
+      await new TeamApplicationService().listCandidate(
+        account.userId,
+        Object.fromEntries(searchParams.entries()),
+      ),
     );
   } catch (error) {
     return accountErrorResponse(error);

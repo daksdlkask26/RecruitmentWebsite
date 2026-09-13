@@ -5,6 +5,7 @@ import {
   Fragment,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -18,13 +19,14 @@ import {
   applicationErrorMessage,
 } from "@/frontend/features/candidate-applications/i18n/application-copy";
 import { getCompanyCopy } from "@/frontend/features/candidate-company/i18n/company-copy";
+
 import { NOTIFICATION_CHANGED_EVENT } from "@/frontend/features/notifications/client/use-notification-context-read";
 import { CompanyAvatar } from "@/frontend/features/jobs/components/company-avatar";
+import { ANALYTICS_PLATFORM_TIME_ZONE } from "@/shared/contracts/analytics";
 import {
+  candidateApplicationListQuerySchema,
   candidateApplicationListResponseSchema,
-  publicStageForCanonicalStage,
   type CandidateApplicationSummary,
-  type PublicStage,
 } from "@/shared/contracts/candidate-applications";
 import {
   ApplicationStatusBadge,
@@ -34,34 +36,70 @@ import {
 const APPLICATION_REFRESH_INTERVAL_MS = 60_000;
 
 function formatDate(value: string, locale: "en" | "vi") {
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(
-    new Date(value),
-  );
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeZone: ANALYTICS_PLATFORM_TIME_ZONE,
+  }).format(new Date(value));
 }
 
-type ApplicationFilterValue = "ALL" | PublicStage | "WITHDRAWN";
-type ApplicationFilterValueWithoutAll = Exclude<ApplicationFilterValue, "ALL">;
+type ApplicationFilterValue =
+  | "ALL"
+  | "APPLICATION_SUBMITTED"
+  | "UNDER_REVIEW"
+  | "INTERVIEW"
+  | "OUTCOME"
+  | "WITHDRAWN";
+type ApplicationSortValue = "SUBMITTED_DESC" | "SUBMITTED_ASC";
+type ApplicationFilterCounts = Record<ApplicationFilterValue, number>;
 
 type ApplicationFilterOption = {
   value: ApplicationFilterValue;
   label: string;
-  count: number;
+  count: number | null;
   isTerminal?: boolean;
 };
 
-type ApplicationFilterCounts = Record<ApplicationFilterValue, number>;
+function readListState() {
+  if (typeof window === "undefined")
+    return {
+      filter: undefined,
+      sort: undefined,
+      cursor: null,
+      cursorInvalid: false,
+    } as const;
+  const params = new URLSearchParams(window.location.search);
+  const parsed = candidateApplicationListQuerySchema.safeParse({
+    ...(params.has("cursor") ? { cursor: params.get("cursor") } : {}),
+    ...(params.has("filter") ? { filter: params.get("filter") } : {}),
+    ...(params.has("sort") ? { sort: params.get("sort") } : {}),
+  });
+  return parsed.success
+    ? {
+        filter: params.has("filter") ? parsed.data.filter : undefined,
+        sort: params.has("sort") ? parsed.data.sort : undefined,
+        cursor: parsed.data.cursor ?? null,
+        cursorInvalid: false,
+      }
+    : {
+        filter: undefined,
+        sort: undefined,
+        cursor: null,
+        cursorInvalid: params.has("cursor"),
+      };
+}
 
 function applicationFilterFor(
   application: CandidateApplicationSummary,
-): ApplicationFilterValueWithoutAll {
-  // Withdrawal is an effective terminal status. It must win over the
-  // preserved canonical stage so a withdrawn interview is not still shown in
-  // the Interview filter.
+): Exclude<ApplicationFilterValue, "ALL"> {
   if (application.publicOutcome === "WITHDRAWN") return "WITHDRAWN";
-  return publicStageForCanonicalStage(application.canonicalStage);
+  if (application.publicStage === "APPLICATION_SUBMITTED")
+    return "APPLICATION_SUBMITTED";
+  if (application.publicStage === "UNDER_REVIEW") return "UNDER_REVIEW";
+  if (application.publicStage === "INTERVIEW") return "INTERVIEW";
+  return "OUTCOME";
 }
 
-function applicationFilterCounts(
+function fallbackFilterCounts(
   applications: readonly CandidateApplicationSummary[],
 ): ApplicationFilterCounts {
   const counts: ApplicationFilterCounts = {
@@ -72,11 +110,8 @@ function applicationFilterCounts(
     OUTCOME: 0,
     WITHDRAWN: 0,
   };
-
-  for (const application of applications) {
+  for (const application of applications)
     counts[applicationFilterFor(application)] += 1;
-  }
-
   return counts;
 }
 
@@ -182,7 +217,7 @@ function ApplicationFilterDropdown({
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-controls={menuId}
-        aria-label={`${label}: ${selectedOption.label}, ${countLabel(selectedOption.count)}`}
+        aria-label={`${label}: ${selectedOption.label}${selectedOption.count === null ? "" : `, ${countLabel(selectedOption.count)}`}`}
         onClick={() => {
           if (isOpen) {
             setIsOpen(false);
@@ -236,7 +271,7 @@ function ApplicationFilterDropdown({
                 role="option"
                 tabIndex={-1}
                 aria-selected={option.value === value}
-                aria-label={`${option.label}, ${countLabel(option.count)}`}
+                aria-label={`${option.label}${option.count === null ? "" : `, ${countLabel(option.count)}`}`}
                 className={[
                   "candidate-application-filter__option",
                   option.isTerminal
@@ -262,7 +297,7 @@ function ApplicationFilterDropdown({
                     className="candidate-application-filter__count"
                     aria-hidden="true"
                   >
-                    {option.count}
+                    {option.count === null ? "" : option.count}
                   </span>
                   {option.value === value ? <Check aria-hidden="true" /> : null}
                 </span>
@@ -343,10 +378,22 @@ function ApplicationListCard({
 
 export function CandidateApplicationsListPage({
   initialApplications,
+  initialCursor,
   initialNextCursor,
+  initialHasMore,
+  initialTotal,
+  initialFilter,
+  initialSort,
+  initialCounts,
 }: {
   initialApplications: readonly CandidateApplicationSummary[];
+  initialCursor?: string | null;
   initialNextCursor: string | null;
+  initialHasMore?: boolean;
+  initialTotal?: number;
+  initialFilter?: ApplicationFilterValue;
+  initialSort?: ApplicationSortValue;
+  initialCounts?: ApplicationFilterCounts;
 }) {
   const locale = useWorkspaceLocale();
   const copy = applicationCopy(locale).applicationsList;
@@ -354,34 +401,131 @@ export function CandidateApplicationsListPage({
   const [applications, setApplications] = useState(() => [
     ...initialApplications,
   ]);
-  const [filter, setFilter] = useState<ApplicationFilterValue>("ALL");
+  const browserState = readListState();
+  const [filter, setFilter] = useState<ApplicationFilterValue>(
+    browserState.filter ?? initialFilter ?? "ALL",
+  );
+  const [sort, setSort] = useState<ApplicationSortValue>(
+    browserState.sort ?? initialSort ?? "SUBMITTED_DESC",
+  );
   const [nextCursor, setNextCursor] = useState(initialNextCursor);
+  const [hasMore, setHasMore] = useState(
+    initialHasMore ?? initialNextCursor !== null,
+  );
+  const [total, setTotal] = useState(
+    initialTotal ?? initialApplications.length,
+  );
+  const [filterCounts, setFilterCounts] = useState<ApplicationFilterCounts>(
+    initialCounts ?? fallbackFilterCounts(initialApplications),
+  );
   const [loading, setLoading] = useState(false);
+  const [loadMoreFailed, setLoadMoreFailed] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const refreshApplications = useCallback(async () => {
-    try {
-      const response = await fetch("/api/candidate/applications?limit=24", {
-        credentials: "same-origin",
-        cache: "no-store",
-      });
-      if (!response.ok) return;
-      const next = candidateApplicationListResponseSchema.parse(
-        await response.json(),
-      );
-      setApplications((current) => {
-        const refreshedIds = new Set(
-          next.applications.map((item) => item.applicationId),
+  const requestIdRef = useRef(0);
+  const updateUrl = useCallback(
+    (
+      nextFilter: ApplicationFilterValue,
+      nextSort: ApplicationSortValue,
+      nextCursor: string | null,
+      historyMode: "push" | "replace",
+    ) => {
+      const params = new URLSearchParams(window.location.search);
+      params.set("filter", nextFilter);
+      params.set("sort", nextSort);
+      if (nextCursor) params.set("cursor", nextCursor);
+      else params.delete("cursor");
+      const url = `${window.location.pathname}?${params.toString()}`;
+      if (historyMode === "replace") {
+        window.history.replaceState(null, "", url);
+      } else {
+        window.history.pushState(null, "", url);
+      }
+    },
+    [],
+  );
+  const fetchPage = useCallback(
+    async (
+      nextFilter: ApplicationFilterValue,
+      nextSort: ApplicationSortValue,
+      requestedCursor: string | null,
+      historyMode: "none" | "push" | "replace" = "none",
+      isNextPage = false,
+    ) => {
+      const urlMatchesRequest = (cursor: string | null) => {
+        if (historyMode !== "none") return true;
+        const current = readListState();
+        return (
+          (current.filter ?? "ALL") === nextFilter &&
+          (current.sort ?? "SUBMITTED_DESC") === nextSort &&
+          current.cursor === cursor
         );
-        return [
-          ...next.applications,
-          ...current.filter((item) => !refreshedIds.has(item.applicationId)),
-        ];
-      });
-      setNextCursor(next.nextCursor);
-    } catch {
-      // Keep the current list during a transient background refresh failure.
-    }
-  }, []);
+      };
+      if (!urlMatchesRequest(requestedCursor)) return;
+      const requestId = ++requestIdRef.current;
+      setLoading(true);
+      setLoadMoreFailed(false);
+      setError(null);
+      let cursor = requestedCursor;
+      let restarted = false;
+      try {
+        while (true) {
+          const params = new URLSearchParams({
+            limit: "24",
+            filter: nextFilter,
+            sort: nextSort,
+          });
+          if (cursor) params.set("cursor", cursor);
+          const response = await fetch(
+            `/api/candidate/applications?${params.toString()}`,
+            {
+              credentials: "same-origin",
+              cache: "no-store",
+            },
+          );
+          const body: unknown = await response.json().catch(() => null);
+          if (requestId !== requestIdRef.current) return;
+          if (!urlMatchesRequest(cursor)) return;
+          if (!response.ok) {
+            if (cursor && response.status === 400 && !restarted) {
+              restarted = true;
+              cursor = null;
+              updateUrl(nextFilter, nextSort, null, "replace");
+              continue;
+            }
+            throw new Error(copy.loadMoreError);
+          }
+          const next = candidateApplicationListResponseSchema.parse(body);
+          setApplications(next.applications);
+          setNextCursor(next.nextCursor);
+          setHasMore(next.hasMore);
+          setTotal(next.total);
+          setFilterCounts(next.counts);
+          if (historyMode !== "none" && !restarted) {
+            updateUrl(next.filter, next.sort, cursor, historyMode);
+          }
+          return;
+        }
+      } catch (caught) {
+        if (requestId !== requestIdRef.current) return;
+        if (isNextPage) setLoadMoreFailed(true);
+        setError(applicationErrorMessage(locale, caught, copy.loadMoreError));
+      } finally {
+        if (requestId === requestIdRef.current) setLoading(false);
+      }
+    },
+    [copy.loadMoreError, locale, updateUrl],
+  );
+  const refreshApplications = useCallback(async () => {
+    const urlState = readListState();
+    const nextFilter = urlState.filter ?? "ALL";
+    const nextSort = urlState.sort ?? "SUBMITTED_DESC";
+    await fetchPage(
+      nextFilter,
+      nextSort,
+      urlState.cursor,
+      urlState.cursorInvalid ? "replace" : "none",
+    );
+  }, [fetchPage]);
   useEffect(() => {
     let timer: number | undefined;
     let mounted = true;
@@ -417,75 +561,123 @@ export function CandidateApplicationsListPage({
       window.removeEventListener(NOTIFICATION_CHANGED_EVENT, refreshNow);
     };
   }, [refreshApplications]);
-  const counts = useMemo(
-    () => applicationFilterCounts(applications),
-    [applications],
-  );
+  useLayoutEffect(() => {
+    let active = true;
+    let lastUrl: string | null = null;
+    const syncFromUrl = (force = false) => {
+      if (!active) return;
+      const url = window.location.href;
+      if (!force && url === lastUrl) return;
+      lastUrl = url;
+      const next = readListState();
+      const nextFilter = next.filter ?? "ALL";
+      const nextSort = next.sort ?? "SUBMITTED_DESC";
+      setFilter(nextFilter);
+      setSort(nextSort);
+      void fetchPage(
+        nextFilter,
+        nextSort,
+        next.cursor,
+        next.cursorInvalid ? "replace" : "none",
+      );
+    };
+    let pageShowTimer: number | undefined;
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        pageShowTimer = window.setTimeout(syncFromUrl, 0);
+      }
+    };
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state === null) {
+        syncFromUrl(true);
+        return;
+      }
+      window.setTimeout(() => syncFromUrl(true), 0);
+    };
+    const applyInitialPage = () => {
+      setApplications([...initialApplications]);
+      setNextCursor(initialNextCursor);
+      setHasMore(initialHasMore ?? initialNextCursor !== null);
+      setTotal(initialTotal ?? initialApplications.length);
+      setFilterCounts(
+        initialCounts ?? fallbackFilterCounts(initialApplications),
+      );
+    };
+    window.addEventListener("popstate", handlePopState, true);
+    window.addEventListener("pageshow", handlePageShow);
+    if (initialCursor !== undefined) {
+      const current = readListState();
+      const initialMatchesUrl =
+        !current.cursorInvalid &&
+        (current.filter ?? "ALL") === (initialFilter ?? "ALL") &&
+        (current.sort ?? "SUBMITTED_DESC") ===
+          (initialSort ?? "SUBMITTED_DESC") &&
+        current.cursor === (initialCursor ?? null);
+      if (initialMatchesUrl) {
+        lastUrl = window.location.href;
+        applyInitialPage();
+      } else syncFromUrl();
+    }
+    return () => {
+      active = false;
+      if (pageShowTimer !== undefined) window.clearTimeout(pageShowTimer);
+      window.removeEventListener("popstate", handlePopState, true);
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, [
+    fetchPage,
+    initialApplications,
+    initialCounts,
+    initialCursor,
+    initialFilter,
+    initialHasMore,
+    initialNextCursor,
+    initialSort,
+    initialTotal,
+  ]);
+  useEffect(() => {
+    if (browserState.cursorInvalid) updateUrl(filter, sort, null, "replace");
+  }, [browserState.cursorInvalid, filter, sort, updateUrl]);
   const filters = useMemo<readonly ApplicationFilterOption[]>(
     () => [
-      { value: "ALL", label: copy.filters.all, count: counts.ALL },
+      {
+        value: "ALL",
+        label: copy.filters.all,
+        count: filterCounts.ALL,
+      },
       {
         value: "APPLICATION_SUBMITTED",
         label: copy.filters.applicationSubmitted,
-        count: counts.APPLICATION_SUBMITTED,
+        count: filterCounts.APPLICATION_SUBMITTED,
       },
       {
         value: "UNDER_REVIEW",
         label: copy.filters.underReview,
-        count: counts.UNDER_REVIEW,
+        count: filterCounts.UNDER_REVIEW,
       },
       {
         value: "INTERVIEW",
         label: copy.filters.interview,
-        count: counts.INTERVIEW,
+        count: filterCounts.INTERVIEW,
       },
       {
         value: "OUTCOME",
         label: copy.filters.outcome,
-        count: counts.OUTCOME,
+        count: filterCounts.OUTCOME,
         isTerminal: true,
       },
       {
         value: "WITHDRAWN",
         label: copy.filters.withdrawn,
-        count: counts.WITHDRAWN,
+        count: filterCounts.WITHDRAWN,
       },
     ],
-    [copy.filters, counts],
-  );
-  const filtered = useMemo(
-    () =>
-      filter === "ALL"
-        ? applications
-        : applications.filter((item) => applicationFilterFor(item) === filter),
-    [applications, filter],
+    [copy.filters, filterCounts],
   );
 
   async function loadMore() {
-    if (!nextCursor || loading) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(
-        `/api/candidate/applications?cursor=${encodeURIComponent(nextCursor)}&limit=24`,
-        { credentials: "same-origin", cache: "no-store" },
-      );
-      const body: unknown = await response.json();
-      if (!response.ok) throw new Error(copy.loadMoreError);
-      const next = candidateApplicationListResponseSchema.parse(body);
-      setApplications((current) => {
-        const known = new Set(current.map((item) => item.applicationId));
-        return [
-          ...current,
-          ...next.applications.filter((item) => !known.has(item.applicationId)),
-        ];
-      });
-      setNextCursor(next.nextCursor);
-    } catch (caught) {
-      setError(applicationErrorMessage(locale, caught, copy.loadMoreError));
-    } finally {
-      setLoading(false);
-    }
+    if (!nextCursor || !hasMore || loading) return;
+    await fetchPage(filter, sort, nextCursor, "push", true);
   }
 
   return (
@@ -508,7 +700,7 @@ export function CandidateApplicationsListPage({
               {companyCopy.teamApplications}
             </Link>
             <span className="candidate-application-list-page__count">
-              {applications.length}
+              {copy.countLabel(total)}
             </span>
           </span>
         }
@@ -523,17 +715,34 @@ export function CandidateApplicationsListPage({
           countLabel={copy.countLabel}
           options={filters}
           value={filter}
-          onChange={setFilter}
+          onChange={(next) => {
+            setFilter(next);
+            void fetchPage(next, sort, null, "push");
+          }}
         />
+        <label className="candidate-application-filter__sort">
+          <span>{copy.sortLabel}</span>
+          <select
+            value={sort}
+            onChange={(event) => {
+              const next = event.target.value as ApplicationSortValue;
+              setSort(next);
+              void fetchPage(filter, next, null, "push");
+            }}
+          >
+            <option value="SUBMITTED_DESC">{copy.sortNewest}</option>
+            <option value="SUBMITTED_ASC">{copy.sortOldest}</option>
+          </select>
+        </label>
       </div>
       {error ? (
         <p className="candidate-application-error" role="alert">
           {error}
         </p>
       ) : null}
-      {filtered.length ? (
+      {applications.length ? (
         <div className="candidate-application-list">
-          {filtered.map((application, index) => (
+          {applications.map((application, index) => (
             <ApplicationListCard
               key={application.applicationId}
               application={application}
@@ -546,26 +755,30 @@ export function CandidateApplicationsListPage({
         <div className="candidate-application-list-page__empty">
           <EmptyState
             icon={<BriefcaseBusiness />}
-            title={applications.length ? copy.noMatchesTitle : copy.emptyTitle}
+            title={filter !== "ALL" ? copy.noMatchesTitle : copy.emptyTitle}
             description={
-              applications.length
+              filter !== "ALL"
                 ? copy.noMatchesDescription
                 : copy.emptyDescription
             }
           />
-          {applications.length === 0 ? (
+          {filter === "ALL" ? (
             <Link href="/jobs">{copy.browseJobs} →</Link>
           ) : null}
         </div>
       )}
-      {nextCursor ? (
+      {nextCursor && hasMore ? (
         <button
           type="button"
           className="job-secondary-button"
           disabled={loading}
           onClick={() => void loadMore()}
         >
-          {loading ? copy.loading : copy.loadMore}
+          {loading
+            ? copy.loading
+            : loadMoreFailed
+              ? copy.retryLoadMore
+              : copy.loadMore}
         </button>
       ) : null}
     </section>

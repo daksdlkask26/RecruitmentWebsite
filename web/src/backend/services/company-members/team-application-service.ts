@@ -9,11 +9,18 @@ import {
   type CandidateTeamApplicationRow,
 } from "@/backend/repositories/company-members/prisma-team-application-repository";
 import {
+  candidateTeamApplicationListSchema,
   candidateTeamApplicationSchema,
+  teamApplicationListQuerySchema,
   type TeamRole,
 } from "@/shared/contracts/company-members/team-applications";
+import {
+  decodeApplicationListCursor,
+  encodeApplicationListCursor,
+} from "@/backend/applications/application-list-cursor";
 import type { PreparedDirectApplicationDocument } from "@/backend/services/jobs/prepare-direct-application-document";
 import { teamApplicationCvDeleteAfter } from "./team-application-retention-policy";
+import { requireActiveCompanyOwner } from "@/backend/company-members/company-team-authorization";
 import {
   CvSafetyEvidenceError,
   CvSafetyEvidenceService,
@@ -29,7 +36,9 @@ export class TeamApplicationCommandError extends Error {
       | "TEAM_MEMBER_EXISTS"
       | "TEAM_APPLICATION_DUPLICATE"
       | "TEAM_APPLICATION_UNAVAILABLE"
-      | "TEAM_APPLICATION_CONFLICT",
+      | "TEAM_APPLICATION_CONFLICT"
+      | "TEAM_APPLICATION_LIST_REQUEST_INVALID"
+      | "TEAM_APPLICATION_CURSOR_INVALID",
   ) {
     super(code);
   }
@@ -131,10 +140,55 @@ export class TeamApplicationService {
     }
   }
 
-  async listCandidate(userId: string) {
+  async listCandidate(userId: string, rawInput: unknown = {}) {
+    const parsed = teamApplicationListQuerySchema.safeParse(rawInput);
+    if (!parsed.success)
+      throw new TeamApplicationCommandError(
+        "TEAM_APPLICATION_LIST_REQUEST_INVALID",
+      );
+    const query = parsed.data;
+    const cursor = query.cursor
+      ? decodeApplicationListCursor(query.cursor, {
+          list: "CANDIDATE_TEAM_APPLICATIONS",
+          subjectId: userId,
+          scopeId: null,
+          filter: `${query.status ?? "ALL"}:${query.role ?? "ALL"}`,
+          sort: query.sort,
+        })
+      : null;
+    if (query.cursor && !cursor)
+      throw new TeamApplicationCommandError("TEAM_APPLICATION_CURSOR_INVALID");
     await this.synchronizeExpiredInvitations(userId);
-    const rows = await this.repository.listForCandidate(userId);
-    return { items: rows.map(projectCandidateTeamApplication) };
+    const page = await this.repository.listForCandidate({
+      ...query,
+      userId,
+      cursor: cursor
+        ? { submittedAt: new Date(cursor.submittedAt), id: cursor.id }
+        : null,
+    });
+    const hasMore = page.rows.length > query.limit;
+    const visible = hasMore ? page.rows.slice(0, query.limit) : page.rows;
+    const last = visible.at(-1);
+    const nextCursor =
+      hasMore && last
+        ? encodeApplicationListCursor({
+            list: "CANDIDATE_TEAM_APPLICATIONS",
+            subjectId: userId,
+            scopeId: null,
+            filter: `${query.status ?? "ALL"}:${query.role ?? "ALL"}`,
+            sort: query.sort,
+            submittedAt: last.submittedAt.toISOString(),
+            id: last.id,
+          })
+        : null;
+    return candidateTeamApplicationListSchema.parse({
+      items: visible.map(projectCandidateTeamApplication),
+      nextCursor,
+      hasMore,
+      total: page.total,
+      filter: { status: query.status ?? null, role: query.role ?? null },
+      sort: query.sort,
+    });
   }
 
   async getCandidate(userId: string, applicationId: string) {
@@ -418,10 +472,17 @@ export class TeamApplicationService {
   async markOwnerViewed(
     ownerUserId: string,
     applicationId: string,
+    companyId?: string,
     occurredAt = new Date(),
   ) {
-    const application = await prisma.teamApplication.findUnique({
-      where: { id: applicationId },
+    let owner;
+    try {
+      owner = await requireActiveCompanyOwner(ownerUserId, companyId);
+    } catch {
+      throw new TeamApplicationCommandError("TEAM_APPLICATION_UNAVAILABLE");
+    }
+    const application = await prisma.teamApplication.findFirst({
+      where: { id: applicationId, companyId: owner.companyId },
       select: { id: true, companyId: true, status: true, version: true },
     });
     if (!application) {

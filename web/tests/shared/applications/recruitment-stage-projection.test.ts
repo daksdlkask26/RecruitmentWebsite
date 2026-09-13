@@ -3,6 +3,7 @@ import {
   offerResponseCommandSchema,
   publicOutcomeForCanonicalStage,
   publicStageForCanonicalStage,
+  publicTimelineEventCodeForCanonicalStage,
   publicUpdateKindForCanonicalStage,
   publicUpdateTitleForCanonicalStage,
 } from "@/shared/contracts/candidate-applications";
@@ -16,29 +17,57 @@ describe("candidate recruitment stage projection", () => {
         null,
         "SUBMITTED",
         "Application submitted",
+        "APPLICATION_SUBMITTED",
       ],
-      VIEWED: ["UNDER_REVIEW", null, "UNDER_REVIEW", "Application viewed"],
+      VIEWED: [
+        "UNDER_REVIEW",
+        null,
+        "UNDER_REVIEW",
+        "Application viewed",
+        "APPLICATION_VIEWED",
+      ],
       SHORTLISTED: [
         "UNDER_REVIEW",
         null,
         "UNDER_REVIEW",
         "Application shortlisted",
+        "APPLICATION_SHORTLISTED",
       ],
-      INTERVIEWING: ["INTERVIEW", null, "INTERVIEW", "Interview stage reached"],
-      OFFERED: ["OUTCOME", "OFFERED", "OUTCOME", "Offer sent"],
-      HIRED: ["OUTCOME", "HIRED", "OUTCOME", "Offer accepted"],
+      INTERVIEWING: [
+        "INTERVIEW",
+        null,
+        "INTERVIEW",
+        "Interview stage reached",
+        "INTERVIEW_STARTED",
+      ],
+      OFFERED: ["OUTCOME", "OFFERED", "OUTCOME", "Offer sent", "OFFER_SENT"],
+      HIRED: [
+        "OUTCOME",
+        "HIRED",
+        "OUTCOME",
+        "Offer accepted",
+        "OFFER_ACCEPTED",
+      ],
       OFFER_DECLINED: [
         "OUTCOME",
         "OFFER_DECLINED",
         "OUTCOME",
         "Offer declined",
+        "OFFER_DECLINED",
       ],
-      REJECTED: ["OUTCOME", "REJECTED", "OUTCOME", "Application rejected"],
+      REJECTED: [
+        "OUTCOME",
+        "REJECTED",
+        "OUTCOME",
+        "Application rejected",
+        "APPLICATION_REJECTED",
+      ],
       WAITLISTED: [
         "OUTCOME",
         "WAITLISTED",
         "OUTCOME",
         "Application waitlisted",
+        "APPLICATION_WAITLISTED",
       ],
     } as const;
 
@@ -49,6 +78,7 @@ describe("candidate recruitment stage projection", () => {
         publicOutcomeForCanonicalStage(canonicalStage),
         publicUpdateKindForCanonicalStage(canonicalStage),
         publicUpdateTitleForCanonicalStage(canonicalStage),
+        publicTimelineEventCodeForCanonicalStage(canonicalStage),
       ]).toEqual(values);
     }
   });

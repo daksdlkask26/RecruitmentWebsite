@@ -57,6 +57,146 @@ try {
       },
     });
     result = { requestId };
+  } else if (command === "seed-timeline") {
+    if (!payload?.applicationId) {
+      throw new Error("seed-timeline requires applicationId");
+    }
+    const application = await prisma.jobApplication.findUniqueOrThrow({
+      where: { id: payload.applicationId },
+      select: { id: true, stage: true, stageVersion: true },
+    });
+    const marker = await prisma.applicationStageEvent.findFirst({
+      where: {
+        applicationId: application.id,
+        id: { startsWith: `stage-e2e-timeline-${application.id}-` },
+      },
+      select: { toStage: true },
+    });
+    if (marker) {
+      result = { applicationId: application.id, finalStage: marker.toStage };
+    } else {
+      const transitions = [
+        {
+          stage: "VIEWED",
+          kind: "UNDER_REVIEW",
+          publicStage: "UNDER_REVIEW",
+          publicOutcome: null,
+          title: "Application viewed",
+          message: "The hiring team opened the application.",
+        },
+        {
+          stage: "SHORTLISTED",
+          kind: "UNDER_REVIEW",
+          publicStage: "UNDER_REVIEW",
+          publicOutcome: null,
+          title: "Application shortlisted",
+          message: "The application moved to the next review step.",
+        },
+        {
+          stage: "INTERVIEWING",
+          kind: "INTERVIEW",
+          publicStage: "INTERVIEW",
+          publicOutcome: null,
+          title: "Interview stage reached",
+          message: "The application reached the interview stage.",
+        },
+        {
+          stage: "REJECTED",
+          kind: "OUTCOME",
+          publicStage: "OUTCOME",
+          publicOutcome: "REJECTED",
+          title: "Application rejected",
+          message: "The hiring team completed its decision.",
+        },
+      ];
+      let fromStage = application.stage;
+      let version = application.stageVersion;
+      const stageEvents = [];
+      const publicUpdates = [];
+      for (const [index, transition] of transitions.entries()) {
+        version += 1;
+        const occurredAt = new Date(
+          Date.parse("2026-09-10T10:00:00.000Z") + (index + 1) * 60_000,
+        );
+        const eventId = `stage-e2e-timeline-${application.id}-${version}`;
+        stageEvents.push({
+          id: eventId,
+          applicationId: application.id,
+          fromStage,
+          toStage: transition.stage,
+          actorUserId: null,
+          actorType: "RECRUITER",
+          candidateVisibleReason: transition.message,
+          candidateVisible: true,
+          occurredAt,
+          applicationVersion: version,
+          idempotencyKey: `e2e-timeline-${application.id}-${version}`,
+        });
+        publicUpdates.push({
+          id: `public-e2e-timeline-${application.id}-${version}`,
+          applicationId: application.id,
+          kind: transition.kind,
+          publicStage: transition.publicStage,
+          publicOutcome: transition.publicOutcome,
+          title: transition.title,
+          effectiveAt: occurredAt,
+          deduplicationKey: `e2e-timeline-public-${application.id}-${version}`,
+          sourceEventReference: eventId,
+        });
+        fromStage = transition.stage;
+      }
+      await prisma.applicationStageEvent.createMany({ data: stageEvents });
+      await prisma.applicationPublicUpdate.createMany({ data: publicUpdates });
+      await prisma.jobApplication.update({
+        where: { id: application.id },
+        data: {
+          stage: "REJECTED",
+          stageVersion: version,
+          lastStageChangedAt: stageEvents.at(-1).occurredAt,
+        },
+      });
+      result = { applicationId: application.id, finalStage: "REJECTED" };
+    }
+  } else if (command === "read-job") {
+    if (!payload?.jobId) throw new Error("read-job requires jobId");
+    result = await prisma.jobPosting.findUniqueOrThrow({
+      where: { id: payload.jobId },
+      select: { title: true, location: true, status: true, removedAt: true },
+    });
+  } else if (command === "update-job") {
+    if (!payload?.jobId || !payload?.data) {
+      throw new Error("update-job requires jobId and data");
+    }
+    const updateData = { ...payload.data };
+    if (typeof updateData.removedAt === "string") {
+      updateData.removedAt = new Date(updateData.removedAt);
+    }
+    result = await prisma.jobPosting.update({
+      where: { id: payload.jobId },
+      data: updateData,
+      select: { title: true, location: true, status: true, removedAt: true },
+    });
+  } else if (command === "expire-application-document") {
+    if (!payload?.applicationId) {
+      throw new Error("expire-application-document requires applicationId");
+    }
+    const kind = payload.kind === "cover-letter" ? "COVER_LETTER" : "CV";
+    const mode = payload.mode === "deleted" ? "deleted" : "expired";
+    const updated = await prisma.applicationDocument.updateMany({
+      where: {
+        jobApplicationId: payload.applicationId,
+        kind,
+        committedAt: { not: null },
+      },
+      data:
+        mode === "deleted"
+          ? { deletedAt: new Date("2020-01-01T00:00:00.000Z") }
+          : { ordinaryAccessDeniedAt: new Date("2020-01-01T00:00:00.000Z") },
+    });
+    if (updated.count !== 1) {
+      throw new Error("expire-application-document target unavailable");
+    }
+    result = { updated: true };
   } else if (command === "delete") {
     const fixture = payload?.fixture;
     if (!fixture) throw new Error("delete requires fixture");

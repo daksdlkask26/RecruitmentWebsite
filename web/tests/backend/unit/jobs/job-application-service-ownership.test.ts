@@ -128,4 +128,30 @@ describe("JobApplicationService CV security boundary", () => {
     );
     expect(recordApplicationMock).toHaveBeenCalledOnce();
   });
+
+  it("keeps the committed application outcome when the post-commit projection fails", async () => {
+    recordApplicationMock.mockRejectedValueOnce(
+      new Error("catalog unavailable"),
+    );
+    const repository = {
+      submit: vi.fn().mockResolvedValue({
+        application: application(true),
+        created: true,
+      }),
+    };
+
+    await expect(
+      new JobApplicationService(repository as never).submit(
+        { userId: "candidate-1", sessionId: "session-1" },
+        "job-1",
+        "application-key-00000001",
+        command,
+        new Date("2026-08-01T00:00:00.000Z"),
+      ),
+    ).resolves.toMatchObject({
+      applicationId: "application-1",
+      created: true,
+    });
+    expect(recordApplicationMock).toHaveBeenCalledOnce();
+  });
 });

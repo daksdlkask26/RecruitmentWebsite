@@ -817,6 +817,10 @@
   font-weight: var(--sh-font-weight-bold);
 }
 
+:global(:root[data-theme="dark"]) .statusBadge {
+  color: var(--sh-color-brand-accent);
+}
+
 .statusMeta {
   display: flex;
   flex-wrap: wrap;

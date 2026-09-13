@@ -2,6 +2,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { render } from "react-email";
 import { createElement } from "react";
+import { prisma } from "@/backend/database/prisma";
 import { serverEnvironment } from "@/backend/env/runtime";
 import { safeErrorCode } from "@/backend/security/redaction";
 import { TokenProtector } from "@/backend/security/security-token/security-tokens";
@@ -46,6 +47,12 @@ import {
   ApplicationStageChangedTemplate,
   applicationStageChangedEmailText,
 } from "../templates/application-stage-changed";
+import {
+  RecruitmentNotificationTemplate,
+  recruitmentNotificationEmailText,
+  recruitmentNotificationEmailPayloadSchema,
+  type RecruitmentNotificationEmailPayload,
+} from "../templates/recruitment-notification";
 import {
   CompanyInvitationTemplate,
   companyInvitationEmailText,
@@ -92,6 +99,122 @@ function deliveryRecipient(row: ClaimedOutbox): string {
   if (!row.user) throw new Error("MISSING_RECIPIENT");
   return row.user.email;
 }
+
+const recruitmentNotificationCompanyRoles = [
+  "OWNER",
+  "HR_MANAGER",
+  "RECRUITER",
+  "HIRING_MANAGER",
+] as const;
+
+function ineligibleRecruitmentRecipient(): EmailDeliveryError {
+  return new EmailDeliveryError(
+    "RECRUITMENT_NOTIFICATION_RECIPIENT_NOT_ELIGIBLE",
+    false,
+  );
+}
+
+async function recruitmentNotificationRecipient(
+  row: ClaimedOutbox,
+  payload: RecruitmentNotificationEmailPayload,
+): Promise<string> {
+  if (row.userId !== row.recipientRef) throw ineligibleRecruitmentRecipient();
+
+  const keySeparator = row.idempotencyKey.lastIndexOf(":");
+  const keyPrefix = "recruitment:";
+  const workId =
+    row.idempotencyKey.startsWith(keyPrefix) && keySeparator > keyPrefix.length
+      ? row.idempotencyKey.slice(keyPrefix.length, keySeparator)
+      : null;
+  const keyRecipient =
+    workId === null ? null : row.idempotencyKey.slice(keySeparator + 1);
+  if (!workId || keyRecipient !== row.recipientRef)
+    throw ineligibleRecruitmentRecipient();
+
+  const work = await prisma.recruitmentNotificationWork.findUnique({
+    where: { id: workId },
+    select: {
+      applicationId: true,
+      audience: true,
+      kind: true,
+      targetReference: true,
+      status: true,
+    },
+  });
+  if (
+    !work ||
+    work.status !== "SENT" ||
+    work.applicationId !== payload.applicationId ||
+    work.audience !== payload.audience ||
+    work.kind !== payload.notificationKind
+  )
+    throw ineligibleRecruitmentRecipient();
+
+  const application = await prisma.jobApplication.findUnique({
+    where: { id: payload.applicationId },
+    select: {
+      candidateUserId: true,
+      jobPosting: { select: { companyId: true } },
+    },
+  });
+  if (!application) throw ineligibleRecruitmentRecipient();
+
+  if (payload.audience === "CANDIDATE") {
+    if (
+      work.targetReference !== application.candidateUserId ||
+      application.candidateUserId !== row.recipientRef
+    )
+      throw ineligibleRecruitmentRecipient();
+    const [user, preference] = await Promise.all([
+      prisma.userAccount.findFirst({
+        where: { id: row.recipientRef, state: "ACTIVE", deletedAt: null },
+        select: {
+          email: true,
+          preferences: { select: { applicationUpdatesEmail: true } },
+        },
+      }),
+      prisma.applicationNotificationPreference.findUnique({
+        where: { applicationId: payload.applicationId },
+        select: { emailEnabled: true },
+      }),
+    ]);
+    if (
+      !user ||
+      !(preference?.emailEnabled ?? true) ||
+      !(user.preferences?.applicationUpdatesEmail ?? true)
+    )
+      throw ineligibleRecruitmentRecipient();
+    return user.email;
+  }
+
+  if (work.targetReference !== application.jobPosting.companyId)
+    throw ineligibleRecruitmentRecipient();
+
+  const membership = await prisma.companyMembership.findFirst({
+    where: {
+      companyId: application.jobPosting.companyId,
+      userId: row.recipientRef,
+      status: "ACTIVE",
+      role: { in: [...recruitmentNotificationCompanyRoles] },
+      user: { state: "ACTIVE", deletedAt: null },
+    },
+    select: {
+      user: {
+        select: {
+          email: true,
+          preferences: { select: { applicationUpdatesEmail: true } },
+        },
+      },
+    },
+  });
+  if (
+    !membership ||
+    !(membership.user.preferences?.applicationUpdatesEmail ?? true)
+  )
+    throw ineligibleRecruitmentRecipient();
+  return membership.user.email;
+}
+
 export function selectedEmailAdapter(): EmailService {
   if (serverEnvironment.EMAIL_ADAPTER === "capture")
     return new CaptureEmailAdapter();
@@ -160,6 +283,7 @@ export async function deliverClaimedOutbox(
     let subject: string;
     let html: string;
     let text: string;
+    let recruitmentPayload: RecruitmentNotificationEmailPayload | undefined;
     const recoveryPayload = row.payloadRef as {
       event?: string;
       protectedProof?: string;
@@ -212,6 +336,25 @@ export async function deliverClaimedOutbox(
         createElement(ApplicationStageChangedTemplate, templateProps),
       );
       text = applicationStageChangedEmailText(templateProps);
+    } else if (row.templateVersion === "recruitment-notification.v1") {
+      if (row.kind !== "RECRUITMENT_NOTIFICATION")
+        throw new Error("RECRUITMENT_NOTIFICATION_KIND_INVALID");
+      const parsed = recruitmentNotificationEmailPayloadSchema.safeParse(
+        row.payloadRef,
+      );
+      if (!parsed.success)
+        throw new Error("RECRUITMENT_NOTIFICATION_EMAIL_PAYLOAD_INVALID");
+      recruitmentPayload = parsed.data;
+      subject =
+        parsed.data.notificationKind === "APPLICATION_SUBMITTED"
+          ? "Application submitted"
+          : parsed.data.notificationKind === "APPLICATION_RECEIVED"
+            ? "New application received"
+            : "Application stage updated";
+      html = await render(
+        createElement(RecruitmentNotificationTemplate, parsed.data),
+      );
+      text = recruitmentNotificationEmailText(parsed.data);
     } else if (row.templateVersion === "company-email-verification.v1") {
       if (!payload.protectedToken) throw new Error("MISSING_PROTECTED_TOKEN");
       const token = protector.unseal(payload.protectedToken);
@@ -419,7 +562,13 @@ export async function deliverClaimedOutbox(
     // Keep plaintext recipient material in process memory for the shortest
     // possible interval: unseal only after rendering and immediately before
     // invoking the selected provider adapter.
-    const recipient = deliveryRecipient(row);
+    // Recruitment notifications are re-authorized against current server
+    // state after rendering and immediately before the provider call. The
+    // claim-time recipient snapshot is not sufficient after a membership,
+    // account, or preference revocation.
+    const recipient = recruitmentPayload
+      ? await recruitmentNotificationRecipient(row, recruitmentPayload)
+      : deliveryRecipient(row);
     const delivery = await adapter.send({
       kind: row.kind,
       recipient,

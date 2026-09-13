@@ -63,9 +63,10 @@ export async function prepareTeamApplicationCv(file: File): Promise<{
 export async function openTeamApplicationCv(
   ownerUserId: string,
   applicationId: string,
+  companyId?: string,
 ) {
   try {
-    await requireTeamApplicationOwner(ownerUserId, applicationId);
+    await requireTeamApplicationOwner(ownerUserId, applicationId, companyId);
   } catch (error) {
     if (error instanceof TeamApplicationAuthorizationError) {
       throw new TeamApplicationCvError("TEAM_CV_UNAVAILABLE");

@@ -2424,6 +2424,8 @@ export const RecruitmentNotificationWorkScalarFieldEnum = {
   idempotencyKey: 'idempotencyKey',
   status: 'status',
   attempts: 'attempts',
+  leaseOwner: 'leaseOwner',
+  leaseExpiresAt: 'leaseExpiresAt',
   nextAttemptAt: 'nextAttemptAt',
   safeErrorCode: 'safeErrorCode',
   createdAt: 'createdAt',

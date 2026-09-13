@@ -123,6 +123,7 @@ export function teamApplicationFixture(
   overrides: Partial<{
     applicationId: string;
     companyId: string;
+    companyName: string;
     appliedRole: TeamRole;
     status:
       | "SUBMITTED"

@@ -1,12 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { mutateWithCurrentCsrf } from "@/frontend/features/authentication/client/current-csrf-proof";
 import { useCsrfProof } from "@/frontend/features/authentication/client/csrf-proof-context";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
 import {
+  ownerTeamApplicationListSchema,
   ownerTeamApplicationSchema,
+  teamApplicationListQuerySchema,
+  type TeamApplicationStatus,
   type OwnerTeamApplication,
   type TeamRole,
 } from "@/shared/contracts/company-members/team-applications";
@@ -19,6 +28,39 @@ import styles from "./company-team-applications-screen.module.css";
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
   return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+}
+
+type OwnerCompanyOption = { id: string; name: string };
+
+function readOwnerUrlState() {
+  if (typeof window === "undefined")
+    return {
+      status: undefined,
+      role: undefined,
+      sort: undefined,
+      cursor: null,
+      cursorInvalid: false,
+      companyId: undefined,
+      selected: undefined,
+    };
+  const params = new URLSearchParams(window.location.search);
+  const query = {
+    ...(params.has("cursor") ? { cursor: params.get("cursor") } : {}),
+    ...(params.has("status") ? { status: params.get("status") } : {}),
+    ...(params.has("role") ? { role: params.get("role") } : {}),
+    ...(params.has("sort") ? { sort: params.get("sort") } : {}),
+  };
+  const parsed = teamApplicationListQuerySchema.safeParse(query);
+  return {
+    status:
+      parsed.success && params.has("status") ? parsed.data.status : undefined,
+    role: parsed.success && params.has("role") ? parsed.data.role : undefined,
+    sort: parsed.success && params.has("sort") ? parsed.data.sort : undefined,
+    cursor: parsed.success ? (parsed.data.cursor ?? null) : null,
+    cursorInvalid: !parsed.success && params.has("cursor"),
+    companyId: params.get("companyId") ?? undefined,
+    selected: params.get("selected") ?? undefined,
+  };
 }
 
 function messageFrom(
@@ -40,19 +82,77 @@ function messageFrom(
 export function CompanyTeamApplicationsScreen({
   initialApplications,
   companyId,
+  eligibleCompanies = [],
+  initialCursor,
+  initialNextCursor,
+  initialHasMore,
+  initialTotal,
+  initialPendingCount,
+  initialFilter,
+  initialSort,
 }: {
   initialApplications: readonly OwnerTeamApplication[];
   companyId?: string;
+  eligibleCompanies?: readonly OwnerCompanyOption[];
+  initialCursor?: string | null;
+  initialNextCursor?: string | null;
+  initialHasMore?: boolean;
+  initialTotal?: number;
+  initialPendingCount: number;
+  initialFilter?: {
+    status: TeamApplicationStatus | null;
+    role: TeamRole | null;
+  };
+  initialSort?: "SUBMITTED_DESC" | "SUBMITTED_ASC";
 }) {
   const locale = useWorkspaceLocale();
   const copy = getCompanyTeamApplicationsCopy(locale);
   const csrf = useCsrfProof();
+  const browserState = readOwnerUrlState();
+  const initialCompanyScope =
+    companyId ??
+    (browserState.companyId &&
+    eligibleCompanies.some((company) => company.id === browserState.companyId)
+      ? browserState.companyId
+      : undefined);
+  const initialSelectedId = browserState.selected
+    ? initialApplications.some(
+        (item) => item.applicationId === browserState.selected,
+      )
+      ? browserState.selected
+      : null
+    : (initialApplications[0]?.applicationId ?? null);
+  const [companyScope, setCompanyScope] = useState(initialCompanyScope);
   const [applications, setApplications] = useState([...initialApplications]);
-  const [selectedId, setSelectedId] = useState(
-    initialApplications[0]?.applicationId ?? null,
+  const [status, setStatus] = useState<TeamApplicationStatus | undefined>(
+    browserState.status ?? initialFilter?.status ?? undefined,
+  );
+  const [roleFilter, setRoleFilter] = useState<TeamRole | undefined>(
+    browserState.role ?? initialFilter?.role ?? undefined,
+  );
+  const [sort, setSort] = useState<"SUBMITTED_DESC" | "SUBMITTED_ASC">(
+    browserState.sort ?? initialSort ?? "SUBMITTED_DESC",
+  );
+  const [nextCursor, setNextCursor] = useState(initialNextCursor ?? null);
+  const [currentCursor, setCurrentCursor] = useState<string | null>(
+    browserState.cursor,
+  );
+  const [hasMore, setHasMore] = useState(
+    initialHasMore ?? initialNextCursor !== null,
+  );
+  const [total, setTotal] = useState(
+    initialTotal ?? initialApplications.length,
+  );
+  const [pendingCount, setPendingCount] = useState(initialPendingCount);
+  const [loading, setLoading] = useState(false);
+  const [loadMoreFailed, setLoadMoreFailed] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(
+    initialSelectedId,
   );
   const [selected, setSelected] = useState<OwnerTeamApplication | null>(
-    initialApplications[0] ?? null,
+    initialApplications.find(
+      (item) => item.applicationId === initialSelectedId,
+    ) ?? null,
   );
   const [role, setRole] = useState<TeamRole>(
     initialApplications[0]?.appliedRole ?? "RECRUITER",
@@ -64,28 +164,222 @@ export function CompanyTeamApplicationsScreen({
   const [pendingDecision, setPendingDecision] = useState<
     "accept" | "reject" | null
   >(null);
+  const requestIdRef = useRef(0);
 
-  const pendingCount = useMemo(
-    () =>
-      applications.filter(
-        (item) => item.status === "SUBMITTED" || item.status === "VIEWED",
-      ).length,
-    [applications],
+  const updateUrl = useCallback(
+    (
+      nextCompany: string | undefined,
+      nextStatus: TeamApplicationStatus | undefined,
+      nextRole: TeamRole | undefined,
+      nextSort: "SUBMITTED_DESC" | "SUBMITTED_ASC",
+      nextSelected?: string | null,
+      nextCursor: string | null = null,
+      historyMode: "push" | "replace" = "push",
+    ) => {
+      const params = new URLSearchParams(window.location.search);
+      if (nextCompany) params.set("companyId", nextCompany);
+      else params.delete("companyId");
+      if (nextStatus) params.set("status", nextStatus);
+      else params.delete("status");
+      if (nextRole) params.set("role", nextRole);
+      else params.delete("role");
+      params.set("sort", nextSort);
+      if (nextSelected) params.set("selected", nextSelected);
+      else params.delete("selected");
+      if (nextCursor) params.set("cursor", nextCursor);
+      else params.delete("cursor");
+      const url = `${window.location.pathname}?${params.toString()}`;
+      if (historyMode === "replace") {
+        window.history.replaceState(null, "", url);
+      } else {
+        window.history.pushState(null, "", url);
+      }
+    },
+    [],
+  );
+
+  const fetchPage = useCallback(
+    async (
+      nextCompany: string | undefined,
+      nextStatus: TeamApplicationStatus | undefined,
+      nextRole: TeamRole | undefined,
+      nextSort: "SUBMITTED_DESC" | "SUBMITTED_ASC",
+      requestedCursor: string | null,
+      historyMode: "none" | "push" | "replace" = "none",
+      selectedForPage: string | null = null,
+      isNextPage = false,
+    ) => {
+      let selectedForRequest = selectedForPage;
+      const urlMatchesRequest = (cursor: string | null) => {
+        if (historyMode !== "none") return true;
+        const current = readOwnerUrlState();
+        return (
+          (current.companyId ?? undefined) === nextCompany &&
+          (current.status ?? undefined) === nextStatus &&
+          (current.role ?? undefined) === nextRole &&
+          (current.sort ?? "SUBMITTED_DESC") === nextSort &&
+          (current.cursorInvalid ? null : current.cursor) === cursor &&
+          (current.selected ?? null) === (selectedForRequest ?? null)
+        );
+      };
+      if (!urlMatchesRequest(requestedCursor)) return;
+      const requestId = ++requestIdRef.current;
+      setLoading(true);
+      setLoadMoreFailed(false);
+      setError(null);
+      let cursor = requestedCursor;
+      let restarted = false;
+      try {
+        if (!nextCompany) {
+          setApplications([]);
+          setNextCursor(null);
+          setCurrentCursor(null);
+          setHasMore(false);
+          setTotal(0);
+          setPendingCount(0);
+          setSelected(null);
+          setSelectedId(null);
+          if (historyMode !== "none")
+            updateUrl(
+              nextCompany,
+              nextStatus,
+              nextRole,
+              nextSort,
+              null,
+              null,
+              historyMode,
+            );
+          return;
+        }
+        while (true) {
+          const params = new URLSearchParams({
+            companyId: nextCompany,
+            limit: "24",
+            sort: nextSort,
+          });
+          if (nextStatus) params.set("status", nextStatus);
+          if (nextRole) params.set("role", nextRole);
+          if (cursor) params.set("cursor", cursor);
+          const response = await fetch(
+            `/api/recruiter/company/team/applications?${params.toString()}`,
+            { cache: "no-store" },
+          );
+          const body: unknown = await response.json().catch(() => null);
+          if (requestId !== requestIdRef.current) return;
+          if (!urlMatchesRequest(cursor)) return;
+          if (!response.ok) {
+            if (cursor && response.status === 400 && !restarted) {
+              restarted = true;
+              cursor = null;
+              selectedForRequest = null;
+              setCurrentCursor(null);
+              updateUrl(
+                nextCompany,
+                nextStatus,
+                nextRole,
+                nextSort,
+                null,
+                null,
+                "replace",
+              );
+              continue;
+            }
+            throw new Error(
+              messageFrom(
+                body,
+                copy,
+                isNextPage ? copy.loadMoreError : copy.loadError,
+              ),
+            );
+          }
+          const result = ownerTeamApplicationListSchema.parse(body);
+          const selectedItem = selectedForRequest
+            ? result.items.find(
+                (item) => item.applicationId === selectedForRequest,
+              )
+            : undefined;
+          const selectedOnPage = selectedItem?.applicationId ?? null;
+          setApplications(result.items);
+          setNextCursor(result.nextCursor);
+          setCurrentCursor(cursor);
+          setHasMore(result.hasMore);
+          setTotal(result.total);
+          setPendingCount(result.pendingCount);
+          setSelectedId(selectedOnPage);
+          setSelected(selectedItem ?? null);
+          if (selectedItem) setRole(selectedItem.appliedRole);
+          if (selectedForRequest && !selectedItem) {
+            updateUrl(
+              nextCompany,
+              nextStatus,
+              nextRole,
+              nextSort,
+              null,
+              cursor,
+              "replace",
+            );
+          } else if (historyMode !== "none" && !restarted) {
+            updateUrl(
+              nextCompany,
+              nextStatus,
+              nextRole,
+              nextSort,
+              selectedOnPage,
+              cursor,
+              historyMode,
+            );
+          }
+          return;
+        }
+      } catch (caught) {
+        if (requestId !== requestIdRef.current) return;
+        if (isNextPage) setLoadMoreFailed(true);
+        setError(caught instanceof Error ? caught.message : copy.loadError);
+      } finally {
+        if (requestId === requestIdRef.current) setLoading(false);
+      }
+    },
+    [copy, updateUrl],
+  );
+
+  const fetchDetail = useCallback(
+    async (applicationId: string, scope: string) => {
+      const response = await fetch(
+        `/api/recruiter/company/team/applications/${encodeURIComponent(applicationId)}?companyId=${encodeURIComponent(scope)}`,
+        { cache: "no-store" },
+      );
+      const body: unknown = await response.json().catch(() => null);
+      if (!response.ok)
+        throw new Error(messageFrom(body, copy, copy.loadError));
+      return ownerTeamApplicationSchema.parse(body);
+    },
+    [copy],
   );
 
   useEffect(() => {
-    if (!selectedId) return;
-    let cancelled = false;
-    void fetch(
-      `/api/recruiter/company/team/applications/${encodeURIComponent(selectedId)}`,
-      { cache: "no-store" },
+    const urlState = readOwnerUrlState();
+    if (
+      !urlState.selected ||
+      initialApplications.some(
+        (item) => item.applicationId === urlState.selected,
+      )
     )
-      .then(async (response) => {
-        const body: unknown = await response.json().catch(() => null);
-        if (!response.ok)
-          throw new Error(messageFrom(body, copy, copy.loadError));
-        return ownerTeamApplicationSchema.parse(body);
-      })
+      return;
+    updateUrl(
+      companyScope,
+      status,
+      roleFilter,
+      sort,
+      null,
+      urlState.cursorInvalid ? null : urlState.cursor,
+      "replace",
+    );
+  }, [companyScope, initialApplications, roleFilter, sort, status, updateUrl]);
+
+  useEffect(() => {
+    if (!selectedId || !companyScope) return;
+    let cancelled = false;
+    void fetchDetail(selectedId, companyScope)
       .then((detail) => {
         if (cancelled) return;
         setSelected(detail);
@@ -103,7 +397,130 @@ export function CompanyTeamApplicationsScreen({
     return () => {
       cancelled = true;
     };
-  }, [copy, selectedId]);
+  }, [companyScope, copy.loadError, fetchDetail, selectedId]);
+
+  useLayoutEffect(() => {
+    let active = true;
+    let lastUrl: string | null = null;
+    const syncFromUrl = (force = false) => {
+      if (!active) return;
+      const url = window.location.href;
+      if (!force && url === lastUrl) return;
+      lastUrl = url;
+      const next = readOwnerUrlState();
+      const nextCompany =
+        next.companyId &&
+        eligibleCompanies.some((company) => company.id === next.companyId)
+          ? next.companyId
+          : undefined;
+      const nextSort = next.sort ?? "SUBMITTED_DESC";
+      const nextCursor =
+        nextCompany && !next.cursorInvalid ? next.cursor : null;
+      const nextSelected =
+        nextCompany && !next.cursorInvalid ? (next.selected ?? null) : null;
+      setCompanyScope(nextCompany);
+      setStatus(next.status);
+      setRoleFilter(next.role);
+      setSort(nextSort);
+      setCurrentCursor(nextCursor);
+      setSelectedId(nextSelected);
+      setSelected(null);
+      if (
+        next.companyId !== nextCompany ||
+        next.cursorInvalid ||
+        (next.selected ?? null) !== nextSelected
+      ) {
+        updateUrl(
+          nextCompany,
+          next.status,
+          next.role,
+          nextSort,
+          nextSelected,
+          nextCursor,
+          "replace",
+        );
+      }
+      void fetchPage(
+        nextCompany,
+        next.status,
+        next.role,
+        nextSort,
+        nextCursor,
+        "none",
+        nextSelected,
+      );
+    };
+    let pageShowTimer: number | undefined;
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        pageShowTimer = window.setTimeout(syncFromUrl, 0);
+      }
+    };
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state === null) {
+        syncFromUrl(true);
+        return;
+      }
+      window.setTimeout(() => syncFromUrl(true), 0);
+    };
+    const applyInitialPage = () => {
+      const current = readOwnerUrlState();
+      const selectedFromUrl = current.selected
+        ? initialApplications.some(
+            (item) => item.applicationId === current.selected,
+          )
+          ? current.selected
+          : null
+        : (initialApplications[0]?.applicationId ?? null);
+      const selectedItem = initialApplications.find(
+        (item) => item.applicationId === selectedFromUrl,
+      );
+      setApplications([...initialApplications]);
+      setNextCursor(initialNextCursor ?? null);
+      setCurrentCursor(current.cursor);
+      setHasMore(initialHasMore ?? initialNextCursor !== null);
+      setTotal(initialTotal ?? initialApplications.length);
+      setPendingCount(initialPendingCount);
+      setSelectedId(selectedFromUrl);
+      setSelected(selectedItem ?? null);
+      if (selectedItem) setRole(selectedItem.appliedRole);
+    };
+    window.addEventListener("popstate", handlePopState, true);
+    window.addEventListener("pageshow", handlePageShow);
+    if (initialCursor !== undefined) {
+      const current = readOwnerUrlState();
+      const initialMatchesUrl =
+        !current.cursorInvalid &&
+        (current.status ?? undefined) ===
+          (initialFilter?.status ?? undefined) &&
+        (current.role ?? undefined) === (initialFilter?.role ?? undefined) &&
+        (current.sort ?? "SUBMITTED_DESC") ===
+          (initialSort ?? "SUBMITTED_DESC") &&
+        current.cursor === (initialCursor ?? null);
+      if (initialMatchesUrl) {
+        lastUrl = window.location.href;
+        applyInitialPage();
+      } else syncFromUrl();
+    }
+    return () => {
+      active = false;
+      if (pageShowTimer !== undefined) window.clearTimeout(pageShowTimer);
+      window.removeEventListener("popstate", handlePopState, true);
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, [
+    eligibleCompanies,
+    fetchPage,
+    initialApplications,
+    initialCursor,
+    initialFilter,
+    initialSort,
+    initialHasMore,
+    initialNextCursor,
+    initialPendingCount,
+    initialTotal,
+    updateUrl,
+  ]);
 
   function selectApplication(applicationId: string) {
     const seed = applications.find(
@@ -117,6 +534,47 @@ export function CompanyTeamApplicationsScreen({
     setNotice(null);
     setPendingDecision(null);
     setSelectedId(applicationId);
+    if (companyScope)
+      updateUrl(
+        companyScope,
+        status,
+        roleFilter,
+        sort,
+        applicationId,
+        currentCursor,
+        "push",
+      );
+  }
+
+  async function loadMore() {
+    if (!nextCursor || !hasMore || loading || !companyScope) return;
+    await fetchPage(
+      companyScope,
+      status,
+      roleFilter,
+      sort,
+      nextCursor,
+      "push",
+      null,
+      true,
+    );
+  }
+
+  function chooseCompany(nextCompany: string | undefined) {
+    setCompanyScope(nextCompany);
+    setCurrentCursor(null);
+    setSelectedId(null);
+    setSelected(null);
+    setNotice(null);
+    setError(null);
+    void fetchPage(nextCompany, status, roleFilter, sort, null, "push");
+  }
+
+  function clearSelectionForListChange() {
+    setSelectedId(null);
+    setSelected(null);
+    setPendingDecision(null);
+    setNotice(null);
   }
 
   function requestDecision(decision: "accept" | "reject") {
@@ -132,7 +590,7 @@ export function CompanyTeamApplicationsScreen({
     setError(null);
     try {
       const response = await mutateWithCurrentCsrf(
-        `/api/recruiter/company/team/applications/${encodeURIComponent(selected.applicationId)}/${decision}`,
+        `/api/recruiter/company/team/applications/${encodeURIComponent(selected.applicationId)}/${decision}?companyId=${encodeURIComponent(companyScope ?? "")}`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -147,22 +605,9 @@ export function CompanyTeamApplicationsScreen({
       const body: unknown = await response.json().catch(() => null);
       if (!response.ok)
         throw new Error(messageFrom(body, copy, copy.decisionError(decision)));
-      const next =
-        decision === "accept"
-          ? {
-              ...selected,
-              status: "INVITATION_SENT" as const,
-              invitationStatus: "PENDING" as const,
-              invitationEmailStatus: "PENDING" as const,
-              decidedAt: new Date().toISOString(),
-            }
-          : {
-              ...selected,
-              status: "REJECTED" as const,
-              invitationStatus: null,
-              rejectionReason: reason.trim() || null,
-              decidedAt: new Date().toISOString(),
-            };
+      const next = companyScope
+        ? await fetchDetail(selected.applicationId, companyScope)
+        : selected;
       setSelected(next);
       setApplications((current) =>
         current.map((item) =>
@@ -171,6 +616,17 @@ export function CompanyTeamApplicationsScreen({
       );
       setReason("");
       setPendingDecision(null);
+      if (companyScope) {
+        await fetchPage(
+          companyScope,
+          status,
+          roleFilter,
+          sort,
+          currentCursor,
+          "replace",
+          next.applicationId,
+        );
+      }
       setNotice(
         decision === "accept" ? copy.acceptSuccess : copy.rejectSuccess,
       );
@@ -179,6 +635,21 @@ export function CompanyTeamApplicationsScreen({
         caught instanceof Error ? caught.message : copy.genericDecisionError,
       );
       setPendingDecision(null);
+      if (companyScope && selected) {
+        void fetchDetail(selected.applicationId, companyScope)
+          .then((authoritative) => {
+            setSelected(authoritative);
+            setApplications((current) =>
+              current.map((item) =>
+                item.applicationId === authoritative.applicationId
+                  ? authoritative
+                  : item,
+              ),
+            );
+            setRole(authoritative.appliedRole);
+          })
+          .catch(() => undefined);
+      }
     } finally {
       setBusy(false);
     }
@@ -206,12 +677,116 @@ export function CompanyTeamApplicationsScreen({
           </span>
           <Link
             className={`${styles.link} ${styles.secondary}`}
-            href={`/recruiter/company-settings/team${companyId ? `?companyId=${encodeURIComponent(companyId)}` : ""}`}
+            href={`/recruiter/company-settings/team${companyScope ? `?companyId=${encodeURIComponent(companyScope)}` : ""}`}
           >
             {copy.manageTeamLink}
           </Link>
         </div>
       </header>
+      <section className={styles.notice} aria-label={copy.companyScope}>
+        <label>
+          {copy.companyScope}
+          <select
+            value={companyScope ?? ""}
+            onChange={(event) => chooseCompany(event.target.value || undefined)}
+          >
+            <option value="">{copy.allCompanies}</option>
+            {eligibleCompanies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </section>
+      {companyScope ? (
+        <section className={styles.notice} aria-label={copy.filterApplications}>
+          <label>
+            {copy.allStatuses}
+            <select
+              value={status ?? "ALL"}
+              onChange={(event) => {
+                const next =
+                  event.target.value === "ALL"
+                    ? undefined
+                    : (event.target.value as TeamApplicationStatus);
+                clearSelectionForListChange();
+                setStatus(next);
+                setCurrentCursor(null);
+                void fetchPage(
+                  companyScope,
+                  next,
+                  roleFilter,
+                  sort,
+                  null,
+                  "push",
+                );
+              }}
+            >
+              <option value="ALL">{copy.allStatuses}</option>
+              {(
+                [
+                  "SUBMITTED",
+                  "VIEWED",
+                  "REJECTED",
+                  "INVITATION_SENT",
+                  "WITHDRAWN",
+                  "JOINED",
+                ] as const
+              ).map((value) => (
+                <option key={value} value={value}>
+                  {copy.statusLabel(value)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {copy.allRoles}
+            <select
+              value={roleFilter ?? "ALL"}
+              onChange={(event) => {
+                const next =
+                  event.target.value === "ALL"
+                    ? undefined
+                    : (event.target.value as TeamRole);
+                clearSelectionForListChange();
+                setRoleFilter(next);
+                setCurrentCursor(null);
+                void fetchPage(companyScope, status, next, sort, null, "push");
+              }}
+            >
+              <option value="ALL">{copy.allRoles}</option>
+              <option value="HR_MANAGER">{copy.roleLabel("HR_MANAGER")}</option>
+              <option value="RECRUITER">{copy.roleLabel("RECRUITER")}</option>
+            </select>
+          </label>
+          <label>
+            {copy.sortApplications}
+            <select
+              value={sort}
+              onChange={(event) => {
+                const next = event.target.value as
+                  | "SUBMITTED_DESC"
+                  | "SUBMITTED_ASC";
+                clearSelectionForListChange();
+                setSort(next);
+                setCurrentCursor(null);
+                void fetchPage(
+                  companyScope,
+                  status,
+                  roleFilter,
+                  next,
+                  null,
+                  "push",
+                );
+              }}
+            >
+              <option value="SUBMITTED_DESC">{copy.newestFirst}</option>
+              <option value="SUBMITTED_ASC">{copy.oldestFirst}</option>
+            </select>
+          </label>
+        </section>
+      ) : null}
       {error ? (
         <p className={styles.error} role="alert">
           {error}
@@ -225,7 +800,7 @@ export function CompanyTeamApplicationsScreen({
           {selectedId ? copy.refreshSelection : ""}
         </p>
       )}
-      {applications.length ? (
+      {companyScope && applications.length ? (
         <div className={styles.layout}>
           <section
             className={styles.listPanel}
@@ -233,7 +808,7 @@ export function CompanyTeamApplicationsScreen({
           >
             <div className={styles.panelHeading}>
               <h2 id="team-application-list-title">{copy.candidateCvs}</h2>
-              <p>{copy.applicationCount(applications.length)}</p>
+              <p>{copy.applicationCount(total)}</p>
             </div>
             <div className={styles.list} role="list">
               {applications.map((application) => (
@@ -337,7 +912,7 @@ export function CompanyTeamApplicationsScreen({
                   <div className={styles.detailActions}>
                     <a
                       className={styles.link}
-                      href={`/api/recruiter/company/team/applications/${encodeURIComponent(selected.applicationId)}/cv`}
+                      href={`/api/recruiter/company/team/applications/${encodeURIComponent(selected.applicationId)}/cv?companyId=${encodeURIComponent(companyScope ?? "")}`}
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -430,10 +1005,36 @@ export function CompanyTeamApplicationsScreen({
         </div>
       ) : (
         <div className={styles.empty} role="status">
-          <strong>{copy.noApplications}</strong>
-          <p>{copy.noApplicationsDescription}</p>
+          <strong>
+            {companyScope
+              ? total
+                ? copy.noMatchingApplications
+                : copy.noApplications
+              : copy.allCompanies}
+          </strong>
+          <p>
+            {companyScope
+              ? total
+                ? copy.noMatchingApplications
+                : copy.noApplicationsDescription
+              : copy.chooseCompany}
+          </p>
         </div>
       )}
+      {companyScope && nextCursor && hasMore ? (
+        <button
+          className={`${styles.button} ${styles.secondary}`}
+          type="button"
+          disabled={loading}
+          onClick={() => void loadMore()}
+        >
+          {loading
+            ? copy.loadingApplications
+            : loadMoreFailed
+              ? copy.retryLoadMore
+              : copy.loadMoreApplications}
+        </button>
+      ) : null}
       {pendingDecision && selected ? (
         <div className={styles.dialogBackdrop}>
           <section

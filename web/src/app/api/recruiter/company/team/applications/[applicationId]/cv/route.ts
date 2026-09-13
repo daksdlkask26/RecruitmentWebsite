@@ -30,10 +30,17 @@ export async function GET(
   try {
     const account = await requireAccountRequest(request);
     const { applicationId } = await context.params;
-    const result = await openTeamApplicationCv(account.userId, applicationId);
+    const companyId =
+      new URL(request.url).searchParams.get("companyId") ?? undefined;
+    const result = await openTeamApplicationCv(
+      account.userId,
+      applicationId,
+      companyId,
+    );
     await new TeamApplicationService().markOwnerViewed(
       account.userId,
       applicationId,
+      companyId,
     );
     const iterator = result.stream[Symbol.asyncIterator]();
     let disposed = false;

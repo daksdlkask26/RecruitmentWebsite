@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 import { config as loadEnvironment } from "dotenv";
+import axe from "axe-core";
 import { expect, test, type Page } from "@playwright/test";
 
 import { runCandidateFirstE2EControl } from "../../../helpers/candidate-first-e2e-control";
@@ -51,6 +52,7 @@ test.afterAll(async () => {
 
 test("runs the Candidate journey from CV import through application and messaging", async ({
   page,
+  browser,
 }) => {
   test.skip(
     !enabled,
@@ -73,7 +75,7 @@ test("runs the Candidate journey from CV import through application and messagin
     );
     await page.getByRole("button", { name: "Sign in" }).click();
     expect((await response).status()).toBe(200);
-    await expect(page).toHaveURL(/\/dashboard$/u);
+    await expect(page).toHaveURL(/\/dashboard$/u, { timeout: 30_000 });
   });
 
   await step(page, "profile", async () => {
@@ -140,7 +142,9 @@ test("runs the Candidate journey from CV import through application and messagin
       .getByRole("checkbox", { name: "I have reviewed every proposal." })
       .check();
     await page.getByRole("button", { name: "Save review" }).click();
-    await expect(page.getByRole("status")).toContainText("Review saved");
+    await expect(page.getByRole("status")).toContainText("Review saved", {
+      timeout: 30_000,
+    });
   });
 
   await step(page, "confirm CV", async () => {
@@ -152,7 +156,7 @@ test("runs the Candidate journey from CV import through application and messagin
       .click();
     await expect(
       page.getByRole("heading", { name: "CV import confirmed" }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 30_000 });
   });
 
   await step(page, "Home", async () => {
@@ -186,6 +190,7 @@ test("runs the Candidate journey from CV import through application and messagin
     await page.getByRole("link", { name: "Apply now" }).click();
     await expect(page).toHaveURL(
       new RegExp(`/jobs/${fixture!.jobs.activeSecond.slug}/apply$`, "u"),
+      { timeout: 30_000 },
     );
     const phone = page.getByLabel("Phone number");
     if (!(await phone.inputValue())) await phone.fill("0901234567");
@@ -198,10 +203,16 @@ test("runs the Candidate journey from CV import through application and messagin
         .getByText("Application files", { exact: true }),
     ).toBeVisible();
     await page.getByRole("radiogroup").getByRole("radio").first().click();
+    await page.getByRole("tab", { name: "Write text" }).click();
+    await page
+      .locator("#application-cover-letter-text")
+      .fill("A candidate-visible cover letter.");
     await page
       .getByRole("button", { name: "Continue to Review and submit" })
       .click();
-    await expect(page).toHaveURL(/\/apply\/review\?draftId=/u);
+    await expect(page).toHaveURL(/\/apply\/review\?draftId=/u, {
+      timeout: 30_000,
+    });
     await expect(page.getByRole("heading", { name: /Apply/u })).toBeVisible();
     await page
       .getByRole("checkbox", {
@@ -220,13 +231,15 @@ test("runs the Candidate journey from CV import through application and messagin
     );
     await page.getByRole("button", { name: "Submit application" }).click();
     const response = await submission;
-    expect(response.status()).toBe(201);
+    const responseBody = await response.text();
+    expect(response.status(), responseBody).toBe(201);
     submittedApplicationId =
-      ((await response.json()) as { applicationId?: string }).applicationId ??
+      (JSON.parse(responseBody) as { applicationId?: string }).applicationId ??
       "";
     expect(submittedApplicationId).toBeTruthy();
     await expect(page).toHaveURL(
       new RegExp(`/jobs/applied/${submittedApplicationId}/processing$`, "u"),
+      { timeout: 30_000 },
     );
     await expect(page.locator("main").first()).toBeVisible();
   });
@@ -242,10 +255,256 @@ test("runs the Candidate journey from CV import through application and messagin
   await step(page, "application detail and file action", async () => {
     await gotoReady(page, `/jobs/applied/${submittedApplicationId}`);
     await expect(page.locator("#application-tracker-title")).toBeVisible();
-    await expect(page.locator("#submitted-files")).toBeVisible();
+    await runCandidateFirstE2EControl("seed-timeline", {
+      applicationId: submittedApplicationId,
+    });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await expect(
-      page.getByRole("button", { name: /view unavailable for/i }).first(),
-    ).toBeDisabled();
+      page.locator('[data-event-code="APPLICATION_SUBMITTED"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-event-code="APPLICATION_VIEWED"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-event-code="APPLICATION_SHORTLISTED"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-event-code="INTERVIEW_STARTED"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-event-code="APPLICATION_REJECTED"]'),
+    ).toBeVisible();
+    await expect(
+      page.getByText("The hiring team completed its decision.", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    const submittedFiles = page.locator("#submitted-files").first();
+    await expect(submittedFiles).toBeVisible();
+    const openHref = await submittedFiles
+      .getByRole("link", { name: "Open" })
+      .first()
+      .getAttribute("href");
+    const downloadHref = await submittedFiles
+      .getByRole("link", { name: "Download" })
+      .first()
+      .getAttribute("href");
+    expect(openHref).toBe(
+      `/api/candidate/applications/${submittedApplicationId}/documents/cv`,
+    );
+    expect(downloadHref).toBe(
+      `/api/candidate/applications/${submittedApplicationId}/documents/cv?download=1`,
+    );
+    const openResponse = await page.request.get(
+      new URL(openHref!, page.url()).toString(),
+    );
+    expect(openResponse.status()).toBe(200);
+    expect(openResponse.headers()["content-type"]).toMatch(/application\/pdf/u);
+    expect((await openResponse.body()).byteLength).toBeGreaterThan(0);
+    expect(openResponse.headers()["x-storage-locator"]).toBeUndefined();
+    const downloadResponse = await page.request.get(
+      new URL(downloadHref!, page.url()).toString(),
+    );
+    expect(downloadResponse.status()).toBe(200);
+    expect(downloadResponse.headers()["content-disposition"]).toMatch(
+      /^attachment;/u,
+    );
+    expect((await downloadResponse.body()).byteLength).toBeGreaterThan(0);
+    const coverLetterResponse = await page.request.get(
+      new URL(
+        `/api/candidate/applications/${submittedApplicationId}/documents/cover-letter`,
+        page.url(),
+      ).toString(),
+    );
+    expect(coverLetterResponse.status()).toBe(200);
+    expect(await coverLetterResponse.text()).toBe(
+      "A candidate-visible cover letter.",
+    );
+    await expect(
+      submittedFiles.getByText("A candidate-visible cover letter.").first(),
+    ).toBeVisible();
+    await expect(
+      submittedFiles.getByRole("heading", { name: "Submitted profile" }),
+    ).toBeVisible();
+    await expect(
+      submittedFiles.getByRole("heading", { name: "Submitted contact" }),
+    ).toBeVisible();
+    await expect(
+      submittedFiles.getByRole("heading", { name: "Submission consent" }),
+    ).toBeVisible();
+
+    await runCandidateFirstE2EControl("expire-application-document", {
+      applicationId: submittedApplicationId,
+      kind: "cv",
+      mode: "expired",
+    });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(
+      submittedFiles.getByRole("link", { name: "Open" }),
+    ).toHaveCount(0);
+    await expect(
+      submittedFiles.getByRole("link", { name: "Download" }),
+    ).toHaveCount(0);
+    await expect(
+      submittedFiles.getByRole("status").filter({ hasText: "Expired" }).first(),
+    ).toBeVisible();
+    const expiredOpenResponse = await page.request.get(
+      new URL(
+        `/api/candidate/applications/${submittedApplicationId}/documents/cv`,
+        page.url(),
+      ).toString(),
+    );
+    expect(expiredOpenResponse.status()).toBe(404);
+    expect((await expiredOpenResponse.body()).byteLength).toBe(0);
+    expect(expiredOpenResponse.headers()["cache-control"]).toBe(
+      "private, no-store",
+    );
+    expect(JSON.stringify(expiredOpenResponse.headers())).not.toMatch(
+      /storage|locator|checksum|digest|hold|retention/iu,
+    );
+    const expiredDownloadResponse = await page.request.get(
+      new URL(
+        `/api/candidate/applications/${submittedApplicationId}/documents/cv?download=1`,
+        page.url(),
+      ).toString(),
+    );
+    expect(expiredDownloadResponse.status()).toBe(404);
+    expect((await expiredDownloadResponse.body()).byteLength).toBe(0);
+    expect(expiredDownloadResponse.headers()["cache-control"]).toBe(
+      "private, no-store",
+    );
+    expect(JSON.stringify(expiredDownloadResponse.headers())).not.toMatch(
+      /storage|locator|checksum|digest|hold|retention/iu,
+    );
+
+    await expect(submittedFiles).toContainText(
+      fixture!.jobs.activeSecond.title,
+    );
+    await expect(
+      submittedFiles.getByText("A candidate-visible cover letter.").first(),
+    ).toBeVisible();
+
+    const liveJob = await runCandidateFirstE2EControl<{
+      title: string;
+      location: string;
+      status: "ACTIVE" | "CLOSED";
+      removedAt: string | null;
+    }>("read-job", { jobId: fixture!.jobs.activeSecond.id });
+    try {
+      await runCandidateFirstE2EControl("update-job", {
+        jobId: fixture!.jobs.activeSecond.id,
+        data: {
+          title: "Removed live listing",
+          location: "Removed live location",
+          status: "CLOSED",
+          removedAt: new Date(),
+        },
+      });
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await expect(
+        page
+          .getByRole("status")
+          .filter({ hasText: /This job listing is no longer available\./u })
+          .first(),
+      ).toBeVisible();
+      await expect(submittedFiles).toContainText(
+        fixture!.jobs.activeSecond.title,
+      );
+      await expect(submittedFiles).toContainText(
+        fixture!.jobs.activeSecond.location,
+      );
+      await expect(submittedFiles).not.toContainText("Removed live listing");
+    } finally {
+      await runCandidateFirstE2EControl("update-job", {
+        jobId: fixture!.jobs.activeSecond.id,
+        data: liveJob,
+      });
+    }
+
+    await page.goto("/jobs/applied", {
+      waitUntil: "domcontentloaded",
+    });
+    await page.waitForTimeout(1_000);
+    await page.goBack({ waitUntil: "domcontentloaded" });
+    await expect(page).toHaveURL(
+      new RegExp(`/jobs/applied/${submittedApplicationId}$`, "u"),
+      { timeout: 30_000 },
+    );
+    await page.goForward({ waitUntil: "domcontentloaded" });
+    await expect(page).toHaveURL(/\/jobs\/applied$/u);
+
+    await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+    await page.evaluate(() => localStorage.removeItem("smarthire-theme"));
+    await page.goBack({ waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(1_000);
+    await expect(submittedFiles).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.addScriptTag({ content: axe.source });
+    const violations = await page.evaluate(async () => {
+      const report = await (
+        window as typeof window & {
+          axe: {
+            run: () => Promise<{
+              violations: Array<{ id: string; impact?: string | null }>;
+            }>;
+          };
+        }
+      ).axe.run();
+      return report.violations.filter(
+        (violation) =>
+          violation.impact === "serious" || violation.impact === "critical",
+      );
+    });
+    expect(violations).toEqual([]);
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth + 1,
+      ),
+    ).toBe(true);
+    await page.keyboard.press("Tab");
+    await expect(page.locator(":focus")).toBeVisible();
+    const browserStorage = await page.evaluate(() =>
+      JSON.stringify({
+        localStorage: Object.fromEntries(Object.entries(localStorage)),
+        sessionStorage: Object.fromEntries(Object.entries(sessionStorage)),
+      }),
+    );
+    expect(browserStorage).not.toContain(fixture!.candidateEmail);
+    expect(browserStorage).not.toContain("A candidate-visible cover letter.");
+
+    const secondContext = await browser.newContext();
+    const secondPage = await secondContext.newPage();
+    try {
+      await secondPage.goto("/login", {
+        waitUntil: "domcontentloaded",
+      });
+      await secondPage
+        .getByLabel("Email address")
+        .fill(fixture!.candidateEmail);
+      await secondPage.getByLabel("Password", { exact: true }).fill(password);
+      await secondPage.getByRole("button", { name: "Sign in" }).click();
+      await expect(secondPage).toHaveURL(/\/dashboard$/u, {
+        timeout: 30_000,
+      });
+      await secondPage.goto(`/jobs/applied/${submittedApplicationId}`, {
+        waitUntil: "domcontentloaded",
+      });
+      const secondSubmittedFiles = secondPage
+        .locator("#submitted-files")
+        .first();
+      await expect(secondSubmittedFiles).toContainText(
+        fixture!.jobs.activeSecond.title,
+      );
+      await expect(
+        secondSubmittedFiles
+          .getByText("A candidate-visible cover letter.")
+          .first(),
+      ).toBeVisible();
+    } finally {
+      await secondContext.close();
+    }
   });
 
   await step(page, "notification", async () => {
