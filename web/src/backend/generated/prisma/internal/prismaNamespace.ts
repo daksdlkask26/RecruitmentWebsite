@@ -423,6 +423,7 @@ export const ModelName = {
   EmailOutbox: 'EmailOutbox',
   InAppNotification: 'InAppNotification',
   AuditEvent: 'AuditEvent',
+  PublicDiscoveryInvalidation: 'PublicDiscoveryInvalidation',
   Company: 'Company',
   JobIndustry: 'JobIndustry',
   JobSubIndustry: 'JobSubIndustry',
@@ -579,7 +580,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "userAccount" | "authProviderAccount" | "session" | "verification" | "twoFactor" | "candidateIdentity" | "candidateProfile" | "candidateProfileVisibility" | "profileExperience" | "profileEducation" | "skill" | "candidateProfileSkill" | "socialLink" | "accountPreferences" | "userJobWorkspaceState" | "emailChangeRequest" | "passwordChangeAttemptWindow" | "passwordChangeOperation" | "securityToken" | "passwordResetOperation" | "fullAccountRecoveryOperation" | "authenticationChallenge" | "rateLimitBucket" | "emailOutbox" | "inAppNotification" | "auditEvent" | "company" | "jobIndustry" | "jobSubIndustry" | "jobTaxonomyProposal" | "companyInvitation" | "teamOpportunity" | "teamApplication" | "companyTeamActivity" | "companyMembership" | "platformAdministratorGrant" | "platformAdministratorGrantScopeAssignment" | "administratorSessionPolicy" | "companyMembershipHistory" | "companyAccessPrerequisite" | "recruiterVerificationRequest" | "verificationNotificationEvent" | "employerVerificationPreparation" | "businessRegistryLookupSnapshot" | "companyContactEmailChallenge" | "verificationBusinessFacts" | "businessLicenseEvidence" | "verificationSafetyAttempt" | "verificationDecisionHistory" | "verificationPrivateNote" | "privilegedActionRationale" | "adminCommandReceipt" | "securityNotificationWork" | "adminDashboardSnapshot" | "moderationReport" | "moderationReportHistory" | "moderationPrivateNote" | "jobPosting" | "jobSearchProjection" | "jobPostReviewAggregate" | "jobPostRevisionRequest" | "jobPostFeaturedPlacement" | "jobPostEnforcementAction" | "jobPostEnforcementTarget" | "moderationReportEnforcementLink" | "jobPostOperationalHistory" | "jobPostReviewVersion" | "jobPostReviewHistory" | "jobPostReviewPrivateNote" | "jobCatalogueWriteLease" | "jobPostingSkill" | "applicationQuestion" | "candidateCv" | "privateCvMatchCheck" | "privateCvMatchAttempt" | "privateAutomaticMatchResult" | "privateAiEvaluationResult" | "privateMatchEvidence" | "privateCvMatchCommandReceipt" | "savedJob" | "jobReport" | "candidateApplicationDraft" | "applicationIntake" | "applicationPublicUpdate" | "applicationNotificationPreference" | "jobApplication" | "jobApplicationContactConsent" | "jobApplicationAttemptCounter" | "applicationDocument" | "applicationCoverLetterText" | "applicationArtifactPromotion" | "candidateCvArtifactPromotion" | "applicationDocumentLegalHold" | "companyDeletionRequest" | "companyDeletionManifestEntry" | "professionalConnection" | "professionalConnectionProposal" | "professionalConnectionDecision" | "professionalConnectionProposalHistory" | "professionalConnectionNotification" | "professionalConnectionCommandReceipt" | "supportConversation" | "supportMessage" | "supportAssignment" | "supportInternalNote" | "supportConversationHistory" | "recruitmentThread" | "recruitmentMessage" | "messagingConversation" | "messagingConversationParticipant" | "messagingMessage" | "userMessagingBlock" | "messagingReport" | "messagingReportReviewEvent" | "messagingReportPrivateNote" | "applicationStageEvent" | "applicationAnswer" | "recruitmentNotificationWork" | "cvAccountQuota" | "cvUpload" | "cvStoredArtifact" | "cvScanAssessment" | "cvExtraction" | "cvParseJob" | "cvRetryRequest" | "cvDraft" | "cvProcessingConsent" | "cvImportConfirmation" | "ocrProcessingAttempt" | "ocrUnitOutcome" | "searchImageQuery" | "searchStoredArtifact" | "searchScanAssessment" | "searchImageDecodeAttempt" | "searchIntentAttempt" | "searchProcessingConsent" | "imageSearchAdmissionEvent" | "imageSearchOperationalEvidence" | "automaticMatchResult" | "documentParseResult" | "skillEvidenceExtraction" | "cvEvidenceExcerpt" | "aiAssessment" | "aiAssessmentFinding" | "aiSuggestedInterviewQuestion" | "scoringOperation" | "scoringWorkItem" | "aiAssessmentAttempt" | "applicationScoringResult" | "manualApplicationPriority" | "rankingSnapshot" | "rankingSnapshotRow" | "jobPostingViewFact" | "jobPostingLifecycleFact" | "exportRequest" | "backupConfiguration" | "backupRun" | "activityLegalHold" | "searchCatalogVersion" | "searchOccupation" | "searchJobTitle" | "searchJobTitleTranslation" | "searchAlias" | "searchFacet" | "searchTitleFacet" | "searchMappingReview" | "searchProjectionReconciliationRun"
+    modelProps: "userAccount" | "authProviderAccount" | "session" | "verification" | "twoFactor" | "candidateIdentity" | "candidateProfile" | "candidateProfileVisibility" | "profileExperience" | "profileEducation" | "skill" | "candidateProfileSkill" | "socialLink" | "accountPreferences" | "userJobWorkspaceState" | "emailChangeRequest" | "passwordChangeAttemptWindow" | "passwordChangeOperation" | "securityToken" | "passwordResetOperation" | "fullAccountRecoveryOperation" | "authenticationChallenge" | "rateLimitBucket" | "emailOutbox" | "inAppNotification" | "auditEvent" | "publicDiscoveryInvalidation" | "company" | "jobIndustry" | "jobSubIndustry" | "jobTaxonomyProposal" | "companyInvitation" | "teamOpportunity" | "teamApplication" | "companyTeamActivity" | "companyMembership" | "platformAdministratorGrant" | "platformAdministratorGrantScopeAssignment" | "administratorSessionPolicy" | "companyMembershipHistory" | "companyAccessPrerequisite" | "recruiterVerificationRequest" | "verificationNotificationEvent" | "employerVerificationPreparation" | "businessRegistryLookupSnapshot" | "companyContactEmailChallenge" | "verificationBusinessFacts" | "businessLicenseEvidence" | "verificationSafetyAttempt" | "verificationDecisionHistory" | "verificationPrivateNote" | "privilegedActionRationale" | "adminCommandReceipt" | "securityNotificationWork" | "adminDashboardSnapshot" | "moderationReport" | "moderationReportHistory" | "moderationPrivateNote" | "jobPosting" | "jobSearchProjection" | "jobPostReviewAggregate" | "jobPostRevisionRequest" | "jobPostFeaturedPlacement" | "jobPostEnforcementAction" | "jobPostEnforcementTarget" | "moderationReportEnforcementLink" | "jobPostOperationalHistory" | "jobPostReviewVersion" | "jobPostReviewHistory" | "jobPostReviewPrivateNote" | "jobCatalogueWriteLease" | "jobPostingSkill" | "applicationQuestion" | "candidateCv" | "privateCvMatchCheck" | "privateCvMatchAttempt" | "privateAutomaticMatchResult" | "privateAiEvaluationResult" | "privateMatchEvidence" | "privateCvMatchCommandReceipt" | "savedJob" | "jobReport" | "candidateApplicationDraft" | "applicationIntake" | "applicationPublicUpdate" | "applicationNotificationPreference" | "jobApplication" | "jobApplicationContactConsent" | "jobApplicationAttemptCounter" | "applicationDocument" | "applicationCoverLetterText" | "applicationArtifactPromotion" | "candidateCvArtifactPromotion" | "applicationDocumentLegalHold" | "companyDeletionRequest" | "companyDeletionManifestEntry" | "professionalConnection" | "professionalConnectionProposal" | "professionalConnectionDecision" | "professionalConnectionProposalHistory" | "professionalConnectionNotification" | "professionalConnectionCommandReceipt" | "supportConversation" | "supportMessage" | "supportAssignment" | "supportInternalNote" | "supportConversationHistory" | "recruitmentThread" | "recruitmentMessage" | "messagingConversation" | "messagingConversationParticipant" | "messagingMessage" | "userMessagingBlock" | "messagingReport" | "messagingReportReviewEvent" | "messagingReportPrivateNote" | "applicationStageEvent" | "applicationAnswer" | "recruitmentNotificationWork" | "cvAccountQuota" | "cvUpload" | "cvStoredArtifact" | "cvScanAssessment" | "cvExtraction" | "cvParseJob" | "cvRetryRequest" | "cvDraft" | "cvProcessingConsent" | "cvImportConfirmation" | "ocrProcessingAttempt" | "ocrUnitOutcome" | "searchImageQuery" | "searchStoredArtifact" | "searchScanAssessment" | "searchImageDecodeAttempt" | "searchIntentAttempt" | "searchProcessingConsent" | "imageSearchAdmissionEvent" | "imageSearchOperationalEvidence" | "automaticMatchResult" | "documentParseResult" | "skillEvidenceExtraction" | "cvEvidenceExcerpt" | "aiAssessment" | "aiAssessmentFinding" | "aiSuggestedInterviewQuestion" | "scoringOperation" | "scoringWorkItem" | "aiAssessmentAttempt" | "applicationScoringResult" | "manualApplicationPriority" | "rankingSnapshot" | "rankingSnapshotRow" | "jobPostingViewFact" | "jobPostingLifecycleFact" | "exportRequest" | "backupConfiguration" | "backupRun" | "activityLegalHold" | "searchCatalogVersion" | "searchOccupation" | "searchJobTitle" | "searchJobTitleTranslation" | "searchAlias" | "searchFacet" | "searchTitleFacet" | "searchMappingReview" | "searchProjectionReconciliationRun"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2504,6 +2505,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AuditEventCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AuditEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    PublicDiscoveryInvalidation: {
+      payload: Prisma.$PublicDiscoveryInvalidationPayload<ExtArgs>
+      fields: Prisma.PublicDiscoveryInvalidationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PublicDiscoveryInvalidationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PublicDiscoveryInvalidationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PublicDiscoveryInvalidationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PublicDiscoveryInvalidationPayload>
+        }
+        findFirst: {
+          args: Prisma.PublicDiscoveryInvalidationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PublicDiscoveryInvalidationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PublicDiscoveryInvalidationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PublicDiscoveryInvalidationPayload>
+        }
+        findMany: {
+          args: Prisma.PublicDiscoveryInvalidationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PublicDiscoveryInvalidationPayload>[]
+        }
+        create: {
+          args: Prisma.PublicDiscoveryInvalidationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PublicDiscoveryInvalidationPayload>
+        }
+        createMany: {
+          args: Prisma.PublicDiscoveryInvalidationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PublicDiscoveryInvalidationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PublicDiscoveryInvalidationPayload>[]
+        }
+        delete: {
+          args: Prisma.PublicDiscoveryInvalidationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PublicDiscoveryInvalidationPayload>
+        }
+        update: {
+          args: Prisma.PublicDiscoveryInvalidationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PublicDiscoveryInvalidationPayload>
+        }
+        deleteMany: {
+          args: Prisma.PublicDiscoveryInvalidationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PublicDiscoveryInvalidationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PublicDiscoveryInvalidationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PublicDiscoveryInvalidationPayload>[]
+        }
+        upsert: {
+          args: Prisma.PublicDiscoveryInvalidationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PublicDiscoveryInvalidationPayload>
+        }
+        aggregate: {
+          args: Prisma.PublicDiscoveryInvalidationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePublicDiscoveryInvalidation>
+        }
+        groupBy: {
+          args: Prisma.PublicDiscoveryInvalidationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PublicDiscoveryInvalidationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PublicDiscoveryInvalidationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PublicDiscoveryInvalidationCountAggregateOutputType> | number
         }
       }
     }
@@ -13456,6 +13531,15 @@ export const AuditEventScalarFieldEnum = {
 export type AuditEventScalarFieldEnum = (typeof AuditEventScalarFieldEnum)[keyof typeof AuditEventScalarFieldEnum]
 
 
+export const PublicDiscoveryInvalidationScalarFieldEnum = {
+  id: 'id',
+  version: 'version',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PublicDiscoveryInvalidationScalarFieldEnum = (typeof PublicDiscoveryInvalidationScalarFieldEnum)[keyof typeof PublicDiscoveryInvalidationScalarFieldEnum]
+
+
 export const CompanyScalarFieldEnum = {
   id: 'id',
   slug: 'slug',
@@ -18795,6 +18879,7 @@ export type GlobalOmitConfig = {
   emailOutbox?: Prisma.EmailOutboxOmit
   inAppNotification?: Prisma.InAppNotificationOmit
   auditEvent?: Prisma.AuditEventOmit
+  publicDiscoveryInvalidation?: Prisma.PublicDiscoveryInvalidationOmit
   company?: Prisma.CompanyOmit
   jobIndustry?: Prisma.JobIndustryOmit
   jobSubIndustry?: Prisma.JobSubIndustryOmit

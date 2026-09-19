@@ -1,0 +1,791 @@
+{
+  "schemaVersion": "candidate-first-cf403-mutation-matrix-v1",
+  "generatedAt": "2026-09-18T08:40:36.453Z",
+  "commit": "583171bf8cdb3cc76fea4a6ce818e89208a99dfb",
+  "environment": {
+    "runtime": "Next production server plus standalone worker child process",
+    "baseUrl": "http://localhost:3003",
+    "adminOrigin": "http://console.admin.localhost:3003",
+    "databaseIsolation": "task-owned isolated PostgreSQL database",
+    "durableSignal": "PostgreSQL PublicDiscoveryInvalidation trigger watermark"
+  },
+  "method": {
+    "readBodiesAfterEveryCommittedMutation": true,
+    "surfaces": [
+      "GET /",
+      "GET /api/jobs",
+      "GET /api/companies/:id",
+      "GET /api/jobs/:id"
+    ],
+    "inProcessNextMutation": "authenticated admin ban/unban HTTP route",
+    "standaloneWorkerMutation": "child process runJobPostLifecycleCycle"
+  },
+  "results": [
+    {
+      "name": "public company profile fields change",
+      "mutationResult": {
+        "id": "company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+        "slug": "smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+        "legalName": "Công Ty SmartHire Limited",
+        "displayName": "CF403 job 9350028c-09ab-415d-ac2f-c58502d94808 profile",
+        "entityType": null,
+        "logoUrl": null,
+        "websiteUrl": null,
+        "publicDescription": "CF403 job 9350028c-09ab-415d-ac2f-c58502d94808 profile",
+        "publicLocation": "Hồ Chí Minh",
+        "size": null,
+        "industry": null,
+        "address": null,
+        "verifiedAt": "2026-08-19T08:40:18.103Z",
+        "normalizedTaxIdentifier": null,
+        "verificationState": "ACTIVE",
+        "verificationInactiveAt": null,
+        "moderationState": "ACTIVE",
+        "moderationVersion": 1,
+        "bannedAt": null,
+        "verificationStateBeforeBan": null,
+        "verifiedAtBeforeBan": null,
+        "createdAt": "2026-09-18T08:40:17.505Z",
+        "updatedAt": "2026-09-18T08:40:22.542Z",
+        "foundedYear": null
+      },
+      "before": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 53054,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "-hidden=\"true\">CC</span><div class=\"home-job-list-main\"><h3><a href=\"/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\">CF403 job 9350028c-09ab-415d-ac2f-c58502d94808</a></h3><p><span>CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8</span><span aria-hidden=\"true\"> · </span>Hồ Chí Min"
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 16606,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 5141,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 17868,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        }
+      },
+      "firstReadAfterCommit": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 53090,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "home-job-company\"><span class=\"home-job-company-mark home-job-company-mark--tone-4\" aria-hidden=\"true\">CJ</span><div><p>CF403 job 9350028c-09ab-415d-ac2f-c58502d94808 profile</p><small>Hôm nay</small></div></div><h3><a href=\"/jobs/future-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\">Future Eng"
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 16630,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "9f8a7d7e9\",\"title\":\"Future Engineer\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808 profile\",\"logoUrl\":null,\"websiteUrl\":null,\"publicDescription\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808 profile\","
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 5173,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "panyId\":\"company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"name\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808 profile\",\"logoUrl\":null,\"description\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808 profile\",\"industry\":null,\"locatio"
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 17892,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 job 9350028c-09ab-415d-ac2f-c"
+        }
+      },
+      "expected": "VISIBLE",
+      "status": "PASS",
+      "mutationClass": "company-profile-edit",
+      "bodyMarker": "CF403 job 9350028c-09ab-415d-ac2f-c58502d94808 profile"
+    },
+    {
+      "name": "company verification inactive",
+      "mutationResult": {
+        "id": "company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+        "slug": "smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+        "legalName": "Công Ty SmartHire Limited",
+        "displayName": "CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8",
+        "entityType": null,
+        "logoUrl": null,
+        "websiteUrl": null,
+        "publicDescription": "CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8",
+        "publicLocation": "Hồ Chí Minh",
+        "size": null,
+        "industry": null,
+        "address": null,
+        "verifiedAt": null,
+        "normalizedTaxIdentifier": null,
+        "verificationState": "INACTIVE",
+        "verificationInactiveAt": "2026-09-18T08:40:22.924Z",
+        "moderationState": "ACTIVE",
+        "moderationVersion": 1,
+        "bannedAt": null,
+        "verificationStateBeforeBan": null,
+        "verifiedAtBeforeBan": null,
+        "createdAt": "2026-09-18T08:40:17.505Z",
+        "updatedAt": "2026-09-18T08:40:22.926Z",
+        "foundedYear": null
+      },
+      "before": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 53054,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "-hidden=\"true\">CC</span><div class=\"home-job-list-main\"><h3><a href=\"/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\">CF403 job 9350028c-09ab-415d-ac2f-c58502d94808</a></h3><p><span>CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8</span><span aria-hidden=\"true\"> · </span>Hồ Chí Min"
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 16606,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 5141,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 17868,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        }
+      },
+      "firstReadAfterCommit": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 52536,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 12129,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 404,
+          "htmlBytes": 73,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 404,
+          "htmlBytes": 65,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        }
+      },
+      "expected": "HIDDEN",
+      "status": "PASS",
+      "mutationClass": "company-verification"
+    },
+    {
+      "name": "company verification active",
+      "mutationResult": {
+        "id": "company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+        "slug": "smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+        "legalName": "Công Ty SmartHire Limited",
+        "displayName": "CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8",
+        "entityType": null,
+        "logoUrl": null,
+        "websiteUrl": null,
+        "publicDescription": "CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8",
+        "publicLocation": "Hồ Chí Minh",
+        "size": null,
+        "industry": null,
+        "address": null,
+        "verifiedAt": "2026-08-19T08:40:23.183Z",
+        "normalizedTaxIdentifier": null,
+        "verificationState": "ACTIVE",
+        "verificationInactiveAt": null,
+        "moderationState": "ACTIVE",
+        "moderationVersion": 1,
+        "bannedAt": null,
+        "verificationStateBeforeBan": null,
+        "verifiedAtBeforeBan": null,
+        "createdAt": "2026-09-18T08:40:17.505Z",
+        "updatedAt": "2026-09-18T08:40:23.184Z",
+        "foundedYear": null
+      },
+      "before": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 52536,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 12129,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 404,
+          "htmlBytes": 73,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 404,
+          "htmlBytes": 65,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        }
+      },
+      "firstReadAfterCommit": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 53054,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "-hidden=\"true\">CC</span><div class=\"home-job-list-main\"><h3><a href=\"/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\">CF403 job 9350028c-09ab-415d-ac2f-c58502d94808</a></h3><p><span>CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8</span><span aria-hidden=\"true\"> · </span>Hồ Chí Min"
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 16606,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 5141,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 17868,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        }
+      },
+      "expected": "VISIBLE",
+      "status": "PASS",
+      "mutationClass": "company-verification"
+    },
+    {
+      "name": "admin company ban",
+      "mutationResult": {
+        "contextStatus": 200,
+        "status": 200,
+        "body": "{\"companyId\":\"company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"state\":\"BANNED\",\"version\":2,\"correlationId\":\"8a30ef5f-e5c6-4112-8de8-25a542b3310c\"}"
+      },
+      "firstReadAfterCommit": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 52536,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 12129,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 404,
+          "htmlBytes": 73,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 404,
+          "htmlBytes": 65,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        }
+      },
+      "expected": "HIDDEN",
+      "status": "PASS",
+      "mutationClass": "company-moderation"
+    },
+    {
+      "name": "admin company unban",
+      "mutationResult": {
+        "contextStatus": 200,
+        "status": 200,
+        "body": "{\"companyId\":\"company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"state\":\"ACTIVE\",\"version\":3,\"correlationId\":\"b6d0a61a-b158-4894-8468-52e2e4b11ed8\"}"
+      },
+      "firstReadAfterCommit": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 53054,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "-hidden=\"true\">CC</span><div class=\"home-job-list-main\"><h3><a href=\"/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\">CF403 job 9350028c-09ab-415d-ac2f-c58502d94808</a></h3><p><span>CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8</span><span aria-hidden=\"true\"> · </span>Hồ Chí Min"
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 16606,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 5141,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 17868,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        }
+      },
+      "expected": "VISIBLE",
+      "status": "PASS",
+      "mutationClass": "company-moderation"
+    },
+    {
+      "name": "recruiter closes approved job",
+      "mutationResult": true,
+      "firstReadAfterCommit": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 53008,
+          "containsJobMarker": false,
+          "containsCompanyMarker": true,
+          "markerContext": "home-job-company\"><span class=\"home-job-company-mark home-job-company-mark--tone-2\" aria-hidden=\"true\">CC</span><div><p>CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8</p><small>Hôm nay</small></div></div><h3><a href=\"/jobs/future-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\">Future Engineer</a"
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 14857,
+          "containsJobMarker": false,
+          "containsCompanyMarker": true,
+          "markerContext": "9f8a7d7e9\",\"title\":\"Future Engineer\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8\",\"logoUrl\":null,\"websiteUrl\":null,\"publicDescription\":\"CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8\",\"publicLocat"
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 3374,
+          "containsJobMarker": false,
+          "containsCompanyMarker": true,
+          "markerContext": "panyId\":\"company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"name\":\"CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8\",\"logoUrl\":null,\"description\":\"CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8\",\"industry\":null,\"location\":\"Hồ Chí M"
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 404,
+          "htmlBytes": 65,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        }
+      },
+      "expected": "HIDDEN",
+      "status": "PASS",
+      "mutationClass": "recruiter-close-reopen"
+    },
+    {
+      "name": "recruiter reopens approved job",
+      "mutationResult": true,
+      "firstReadAfterCommit": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 53054,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "-hidden=\"true\">CC</span><div class=\"home-job-list-main\"><h3><a href=\"/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\">CF403 job 9350028c-09ab-415d-ac2f-c58502d94808</a></h3><p><span>CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8</span><span aria-hidden=\"true\"> · </span>Hồ Chí Min"
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 16606,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 5141,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 17868,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        }
+      },
+      "expected": "VISIBLE",
+      "status": "PASS",
+      "mutationClass": "recruiter-close-reopen"
+    },
+    {
+      "name": "admin approves/republishes job projection (hide leg)",
+      "mutationResult": {
+        "contextStatus": 200,
+        "status": 200,
+        "body": "{\"jobId\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"companyId\":\"company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"version\":4,\"visibility\":\"HIDDEN\",\"applicationState\":\"OPEN\",\"status\":\"SUCCESS\",\"correlationId\":\"c33c579e-9dc6-42fb-a25d-a0b8e695d5ba\"}"
+      },
+      "firstReadAfterCommit": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 53008,
+          "containsJobMarker": false,
+          "containsCompanyMarker": true,
+          "markerContext": "home-job-company\"><span class=\"home-job-company-mark home-job-company-mark--tone-2\" aria-hidden=\"true\">CC</span><div><p>CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8</p><small>Hôm nay</small></div></div><h3><a href=\"/jobs/future-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\">Future Engineer</a"
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 14857,
+          "containsJobMarker": false,
+          "containsCompanyMarker": true,
+          "markerContext": "9f8a7d7e9\",\"title\":\"Future Engineer\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8\",\"logoUrl\":null,\"websiteUrl\":null,\"publicDescription\":\"CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8\",\"publicLocat"
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 3374,
+          "containsJobMarker": false,
+          "containsCompanyMarker": true,
+          "markerContext": "panyId\":\"company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"name\":\"CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8\",\"logoUrl\":null,\"description\":\"CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8\",\"industry\":null,\"location\":\"Hồ Chí M"
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 404,
+          "htmlBytes": 65,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        }
+      },
+      "expected": "HIDDEN",
+      "status": "PASS",
+      "mutationClass": "admin-job-approval-republish"
+    },
+    {
+      "name": "admin approves/republishes job projection (restore leg)",
+      "mutationResult": {
+        "contextStatus": 200,
+        "status": 200,
+        "body": "{\"jobId\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"companyId\":\"company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"version\":5,\"visibility\":\"PUBLISHED\",\"applicationState\":\"OPEN\",\"status\":\"SUCCESS\",\"correlationId\":\"d6d9b307-5346-4e30-a650-be953408de0a\"}"
+      },
+      "firstReadAfterCommit": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 53054,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "-hidden=\"true\">CC</span><div class=\"home-job-list-main\"><h3><a href=\"/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\">CF403 job 9350028c-09ab-415d-ac2f-c58502d94808</a></h3><p><span>CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8</span><span aria-hidden=\"true\"> · </span>Hồ Chí Min"
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 16606,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 5141,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 17868,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        }
+      },
+      "expected": "VISIBLE",
+      "status": "PASS",
+      "mutationClass": "admin-job-approval-republish"
+    },
+    {
+      "name": "standalone deadline lifecycle worker archives job",
+      "mutationResult": {
+        "scanned": 1,
+        "archived": 1
+      },
+      "firstReadAfterCommit": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 53008,
+          "containsJobMarker": false,
+          "containsCompanyMarker": true,
+          "markerContext": "home-job-company\"><span class=\"home-job-company-mark home-job-company-mark--tone-2\" aria-hidden=\"true\">CC</span><div><p>CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8</p><small>Hôm nay</small></div></div><h3><a href=\"/jobs/future-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\">Future Engineer</a"
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 14857,
+          "containsJobMarker": false,
+          "containsCompanyMarker": true,
+          "markerContext": "9f8a7d7e9\",\"title\":\"Future Engineer\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8\",\"logoUrl\":null,\"websiteUrl\":null,\"publicDescription\":\"CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8\",\"publicLocat"
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 3374,
+          "containsJobMarker": false,
+          "containsCompanyMarker": true,
+          "markerContext": "panyId\":\"company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"name\":\"CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8\",\"logoUrl\":null,\"description\":\"CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8\",\"industry\":null,\"location\":\"Hồ Chí M"
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 404,
+          "htmlBytes": 65,
+          "containsJobMarker": false,
+          "containsCompanyMarker": false,
+          "markerContext": null
+        }
+      },
+      "expected": "HIDDEN",
+      "status": "PASS",
+      "mutationClass": "deadline-lifecycle-worker",
+      "processBoundary": "standalone child process -> production Next process"
+    },
+    {
+      "name": "deadline lifecycle restoration",
+      "mutationResult": {
+        "id": "job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+        "companyId": "company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+        "industryId": "r03",
+        "subIndustryId": "r03-software-development",
+        "industryCode": "r03",
+        "subIndustryCode": "r03-software-development",
+        "slug": "active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+        "title": "CF403 job 9350028c-09ab-415d-ac2f-c58502d94808",
+        "normalizedTitle": "cf403 job 9350028c-09ab-415d-ac2f-c58502d94808",
+        "summary": "Build useful and accessible recruitment products.",
+        "description": "Create production-grade web experiences for Vietnamese users.",
+        "responsibilities": "Design, implement, test, and review product increments.",
+        "requirements": "Strong TypeScript fundamentals and collaborative delivery.",
+        "benefits": "Flexible work and a learning budget.",
+        "education": null,
+        "numberOfHires": null,
+        "age": null,
+        "location": "Hồ Chí Minh",
+        "normalizedLocation": "ho chi minh",
+        "employmentType": "FULL_TIME",
+        "experienceLevel": "MID",
+        "workArrangement": "HYBRID",
+        "salaryMin": "25000000",
+        "salaryMax": "45000000",
+        "salaryCurrency": "VND",
+        "salaryPeriod": "MONTH",
+        "searchDocumentNormalized": "cf403 job 9350028c-09ab-415d-ac2f-c58502d94808",
+        "status": "ACTIVE",
+        "approvedAt": "2026-09-03T08:40:17.374Z",
+        "publishedAt": "2026-09-18T07:40:18.111Z",
+        "applicationDeadline": "2026-10-02T08:40:36.243Z",
+        "closedAt": null,
+        "removedAt": null,
+        "version": 6,
+        "createdAt": "2026-09-18T08:40:17.613Z",
+        "updatedAt": "2026-09-18T08:40:36.244Z"
+      },
+      "firstReadAfterCommit": {
+        "home": {
+          "url": "http://localhost:3003/",
+          "finalUrl": "http://localhost:3003/",
+          "status": 200,
+          "htmlBytes": 53054,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "-hidden=\"true\">CC</span><div class=\"home-job-list-main\"><h3><a href=\"/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\">CF403 job 9350028c-09ab-415d-ac2f-c58502d94808</a></h3><p><span>CF403 company 202285f6-c32b-48a2-9b3a-60699e7278c8</span><span aria-hidden=\"true\"> · </span>Hồ Chí Min"
+        },
+        "jobs": {
+          "url": "http://localhost:3003/api/jobs?limit=20",
+          "finalUrl": "http://localhost:3003/api/jobs?limit=20",
+          "status": 200,
+          "htmlBytes": 16606,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "company": {
+          "url": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/companies/company-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 5141,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "},{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        },
+        "job": {
+          "url": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "finalUrl": "http://localhost:3003/api/jobs/active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9",
+          "status": 200,
+          "htmlBytes": 17868,
+          "containsJobMarker": true,
+          "containsCompanyMarker": true,
+          "markerContext": "{\"id\":\"job-active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"slug\":\"active-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"title\":\"CF403 job 9350028c-09ab-415d-ac2f-c58502d94808\",\"company\":{\"slug\":\"smart-hire-db9c38fa-fbd6-4dc7-bb4e-aa29f8a7d7e9\",\"displayName\":\"CF403 company 202285f6-c32b-48a2-9b"
+        }
+      },
+      "expected": "VISIBLE",
+      "status": "PASS",
+      "mutationClass": "deadline-lifecycle-worker"
+    }
+  ],
+  "assessment": {
+    "public company profile fields change": "PASS",
+    "company verification inactive": "PASS",
+    "company verification active": "PASS",
+    "admin company ban": "PASS",
+    "admin company unban": "PASS",
+    "recruiter closes approved job": "PASS",
+    "recruiter reopens approved job": "PASS",
+    "admin approves/republishes job projection (hide leg)": "PASS",
+    "admin approves/republishes job projection (restore leg)": "PASS",
+    "standalone deadline lifecycle worker archives job": "PASS",
+    "deadline lifecycle restoration": "PASS"
+  },
+  "safety": {
+    "originalCompany": {
+      "verificationState": "ACTIVE",
+      "moderationState": "ACTIVE"
+    },
+    "originalJob": {
+      "status": "ACTIVE"
+    },
+    "catalogueUntouched": true,
+    "fixtureCleanup": "deleteJobBoardDatabaseFixture plus matrix rows"
+  }
+}

@@ -1,6 +1,8 @@
 import "server-only";
 
 import { prisma } from "@/backend/database/prisma";
+import { candidateVisibleJobWhere } from "@/backend/repositories/jobs/candidate-visible-job-policy";
+import { getPublicCompanyWhere } from "@/backend/repositories/companies/public-company-visibility-policy";
 
 export type HomePublicCompanyRow = {
   slug: string;
@@ -20,38 +22,20 @@ export interface HomePublicCompanyRepository {
 
 function activeCompanyWhere(now: Date) {
   return {
-    verificationState: "ACTIVE" as const,
-    verifiedAt: { not: null },
-    verificationInactiveAt: null,
+    ...getPublicCompanyWhere(),
     jobPostings: {
       some: {
-        status: "ACTIVE" as const,
-        approvedAt: { not: null },
-        publishedAt: { not: null, lte: now },
-        OR: [
-          { applicationDeadline: null },
-          { applicationDeadline: { gt: now } },
-        ],
+        ...candidateVisibleJobWhere(now),
       },
     },
   };
 }
 
 function activeJobWhere(now: Date) {
-  return {
-    status: "ACTIVE" as const,
-    approvedAt: { not: null },
-    publishedAt: { not: null, lte: now },
-    OR: [
-      { applicationDeadline: null },
-      { applicationDeadline: { gt: now } },
-    ],
-  };
+  return candidateVisibleJobWhere(now);
 }
 
-export class PrismaHomePublicCompanyRepository
-  implements HomePublicCompanyRepository
-{
+export class PrismaHomePublicCompanyRepository implements HomePublicCompanyRepository {
   async list(now: Date, limit = 6): Promise<readonly HomePublicCompanyRow[]> {
     const rows = await prisma.company.findMany({
       where: activeCompanyWhere(now),

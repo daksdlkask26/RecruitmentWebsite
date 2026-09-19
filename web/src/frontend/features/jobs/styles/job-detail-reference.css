@@ -319,6 +319,28 @@
   white-space: nowrap;
 }
 
+/* Keep the light reference palette WCAG AA compliant for normal-size labels. */
+:root:not([data-theme="dark"])
+  .job-detail-board-page
+  .job-state[data-state="active"],
+:root:not([data-theme="dark"]) .job-detail-board-page .job-verified-inline {
+  color: #006b52;
+}
+
+:root:not([data-theme="dark"])
+  .job-detail-board-page
+  .job-detail-quick-info-label,
+:root:not([data-theme="dark"]) .job-detail-board-page .sh-stat-chip__label {
+  color: #52627a;
+}
+
+:root:not([data-theme="dark"])
+  .job-detail-sidebar--board
+  .job-report-widget
+  h2 {
+  color: #8a5300;
+}
+
 .job-detail-sidebar--board .job-company-accordion-content {
   padding: 0 26px 24px;
 }
@@ -502,6 +524,12 @@
  * when the workspace is dark. This prevents the detail page from becoming a
  * light island after navigating from Find Jobs or CV Match Check. */
 :root[data-theme="dark"] .job-detail-board-page {
+  /* The shared blue token is intentionally tuned for filled controls. The
+   * detail page also uses the accent for normal-size links and badges, so use
+   * the dark-theme informational tone here to preserve WCAG AA contrast. */
+  --job-detail-accent: var(--sh-color-info);
+  --job-detail-accent-hover: #bfdbfe;
+  --job-detail-accent-soft: var(--sh-color-info-bg);
   color: var(--sh-color-text-primary);
   background: var(--sh-color-surface-page);
 }
@@ -572,6 +600,11 @@
   border-color: var(--sh-color-border-subtle);
   color: var(--sh-color-brand-accent);
   background: var(--sh-color-info-bg);
+}
+
+:root[data-theme="dark"] .job-detail-board-page .job-verified-inline {
+  color: var(--sh-color-success);
+  background: var(--sh-color-success-bg);
 }
 
 :root[data-theme="dark"]

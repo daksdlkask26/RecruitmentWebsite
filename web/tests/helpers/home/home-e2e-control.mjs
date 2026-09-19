@@ -21,6 +21,34 @@ try {
       `home-${payload.label}`,
       fixtureNow,
     );
+    // Production search keeps the JobSearchProjection table authoritative.
+    // The database fixture creates jobs directly, so materialize the same
+    // projection rows before the browser reads them; this is fixture setup,
+    // not a replacement for any exercised mutation route.
+    const { buildJobSearchProfile } =
+      await import("../../../src/backend/services/search/job-search-profile.ts");
+    const { jobSearchProjectionData } =
+      await import("../../../src/backend/services/search/job-search-profile-projection.ts");
+    const { jobSearchCatalogIndex } =
+      await import("../../../src/backend/services/search/catalogs/job-search-catalog-index.ts");
+    for (const job of Object.values(databaseFixture.jobs)) {
+      if (job.status !== "ACTIVE") continue;
+      const profile = buildJobSearchProfile(
+        {
+          title: job.title,
+          industryCode: job.industryCode ?? job.industryId,
+          categoryIds: [job.subIndustryCode, job.subIndustryId],
+          skills: job.skills.map((skill) => skill.displayName),
+        },
+        { index: jobSearchCatalogIndex },
+      );
+      const projection = jobSearchProjectionData(job.id, profile);
+      await prisma.jobSearchProjection.upsert({
+        where: { jobPostingId: job.id },
+        create: projection,
+        update: projection,
+      });
+    }
     const { hashPassword } = await import("better-auth/crypto");
     const passwordHash = await hashPassword("Home candidate 2026!");
     await prisma.company.update({
@@ -78,6 +106,88 @@ try {
       },
     });
     result = { updated: true };
+  } else if (command === "close-authoritative-job") {
+    const { closeManagedJobPost } =
+      await import("../../../src/backend/jobs/review/job-post-review-service.ts");
+    const closed = await closeManagedJobPost({
+      jobId: payload.jobId,
+      companyId: payload.companyId,
+      actorUserId: payload.actorUserId,
+    });
+    if (closed) {
+      result = { closed: true, source: "review-aggregate" };
+    } else {
+      // The shared job-board fixture intentionally creates lightweight public
+      // postings without review aggregates. Keep this state transition
+      // task-owned while still exercising the real candidate apply read.
+      const updated = await prisma.jobPosting.updateMany({
+        where: {
+          id: payload.jobId,
+          companyId: payload.companyId,
+          status: "ACTIVE",
+        },
+        data: { status: "CLOSED", closedAt: new Date() },
+      });
+      result = {
+        closed: updated.count === 1,
+        source: "fixture-public-posting",
+      };
+    }
+  } else if (command === "ban-authoritative-company") {
+    const { CompanyModerationService } =
+      await import("../../../src/backend/admin/companies/company-moderation-service.ts");
+    const company = await prisma.company.findUniqueOrThrow({
+      where: { id: payload.companyId },
+      select: { moderationVersion: true },
+    });
+    result = await new CompanyModerationService().ban(
+      {
+        userId: payload.actorUserId,
+        sessionId: "cf405-" + payload.companyId,
+        grantId: "cf405-grant-" + payload.companyId,
+        proofAt: new Date(),
+      },
+      payload.companyId,
+      {
+        expectedVersion: company.moderationVersion,
+        idempotencyKey: "cf405-ban-" + payload.companyId + "-" + Date.now(),
+        reasonCategory: "POLICY_VIOLATION",
+        explanation: "CF405 navigation-race safety fixture.",
+      },
+    );
+  } else if (command === "unban-authoritative-company") {
+    const { CompanyModerationService } =
+      await import("../../../src/backend/admin/companies/company-moderation-service.ts");
+    const company = await prisma.company.findUniqueOrThrow({
+      where: { id: payload.companyId },
+      select: { moderationVersion: true },
+    });
+    result = await new CompanyModerationService().unban(
+      {
+        userId: payload.actorUserId,
+        sessionId: "cf405-" + payload.companyId,
+        grantId: "cf405-grant-" + payload.companyId,
+        proofAt: new Date(),
+      },
+      payload.companyId,
+      {
+        expectedVersion: company.moderationVersion,
+        idempotencyKey: "cf405-unban-" + payload.companyId + "-" + Date.now(),
+        reasonCategory: "INCIDENT_RESOLVED",
+        explanation: "CF405 navigation-race restoration fixture.",
+      },
+    );
+  } else if (command === "expire-job-for-race") {
+    // Fixture clock mutation only: the lifecycle worker owns archival in
+    // production, while this browser race needs a deterministic deadline
+    // transition between request interception and the authoritative read.
+    const deadline = new Date(Date.now() - 60_000);
+    const updated = await prisma.jobPosting.updateMany({
+      where: { id: payload.jobId, status: "ACTIVE" },
+      data: { applicationDeadline: deadline },
+    });
+    if (updated.count !== 1) throw new Error("JOB_RACE_FIXTURE_UNAVAILABLE");
+    result = { jobId: payload.jobId, state: "EXPIRED", deadline };
   } else if (command === "set-language") {
     if (!payload?.userId || !["EN", "VI"].includes(payload.language)) {
       throw new Error("set-language requires userId and EN/VI language");

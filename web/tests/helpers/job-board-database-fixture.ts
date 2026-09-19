@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { prisma } from "@/backend/database/prisma";
+import { configuredJsonJobCatalogueRepository } from "@/backend/repositories/jobs/job-catalogue-repository-factory";
 import { normalizeSearchText } from "@/backend/services/jobs/search-normalization";
 import { assertTestDatabaseEnvironment } from "./test-database-guard";
 
@@ -391,6 +392,49 @@ export async function deleteJobBoardDatabaseFixture(
       select: { id: true },
     })
   ).map((job) => job.id);
+  const jobIdsSet = new Set(jobIds);
+  const companyId = fixture.company.id;
+  const jobsCatalogue = configuredJsonJobCatalogueRepository("jobs.json");
+  const companiesCatalogue =
+    configuredJsonJobCatalogueRepository("companies.json");
+  const [ownedJobs, ownedCompanies] = await Promise.all([
+    jobsCatalogue.readMatching((value) => {
+      if (!value || typeof value !== "object" || Array.isArray(value))
+        return false;
+      const record = value as { id?: unknown; companyId?: unknown };
+      return (
+        (typeof record.id === "string" && jobIdsSet.has(record.id)) ||
+        record.companyId === companyId
+      );
+    }),
+    companiesCatalogue.readMatching((value) => {
+      if (!value || typeof value !== "object" || Array.isArray(value))
+        return false;
+      return (value as { id?: unknown }).id === companyId;
+    }),
+  ]);
+  if (ownedJobs.length) {
+    await jobsCatalogue.mutate((values) =>
+      values.filter((value) => {
+        if (!value || typeof value !== "object" || Array.isArray(value))
+          return true;
+        const record = value as { id?: unknown; companyId?: unknown };
+        return !(
+          (typeof record.id === "string" && jobIdsSet.has(record.id)) ||
+          record.companyId === companyId
+        );
+      }),
+    );
+  }
+  if (ownedCompanies.length) {
+    await companiesCatalogue.mutate((values) =>
+      values.filter((value) => {
+        if (!value || typeof value !== "object" || Array.isArray(value))
+          return true;
+        return (value as { id?: unknown }).id !== companyId;
+      }),
+    );
+  }
   const applicationIds = (
     await prisma.jobApplication.findMany({
       where: { jobPostingId: { in: jobIds } },

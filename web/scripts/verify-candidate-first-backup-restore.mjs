@@ -41,7 +41,7 @@ process.env.APP_ENV ??= "local";
 const reportFile = resolve(
   workspaceRoot,
   process.env.CF004_RESTORE_REPORT_FILE ??
-    "docs/audits/2026-09-06-cf004-restore.json",
+    "docs/audits/candidate-first/pre-phase/evidence/cf004-restore.json",
 );
 const sourceStorageRoot = resolve(
   webRoot,
@@ -60,9 +60,7 @@ const dumpFile = resolve(
 );
 const postgresContainer =
   process.env.CF004_POSTGRES_CONTAINER ?? "smarthire-postgres-1";
-const dockerCli =
-  process.env.DOCKER_CLI_PATH ??
-  "docker";
+const dockerCli = process.env.DOCKER_CLI_PATH ?? "docker";
 const dbRole = process.env.CF004_POSTGRES_ROLE ?? "smarthire";
 
 function sha256(value) {
@@ -70,8 +68,10 @@ function sha256(value) {
 }
 
 function safeDatabaseName(value) {
-  return /^[a-z][a-z0-9_-]{0,62}$/u.test(value) &&
-    /(?:^|[-_])(test|tests|spec|e2e)(?:[-_]|$)/iu.test(value);
+  return (
+    /^[a-z][a-z0-9_-]{0,62}$/u.test(value) &&
+    /(?:^|[-_])(test|tests|spec|e2e)(?:[-_]|$)/iu.test(value)
+  );
 }
 
 function redactError(error) {
@@ -91,7 +91,9 @@ async function runDocker(args, options = {}) {
       ...options,
     });
   } catch (error) {
-    const wrapped = new Error(`docker ${args[0] ?? "command"} failed: ${redactError(error)}`);
+    const wrapped = new Error(
+      `docker ${args[0] ?? "command"} failed: ${redactError(error)}`,
+    );
     wrapped.cause = error;
     throw wrapped;
   }
@@ -121,7 +123,8 @@ async function copyStorage(source, target) {
 
 function endpointFromUrl(value, database) {
   const parsed = new URL(value);
-  parsed.hostname = parsed.hostname === "postgres" ? "127.0.0.1" : parsed.hostname;
+  parsed.hostname =
+    parsed.hostname === "postgres" ? "127.0.0.1" : parsed.hostname;
   parsed.port ||= "55432";
   parsed.pathname = `/${database}`;
   parsed.searchParams.delete("schema");
@@ -130,7 +133,9 @@ function endpointFromUrl(value, database) {
 
 async function queryRestored(restoredDatabase, sourceUrl, text, values = []) {
   const { Client } = await import("pg");
-  const client = new Client({ connectionString: endpointFromUrl(sourceUrl, restoredDatabase) });
+  const client = new Client({
+    connectionString: endpointFromUrl(sourceUrl, restoredDatabase),
+  });
   await client.connect();
   try {
     return (await client.query(text, values)).rows;
@@ -143,12 +148,17 @@ const report = {
   schemaVersion: 1,
   generatedAt: new Date().toISOString(),
   status: "FAIL",
-  scope: "CF-004 / CF-803 restore rehearsal on an isolated Candidate-first database",
+  scope:
+    "CF-004 / CF-803 restore rehearsal on an isolated Candidate-first database",
   source: {},
   dump: {},
   restore: {},
   artifacts: {},
-  cleanup: { sourceFixture: "PENDING", restoreDatabase: "PENDING", temporaryFiles: "PENDING" },
+  cleanup: {
+    sourceFixture: "PENDING",
+    restoreDatabase: "PENDING",
+    temporaryFiles: "PENDING",
+  },
   limitations: [
     "The production BackupService currently emits an encrypted PostgreSQL dump; CV/application object storage is not bundled by that service.",
     "This rehearsal copies the object manifest payload to a separate restore root to prove digest/openability, so it is evidence for the runbook and not proof of an automated object-storage backup.",
@@ -167,12 +177,18 @@ try {
   sourceUrl = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
   if (!sourceUrl) throw new Error("CF004_RESTORE_DATABASE_URL_MISSING");
   const sourceEndpoint = new URL(sourceUrl);
-  const sourceDatabase = decodeURIComponent(sourceEndpoint.pathname.replace(/^\//u, ""));
-  if (!safeDatabaseName(sourceDatabase) || !/candidate[-_]?first/iu.test(sourceDatabase)) {
+  const sourceDatabase = decodeURIComponent(
+    sourceEndpoint.pathname.replace(/^\//u, ""),
+  );
+  if (
+    !safeDatabaseName(sourceDatabase) ||
+    !/candidate[-_]?first/iu.test(sourceDatabase)
+  ) {
     throw new Error("CF004_RESTORE_SOURCE_DATABASE_UNSAFE");
   }
 
-  const { assertTestDatabaseEnvironment } = await import("../tests/helpers/test-database-guard.ts");
+  const { assertTestDatabaseEnvironment } =
+    await import("../tests/helpers/test-database-guard.ts");
   const guard = assertTestDatabaseEnvironment({
     databaseUrl: process.env.DATABASE_URL,
     directUrl: process.env.DIRECT_URL,
@@ -183,10 +199,15 @@ try {
 
   const databaseModule = await import("../src/backend/database/prisma.ts");
   prisma = databaseModule.prisma;
-  const { createCandidateFirstDatabaseFixture, deleteCandidateFirstDatabaseFixture } =
-    await import("../tests/helpers/candidate-first-database-fixture.ts");
+  const {
+    createCandidateFirstDatabaseFixture,
+    deleteCandidateFirstDatabaseFixture,
+  } = await import("../tests/helpers/candidate-first-database-fixture.ts");
 
-  fixture = await createCandidateFirstDatabaseFixture("backup-restore", new Date());
+  fixture = await createCandidateFirstDatabaseFixture(
+    "backup-restore",
+    new Date(),
+  );
   await mkdir(sourceStorageRoot, { recursive: true });
   sourceStorageCreated = true;
 
@@ -231,13 +252,19 @@ try {
       applicationAttemptNumber: 1,
       selectedCvId: customCv.id,
       cvFileRef: customCv.storageKey,
-      contactSnapshot: { fullName: "Restore rehearsal candidate", email: fixture.candidateEmail },
+      contactSnapshot: {
+        fullName: "Restore rehearsal candidate",
+        email: fixture.candidateEmail,
+      },
       aiAnalysisConsent: false,
       scoringStatus: "NOT_REQUESTED",
       stage: "APPLIED",
       stageVersion: 1,
       lastStageChangedAt: fixture.now,
-      profileSnapshot: { headline: "TypeScript Engineer", location: "Ho Chi Minh City" },
+      profileSnapshot: {
+        headline: "TypeScript Engineer",
+        location: "Ho Chi Minh City",
+      },
       cvSnapshot: {
         cvId: customCv.id,
         cvVersion: customCv.version,
@@ -258,7 +285,9 @@ try {
       consentVersion: "2026-09-01",
       consentedAt: fixture.now,
       idempotencyKey: `backup-restore-${fixture.suffix}`,
-      submissionBindingDigest: sha256(`${fixture.candidateUserId}:${fixture.jobs.activeSecond.id}:${fixture.suffix}`),
+      submissionBindingDigest: sha256(
+        `${fixture.candidateUserId}:${fixture.jobs.activeSecond.id}:${fixture.suffix}`,
+      ),
       submittedAt: fixture.now,
     },
   });
@@ -320,7 +349,11 @@ try {
     "-f",
     "/tmp/candidate-first-backup-restore.dump",
   ]);
-  await runDocker(["cp", `${postgresContainer}:/tmp/candidate-first-backup-restore.dump`, dumpFile]);
+  await runDocker([
+    "cp",
+    `${postgresContainer}:/tmp/candidate-first-backup-restore.dump`,
+    dumpFile,
+  ]);
   dumpCreated = true;
   const dumpStats = await stat(dumpFile);
   report.dump = {
@@ -331,13 +364,24 @@ try {
     bytes: dumpStats.size,
     sha256: sha256(await readFile(dumpFile)),
   };
-  await runDocker(["exec", postgresContainer, "rm", "-f", "/tmp/candidate-first-backup-restore.dump"]).catch(() => undefined);
+  await runDocker([
+    "exec",
+    postgresContainer,
+    "rm",
+    "-f",
+    "/tmp/candidate-first-backup-restore.dump",
+  ]).catch(() => undefined);
 
   restoredDatabase = `smarthire_candidate_first_restore_test_${Date.now().toString(36)}`;
-  if (!safeDatabaseName(restoredDatabase)) throw new Error("CF004_RESTORE_TARGET_DATABASE_UNSAFE");
+  if (!safeDatabaseName(restoredDatabase))
+    throw new Error("CF004_RESTORE_TARGET_DATABASE_UNSAFE");
   await runPsql("postgres", `CREATE DATABASE "${restoredDatabase}"`);
   report.restore.database = restoredDatabase;
-  await runDocker(["cp", dumpFile, `${postgresContainer}:/tmp/candidate-first-backup-restore.dump`]);
+  await runDocker([
+    "cp",
+    dumpFile,
+    `${postgresContainer}:/tmp/candidate-first-backup-restore.dump`,
+  ]);
   const restoreStartedAt = Date.now();
   await runDocker([
     "exec",
@@ -355,12 +399,33 @@ try {
   report.restore.durationMs = Date.now() - restoreStartedAt;
   report.restore.status = "PASS";
 
-  const [cvRows, applicationRows, documentRows, promotionRows] = await Promise.all([
-    queryRestored(restoredDatabase, sourceUrl, 'SELECT "id", "storageKey", "checksumSha256", "byteSize", "version" FROM "CandidateCv" WHERE "id" = $1', [customCv.id]),
-    queryRestored(restoredDatabase, sourceUrl, 'SELECT "id", "candidateUserId", "jobPostingId", "selectedCvId", "idempotencyKey", "cvSnapshot" FROM "JobApplication" WHERE "id" = $1', [application.id]),
-    queryRestored(restoredDatabase, sourceUrl, 'SELECT "id", "jobApplicationId", "storageKeyEncrypted", "contentDigestHmac", "byteLength", "sourceCandidateCvId" FROM "ApplicationDocument" WHERE "id" = $1', [applicationDocument.id]),
-    queryRestored(restoredDatabase, sourceUrl, 'SELECT "id", "jobApplicationId", "state", "storageKeyEncrypted" FROM "ApplicationArtifactPromotion" WHERE "id" = $1', [promotion.id]),
-  ]);
+  const [cvRows, applicationRows, documentRows, promotionRows] =
+    await Promise.all([
+      queryRestored(
+        restoredDatabase,
+        sourceUrl,
+        'SELECT "id", "storageKey", "checksumSha256", "byteSize", "version" FROM "CandidateCv" WHERE "id" = $1',
+        [customCv.id],
+      ),
+      queryRestored(
+        restoredDatabase,
+        sourceUrl,
+        'SELECT "id", "candidateUserId", "jobPostingId", "selectedCvId", "idempotencyKey", "cvSnapshot" FROM "JobApplication" WHERE "id" = $1',
+        [application.id],
+      ),
+      queryRestored(
+        restoredDatabase,
+        sourceUrl,
+        'SELECT "id", "jobApplicationId", "storageKeyEncrypted", "contentDigestHmac", "byteLength", "sourceCandidateCvId" FROM "ApplicationDocument" WHERE "id" = $1',
+        [applicationDocument.id],
+      ),
+      queryRestored(
+        restoredDatabase,
+        sourceUrl,
+        'SELECT "id", "jobApplicationId", "state", "storageKeyEncrypted" FROM "ApplicationArtifactPromotion" WHERE "id" = $1',
+        [promotion.id],
+      ),
+    ]);
   const restoredCv = cvRows[0];
   const restoredApplication = applicationRows[0];
   const restoredDocument = documentRows[0];
@@ -368,30 +433,30 @@ try {
   const rowChecks = {
     candidateCv: Boolean(
       restoredCv &&
-        restoredCv.storageKey === customCv.storageKey &&
-        restoredCv.checksumSha256 === cvChecksum &&
-        Number(restoredCv.byteSize) === cvPayload.byteLength,
+      restoredCv.storageKey === customCv.storageKey &&
+      restoredCv.checksumSha256 === cvChecksum &&
+      Number(restoredCv.byteSize) === cvPayload.byteLength,
     ),
     application: Boolean(
       restoredApplication &&
-        restoredApplication.candidateUserId === fixture.candidateUserId &&
-        restoredApplication.jobPostingId === fixture.jobs.activeSecond.id &&
-        restoredApplication.selectedCvId === customCv.id &&
-        restoredApplication.idempotencyKey === `backup-restore-${fixture.suffix}`,
+      restoredApplication.candidateUserId === fixture.candidateUserId &&
+      restoredApplication.jobPostingId === fixture.jobs.activeSecond.id &&
+      restoredApplication.selectedCvId === customCv.id &&
+      restoredApplication.idempotencyKey === `backup-restore-${fixture.suffix}`,
     ),
     applicationDocument: Boolean(
       restoredDocument &&
-        restoredDocument.jobApplicationId === application.id &&
-        restoredDocument.storageKeyEncrypted === applicationStorageKey &&
-        restoredDocument.contentDigestHmac === sha256(applicationPayload) &&
-        Number(restoredDocument.byteLength) === applicationPayload.byteLength &&
-        restoredDocument.sourceCandidateCvId === customCv.id,
+      restoredDocument.jobApplicationId === application.id &&
+      restoredDocument.storageKeyEncrypted === applicationStorageKey &&
+      restoredDocument.contentDigestHmac === sha256(applicationPayload) &&
+      Number(restoredDocument.byteLength) === applicationPayload.byteLength &&
+      restoredDocument.sourceCandidateCvId === customCv.id,
     ),
     durablePromotion: Boolean(
       restoredPromotion &&
-        restoredPromotion.jobApplicationId === application.id &&
-        restoredPromotion.state === "COMMITTED" &&
-        restoredPromotion.storageKeyEncrypted === applicationStorageKey,
+      restoredPromotion.jobApplicationId === application.id &&
+      restoredPromotion.state === "COMMITTED" &&
+      restoredPromotion.storageKeyEncrypted === applicationStorageKey,
     ),
   };
   report.restore.rowChecks = rowChecks;
@@ -403,8 +468,12 @@ try {
   };
 
   await copyStorage(sourceStorageRoot, restoredStorageRoot);
-  const restoredCvBytes = await readFile(join(restoredStorageRoot, cvStorageKey));
-  const restoredApplicationBytes = await readFile(join(restoredStorageRoot, applicationStorageKey));
+  const restoredCvBytes = await readFile(
+    join(restoredStorageRoot, cvStorageKey),
+  );
+  const restoredApplicationBytes = await readFile(
+    join(restoredStorageRoot, applicationStorageKey),
+  );
   report.artifacts = {
     sourceRoot: sourceStorageRoot,
     restoredRoot: restoredStorageRoot,
@@ -419,7 +488,8 @@ try {
       exists: true,
       bytes: restoredApplicationBytes.byteLength,
       sha256: sha256(restoredApplicationBytes),
-      matchesDatabaseDigest: sha256(restoredApplicationBytes) === sha256(applicationPayload),
+      matchesDatabaseDigest:
+        sha256(restoredApplicationBytes) === sha256(applicationPayload),
     },
   };
   report.artifacts.status =
@@ -432,20 +502,34 @@ try {
   report.cleanup.sourceFixture = "PASS";
   await runPsql("postgres", `DROP DATABASE "${restoredDatabase}"`);
   report.cleanup.restoreDatabase = "PASS";
-  await runDocker(["exec", postgresContainer, "rm", "-f", "/tmp/candidate-first-backup-restore.dump"]).catch(() => undefined);
+  await runDocker([
+    "exec",
+    postgresContainer,
+    "rm",
+    "-f",
+    "/tmp/candidate-first-backup-restore.dump",
+  ]).catch(() => undefined);
   await rm(sourceStorageRoot, { recursive: true, force: true });
   await rm(restoredStorageRoot, { recursive: true, force: true });
   await rm(dumpFile, { force: true });
   report.cleanup.temporaryFiles = "PASS";
   report.rpo = { measured: "local rehearsal only", sourceSnapshotSeconds: 0 };
-  report.rto = { measuredMs: report.restore.durationMs, scope: "database restore plus local object copy" };
-  report.status = Object.values(rowChecks).every(Boolean) && report.artifacts.status === "PASS" ? "PASS_WITH_LIMITATION" : "FAIL";
+  report.rto = {
+    measuredMs: report.restore.durationMs,
+    scope: "database restore plus local object copy",
+  };
+  report.status =
+    Object.values(rowChecks).every(Boolean) &&
+    report.artifacts.status === "PASS"
+      ? "PASS_WITH_LIMITATION"
+      : "FAIL";
 } catch (error) {
   report.status = "FAIL";
   report.error = redactError(error);
   if (fixture && prisma) {
     try {
-      const { deleteCandidateFirstDatabaseFixture } = await import("../tests/helpers/candidate-first-database-fixture.ts");
+      const { deleteCandidateFirstDatabaseFixture } =
+        await import("../tests/helpers/candidate-first-database-fixture.ts");
       await deleteCandidateFirstDatabaseFixture(fixture);
       report.cleanup.sourceFixture = "PASS_AFTER_FAILURE";
     } catch (cleanupError) {
@@ -453,7 +537,10 @@ try {
     }
   }
   if (restoredDatabase) {
-    await runPsql("postgres", `DROP DATABASE IF EXISTS "${restoredDatabase}"`).catch(() => undefined);
+    await runPsql(
+      "postgres",
+      `DROP DATABASE IF EXISTS "${restoredDatabase}"`,
+    ).catch(() => undefined);
     report.cleanup.restoreDatabase = "ATTEMPTED";
   }
   await runDocker([
@@ -463,8 +550,13 @@ try {
     "-f",
     "/tmp/candidate-first-backup-restore.dump",
   ]).catch(() => undefined);
-  if (sourceStorageCreated) await rm(sourceStorageRoot, { recursive: true, force: true }).catch(() => undefined);
-  await rm(restoredStorageRoot, { recursive: true, force: true }).catch(() => undefined);
+  if (sourceStorageCreated)
+    await rm(sourceStorageRoot, { recursive: true, force: true }).catch(
+      () => undefined,
+    );
+  await rm(restoredStorageRoot, { recursive: true, force: true }).catch(
+    () => undefined,
+  );
   if (dumpCreated) await rm(dumpFile, { force: true }).catch(() => undefined);
   report.cleanup.temporaryFiles = "ATTEMPTED";
 } finally {

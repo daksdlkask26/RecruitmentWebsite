@@ -97,6 +97,31 @@ function MatchPrompt({
   locale: HomeLocale;
 }) {
   const copy = homeCopy[locale];
+  if (job.cvMatch && !job.cvMatch.scoreEligible) {
+    return (
+      <div className="home-job-match-prompt">
+        <p className="home-job-match-label">{copy.jobs.cvMatchPrivate}</p>
+        <HomeMatchRing
+          size="small"
+          state="ghost"
+          label={copy.jobs.matchUnavailableLabel}
+          scoreSuffix={copy.smartMatch.scoreSuffix}
+        />
+        <h3>{copy.jobs.matchUnavailable}</h3>
+        <p className="home-job-match-description">
+          {job.cvMatch.completeness === "INCOMPLETE"
+            ? copy.jobs.cvMatchIncomplete
+            : copy.jobs.matchUnavailableDescription}
+        </p>
+        <Link
+          className="home-job-match-action"
+          href={`/cv-match-check/${encodeURIComponent(job.cvMatch.checkId)}`}
+        >
+          {copy.jobs.reviewCvMatch}
+        </Link>
+      </div>
+    );
+  }
   const guest = model.viewer.kind === "guest";
   const fallbackReason =
     model.smartMatch.kind === "illustrative" && !guest
@@ -145,7 +170,9 @@ function MatchPrompt({
             ? copy.jobs.completeProfileAction
             : copy.jobs.browseOpportunities}
       </Link>
-      {needsProfileSignals ? <small>{copy.jobs.completeProfileNote}</small> : null}
+      {needsProfileSignals ? (
+        <small>{copy.jobs.completeProfileNote}</small>
+      ) : null}
     </div>
   );
 }
@@ -294,9 +321,16 @@ export function HomeTrendingJobs({
                         <strong>{copy.jobs.cvMatchPrivate}</strong>
                         <p>
                           {featuredJob.cvMatch
-                            ? copy.jobs.cvMatchContext
+                            ? featuredJob.cvMatch.completeness === "INCOMPLETE"
+                              ? copy.jobs.cvMatchIncomplete
+                              : copy.jobs.cvMatchContext
                             : copy.smartMatch.cvMatchLimitation}
                         </p>
+                        {featuredJob.cvMatch ? (
+                          <p className="home-job-cv-match-source">
+                            {copy.jobs.cvMatchSourceLabel}
+                          </p>
+                        ) : null}
                         {featuredJob.cvMatch ? (
                           <Link
                             href={`/cv-match-check/${encodeURIComponent(featuredJob.cvMatch.checkId)}`}

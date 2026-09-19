@@ -23,7 +23,8 @@ describe("private CV match retention", () => {
     const service = new PrivateMatchRetentionService({
       claimCleanup: async () => claims.shift() ?? null,
       physicallyDeleteClaimed: async (checkId: string) => {
-        if (checkId === "pmc-2") throw new Error("storage temporarily unavailable");
+        if (checkId === "pmc-2")
+          throw new Error("storage temporarily unavailable");
         deleted.push(checkId);
         return true;
       },
@@ -33,7 +34,9 @@ describe("private CV match retention", () => {
       },
     } as never);
 
-    await expect(service.cleanup("retention-worker", new Date(), 10)).resolves.toEqual({
+    await expect(
+      service.cleanup("retention-worker", new Date(), 10),
+    ).resolves.toEqual({
       claimed: 2,
       deleted: 1,
     });

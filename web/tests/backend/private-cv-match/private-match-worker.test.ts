@@ -65,8 +65,8 @@ const automaticResult: AutomaticMatchingResult = {
     jdStatus: "ready",
   },
   mayBeIncomplete: false,
-  cvVersion: "cv-1-v1",
-  jdVersion: "job-1-v3",
+  cvVersion: "cv-cv-1-v1",
+  jdVersion: "jd-job-1-v3",
   configVersion: "HS-40/60-v1",
 };
 

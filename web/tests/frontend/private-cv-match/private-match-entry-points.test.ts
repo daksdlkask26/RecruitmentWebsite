@@ -94,7 +94,8 @@ describe("candidate CV Match Check entry points", () => {
       readFile(resolve(sourceRoot, "app/(workspace)/layout.tsx"), "utf8"),
     ]);
 
-    expect(jobDetail).toContain("Check CV fit privately");
+    expect(jobDetail).toContain("copy.checkCvFit");
+    expect(jobDetail).toContain("copy.checkCvFitAria");
     expect(jobDetail).toContain("/cv-match-check/new?jobId=");
     expect(matchesRoute).toContain("PrivateMatchList");
     expect(setupRoute).toContain("PrivateMatchSetupRoute");

@@ -2250,6 +2250,61 @@
   }
 }
 
+/* Keep the public detail accent readable when the shared job-board bundle is
+ * loaded after the route-specific reference layer. These values are used for
+ * normal links and text badges as well as filled controls. */
+:root[data-theme="dark"] .job-detail-board-page {
+  --job-detail-accent: var(--sh-color-info);
+  --job-detail-accent-hover: #bfdbfe;
+  --job-detail-accent-soft: var(--sh-color-info-bg);
+}
+
+:root[data-theme="dark"] .job-detail-board-page .job-verified-inline {
+  color: var(--sh-color-success);
+  background: var(--sh-color-success-bg);
+}
+
+:root[data-theme="dark"]
+  .job-detail-board-page
+  .job-detail-hero--redesign
+  .job-detail-back,
+:root[data-theme="dark"] .job-detail-board-page .job-detail-salary-line strong,
+:root[data-theme="dark"] .job-detail-board-page .job-detail-tag,
+:root[data-theme="dark"] .job-detail-board-page .job-skill-chip-list li,
+:root[data-theme="dark"] .job-detail-board-page .job-detail-inline-chips li {
+  color: var(--job-detail-accent) !important;
+}
+
+:root[data-theme="dark"] .job-detail-board-page .job-detail-tag,
+:root[data-theme="dark"] .job-detail-board-page .job-skill-chip-list li,
+:root[data-theme="dark"] .job-detail-board-page .job-detail-inline-chips li {
+  background: var(--job-detail-accent-soft) !important;
+}
+
+:root[data-theme="dark"]
+  .job-detail-board-page
+  :is(
+    .job-detail-board-apply-button,
+    .job-detail-apply-button,
+    .job-mini-nav-apply
+  ) {
+  border-color: var(--sh-color-brand-primary-pressed) !important;
+  color: var(--sh-color-text-inverse) !important;
+  background: var(--sh-color-brand-primary-pressed) !important;
+}
+
+:root[data-theme="dark"]
+  .job-detail-board-page
+  :is(
+    .job-detail-board-apply-button:hover,
+    .job-detail-apply-button:hover,
+    .job-mini-nav-apply:hover
+  ) {
+  border-color: var(--sh-color-brand-primary) !important;
+  color: var(--sh-color-text-inverse) !important;
+  background: var(--sh-color-brand-primary) !important;
+}
+
 /* Keep the public detail composition inside a 320px viewport. The tab row
  * remains horizontally scrollable, while flexible identity content wraps
  * instead of increasing document scroll width. */

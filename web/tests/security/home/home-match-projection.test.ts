@@ -21,6 +21,8 @@ describe("Home job recommendation privacy", () => {
           jobSlug: "frontend-intern",
           jobTitle: "Frontend Intern",
           score: 75,
+          presentationState: "AVAILABLE",
+          scoreEligible: true,
           quality: "meaningful",
           scoreSource: "profile",
           matchBreakdown: {
@@ -32,6 +34,7 @@ describe("Home job recommendation privacy", () => {
           matchingSkills: [],
           improvementAreas: [],
           limitations: ["estimate"],
+          completeness: "AVAILABLE",
         },
       }),
     ).toThrow();

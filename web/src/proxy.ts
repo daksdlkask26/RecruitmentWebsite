@@ -9,6 +9,7 @@ const local = {
 export const INTERNAL_ADMIN_ROUTE = "/admin-console";
 export const INTERNAL_RECRUITER_ROUTE = "/recruiter-entitlement";
 export const INTERNAL_SHELL_HEADER = "x-smarthire-internal-shell";
+const REQUEST_PATH_HEADER = "x-smarthire-request-path";
 
 function isInternalShellPath(pathname: string) {
   return [INTERNAL_ADMIN_ROUTE, INTERNAL_RECRUITER_ROUTE].some(
@@ -129,7 +130,11 @@ export async function proxy(request: NextRequest) {
     headers.set(INTERNAL_SHELL_HEADER, "recruiter");
     return NextResponse.rewrite(url, { request: { headers } });
   }
-  if (host === expectedHost("candidate")) return NextResponse.next();
+  if (host === expectedHost("candidate")) {
+    const headers = new Headers(request.headers);
+    headers.set(REQUEST_PATH_HEADER, pathname);
+    return NextResponse.next({ request: { headers } });
+  }
   return new NextResponse(null, { status: 404 });
 }
 

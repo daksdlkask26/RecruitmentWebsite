@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "candidate-first-cf406-discovery-recall-v1",
+  "generatedAt": "2026-09-18T08:21:59.775Z",
+  "source": "active search catalog snapshot",
+  "corpus": {
+    "corpusVersion": "2026-09-03.catalog-coverage-v2",
+    "caseCount": 16,
+    "catalogCoverageTotal": 796,
+    "catalogCoverageMatched": 796,
+    "catalogCoverageRate": 1,
+    "catalogCoverageFailures": [],
+    "recallAt10": 1,
+    "precisionAt10": 0.1,
+    "mrr": 1,
+    "ndcgAt10": 1,
+    "wrongCorrectionRate": 0,
+    "zeroResultRate": 0,
+    "maxExpectedRank": 1,
+    "failedCases": [],
+    "passed": true
+  },
+  "baselineComparison": {
+    "status": "UNVERIFIED",
+    "reason": "The required same-run pre-change expected-ID baseline was not available without checking out or resetting the starting commit.",
+    "historicalArtifactsAreNotSubstituted": true
+  },
+  "limitations": [
+    "The existing source-controlled corpus labels canonical catalog title IDs, not a newly seeded live JobPosting ID set.",
+    "This report is a current catalog-resolution recall signal; it does not replace a live database broad-query recall rerun."
+  ]
+}

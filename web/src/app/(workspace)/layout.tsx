@@ -19,7 +19,12 @@ export default async function WorkspaceLayout({
   if (!isCandidateRequestHost(await headers())) notFound();
 
   const context = await getWorkspaceContext();
-  if (!context) redirect("/login?returnTo=%2Fdashboard");
+  if (!context) {
+    const requestPath = (await headers()).get("x-smarthire-request-path");
+    if (requestPath === "/company" || requestPath?.startsWith("/company/"))
+      return <>{children}</>;
+    redirect("/login?returnTo=%2Fdashboard");
+  }
 
   return (
     <WorkspaceShell

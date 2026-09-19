@@ -1827,6 +1827,16 @@ model AuditEvent {
   @@index([occurredAt, id], map: "AuditEvent_analytics_retention_idx")
 }
 
+/// Monotonic public-discovery revision shared by the Next server and
+/// standalone workers. The database trigger advances it in the same
+/// transaction as public Company/Job mutations, so a web process can never
+/// reuse a pre-mutation public snapshot after the commit becomes visible.
+model PublicDiscoveryInvalidation {
+  id        String   @id
+  version   BigInt   @default(0)
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
 model Company {
   id                            String                         @id @default(cuid())
   slug                          String                         @unique

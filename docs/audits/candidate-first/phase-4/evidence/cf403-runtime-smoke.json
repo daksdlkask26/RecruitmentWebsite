@@ -1,0 +1,304 @@
+{
+  "schemaVersion": "candidate-first-cf403-home-runtime-v3",
+  "generatedAt": "2026-09-18T08:40:54.226Z",
+  "commit": "583171bf8cdb3cc76fea4a6ce818e89208a99dfb",
+  "environment": {
+    "runtime": "Next production server via npm run start",
+    "baseUrl": "http://localhost:3003",
+    "candidateOrigin": "http://localhost:3003",
+    "adminOrigin": "http://console.admin.localhost:3003",
+    "databaseIsolation": "task-owned isolated PostgreSQL database",
+    "cacheImplementation": "unstable_cache public home snapshot with immediate safety expiry"
+  },
+  "method": {
+    "firstRead": "fresh guest GET / after marker committed in isolated DB",
+    "warmRead": "ten guest GET / reads without mutation",
+    "safetyMutation": "authenticated administrator POST /api/admin/companies/:id/ban",
+    "postMutationReads": [
+      "GET /",
+      "GET /api/jobs",
+      "GET /api/companies/:id"
+    ],
+    "noTrackedCatalogueMutation": true
+  },
+  "results": {
+    "first": {
+      "url": "http://localhost:3003/",
+      "status": 200,
+      "latencyMs": 119.35,
+      "htmlBytes": 53056,
+      "bodyContainsMarker": true,
+      "bodyContainsActiveJob": false,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cacheHeader": null,
+      "dbDelta": {
+        "xact_commit": 0,
+        "tup_returned": 0,
+        "blks_read": 0,
+        "blks_hit": 0
+      }
+    },
+    "warm": {
+      "url": "http://localhost:3003/",
+      "status": 200,
+      "latencyMs": 18.29,
+      "htmlBytes": 53056,
+      "bodyContainsMarker": true,
+      "bodyContainsActiveJob": false,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cacheHeader": null,
+      "dbDelta": {
+        "xact_commit": 0,
+        "tup_returned": 0,
+        "blks_read": 0,
+        "blks_hit": 0
+      }
+    },
+    "warmReads": [
+      {
+        "url": "http://localhost:3003/",
+        "status": 200,
+        "latencyMs": 18.86,
+        "htmlBytes": 53056,
+        "bodyContainsMarker": true,
+        "bodyContainsActiveJob": false,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "cacheHeader": null,
+        "dbDelta": {
+          "xact_commit": 0,
+          "tup_returned": 0,
+          "blks_read": 0,
+          "blks_hit": 0
+        }
+      },
+      {
+        "url": "http://localhost:3003/",
+        "status": 200,
+        "latencyMs": 20.58,
+        "htmlBytes": 53056,
+        "bodyContainsMarker": true,
+        "bodyContainsActiveJob": false,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "cacheHeader": null,
+        "dbDelta": {
+          "xact_commit": 0,
+          "tup_returned": 0,
+          "blks_read": 0,
+          "blks_hit": 0
+        }
+      },
+      {
+        "url": "http://localhost:3003/",
+        "status": 200,
+        "latencyMs": 18.21,
+        "htmlBytes": 53056,
+        "bodyContainsMarker": true,
+        "bodyContainsActiveJob": false,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "cacheHeader": null,
+        "dbDelta": {
+          "xact_commit": 0,
+          "tup_returned": 0,
+          "blks_read": 0,
+          "blks_hit": 0
+        }
+      },
+      {
+        "url": "http://localhost:3003/",
+        "status": 200,
+        "latencyMs": 21.89,
+        "htmlBytes": 53056,
+        "bodyContainsMarker": true,
+        "bodyContainsActiveJob": false,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "cacheHeader": null,
+        "dbDelta": {
+          "xact_commit": 0,
+          "tup_returned": 0,
+          "blks_read": 0,
+          "blks_hit": 0
+        }
+      },
+      {
+        "url": "http://localhost:3003/",
+        "status": 200,
+        "latencyMs": 20.21,
+        "htmlBytes": 53056,
+        "bodyContainsMarker": true,
+        "bodyContainsActiveJob": false,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "cacheHeader": null,
+        "dbDelta": {
+          "xact_commit": 0,
+          "tup_returned": 0,
+          "blks_read": 0,
+          "blks_hit": 0
+        }
+      },
+      {
+        "url": "http://localhost:3003/",
+        "status": 200,
+        "latencyMs": 20.55,
+        "htmlBytes": 53056,
+        "bodyContainsMarker": true,
+        "bodyContainsActiveJob": false,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "cacheHeader": null,
+        "dbDelta": {
+          "xact_commit": 0,
+          "tup_returned": 0,
+          "blks_read": 0,
+          "blks_hit": 0
+        }
+      },
+      {
+        "url": "http://localhost:3003/",
+        "status": 200,
+        "latencyMs": 18.62,
+        "htmlBytes": 53056,
+        "bodyContainsMarker": true,
+        "bodyContainsActiveJob": false,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "cacheHeader": null,
+        "dbDelta": {
+          "xact_commit": 0,
+          "tup_returned": 0,
+          "blks_read": 0,
+          "blks_hit": 0
+        }
+      },
+      {
+        "url": "http://localhost:3003/",
+        "status": 200,
+        "latencyMs": 20.49,
+        "htmlBytes": 53056,
+        "bodyContainsMarker": true,
+        "bodyContainsActiveJob": false,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "cacheHeader": null,
+        "dbDelta": {
+          "xact_commit": 0,
+          "tup_returned": 0,
+          "blks_read": 0,
+          "blks_hit": 0
+        }
+      },
+      {
+        "url": "http://localhost:3003/",
+        "status": 200,
+        "latencyMs": 18.9,
+        "htmlBytes": 53056,
+        "bodyContainsMarker": true,
+        "bodyContainsActiveJob": false,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "cacheHeader": null,
+        "dbDelta": {
+          "xact_commit": 0,
+          "tup_returned": 0,
+          "blks_read": 0,
+          "blks_hit": 0
+        }
+      },
+      {
+        "url": "http://localhost:3003/",
+        "status": 200,
+        "latencyMs": 18.29,
+        "htmlBytes": 53056,
+        "bodyContainsMarker": true,
+        "bodyContainsActiveJob": false,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "cacheHeader": null,
+        "dbDelta": {
+          "xact_commit": 0,
+          "tup_returned": 0,
+          "blks_read": 0,
+          "blks_hit": 0
+        }
+      }
+    ],
+    "jobsBefore": {
+      "url": "http://localhost:3003/api/jobs?limit=20",
+      "status": 200,
+      "latencyMs": 67.15,
+      "htmlBytes": 16657,
+      "bodyContainsMarker": true,
+      "bodyContainsActiveJob": true,
+      "cacheControl": "no-store, max-age=0",
+      "cacheHeader": null,
+      "dbDelta": {
+        "xact_commit": 0,
+        "tup_returned": 0,
+        "blks_read": 0,
+        "blks_hit": 0
+      }
+    },
+    "detailBefore": {
+      "status": 200,
+      "bodyContainsMarker": true
+    },
+    "loginStatus": 200,
+    "mutation": {
+      "ban": {
+        "contextStatus": 200,
+        "status": 200,
+        "body": "{\"companyId\":\"company-e2e209cb-3805-4611-ae7b-ae56e9b14b4e\",\"state\":\"BANNED\",\"version\":2,\"correlationId\":\"76f57dca-4bcc-4154-947a-5636c640e832\"}"
+      },
+      "unban": {
+        "contextStatus": 200,
+        "status": 200,
+        "body": "{\"companyId\":\"company-e2e209cb-3805-4611-ae7b-ae56e9b14b4e\",\"state\":\"ACTIVE\",\"version\":3,\"correlationId\":\"c55620b6-dad3-4f4a-a479-15e8214166e0\"}"
+      }
+    },
+    "postMutation": {
+      "home": {
+        "url": "http://localhost:3003/",
+        "status": 200,
+        "latencyMs": 41.61,
+        "htmlBytes": 52536,
+        "bodyContainsMarker": false,
+        "bodyContainsActiveJob": false,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "cacheHeader": null,
+        "dbDelta": {
+          "xact_commit": 0,
+          "tup_returned": 0,
+          "blks_read": 0,
+          "blks_hit": 0
+        }
+      },
+      "jobs": {
+        "url": "http://localhost:3003/api/jobs?limit=20",
+        "status": 200,
+        "latencyMs": 40.51,
+        "htmlBytes": 12273,
+        "bodyContainsMarker": false,
+        "bodyContainsActiveJob": false,
+        "cacheControl": "no-store, max-age=0",
+        "cacheHeader": null,
+        "dbDelta": {
+          "xact_commit": 0,
+          "tup_returned": 0,
+          "blks_read": 0,
+          "blks_hit": 0
+        }
+      },
+      "detail": {
+        "status": 404,
+        "bodyContainsMarker": false
+      }
+    }
+  },
+  "assessment": {
+    "coldRead": "PASS",
+    "warmPublicCacheHit": "PASS",
+    "preMutationProjection": "PASS",
+    "realSafetyMutationRoute": "PASS",
+    "firstReadAfterSafetyMutation": "PASS",
+    "safetyInvalidationImmediate": "PASS",
+    "catalogueUnchanged": "PASS"
+  },
+  "limitations": [
+    "PostgreSQL counters are the runtime hit/miss signal because this force-dynamic page does not emit x-nextjs-cache.",
+    "The safety mutation is the production admin route and its first Home, job-list, and company-detail bodies are checked after the committed ban."
+  ]
+}

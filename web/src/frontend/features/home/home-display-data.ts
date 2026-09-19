@@ -5,7 +5,9 @@ export function illustrativeSmartMatch(
   locale: HomeLocale = "vi",
 ): SmartMatchInsight {
   void locale;
-  return { kind: "illustrative", score: 82 };
+  // The Home explainer is educational only. Numeric scores are reserved for
+  // actual Profile estimates or immutable CV Match results.
+  return { kind: "illustrative" };
 }
 
 export const homeDisplayData = {

@@ -29,7 +29,15 @@ const base = {
   checkId: "check-1",
   createdAt: "2026-08-16T00:00:00.000Z",
   expiresAt: "2027-08-16T00:00:00.000Z",
+  inputSource: "CV" as const,
+  completeness: "AVAILABLE" as const,
+  presentationState: "AVAILABLE" as const,
+  scoreEligible: true,
   provenance: {
+    inputSource: "CV" as const,
+    completeness: "AVAILABLE" as const,
+    presentationState: "AVAILABLE" as const,
+    scoreEligible: true,
     cvVersionId: "cv-1",
     cvVersion: 2,
     jdVersion: 4,
@@ -188,9 +196,7 @@ describe("PrivateMatchReport", () => {
     expect(
       screen.getByRole("heading", { name: "Báo cáo đối chiếu CV riêng tư" }),
     ).toBeVisible();
-    expect(
-      screen.getByRole("link", { name: "Ứng tuyển ngay" }),
-    ).toBeVisible();
+    expect(screen.getByRole("link", { name: "Ứng tuyển ngay" })).toBeVisible();
     expect(screen.getByText("Đánh giá AI")).toBeVisible();
   });
 
@@ -208,10 +214,10 @@ describe("PrivateMatchReport", () => {
         ".private-match-ready-banner.is-caution .private-match-hero-icon",
       ),
     ).toBeTruthy();
-    expect(screen.getByText("May need more evidence")).toBeVisible();
+    expect(screen.getByText("More evidence to review")).toBeVisible();
     expect(
       screen.getByRole("heading", {
-        name: "Your CV may need more evidence for this role",
+        name: "Review missing evidence before you apply",
       }),
     ).toBeVisible();
   });

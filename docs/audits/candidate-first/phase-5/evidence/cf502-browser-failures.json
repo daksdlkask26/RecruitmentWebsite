@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "artifact": "CF-502",
+  "purpose": "Retained historical failure summary; not current passing evidence",
+  "sourceIdentity": {
+    "recordedOn": "2026-09-18",
+    "finalSourceCommit": "583171bf8cdb3cc76fea4a6ce818e89208a99dfb",
+    "currentReplacement": [
+      "cf502-browser-light.json",
+      "cf502-browser-dark.json"
+    ]
+  },
+  "failures": [
+    {
+      "category": "production-environment-validation",
+      "theme": "light",
+      "affectedRows": 108,
+      "affectedProjects": [
+        "phase5-light-320",
+        "phase5-light-375",
+        "phase5-light-768",
+        "phase5-light-1280"
+      ],
+      "status": "FAIL",
+      "facts": [
+        "Playwright reported 16 expected, 0 unexpected, 0 flaky, and 0 skipped.",
+        "The machine rows were complete, but productionBuild was false and no isolated build output was recorded.",
+        "The validation gate therefore correctly rejected the run."
+      ],
+      "supersededBecause": "The final production-build light report covers the same 27 states x 4 viewport rows and passes its production validation."
+    },
+    {
+      "category": "profile-state-assertion",
+      "theme": "light",
+      "affectedState": "Profile AVAILABLE",
+      "affectedProjects": [
+        "phase5-light-320",
+        "phase5-light-375",
+        "phase5-light-768",
+        "phase5-light-1280"
+      ],
+      "status": "FAIL",
+      "facts": [
+        "Each affected machine row failed at the profile match-source assertion.",
+        "The browser run recorded 4 unexpected tests and 12 dependent skips.",
+        "The final production-source light report records the corrected state as PASS for all four viewports."
+      ],
+      "supersededBecause": "The final canonical light report is the current executable result; this summary preserves the earlier failure without retaining duplicate PID-named raw logs."
+    }
+  ],
+  "verdict": "FAILURES_RETAINED_NOT_CURRENT_VERDICT"
+}

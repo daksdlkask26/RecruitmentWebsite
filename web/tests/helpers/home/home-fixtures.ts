@@ -119,6 +119,8 @@ export const personalMatch = (
   jobSlug: "frontend-intern",
   jobTitle: "Frontend Intern",
   score: 75,
+  presentationState: "AVAILABLE",
+  scoreEligible: true,
   quality: "meaningful",
   scoreSource: "profile",
   matchBreakdown: {
@@ -130,12 +132,12 @@ export const personalMatch = (
   matchingSkills: ["TypeScript"],
   improvementAreas: ["React", "CSS"],
   limitations: ["profileSignals", "estimate"],
+  completeness: "AVAILABLE",
   ...overrides,
 });
 
 export const illustrativeMatch: SmartMatchInsight = {
   kind: "illustrative",
-  score: 82,
 };
 
 export const homeCareerPaths: readonly HomeCareerPath[] = careerPathSlugs.map(

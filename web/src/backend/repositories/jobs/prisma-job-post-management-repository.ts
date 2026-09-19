@@ -155,12 +155,12 @@ export async function listManagedJobPosts(input: JobManagementListInput) {
   ]);
   const [reportRows, applicationRows] = await Promise.all([
     prisma.moderationReport.groupBy({
-    by: ["jobReference"],
-    where: {
-      jobReference: { in: rows.map((row) => row.jobId) },
-      state: "PENDING_REVIEW",
-    },
-    _count: { _all: true },
+      by: ["jobReference"],
+      where: {
+        jobReference: { in: rows.map((row) => row.jobId) },
+        state: "PENDING_REVIEW",
+      },
+      _count: { _all: true },
     }),
     prisma.jobApplication.groupBy({
       by: ["jobPostingId"],
@@ -204,7 +204,7 @@ export async function findManagedJobPostDetail(jobId: string) {
       publicJobPosting: true,
       approvedVersion: {
         include: {
-        submittedBy: { select: { id: true, name: true, email: true } },
+          submittedBy: { select: { id: true, name: true, email: true } },
           decidedByAdmin: { select: { id: true, name: true } },
         },
       },
@@ -222,14 +222,14 @@ export async function findManagedJobPostDetail(jobId: string) {
   if (!row) return null;
   const [reports, applicationCount] = await Promise.all([
     prisma.moderationReport.findMany({
-    where: { jobReference: jobId, state: "PENDING_REVIEW" },
-    select: {
-      id: true,
-      reporterUserId: true,
-      priority: true,
-      category: true,
-      createdAt: true,
-    },
+      where: { jobReference: jobId, state: "PENDING_REVIEW" },
+      select: {
+        id: true,
+        reporterUserId: true,
+        priority: true,
+        category: true,
+        createdAt: true,
+      },
     }),
     prisma.jobApplication.count({ where: { jobPostingId: jobId } }),
   ]);
@@ -252,10 +252,9 @@ export async function findManagedJobPostDetail(jobId: string) {
       ).size,
       highestPriority,
     },
-    reports: reports.map((report) => {
-      const { reporterUserId, ...safeReport } = report;
-      void reporterUserId;
-      return safeReport;
+    reports: reports.map(({ reporterUserId: _reporterUserId, ...report }) => {
+      void _reporterUserId;
+      return { ...report };
     }),
     applicationCount,
     recruiterContact: row.approvedVersion?.submittedBy

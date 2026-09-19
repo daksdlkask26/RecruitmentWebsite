@@ -8,6 +8,7 @@ import {
   companyBusinessEventKey,
   securityNotificationIdempotencyKey,
 } from "@/backend/admin/notifications/notification-events";
+import { invalidatePublicCompanySafety } from "@/backend/services/discovery/public-discovery-cache";
 import {
   AdminCommandConflict,
   PrismaAdminCommandRepository,
@@ -46,7 +47,7 @@ export class CompanyModerationService {
   ) {
     const normalized = normalize(command);
     const now = new Date();
-    return new PrismaAdminCommandRepository().execute(
+    const result = await new PrismaAdminCommandRepository().execute(
       {
         actorUserId: authority.userId,
         actorSessionId: authority.sessionId,
@@ -178,6 +179,8 @@ export class CompanyModerationService {
         return { companyId, state: resultingState, version: nextVersion };
       },
     );
+    invalidatePublicCompanySafety(companyId);
+    return result;
   }
 
   ban(authority: AdminAuthority, companyId: string, command: Command) {

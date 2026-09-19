@@ -1,0 +1,30 @@
+# Candidate-first audit index
+
+This directory is the canonical home for Candidate-first plans, gates, closure
+records and retained evidence. Filenames are stable; run dates, commits,
+environment details and historical provenance remain inside the artifacts.
+
+## Current status
+
+| Scope                                       | Authoritative status                                                                                                                          | Entry points                                                                                                                         |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Pre-Phase / Stage 0 (CF-001–CF-004, CF-101) | `CLOSED_FOR_CANDIDATE_FIRST_SCOPE`; CF-002 retains external-runtime evidence and CF-004 retains documented limitations                        | [integrated gate](pre-phase/integrated-gate.json), [evidence](pre-phase/evidence/)                                                   |
+| Phase 1 (CF-101–CF-107)                     | Roadmap-led status: CF-101 `PASS`, CF-105/106 `VERIFIED`, CF-107 `VERIFIED_WITH_SCOPE_LIMITATION`; no standalone Phase 1 gate artifact exists | [roadmap](roadmap.md#đợt-1--candidate-data-safety), [Stage 0 evidence](pre-phase/integrated-gate.json)                               |
+| Phase 2 (CF-201–CF-205)                     | `DONE_WITH_LIMITATION`; Docker Scout and optional live AI compatibility remain explicitly deferred                                            | [plan](phase-2/plan.md), [pre-Phase 2 boundary](pre-phase/phase-2-boundary.md)                                                       |
+| Phase 3 (CF-301–CF-305)                     | `DONE`; the plan contains the final integrated gate and current evidence boundary                                                             | [plan and gate](phase-3/plan.md)                                                                                                     |
+| Phase 4 (CF-401–CF-406)                     | **`DONE / VERIFIED`** on current source evidence                                                                                              | [plan](phase-4/plan.md), [integrated gate](phase-4/integrated-gate.md), [closure](phase-4/closure.md), [evidence](phase-4/evidence/) |
+| Phase 5 (CF-501–CF-503)                     | **`FROZEN / NOT CLAIMED`**; no Phase 5 implementation or final gate is claimed                                                                | [boundary](phase-5/plan.md), [retained corpus evidence](phase-5/evidence/)                                                           |
+
+## Navigation and evidence rules
+
+- `roadmap.md` is the long-lived work-item map; phase plans and gates link to
+  the strongest retained evidence instead of duplicating it.
+- Evidence under `pre-phase/evidence/` is primarily historical Stage 0 and
+  baseline material. Evidence under `phase-4/evidence/` is the current Phase 4
+  closure set; earlier failures are retained inside the repeatability record.
+- `UNVERIFIED`, `PASS_WITH_*`, limitations and historical snapshots remain
+  explicit. A focused test or a historical artifact is not silently promoted
+  to a current integrated PASS.
+- Audit-specific scripts and tests remain under `web/scripts` and `web/tests`
+  because they are executable gates. Their default report paths point back to
+  this stable tree.

@@ -14,7 +14,7 @@ describe("consequential decision UI", () => {
     expect(dialog).toContain("REJECTED");
     expect(dialog).toContain("OFFER_DECLINED");
     expect(dialog).toContain("HIRED");
-    expect(dialog).toMatch(/Confirm hiring/i);
+    expect(dialog).toContain("confirmHiring");
     expect(board).toContain('setDialog({ card, target, intent: "drag" })');
   });
 });

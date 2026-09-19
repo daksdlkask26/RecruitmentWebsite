@@ -49,6 +49,8 @@ import {
   prepareRecruiterJobForSave,
 } from "@/shared/contracts/recruiter-job-posting";
 import { listRecruiterJobTaxonomy } from "@/backend/services/jobs/job-taxonomy-service";
+import { invalidatePublicCompany } from "@/backend/services/discovery/public-discovery-cache";
+import { deleteCompanyScopedCandidatePrivateData } from "@/backend/private-data/company-deletion";
 import { buildJobSearchProfile } from "@/backend/services/search/job-search-profile";
 import { searchCatalogProvider } from "@/backend/services/search/catalogs/search-catalog-provider";
 import type { SearchCatalogIndex } from "@/backend/services/search/catalogs/job-search-catalog-index";
@@ -2053,6 +2055,7 @@ export async function updateRecruiterCompanySettings(
         replaceOrAppendRawCompany(rawCompanies, updated),
       );
     }
+    invalidatePublicCompany(company.databaseId ?? company.id);
     invalidateCatalogueCache();
     return settingsFromCompany({
       ...updated,
@@ -2425,16 +2428,7 @@ async function hardDeleteDatabaseCompany(
   }
 
   if (jobIds.length) {
-    // This table intentionally has no FK to JobPosting because it stores
-    // candidate-owned private match snapshots. Delete it explicitly and
-    // clear its current-attempt pointer before its cascading children.
-    await transaction.privateCvMatchCheck.updateMany({
-      where: { jobPostingId: { in: jobIds } },
-      data: { currentAttemptId: null },
-    });
-    await transaction.privateCvMatchCheck.deleteMany({
-      where: { jobPostingId: { in: jobIds } },
-    });
+    await deleteCompanyScopedCandidatePrivateData(transaction, jobIds);
     await transaction.savedJob.deleteMany({
       where: { jobPostingId: { in: jobIds } },
     });
@@ -2711,6 +2705,7 @@ export async function deleteRecruiterCompany(
       }
     }
 
+    invalidatePublicCompany(databaseCompanyId ?? company.id);
     invalidateCatalogueCache();
     return { companyId: company.id, deleted: true as const };
   });

@@ -1,0 +1,196 @@
+{
+  "schemaVersion": "candidate-first-verification-index-v1",
+  "generatedAt": "2026-09-06T16:45:20.441Z",
+  "canonicalVerification": "docs/audits/candidate-first/pre-phase/integrated-gate.json",
+  "decision": "CLOSED_FOR_CANDIDATE_FIRST_SCOPE",
+  "rawReport": "docs/audits/candidate-first/pre-phase/evidence/full-run-raw.json",
+  "triageReport": "docs/audits/candidate-first/pre-phase/evidence/full-run-triage.json",
+  "acceptanceScope": {
+    "tests": 563,
+    "passedInMonolithicRun": 561,
+    "failedOnlyBySandboxDockerLaunch": 2,
+    "skipped": 0,
+    "changedScope": "108 / 108 pass"
+  },
+  "fullRawTotals": {
+    "tests": 3193,
+    "passed": 3090,
+    "failed": 102,
+    "skipped": 1
+  },
+  "workItems": {
+    "CF-001": {
+      "status": "PASS",
+      "name": "Cô lập database và fixture Candidate",
+      "scope": "Isolated database and Candidate fixture",
+      "cleanupComplete": true
+    },
+    "CF-101": {
+      "status": "PASS",
+      "focused": "16 files / 66 tests pass",
+      "selectedIntegration": "9 files / 32 tests pass",
+      "storageUnknownInvariant": "UNKNOWN storage outcomes remain discoverable as PROMOTED or DELETE_FAILED; no false DELETED acknowledgement"
+    },
+    "CF-002": {
+      "status": "PASS_WITH_EXTERNAL_RUNTIME_EVIDENCE",
+      "fullRaw": "docs/audits/candidate-first/pre-phase/evidence/full-run-raw.json",
+      "fullTriage": "docs/audits/candidate-first/pre-phase/evidence/full-run-triage.json",
+      "fullRawTotals": {
+        "tests": 3193,
+        "passed": 3090,
+        "failed": 102,
+        "skipped": 1
+      },
+      "acceptanceScope": {
+        "tests": 563,
+        "passedInMonolithicRun": 561,
+        "failedOnlyBySandboxDockerLaunch": 2,
+        "skipped": 0,
+        "changedScope": "108 / 108 pass"
+      },
+      "externalDockerBoundary": "4 / 4 pass"
+    },
+    "CF-003": {
+      "status": "PASS",
+      "clamav": "1.4.5 / signature 28115",
+      "candidateJourney": "desktop/mobile 2 / 2 pass"
+    },
+    "CF-004": {
+      "status": "PASS_WITH_RECORDED_LIMITATIONS",
+      "homeChangedScope": "108 / 108 pass in final monolithic run",
+      "performance": "Local production-mode warm steady-state evidence remains authoritative"
+    }
+  },
+  "staticVerification": {
+    "typecheck": "PASS",
+    "eslint": "PASS",
+    "gitDiffCheck": "PASS",
+    "codegraph": "SYNCED"
+  },
+  "cleanup": {
+    "databaseDropped": "smarthire_gate0_recheck_20260906_test",
+    "storageRemoved": "web/.local/gate0-recheck-20260906-test",
+    "sharedServicesTouched": false,
+    "envFilesCreated": false,
+    "generatedArtifactsRemoved": true,
+    "removedArtifactClasses": [
+      "intermediate Vitest raw/failure snapshots",
+      "duplicate lifecycle controls",
+      "failed or cold browser benchmark attempts",
+      "temporary browser dataset seed"
+    ],
+    "removedArtifacts": [
+      "2026-09-06-candidate-first-concurrent-a-create.json",
+      "2026-09-06-candidate-first-concurrent-a-delete.json",
+      "2026-09-06-candidate-first-concurrent-b-create.json",
+      "2026-09-06-candidate-first-concurrent-b-delete.json",
+      "2026-09-06-candidate-first-focused-final.json",
+      "2026-09-06-candidate-first-lifecycle-b-create.json",
+      "2026-09-06-candidate-first-lifecycle-b-delete.json",
+      "2026-09-06-cf002-post-rerun.json",
+      "2026-09-06-cf004-backend-home-performance-legacy.log",
+      "2026-09-06-cf004-backend-home-performance-v2.log",
+      "2026-09-06-cf004-browser-seed.json",
+      "2026-09-06-cf004-home-browser-performance-desktop-failed-after-mobile.json",
+      "2026-09-06-cf004-home-browser-performance-mobile-cold.json",
+      "2026-09-06-cf004-home-browser-performance-mobile-prefetch-try1.json",
+      "2026-09-06-cf004-home-browser-performance-mobile-settle-failed.json",
+      "2026-09-06-cf004-scanner-live.json",
+      "2026-09-06-failed-test-summary.json",
+      "2026-09-06-full-vitest.json",
+      "2026-09-06-full-vitest-failures.csv",
+      "2026-09-06-full-vitest-failures.json",
+      "2026-09-06-full-vitest-failures-lines.txt",
+      "2026-09-06-full-vitest-final.json",
+      "2026-09-06-full-vitest-final-rerun.json",
+      "2026-09-06-full-vitest-gate0-final.json",
+      "2026-09-06-full-vitest-gate0-final-v2.json",
+      "2026-09-06-full-vitest-gate0-triage.json",
+      "2026-09-06-full-vitest-gate0-triage-final.json",
+      "2026-09-06-full-vitest-gate0-triage-v2.json",
+      "2026-09-06-full-vitest-post-guard.json",
+      "2026-09-06-full-vitest-rerun-triage.json",
+      "2026-09-06-full-vitest-triage.json",
+      "2026-09-06-gate0-recheck-focused-raw.json",
+      "2026-09-06-gate0-recheck-full-raw.json",
+      "2026-09-06-gate0-recheck-home-raw.json",
+      "2026-09-06-gate0-recheck-integration-raw.json",
+      "2026-09-06-gate0-recheck-resource.json",
+      "2026-09-06-gate0-recheck-shared-readonly.json",
+      "2026-09-06-gate0-recheck-triage.json",
+      "2026-09-06-gate0-verification-final.json",
+      "2026-09-06-verification-pre-gate0-recheck.json"
+    ],
+    "keptCanonicalArtifactSet": [
+      "docs/audits/candidate-first/roadmap.md",
+      "docs/audits/candidate-first/pre-phase/integrated-gate.json",
+      "docs/audits/candidate-first/pre-phase/evidence/full-run-raw.json",
+      "docs/audits/candidate-first/pre-phase/evidence/full-run-triage.json",
+      "docs/audits/candidate-first/pre-phase/evidence/cf003-scanner.json",
+      "docs/audits/candidate-first/pre-phase/evidence/cf003-candidate-journey.json",
+      "docs/audits/candidate-first/pre-phase/evidence/cf004-browser-matrix.json",
+      "docs/audits/candidate-first/pre-phase/evidence/cf004-home-performance.json",
+      "docs/audits/candidate-first/pre-phase/evidence/cf004-browser-desktop.json",
+      "docs/audits/candidate-first/pre-phase/evidence/cf004-production-build.json",
+      "docs/audits/candidate-first/pre-phase/evidence/cf004-accessibility.json",
+      "docs/audits/candidate-first/pre-phase/evidence/cf004-realtime.json",
+      "docs/audits/candidate-first/pre-phase/evidence/cf004-restore.json",
+      "docs/audits/candidate-first/pre-phase/evidence/db-write-inventory.json",
+      "docs/audits/candidate-first/pre-phase/evidence/verification-index.json",
+      "docs/audits/candidate-first/pre-phase/evidence/baseline.md",
+      "docs/audits/candidate-first/pre-phase/evidence/baseline-triage.md",
+      "docs/audits/system-audit.md",
+      "docs/audits/consolidated-system-audit.md",
+      "docs/audit-report.md"
+    ]
+  },
+  "postCleanupVerification": {
+    "focusedCandidateFirst": {
+      "files": 16,
+      "tests": 66,
+      "passed": 66,
+      "failed": 0,
+      "skipped": 0
+    },
+    "selectedIntegration": {
+      "files": 8,
+      "tests": 28,
+      "passed": 28,
+      "failed": 0,
+      "skipped": 0,
+      "database": "smarthire_gate0_recheck_20260906_test"
+    },
+    "typecheck": "PASS",
+    "eslint": "PASS",
+    "gitDiffCheck": "PASS",
+    "retainedAuditJsonParse": "20/20 PASS",
+    "auditMarkdownArtifactLinks": "6/6 PASS"
+  },
+  "sharedReadOnlyVerification": {
+    "migration089Applied": true,
+    "checksumMatches": true,
+    "candidatePromotionRows": 0,
+    "applicationPromotionRows": 0
+  },
+  "runtimeReadOnlyVerification": {
+    "dockerPs": {
+      "smarthire-cv-worker-1": "Up",
+      "smarthire-clamav-1": "Up (healthy)",
+      "smarthire-postgres-1": "Up (healthy)"
+    },
+    "clamav": {
+      "socket": "/run/clamav/clamd.sock present",
+      "version": "1.4.5/28115"
+    },
+    "mutated": false
+  },
+  "remainingOutsideStage0": {
+    "fullProductFailures": 100,
+    "fullProductSkips": 1,
+    "followOnWork": [
+      "CF-803 automated object-storage backup bundling",
+      "CF-651-653 multi-instance realtime validation",
+      "Broader regression groups recorded in the final-source triage"
+    ]
+  }
+}

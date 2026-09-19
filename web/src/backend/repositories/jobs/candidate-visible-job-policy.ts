@@ -1,6 +1,7 @@
 import "server-only";
 
 import { Prisma } from "@/backend/generated/prisma/client";
+import { getPublicCompanySql } from "@/backend/repositories/companies/public-company-visibility-policy";
 
 /**
  * Candidate discovery and private CV Match Check must agree on which jobs can
@@ -16,9 +17,7 @@ export function candidateVisibleJobSql(now: Date): Prisma.Sql {
     AND EXISTS (
       SELECT 1 FROM "Company" c
       WHERE c."id" = j."companyId"
-        AND c."verifiedAt" IS NOT NULL
-        AND c."verificationState" = 'ACTIVE'::"CompanyVerificationState"
-        AND c."verificationInactiveAt" IS NULL
+        AND ${getPublicCompanySql("c")}
     )
     AND (
       NOT EXISTS (
@@ -49,6 +48,7 @@ export function candidateVisibleJobWhere(
       verifiedAt: { not: null },
       verificationState: "ACTIVE",
       verificationInactiveAt: null,
+      moderationState: "ACTIVE",
     },
     AND: [
       {

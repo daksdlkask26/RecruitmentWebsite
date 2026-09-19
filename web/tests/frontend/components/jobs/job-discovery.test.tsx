@@ -8,6 +8,11 @@ import {
 import { JobSearchForm } from "@/frontend/features/jobs/components/job-search-form";
 import { CompanyAvatar } from "@/frontend/features/jobs/components/company-avatar";
 import { WorkspaceLocaleProvider } from "@/frontend/features/dashboard/client/workspace-locale";
+
+vi.mock("@/backend/auth/get-workspace-context", () => ({
+  getWorkspaceContext: vi.fn(async () => null),
+}));
+
 import JobsLoading from "@/app/jobs/loading";
 
 const job = {
@@ -194,6 +199,21 @@ describe("job discovery presentation", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("submits the current criteria immediately for the live experience", () => {
+    const onCriteriaChange = vi.fn();
+    render(
+      <JobSearchForm
+        criteria={{ workArrangement: "REMOTE" }}
+        onCriteriaChange={onCriteriaChange}
+      />,
+    );
+    fireEvent.submit(screen.getByRole("search", { name: "Job search" }));
+    expect(onCriteriaChange).toHaveBeenCalledWith(
+      { workArrangement: "REMOTE" },
+      "immediate",
+    );
+  });
+
   it("reports redesigned filter changes with the right trigger", () => {
     const onCriteriaChange = vi.fn();
     render(<JobSearchForm criteria={{}} onCriteriaChange={onCriteriaChange} />);
@@ -236,8 +256,8 @@ describe("job discovery presentation", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("presents the loading state with the informational blue tone", () => {
-    render(<JobsLoading />);
+  it("presents the loading state with the informational blue tone", async () => {
+    render(await JobsLoading());
     expect(screen.getByRole("status", { name: "" })).toHaveClass(
       "job-feedback-info",
     );

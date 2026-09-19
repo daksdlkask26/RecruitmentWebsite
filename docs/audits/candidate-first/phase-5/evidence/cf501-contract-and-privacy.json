@@ -1,0 +1,134 @@
+{
+  "artifact": "CF-501",
+  "generatedOn": "2026-09-19",
+  "sourceIdentity": {
+    "gitHead": "583171bf",
+    "workingTree": "dirty-preserved",
+    "sharedDatabase": "smarthire was not targeted by write-capable checks"
+  },
+  "isolatedDatabase": {
+    "name": "candidate_phase5_final_20260917_e2e_test",
+    "nameClass": "e2e",
+    "migrationsApplied": 97,
+    "migrationSequence": "97/97",
+    "freshMigrationVerification": "PASS; verifier checks printed fresh migration, drift/connectivity, and Feature 001/004 PASS before its launcher was safely interrupted",
+    "droppedAndVerifiedAbsent": true,
+    "verificationDatabasesDroppedAndAbsent": true
+  },
+  "contract": {
+    "snapshotAndLineage": "PASS",
+    "completenessUnion": "PASS",
+    "presentationStates": ["AVAILABLE", "INCOMPLETE", "UNAVAILABLE"],
+    "numericEligibility": "PASS",
+    "evidenceTraceAndParserProvenance": "PASS",
+    "profileAndCvSeparation": "PASS",
+    "candidateOwnershipAndNeutralDenial": "PASS",
+    "advisoryOnlySemantics": "PASS",
+    "contentFreeLogs": "PASS"
+  },
+  "evidence": [
+    {
+      "command": "node scripts/phase5-run-isolated.mjs npx.cmd vitest run tests/backend/private-cv-match/private-match-projection.test.ts tests/shared/private-cv-match/private-match-contract.test.ts tests/frontend/components/home/home-smart-match.test.tsx tests/frontend/components/home/home-trending-jobs.test.tsx tests/frontend/components/private-cv-match/private-match-report.test.tsx tests/architecture/phase5-candidate-production-score-guard.test.ts --reporter=dot",
+      "testFiles": [
+        "tests/backend/private-cv-match/private-match-projection.test.ts",
+        "tests/shared/private-cv-match/private-match-contract.test.ts",
+        "tests/frontend/components/home/home-smart-match.test.tsx",
+        "tests/frontend/components/home/home-trending-jobs.test.tsx",
+        "tests/frontend/components/private-cv-match/private-match-report.test.tsx",
+        "tests/architecture/phase5-candidate-production-score-guard.test.ts"
+      ],
+      "result": "6 files / 30 passed / 0 failed"
+    },
+    {
+      "command": "node scripts/phase5-run-isolated.mjs npx.cmd vitest run tests/frontend/components/private-cv-match/private-match-report.test.tsx tests/frontend/components/private-cv-match/private-match-state-ui.test.tsx tests/frontend/private-cv-match/private-match-accessibility.test.ts --reporter=dot",
+      "result": "3 files / 12 passed / 0 failed"
+    },
+    {
+      "command": "node scripts/phase5-run-isolated.mjs npm.cmd run test:candidate-application-private-match -- --reporter=dot",
+      "result": "14 files / 44 passed / 0 failed / 0 skipped"
+    },
+    {
+      "command": "node scripts/phase5-run-isolated.mjs npm.cmd run test:home -- --reporter=dot",
+      "result": "39 files / 104 passed / 0 failed / 0 skipped"
+    },
+    {
+      "command": "node scripts/phase5-run-isolated.mjs npx.cmd vitest run tests/backend/scoring/scoring-worker.test.ts tests/backend/applications/score-stage-advisory.test.ts tests/backend/applications/recruiter-application-decision-service.test.ts tests/backend/applications/shortlist-application.test.ts tests/backend/applications/mark-application-viewed.test.ts tests/backend/unit/jobs/application-stage-policy.test.ts tests/backend/integration/applications/application-stage-authority.test.ts tests/backend/integration/applications/application-stage-concurrency.test.ts tests/backend/integration/applications/application-stage-idempotency.test.ts tests/backend/integration/applications/consequential-stage-decisions.test.ts tests/security/applications/human-controlled-pipeline.test.ts --reporter=dot",
+      "result": "11 files / 46 passed / 0 failed / 0 skipped"
+    },
+    {
+      "command": "node scripts/phase5-run-isolated.mjs npx.cmd vitest run tests/backend/scoring/automatic-match.test.ts tests/backend/scoring/experience-duration.test.ts tests/backend/scoring/prisma-scoring-repository.test.ts --reporter=dot",
+      "result": "3 files / 25 passed / 0 failed / 0 skipped"
+    },
+    {
+      "command": "node scripts/phase5-run-isolated.mjs npx.cmd vitest run tests/backend/integration/private-cv-match/phase5-postgres.integration.test.ts --reporter=verbose",
+      "testNames": [
+        "persists immutable CV/JD/config lineage and rejects result mutation",
+        "keeps read/list/retry/delete private to the owning Candidate",
+        "converges concurrent retry requests to one AI retry attempt",
+        "keeps expired, revoked, and physically deleted checks neutrally denied",
+        "supports owner delete while preserving neutral denial afterward",
+        "proves private company cleanup commits and rolls back inside PostgreSQL transactions",
+        "keeps worker logs content-free when deterministic work fails",
+        "deletes company-scoped private rows through the real deletion transaction"
+      ],
+      "result": "1 file / 8 passed / 0 failed / 0 skipped"
+    },
+    {
+      "command": "node scripts/phase5-run-isolated.mjs npm.cmd run db:validate",
+      "result": "PASS; Prisma schema is valid"
+    },
+    {
+      "command": "node scripts/phase5-run-isolated.mjs npm.cmd run db:migrations:check",
+      "result": "PASS; migrationCount=97; first=001; last=097_public_discovery_invalidation_watermark"
+    },
+    {
+      "command": "node scripts/phase5-run-isolated.mjs npm.cmd run db:verify",
+      "result": "PASS checks printed for fresh migration, drift/connectivity, and Feature 001/004; launcher lifecycle was interrupted after checks to clean task-owned verifier databases"
+    },
+    {
+      "command": "npx.cmd prettier --check eslint.config.mjs next.config.ts tsconfig.json scripts/evaluate-phase5-corpus.ts scripts/summarize-phase5-browser-evidence.mjs scripts/phase5-run-isolated.mjs src/app/jobs/page.tsx src/backend/private-cv-match/private-match-projection.ts src/backend/private-cv-match/private-match-retention.ts src/backend/scoring/domain/skill-evidence-extractor.ts src/frontend/features/home/home-copy.ts src/frontend/features/home/components/home-smart-match.tsx src/frontend/styles/base.css src/frontend/styles/auth.css tests/backend/private-cv-match/phase5-corpus.contract.test.ts tests/backend/private-cv-match/private-match-migration.test.ts tests/backend/private-cv-match/private-match-retention.test.ts tests/backend/private-cv-match/private-score-policy.test.ts tests/architecture/phase5-candidate-production-score-guard.test.ts tests/architecture/phase5-browser-evidence-summarizer.test.mjs tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts ../docs/audits/candidate-first/phase-5/evidence/cf501-contract-and-privacy.json ../docs/audits/candidate-first/phase-5/evidence/cf501-contract-and-privacy.md ../docs/audits/candidate-first/phase-4/evidence/cf406-browser-current-summary.json ../docs/audits/candidate-first/phase-4/evidence/cf406-browser-current-summary.md",
+      "result": "PASS; all listed files use Prettier code style",
+      "historicalCommand": true,
+      "canonicalReplacement": "docs/audits/candidate-first/phase-4/evidence/cf406-repeatability.json"
+    },
+    {
+      "command": "npx.cmd eslint src/backend/private-cv-match/private-match-projection.ts src/backend/scoring/domain/skill-evidence-extractor.ts src/frontend/features/home/home-copy.ts src/frontend/features/home/components/home-smart-match.tsx scripts/evaluate-phase5-corpus.ts scripts/summarize-phase5-browser-evidence.mjs scripts/phase5-run-isolated.mjs tests/backend/private-cv-match/phase5-corpus.contract.test.ts tests/architecture/phase5-candidate-production-score-guard.test.ts tests/architecture/phase5-browser-evidence-summarizer.test.mjs tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+      "result": "PASS; exit=0"
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS; exit=0 with LF/CRLF normalization notices only"
+    },
+    {
+      "command": "npm.cmd exec -- next build",
+      "environment": "PHASE5_NEXT_DIST_DIR=.next-phase5-final-20260918-rerun; PHASE5_BUILD_OUTPUT=.next-phase5-final-20260918-rerun; PHASE5_PRODUCTION_BUILD=1; NODE_ENV=production; NEXT_TELEMETRY_DISABLED=1; NODE_OPTIONS=--max-old-space-size=8192",
+      "result": "PASS; TypeScript PASS; static pages 116/116; two existing dynamic-filesystem tracing warnings"
+    }
+  ],
+  "finalSourceRevalidation": {
+    "changeAfterEarlierBundle": "revalidated the final source after the last projection and browser-evidence changes",
+    "command": "node scripts/phase5-run-isolated.mjs npx.cmd vitest run tests/backend/private-cv-match/phase5-corpus.contract.test.ts tests/architecture/phase5-candidate-production-score-guard.test.ts tests/architecture/phase5-browser-evidence-summarizer.test.mjs --reporter=dot",
+    "result": "3 files / 10 passed / 0 failed",
+    "database": "candidate_phase5_final_20260917_e2e_test",
+    "cleanupAfterRerun": "database dropped and verified absent"
+  },
+  "unrelatedBaseline": {
+    "command": "node scripts/phase5-run-isolated.mjs npm.cmd run test:scoring -- --reporter=dot",
+    "result": "22 files / 104 passed / 1 failed / 105 total",
+    "failure": "tests/frontend/scoring/documents-tab.test.tsx expects CV PDF preview while the untouched component renders Original CV PDF preview",
+    "unmodifiedPaths": true,
+    "classification": "FAIL outside Phase 5; not changed or hidden; allowed baseline exception for the integrated gate after unaffected-path proof"
+  },
+  "cleanup": {
+    "taskServerStopped": true,
+    "taskProductionBuildRemoved": true,
+    "isolatedDatabaseAbsent": true,
+    "migrationVerificationTempDatabasesAbsent": true,
+    "userPid32700WasNotTargetedOrStopped": true,
+    "userOwnedLockPreserved": true,
+    "sharedNextDevOutput": "retained because ownership of web/.next/dev could not be safely proven",
+    "taskOwnedEvidenceAndLogs": "canonical evidence retained; task-owned server logs and production build removed"
+  },
+  "verdict": "VERIFIED",
+  "phaseGateDependency": "CF-501 is independently verified from current executable evidence; phase-wide status is recorded separately in phase-5/integrated-gate.md."
+}

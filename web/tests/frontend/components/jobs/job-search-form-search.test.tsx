@@ -7,7 +7,7 @@ vi.mock("@/frontend/features/dashboard/client/workspace-locale", () => ({
 }));
 
 describe("JobSearchForm sidebar", () => {
-  it("does not duplicate the global keyword search controls", () => {
+  it("keeps the explicit sidebar submit fallback without duplicating keyword input", () => {
     render(
       <JobSearchForm
         criteria={{ q: "accountant" }}
@@ -18,9 +18,7 @@ describe("JobSearchForm sidebar", () => {
     expect(
       screen.queryByRole("combobox", { name: "Keywords" }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Search" }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Search" })).toBeVisible();
     expect(screen.getByRole("search", { name: "Job search" })).toBeVisible();
   });
 });

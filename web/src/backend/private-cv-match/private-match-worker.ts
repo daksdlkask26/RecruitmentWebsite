@@ -292,6 +292,8 @@ function scoringInput(
   automatic?: AutomaticMatchingResult,
 ): ScoringInput {
   const job = jsonRecord(attempt.check.jdSnapshot);
+  const jdText = text(job.jdText);
+  if (!jdText.trim()) throw new Error("PRIVATE_JD_SNAPSHOT_UNAVAILABLE");
   const requiredSkillCandidates = Array.isArray(job.requiredSkills)
     ? job.requiredSkills.flatMap((item) => {
         const skill = jsonRecord(item as never);
@@ -325,7 +327,7 @@ function scoringInput(
     cvText: sanitizeCvText(cvText),
     cvVersion: `cv-${attempt.check.cvVersionId}-v${attempt.check.cvVersion}`,
     cvDigest: attempt.check.cvDigest,
-    jdText: text(job.jdText, "{}"),
+    jdText,
     jdVersion: `jd-${attempt.check.jobPostingId}-v${attempt.check.jdVersion}`,
     jdDigest: attempt.check.jdDigest,
     configVersion:
@@ -352,7 +354,30 @@ function scoringInput(
     automaticEvidence: automatic?.evidence
       .map((item) => ({ title: item.criterionId, excerpt: item.quote }))
       .slice(0, 30),
+    cvParseFailed: jsonRecord(attempt.check.cvSnapshot).parseStatus !== "READY",
+    jdParseFailed: job.parseStatus !== "READY",
   };
+}
+
+function assertScoringLineage(
+  result: Pick<
+    AutomaticMatchingResult | AiEvaluationResult,
+    "cvVersion" | "jdVersion" | "configVersion"
+  >,
+  attempt: ClaimedPrivateAttempt,
+) {
+  const expected = {
+    cvVersion: `cv-${attempt.check.cvVersionId}-v${attempt.check.cvVersion}`,
+    jdVersion: `jd-${attempt.check.jobPostingId}-v${attempt.check.jdVersion}`,
+    configVersion: attempt.check.scoringConfigVersion,
+  };
+  if (
+    result.cvVersion !== expected.cvVersion ||
+    result.jdVersion !== expected.jdVersion ||
+    result.configVersion !== expected.configVersion
+  ) {
+    throw new Error("INCOMPATIBLE_SCORE_LINEAGE");
+  }
 }
 
 async function deterministicForRetry(
@@ -517,6 +542,7 @@ export class PrivateMatchWorker {
             this.dependencies.automatic ??
             new Feature012AutomaticMatchingAdapter()
           ).match(scoringInput(attempt, cvText));
+          assertScoringLineage(automatic, attempt);
           await repository.saveAutomaticResult({
             attemptId: attempt.id,
             workerId,
@@ -530,6 +556,7 @@ export class PrivateMatchWorker {
           if (!stored)
             throw new Error("PRIVATE_DETERMINISTIC_RESULT_UNAVAILABLE");
           automatic = automaticFromStoredResult(stored, attempt);
+          assertScoringLineage(automatic, attempt);
         }
         if (pageCount !== null) {
           // Page count is display metadata only. The immutable scoring payload
@@ -545,6 +572,7 @@ export class PrivateMatchWorker {
         const rawAi = await (
           this.dependencies.ai ?? new Feature012AiEvaluationAdapter()
         ).evaluate(scoringInput(attempt, cvText, automatic));
+        assertScoringLineage(rawAi, attempt);
         const ai = sanitizeAiEvaluation(rawAi);
         const hybrid = calculatePrivateHybridScore(automatic, ai);
         await repository.publishHybrid({

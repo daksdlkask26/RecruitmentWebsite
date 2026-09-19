@@ -18,9 +18,8 @@ registerHooks({
     return nextResolve(specifier, context);
   },
 });
-const { assertRequestedTestDatabase } = await import(
-  "../../../helpers/test-database-guard.ts"
-);
+const { assertRequestedTestDatabase } =
+  await import("../../../helpers/test-database-guard.ts");
 assertRequestedTestDatabase();
 
 async function recordReliabilityEvidence(record) {
@@ -266,6 +265,8 @@ async function setupPerformanceFixture() {
 }
 
 async function cleanupRun(runId) {
+  const { configuredJsonJobCatalogueRepository } =
+    await import("../../../../src/backend/repositories/jobs/job-catalogue-repository-factory.ts");
   const ownedCatalogPrefix = `search-catalog-draft-search-review-${runId}-`;
   const [mappingReviews, directlyOwnedCatalogs] = await Promise.all([
     prisma.searchMappingReview.findMany({
@@ -355,6 +356,11 @@ async function cleanupRun(runId) {
     select: { id: true },
   });
   const userIds = users.map((row) => row.id);
+  const companies = await prisma.company.findMany({
+    where: { slug: { contains: runId } },
+    select: { id: true },
+  });
+  const companyIds = new Set(companies.map((row) => row.id));
   const requests = await prisma.recruiterVerificationRequest.findMany({
     where: { applicantUserId: { in: userIds } },
     select: { id: true },
@@ -407,6 +413,24 @@ async function cleanupRun(runId) {
     where: { userId: { in: userIds } },
   });
   await prisma.company.deleteMany({ where: { slug: { contains: runId } } });
+  if (companyIds.size) {
+    const companiesCatalogue =
+      configuredJsonJobCatalogueRepository("companies.json");
+    const ownedCompanies = await companiesCatalogue.readMatching((value) => {
+      if (!value || typeof value !== "object" || Array.isArray(value))
+        return false;
+      return companyIds.has(String(value.id));
+    });
+    if (ownedCompanies.length) {
+      await companiesCatalogue.mutate((values) =>
+        values.filter((value) => {
+          if (!value || typeof value !== "object" || Array.isArray(value))
+            return true;
+          return !companyIds.has(String(value.id));
+        }),
+      );
+    }
+  }
   await prisma.candidateIdentity.deleteMany({
     where: { userId: { in: userIds } },
   });

@@ -38,6 +38,7 @@ import {
   candidateVisibleJobSql,
   candidateVisibleJobWhere,
 } from "./candidate-visible-job-policy";
+import { getPublicCompanyWhere } from "@/backend/repositories/companies/public-company-visibility-policy";
 
 const publicInclude = (actorUserId: string | null) =>
   ({
@@ -1827,11 +1828,7 @@ export class PrismaPublicJobRepository implements PublicJobRepository {
         ],
         approvedAt: { not: null },
         publishedAt: { not: null, lte: now },
-        company: {
-          verifiedAt: { not: null },
-          verificationState: "ACTIVE",
-          verificationInactiveAt: null,
-        },
+        company: getPublicCompanyWhere(),
       },
       include: publicInclude(actorUserId),
     });
@@ -1889,11 +1886,7 @@ export class PrismaPublicJobRepository implements PublicJobRepository {
         status: { in: ["ACTIVE", "CLOSED", "EXPIRED"] },
         approvedAt: { not: null },
         publishedAt: { not: null, lte: now },
-        company: {
-          verifiedAt: { not: null },
-          verificationState: "ACTIVE",
-          verificationInactiveAt: null,
-        },
+        company: getPublicCompanyWhere(),
         OR: [
           { reviewAggregate: null },
           {

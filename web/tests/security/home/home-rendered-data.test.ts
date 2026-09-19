@@ -19,7 +19,7 @@ describe("rendered Home privacy", () => {
       React.createElement(HomeTestHarness, { model: homeModel() }),
     );
     expect(html).not.toMatch(
-      /csrf-proof|private-proof|@example|My Applications|Saved Jobs|profileSignals|Personal match estimate|membership|token/iu,
+      /csrf-proof|private-proof|@example|My Applications|Saved Jobs|profileSignals|Profile estimate|membership|token/iu,
     );
     expect(html).not.toContain("match estimate</strong>");
   });
@@ -36,9 +36,7 @@ describe("rendered Home privacy", () => {
         model,
       }),
     );
-    expect(html).not.toMatch(
-      /Personal job-fit recommendation|private address/iu,
-    );
+    expect(html).not.toMatch(/Profile estimate|private address/iu);
     expect(html).toContain(
       "This example does not use your profile or a live job.",
     );

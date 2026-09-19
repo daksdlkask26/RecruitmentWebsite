@@ -25,50 +25,63 @@ describe("Home public company repository", () => {
     ]);
     const now = new Date("2026-08-12T00:00:00.000Z");
     const result = await new PrismaHomePublicCompanyRepository().list(now, 99);
-    expect(mocks.findMany).toHaveBeenCalledWith({
-      where: {
-        verificationState: "ACTIVE",
-        verifiedAt: { not: null },
-        verificationInactiveAt: null,
-        jobPostings: {
-          some: {
-            status: "ACTIVE",
-            approvedAt: { not: null },
-            publishedAt: { not: null, lte: now },
-            OR: [
-              { applicationDeadline: null },
-              { applicationDeadline: { gt: now } },
-            ],
+    expect(mocks.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          verificationState: "ACTIVE",
+          verifiedAt: { not: null },
+          verificationInactiveAt: null,
+          moderationState: "ACTIVE",
+          jobPostings: {
+            some: expect.objectContaining({
+              status: "ACTIVE",
+              approvedAt: { not: null },
+              publishedAt: { not: null, lte: now },
+              company: expect.objectContaining({
+                moderationState: "ACTIVE",
+              }),
+              AND: expect.arrayContaining([
+                expect.objectContaining({
+                  OR: [
+                    { applicationDeadline: null },
+                    { applicationDeadline: { gt: now } },
+                  ],
+                }),
+                expect.objectContaining({
+                  OR: expect.any(Array),
+                }),
+              ]),
+            }),
           },
-        },
-      },
-      orderBy: [{ verifiedAt: "desc" }, { id: "asc" }],
-      take: 6,
-      select: expect.objectContaining({
-        slug: true,
-        displayName: true,
-        logoUrl: true,
-        publicDescription: true,
-        publicLocation: true,
-        industry: true,
-        size: true,
-        _count: {
-          select: {
-            jobPostings: {
-              where: {
-                status: "ACTIVE",
-                approvedAt: { not: null },
-                publishedAt: { not: null, lte: now },
-                OR: [
-                  { applicationDeadline: null },
-                  { applicationDeadline: { gt: now } },
-                ],
+        }),
+        orderBy: [{ verifiedAt: "desc" }, { id: "asc" }],
+        take: 6,
+        select: expect.objectContaining({
+          slug: true,
+          displayName: true,
+          logoUrl: true,
+          publicDescription: true,
+          publicLocation: true,
+          industry: true,
+          size: true,
+          _count: {
+            select: {
+              jobPostings: {
+                where: expect.objectContaining({
+                  status: "ACTIVE",
+                  approvedAt: { not: null },
+                  publishedAt: { not: null, lte: now },
+                  company: expect.objectContaining({
+                    moderationState: "ACTIVE",
+                  }),
+                  AND: expect.any(Array),
+                }),
               },
             },
           },
-        },
+        }),
       }),
-    });
+    );
     expect(result).toEqual([
       {
         slug: "verified-company",
@@ -90,10 +103,13 @@ describe("Home public company repository", () => {
     mocks.count.mockResolvedValue(42);
     const now = new Date("2026-08-12T00:00:00.000Z");
 
-    await expect(new PrismaHomePublicCompanyRepository().count(now)).resolves.toBe(42);
+    await expect(
+      new PrismaHomePublicCompanyRepository().count(now),
+    ).resolves.toBe(42);
     expect(mocks.count).toHaveBeenCalledWith({
       where: expect.objectContaining({
         verificationState: "ACTIVE",
+        moderationState: "ACTIVE",
         jobPostings: expect.objectContaining({ some: expect.any(Object) }),
       }),
     });

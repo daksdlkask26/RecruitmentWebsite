@@ -26,9 +26,7 @@ describe("private CV Match Check job search contract", () => {
         limit: PRIVATE_MATCH_JOB_PICKER_LIMIT + 1,
       }).success,
     ).toBe(false);
-    expect(PRIVATE_MATCH_REMOTE_JOB_LIMIT).toBe(
-      PRIVATE_MATCH_JOB_PICKER_LIMIT,
-    );
+    expect(PRIVATE_MATCH_REMOTE_JOB_LIMIT).toBe(PRIVATE_MATCH_JOB_PICKER_LIMIT);
     expect(PRIVATE_MATCH_INITIAL_JOB_LIMIT).toBe(6);
   });
 
@@ -41,7 +39,10 @@ describe("private CV Match Check job search contract", () => {
     expect(where).toMatchObject({
       id: "job-1",
       status: "ACTIVE",
-      company: { verificationState: "ACTIVE" },
+      company: {
+        verificationState: "ACTIVE",
+        moderationState: "ACTIVE",
+      },
     });
     expect(JSON.stringify(where)).toContain('"visibilityState":"PUBLISHED"');
   });

@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "cf406-live-recall.v1",
+  "generatedAt": "2026-09-18T08:21:42.538Z",
+  "source": "isolated-postgresql-job-board-fixture",
+  "databaseName": "UNAVAILABLE",
+  "fixture": {
+    "seedNamespace": "00a84bbc-725b-4df1-b92f-01aa1d510928",
+    "jobCount": 11
+  },
+  "cases": [
+    {
+      "id": "exact-vietnamese-title",
+      "kind": "exact",
+      "query": "Lập trình viên TypeScript",
+      "expectedIds": [
+        "job-active-00a84bbc-725b-4df1-b92f-01aa1d510928"
+      ],
+      "actualIds": [
+        "job-electronics-engineer-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-active-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-active-second-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-seo-executive-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-seo-specialist-00a84bbc-725b-4df1-b92f-01aa1d510928"
+      ],
+      "recall": 1
+    },
+    {
+      "id": "normalized-no-diacritics",
+      "kind": "normalized",
+      "query": "lap trinh vien TypeScript",
+      "expectedIds": [
+        "job-active-00a84bbc-725b-4df1-b92f-01aa1d510928"
+      ],
+      "actualIds": [
+        "job-electronics-engineer-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-active-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-active-second-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-seo-executive-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-seo-specialist-00a84bbc-725b-4df1-b92f-01aa1d510928"
+      ],
+      "recall": 1
+    },
+    {
+      "id": "broad-engineer",
+      "kind": "broad",
+      "query": "Engineer",
+      "expectedIds": [
+        "job-electronics-engineer-00a84bbc-725b-4df1-b92f-01aa1d510928"
+      ],
+      "actualIds": [
+        "job-electronics-engineer-00a84bbc-725b-4df1-b92f-01aa1d510928"
+      ],
+      "recall": 1
+    },
+    {
+      "id": "location",
+      "kind": "location",
+      "query": "Hồ Chí Minh",
+      "expectedIds": [
+        "job-active-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-seo-specialist-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-seo-executive-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-electronics-engineer-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-python-developer-00a84bbc-725b-4df1-b92f-01aa1d510928"
+      ],
+      "actualIds": [
+        "job-python-developer-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-electronics-engineer-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-seo-specialist-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-seo-executive-00a84bbc-725b-4df1-b92f-01aa1d510928",
+        "job-active-00a84bbc-725b-4df1-b92f-01aa1d510928"
+      ],
+      "recall": 1
+    },
+    {
+      "id": "zero-result",
+      "kind": "zero",
+      "query": "phase4-no-such-role-zzzz",
+      "expectedIds": [],
+      "actualIds": [],
+      "recall": 1
+    }
+  ],
+  "metrics": {
+    "exactNormalizedRecall": 1,
+    "broadRecall": 1,
+    "zeroResultCorrect": true
+  },
+  "status": "PASS",
+  "limitations": [
+    "Expected IDs are declared by the task-owned fixture; no result count is used as recall.",
+    "This is a deterministic isolated-catalog recall gate, not a production traffic sample."
+  ]
+}

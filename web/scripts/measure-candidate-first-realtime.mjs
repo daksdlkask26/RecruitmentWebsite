@@ -17,18 +17,18 @@ if (existsSync(envFile)) {
 process.env.MESSAGING_REALTIME_ENABLED = "true";
 process.env.MESSAGING_SOCKET_PATH = "/chat";
 
-const { attachSocketIoChatGateway } = await import(
-  "@/backend/messaging/realtime/socket-io-chat-gateway"
-);
-const { MessagingPresenceRegistry } = await import(
-  "@/backend/messaging/realtime/messaging-presence-registry"
-);
-const { MessagingSocketRegistry } = await import(
-  "@/backend/messaging/realtime/messaging-socket-registry"
-);
+const { attachSocketIoChatGateway } =
+  await import("@/backend/messaging/realtime/socket-io-chat-gateway");
+const { MessagingPresenceRegistry } =
+  await import("@/backend/messaging/realtime/messaging-presence-registry");
+const { MessagingSocketRegistry } =
+  await import("@/backend/messaging/realtime/messaging-socket-registry");
 
 const widths = [1, 10, 40, 100];
-const repetitions = Number.parseInt(process.env.CF004_REALTIME_REPETITIONS ?? "3", 10);
+const repetitions = Number.parseInt(
+  process.env.CF004_REALTIME_REPETITIONS ?? "3",
+  10,
+);
 const timeoutMs = 10_000;
 
 function nowMs() {
@@ -38,7 +38,10 @@ function nowMs() {
 function percentile(values, p) {
   if (!values.length) return null;
   const sorted = [...values].sort((a, b) => a - b);
-  const index = Math.min(sorted.length - 1, Math.max(0, Math.ceil(p * sorted.length) - 1));
+  const index = Math.min(
+    sorted.length - 1,
+    Math.max(0, Math.ceil(p * sorted.length) - 1),
+  );
   return Number(sorted[index].toFixed(2));
 }
 
@@ -97,7 +100,9 @@ function createRepositories(width, runId, counters) {
     },
     listAuthorizedConversationIds: async (userId) => {
       counters.listAuthorized += 1;
-      return userId === candidateId || userId === recruiterId ? conversationIds : [];
+      return userId === candidateId || userId === recruiterId
+        ? conversationIds
+        : [];
     },
     open: async () => ({ conversationId: conversationIds[0], created: false }),
   };
@@ -140,7 +145,15 @@ function createRepositories(width, runId, counters) {
       };
     },
   };
-  return { candidateId, recruiterId, conversationIds, conversations, eligibility, blocks, messages };
+  return {
+    candidateId,
+    recruiterId,
+    conversationIds,
+    conversations,
+    eligibility,
+    blocks,
+    messages,
+  };
 }
 
 async function closeServer(server) {
@@ -176,9 +189,12 @@ async function runMeasurement(width, repetition) {
     registry,
     presence,
   });
-  await new Promise((resolveListen) => server.listen(0, "127.0.0.1", resolveListen));
+  await new Promise((resolveListen) =>
+    server.listen(0, "127.0.0.1", resolveListen),
+  );
   const address = server.address();
-  if (!address || typeof address === "string") throw new Error("Missing realtime test address");
+  if (!address || typeof address === "string")
+    throw new Error("Missing realtime test address");
   const url = `http://127.0.0.1:${address.port}/chat`;
   const client = (userId) =>
     createClient(url, {
@@ -220,21 +236,30 @@ async function runMeasurement(width, repetition) {
       event = await delivered;
     } catch (error) {
       throw new Error(
-        `${error instanceof Error ? error.message : String(error)}; ack=${JSON.stringify(acknowledged)}; rooms=${JSON.stringify({
-          candidate: registry.conversationIdsForSocket(candidate.socket.id).size,
-          recruiter: registry.conversationIdsForSocket(recruiter.socket.id).size,
-        })}; repositoryCalls=${JSON.stringify(counters)}`,
+        `${error instanceof Error ? error.message : String(error)}; ack=${JSON.stringify(acknowledged)}; rooms=${JSON.stringify(
+          {
+            candidate: registry.conversationIdsForSocket(candidate.socket.id)
+              .size,
+            recruiter: registry.conversationIdsForSocket(recruiter.socket.id)
+              .size,
+          },
+        )}; repositoryCalls=${JSON.stringify(counters)}`,
         { cause: error },
       );
     }
     const deliveryMs = nowMs() - joinedAt;
-    if (!acknowledged?.ok || event?.message?.content !== `realtime probe ${width}`) {
+    if (
+      !acknowledged?.ok ||
+      event?.message?.content !== `realtime probe ${width}`
+    ) {
       throw new Error("Realtime message delivery assertion failed");
     }
     candidate.socket.disconnect();
     recruiter.socket.disconnect();
     await sleep(60);
-    const offlineTransitions = transitions.filter((item) => item.presence === "OFFLINE").length;
+    const offlineTransitions = transitions.filter(
+      (item) => item.presence === "OFFLINE",
+    ).length;
     const reconnectStarted = nowMs();
     const reconnected = await Promise.all([
       connectOne(deps.candidateId),
@@ -243,8 +268,10 @@ async function runMeasurement(width, repetition) {
     const reconnectMs = nowMs() - reconnectStarted;
     await eventually(
       () =>
-        registry.conversationIdsForSocket(reconnected[0].socket.id).size === width &&
-        registry.conversationIdsForSocket(reconnected[1].socket.id).size === width,
+        registry.conversationIdsForSocket(reconnected[0].socket.id).size ===
+          width &&
+        registry.conversationIdsForSocket(reconnected[1].socket.id).size ===
+          width,
       `${width} rooms after reconnect`,
     );
     reconnected[0].socket.disconnect();
@@ -263,7 +290,9 @@ async function runMeasurement(width, repetition) {
       },
       reconnectLatencyMs: Number(reconnectMs.toFixed(2)),
       messageDeliveryMs: Number(deliveryMs.toFixed(2)),
-      presenceOnlineTransitions: transitions.filter((item) => item.presence === "ONLINE").length,
+      presenceOnlineTransitions: transitions.filter(
+        (item) => item.presence === "ONLINE",
+      ).length,
       presenceOfflineTransitions: offlineTransitions,
       repositoryCalls: counters,
       heapDeltaBytes: process.memoryUsage().heapUsed - beforeHeap,
@@ -297,17 +326,44 @@ for (const width of widths) {
 
 const byWidth = widths.map((width) => {
   const rows = results.filter((row) => row.width === width);
-  const status = rows.length === repetitions && rows.every((row) => row.status === "PASS") ? "PASS" : "FAIL";
+  const status =
+    rows.length === repetitions && rows.every((row) => row.status === "PASS")
+      ? "PASS"
+      : "FAIL";
   return {
     width,
     repetitions: rows.length,
     status,
-    connectLatencyMsP50: percentile(rows.flatMap((row) => [row.connectLatencyMs.candidate, row.connectLatencyMs.recruiter]), 0.5),
-    connectLatencyMsP95: percentile(rows.flatMap((row) => [row.connectLatencyMs.candidate, row.connectLatencyMs.recruiter]), 0.95),
-    reconnectLatencyMsP50: percentile(rows.map((row) => row.reconnectLatencyMs), 0.5),
-    reconnectLatencyMsP95: percentile(rows.map((row) => row.reconnectLatencyMs), 0.95),
-    messageDeliveryMsP50: percentile(rows.map((row) => row.messageDeliveryMs), 0.5),
-    messageDeliveryMsP95: percentile(rows.map((row) => row.messageDeliveryMs), 0.95),
+    connectLatencyMsP50: percentile(
+      rows.flatMap((row) => [
+        row.connectLatencyMs.candidate,
+        row.connectLatencyMs.recruiter,
+      ]),
+      0.5,
+    ),
+    connectLatencyMsP95: percentile(
+      rows.flatMap((row) => [
+        row.connectLatencyMs.candidate,
+        row.connectLatencyMs.recruiter,
+      ]),
+      0.95,
+    ),
+    reconnectLatencyMsP50: percentile(
+      rows.map((row) => row.reconnectLatencyMs),
+      0.5,
+    ),
+    reconnectLatencyMsP95: percentile(
+      rows.map((row) => row.reconnectLatencyMs),
+      0.95,
+    ),
+    messageDeliveryMsP50: percentile(
+      rows.map((row) => row.messageDeliveryMs),
+      0.5,
+    ),
+    messageDeliveryMsP95: percentile(
+      rows.map((row) => row.messageDeliveryMs),
+      0.95,
+    ),
     maxRoomsPerSocket: Math.max(0, ...rows.map((row) => row.roomsPerSocket)),
     maxHeapDeltaBytes: Math.max(0, ...rows.map((row) => row.heapDeltaBytes)),
     maxRepositoryCalls: rows.length
@@ -342,7 +398,10 @@ const report = {
     totalMeasurements: results.length,
     failedMeasurements: errors.length,
     passedWidths: byWidth.filter((row) => row.status === "PASS").length,
-    status: errors.length === 0 && byWidth.every((row) => row.status === "PASS") ? "PASS" : "FAIL",
+    status:
+      errors.length === 0 && byWidth.every((row) => row.status === "PASS")
+        ? "PASS"
+        : "FAIL",
   },
   byWidth,
   raw: results,
@@ -355,7 +414,10 @@ const report = {
 
 const reportFile = process.env.CF004_REPORT_FILE
   ? resolve(process.env.CF004_REPORT_FILE)
-  : resolve(process.cwd(), "../docs/audits/2026-09-06-cf004-realtime.json");
+  : resolve(
+      process.cwd(),
+      "../docs/audits/candidate-first/pre-phase/evidence/cf004-realtime.json",
+    );
 await writeFile(reportFile, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 if (report.summary.status !== "PASS") process.exitCode = 1;

@@ -234,7 +234,7 @@ export function PrivateMatchAnalysisSteps({
               <p>{description}</p>
             </div>
             <span
-              className={`private-match-badge ${complete ? "private-match-badge--green" : current ? "private-match-badge--blue" : ""}`}
+              className={`private-match-badge ${complete ? "private-match-badge--success" : current ? "private-match-badge--blue" : ""}`}
             >
               {complete ? (
                 <CheckCircle2 aria-hidden="true" />

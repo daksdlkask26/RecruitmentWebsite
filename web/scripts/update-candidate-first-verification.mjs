@@ -6,21 +6,25 @@ import { fileURLToPath } from "node:url";
 
 const auditRoot = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../../docs/audits",
+  "../../docs/audits/candidate-first",
 );
-const canonicalFile = "2026-09-06-gate0-stage0-final-verification.json";
-const outputFile = resolve(auditRoot, "2026-09-06-verification.json");
+const canonicalFile = "pre-phase/integrated-gate.json";
+const outputFile = resolve(
+  auditRoot,
+  "pre-phase/evidence/verification-index.json",
+);
 const report = JSON.parse(
   await readFile(resolve(auditRoot, canonicalFile), "utf8"),
 );
 const rawFile = report.workItems?.["CF-002"]?.fullRaw;
-const triageFile =
-  "2026-09-06-gate0-recheck-final-source-triage.json";
+const triageFile = "pre-phase/evidence/full-run-triage.json";
 if (!rawFile) throw new Error("CANONICAL_FULL_RAW_MISSING");
 const raw = JSON.parse(await readFile(resolve(auditRoot, rawFile), "utf8"));
 const triage = JSON.parse(
   await readFile(resolve(auditRoot, triageFile), "utf8"),
 );
+const artifactPath = (relativePath) =>
+  `docs/audits/candidate-first/${relativePath}`;
 const expected = report.workItems["CF-002"].fullRawTotals;
 const actual = {
   tests: raw.numTotalTests,
@@ -42,10 +46,10 @@ if (
 const index = {
   schemaVersion: "candidate-first-verification-index-v1",
   generatedAt: new Date().toISOString(),
-  canonicalVerification: canonicalFile,
+  canonicalVerification: artifactPath(canonicalFile),
   decision: report.decision,
-  rawReport: rawFile,
-  triageReport: triageFile,
+  rawReport: artifactPath(rawFile),
+  triageReport: artifactPath(triageFile),
   acceptanceScope: report.workItems["CF-002"].acceptanceScope,
   fullRawTotals: actual,
   workItems: report.workItems,
@@ -56,11 +60,7 @@ const index = {
   runtimeReadOnlyVerification: report.runtimeReadOnlyVerification,
   remainingOutsideStage0: report.remainingOutsideStage0,
 };
-await writeFile(
-  outputFile,
-  JSON.stringify(index, null, 2) + "\n",
-  "utf8",
-);
+await writeFile(outputFile, JSON.stringify(index, null, 2) + "\n", "utf8");
 console.log(
   JSON.stringify({
     canonicalFile,

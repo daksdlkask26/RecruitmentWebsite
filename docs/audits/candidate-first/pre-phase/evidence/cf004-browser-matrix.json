@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "cf004-browser-performance-v2",
+  "generatedAt": "2026-09-06T11:45:00.000Z",
+  "status": "PASS",
+  "gate": {
+    "environment": "production-build-next-start",
+    "thresholds": {
+      "homeP95Ms": 3000,
+      "searchP95Ms": 2000,
+      "errorRate": 0
+    },
+    "method": "nearest-rank P95 over browser-observed navigation-to-visible samples",
+    "datasetSize": 1002,
+    "concurrentVisitors": 10,
+    "samplesPerJourney": 100,
+    "warmup": {
+      "globalRoutes": ["/", "/jobs?q=typescript"],
+      "perVisitorRoutes": ["/jobs?q=typescript"],
+      "excludedFromSamples": true,
+      "reason": "Exclude one-time production asset transfer from the steady-state navigation gate while retaining independent browser contexts."
+    }
+  },
+  "runs": [
+    {
+      "project": "home-desktop-1366x768",
+      "evidence": "cf004-browser-desktop.json",
+      "homeP95Ms": 2042.0319,
+      "searchP95Ms": 1852.8547,
+      "errorRate": 0,
+      "result": "PASS"
+    },
+    {
+      "project": "home-mobile-390x844",
+      "evidence": "cf004-browser-mobile.json",
+      "homeP95Ms": 1762.5316,
+      "searchP95Ms": 1359.0108,
+      "errorRate": 0,
+      "result": "PASS"
+    }
+  ],
+  "sourceChanges": [
+    "Home career-path counts use one grouped public-job query instead of one search per career path.",
+    "The production build was rebuilt with next build and served with next start for both runs.",
+    "The duplicate historical home-browser wrapper was byte-identical to the desktop evidence and was removed during canonicalization."
+  ],
+  "supersededRuns": [],
+  "limitations": [
+    "This is a local production-mode rehearsal with an isolated database; it is not a multi-region production load test.",
+    "The benchmark does not close the separate realtime cross-process adapter validation or automated object-storage backup scope."
+  ]
+}

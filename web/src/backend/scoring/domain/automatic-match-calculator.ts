@@ -251,14 +251,21 @@ export function calculateAutomaticMatch(
   const incomplete =
     input.cvParse.code !== "PARSED_SUCCESSFULLY" ||
     input.jdParse.code !== "PARSED_SUCCESSFULLY" ||
-    detectedExperience.incomplete === true;
+    detectedExperience.incomplete === true ||
+    (input.requiredSkills.length === 0 &&
+      input.preferredSkills.length === 0 &&
+      input.minimumExperienceYears === null);
   const incompletenessLabel =
     input.cvParse.code !== "PARSED_SUCCESSFULLY" ||
     input.jdParse.code !== "PARSED_SUCCESSFULLY"
       ? "This score may be incomplete because document parsing reported an issue."
       : detectedExperience.incomplete === true
         ? "This score may be incomplete because some employment dates need review."
-        : null;
+        : input.requiredSkills.length === 0 &&
+            input.preferredSkills.length === 0 &&
+            input.minimumExperienceYears === null
+          ? "This score may be incomplete because the job has no stated criteria."
+          : null;
   return {
     result: {
       resultId: `automatic-${input.applicationId}-${input.cvVersion}-${input.jdVersion}`,

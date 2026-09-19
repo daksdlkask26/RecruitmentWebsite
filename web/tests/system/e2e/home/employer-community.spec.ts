@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import {
   createHomeE2EFixture,
   deleteHomeE2EFixture,
+  openHomeNavigationIfCompact,
   setHomeLocale,
 } from "./home-e2e-fixture";
 
@@ -25,22 +26,17 @@ test("public navigation keeps Home information sections display-only", async ({
     ["How it works", "#how-it-works"],
     ["Our commitment", "#candidate-trust"],
   ]) {
+    await openHomeNavigationIfCompact(page);
     await page.getByRole("link", { name, exact: true }).first().click();
     await expect(page).toHaveURL(new RegExp(`${hash}$`, "u"));
   }
   await expect(page.locator("#companies-hiring")).toHaveCount(1);
-  await expect(
-    page.getByRole("link", { name: "Hiring companies", exact: true }),
-  ).toHaveCount(0);
-  for (const selector of [
-    ".home-process-list",
-    ".home-path-grid",
-    ".home-candidate-trust-grid",
-    ".home-companies-hiring-grid",
-  ])
+  for (const selector of [".home-process-list", ".home-candidate-trust-grid"])
     await expect(page.locator(`${selector} a, ${selector} button`)).toHaveCount(
       0,
     );
+  await expect(page.locator(".home-path-grid a")).not.toHaveCount(0);
+  await expect(page.locator(".home-companies-hiring-grid a")).toHaveCount(0);
   await page.getByLabel("Home language").selectOption("vi");
   await expect(
     page.getByRole("heading", { name: "Doanh nghiệp đang tuyển dụng" }),

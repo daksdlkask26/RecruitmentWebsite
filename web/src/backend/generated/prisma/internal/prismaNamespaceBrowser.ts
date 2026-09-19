@@ -77,6 +77,7 @@ export const ModelName = {
   EmailOutbox: 'EmailOutbox',
   InAppNotification: 'InAppNotification',
   AuditEvent: 'AuditEvent',
+  PublicDiscoveryInvalidation: 'PublicDiscoveryInvalidation',
   Company: 'Company',
   JobIndustry: 'JobIndustry',
   JobSubIndustry: 'JobSubIndustry',
@@ -710,6 +711,15 @@ export const AuditEventScalarFieldEnum = {
 } as const
 
 export type AuditEventScalarFieldEnum = (typeof AuditEventScalarFieldEnum)[keyof typeof AuditEventScalarFieldEnum]
+
+
+export const PublicDiscoveryInvalidationScalarFieldEnum = {
+  id: 'id',
+  version: 'version',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PublicDiscoveryInvalidationScalarFieldEnum = (typeof PublicDiscoveryInvalidationScalarFieldEnum)[keyof typeof PublicDiscoveryInvalidationScalarFieldEnum]
 
 
 export const CompanyScalarFieldEnum = {

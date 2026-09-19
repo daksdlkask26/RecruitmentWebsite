@@ -39,6 +39,24 @@ describe("Candidate-first fixture contract", () => {
     expect(base).toContain("createdSkillIds");
     expect(base).toContain("candidateProfileSkill.findMany");
     expect(base).toContain("AuditEvent is database-enforced append-only");
+    expect(base).toContain("configuredJsonJobCatalogueRepository");
+    expect(base).toContain('configuredJsonJobCatalogueRepository("jobs.json")');
+    expect(base).toContain(
+      'configuredJsonJobCatalogueRepository("companies.json")',
+    );
+    expect(base).toContain("jobsCatalogue.mutate");
+    expect(base).toContain("companiesCatalogue.mutate");
+
+    const adminControl = readFileSync(
+      resolve(
+        process.cwd(),
+        "tests/system/e2e/admin-management/admin-e2e-control.mjs",
+      ),
+      "utf8",
+    );
+    expect(adminControl).toContain("configuredJsonJobCatalogueRepository");
+    expect(adminControl).toContain("where: { slug: { contains: runId } }");
+    expect(adminControl).toContain("companiesCatalogue.mutate");
 
     const control = readFileSync(
       resolve(process.cwd(), "tests/helpers/candidate-first-e2e-control.mjs"),
@@ -46,7 +64,9 @@ describe("Candidate-first fixture contract", () => {
     );
     expect(control).toContain("assertTestDatabaseEnvironment");
     expect(control.indexOf("assertTestDatabaseEnvironment()")).toBeLessThan(
-      control.indexOf('const { prisma } = await import("../../src/backend/database/prisma.ts")'),
+      control.indexOf(
+        'const { prisma } = await import("../../src/backend/database/prisma.ts")',
+      ),
     );
     expect(control).toContain("immutable audit events stay retained");
 
@@ -69,9 +89,9 @@ describe("Candidate-first fixture contract", () => {
       "utf8",
     );
     expect(securityWrite).toContain("assertRequestedTestDatabase");
-    expect(
-      securityWrite.indexOf("assertRequestedTestDatabase()"),
-    ).toBeLessThan(securityWrite.indexOf('"@/backend/database/prisma"'));
+    expect(securityWrite.indexOf("assertRequestedTestDatabase()")).toBeLessThan(
+      securityWrite.indexOf('"@/backend/database/prisma"'),
+    );
     for (const relativePath of [
       "tests/system/e2e/admin-management/admin-e2e-control.mjs",
       "tests/system/e2e/admin-management/e2e-prisma-query.mjs",
@@ -87,7 +107,7 @@ describe("Candidate-first fixture contract", () => {
       readFileSync(
         resolve(
           process.cwd(),
-          "../docs/audits/candidate-first-db-write-inventory-2026-09-06.json",
+          "../docs/audits/candidate-first/pre-phase/evidence/db-write-inventory.json",
         ),
         "utf8",
       ),

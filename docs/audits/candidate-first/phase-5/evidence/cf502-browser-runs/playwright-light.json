@@ -1,0 +1,671 @@
+{
+  "config": {
+    "configFile": "D:\\HCMUS\\PROJECT\\web\\playwright.phase5.config.ts",
+    "rootDir": "D:/HCMUS/PROJECT/web/tests/system/e2e/candidate-first",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/phase5-cf502-playwright-light.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/HCMUS/PROJECT/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "phase5-light-320",
+        "name": "phase5-light-320",
+        "testDir": "D:/HCMUS/PROJECT/web/tests/system/e2e/candidate-first",
+        "testIgnore": [],
+        "testMatch": [
+          "phase5-cf502-accessibility.spec.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "D:/HCMUS/PROJECT/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "phase5-light-375",
+        "name": "phase5-light-375",
+        "testDir": "D:/HCMUS/PROJECT/web/tests/system/e2e/candidate-first",
+        "testIgnore": [],
+        "testMatch": [
+          "phase5-cf502-accessibility.spec.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "D:/HCMUS/PROJECT/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "phase5-light-768",
+        "name": "phase5-light-768",
+        "testDir": "D:/HCMUS/PROJECT/web/tests/system/e2e/candidate-first",
+        "testIgnore": [],
+        "testMatch": [
+          "phase5-cf502-accessibility.spec.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "D:/HCMUS/PROJECT/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "phase5-light-1280",
+        "name": "phase5-light-1280",
+        "testDir": "D:/HCMUS/PROJECT/web/tests/system/e2e/candidate-first",
+        "testIgnore": [],
+        "testMatch": [
+          "phase5-cf502-accessibility.spec.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "phase5-cf502-accessibility.spec.ts",
+      "file": "phase5-cf502-accessibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "matrix: guest employer and profile states",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-320",
+              "projectName": "phase5-light-320",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10955,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:56:38.074Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-d4362b842a4a194d5e90",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 322,
+          "column": 5
+        },
+        {
+          "title": "matrix: report projection states",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-320",
+              "projectName": "phase5-light-320",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12569,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:56:53.839Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-91ac710a7f4fb4bc9cc9",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 383,
+          "column": 5
+        },
+        {
+          "title": "matrix: direct link refresh back forward second tab and long EN VI",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-320",
+              "projectName": "phase5-light-320",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13548,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:57:06.422Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-9ab8d16c5c64635a12c0",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 577,
+          "column": 5
+        },
+        {
+          "title": "matrix: closed and expired Apply",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-320",
+              "projectName": "phase5-light-320",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9913,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:57:19.986Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-d8f636042ffea0c50daa",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 646,
+          "column": 5
+        },
+        {
+          "title": "matrix: guest employer and profile states",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-375",
+              "projectName": "phase5-light-375",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10475,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:57:33.633Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-9cbef5101fdf5baf5985",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 322,
+          "column": 5
+        },
+        {
+          "title": "matrix: report projection states",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-375",
+              "projectName": "phase5-light-375",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13493,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:57:49.149Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-dafb9fe9e71ab47a6e5d",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 383,
+          "column": 5
+        },
+        {
+          "title": "matrix: direct link refresh back forward second tab and long EN VI",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-375",
+              "projectName": "phase5-light-375",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11162,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:58:02.657Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-28a90686d6a849b66a0e",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 577,
+          "column": 5
+        },
+        {
+          "title": "matrix: closed and expired Apply",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-375",
+              "projectName": "phase5-light-375",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9961,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:58:13.834Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-fb0884836031343b9ca8",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 646,
+          "column": 5
+        },
+        {
+          "title": "matrix: guest employer and profile states",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-768",
+              "projectName": "phase5-light-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11561,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:58:27.702Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-7b12e41d143c238be85d",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 322,
+          "column": 5
+        },
+        {
+          "title": "matrix: report projection states",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-768",
+              "projectName": "phase5-light-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12589,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:58:44.252Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-49aae874e5d28eb9cdd4",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 383,
+          "column": 5
+        },
+        {
+          "title": "matrix: direct link refresh back forward second tab and long EN VI",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-768",
+              "projectName": "phase5-light-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10994,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:58:56.852Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-525757316879cb77e093",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 577,
+          "column": 5
+        },
+        {
+          "title": "matrix: closed and expired Apply",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-768",
+              "projectName": "phase5-light-768",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9491,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:59:07.859Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-0fc7f12243ced8f9197f",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 646,
+          "column": 5
+        },
+        {
+          "title": "matrix: guest employer and profile states",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-1280",
+              "projectName": "phase5-light-1280",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11549,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:59:21.034Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-79c77db418b556e1debd",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 322,
+          "column": 5
+        },
+        {
+          "title": "matrix: report projection states",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-1280",
+              "projectName": "phase5-light-1280",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12667,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:59:37.662Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-1fd27de0c235970a9fae",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 383,
+          "column": 5
+        },
+        {
+          "title": "matrix: direct link refresh back forward second tab and long EN VI",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-1280",
+              "projectName": "phase5-light-1280",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11287,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T08:59:50.343Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-4acc125ad2286a1db5d3",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 577,
+          "column": 5
+        },
+        {
+          "title": "matrix: closed and expired Apply",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phase5-light-1280",
+              "projectName": "phase5-light-1280",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9341,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-18T09:00:01.645Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "37687ca7050d58e3122a-37f32e39020b04dcc958",
+          "file": "phase5-cf502-accessibility.spec.ts",
+          "line": 646,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-18T08:56:37.143Z",
+    "duration": 216668.40099999998,
+    "expected": 16,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

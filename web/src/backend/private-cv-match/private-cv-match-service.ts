@@ -20,6 +20,10 @@ import type {
   PrivateCvSnapshot,
   PrivateJdSnapshot,
 } from "./private-match-types";
+import {
+  privateCvSnapshotSchema,
+  privateJdSnapshotSchema,
+} from "./private-match-types";
 import { partitionJobSkillsForMatching } from "@/backend/scoring/domain/job-skill-requirement-policy";
 import { FORMULA_VERSION } from "@/backend/scoring/domain/hybrid-score-calculator";
 import { CV_SECURITY_POLICY_VERSION } from "@/shared/contracts/cv-import/common";
@@ -55,7 +59,10 @@ export type PrivateMatchJobsQuery = z.infer<typeof privateMatchJobsQuerySchema>;
 
 export type PrivateMatchHomeScore = Readonly<{
   jobId: string;
-  score: number;
+  score: number | null;
+  completeness: "AVAILABLE" | "INCOMPLETE" | "UNAVAILABLE";
+  presentationState: "AVAILABLE" | "INCOMPLETE" | "UNAVAILABLE";
+  scoreEligible: boolean;
   checkId?: string;
   cvVersion?: number;
   jdVersion?: number;
@@ -78,20 +85,38 @@ export async function listPrivateMatchHomeScores(
   );
   const scores = new Map<string, PrivateMatchHomeScore>();
   for (const check of checks) {
-    const score = check.currentAttempt?.hybridScore;
-    if (
-      check.state !== "READY" ||
-      check.currentAttempt?.state !== "READY" ||
-      score === null ||
-      score === undefined
-    )
-      continue;
-    const numericScore = Number(score);
-    if (!Number.isFinite(numericScore)) continue;
+    const attempt = check.currentAttempt;
+    const deterministic =
+      attempt?.deterministicResultByAttempt ?? attempt?.deterministicResult;
+    if (!attempt || !deterministic) continue;
+    const cv = snapshotRecord(check.cvSnapshot);
+    const job = snapshotRecord(check.jdSnapshot);
+    const completeness =
+      cv.parseStatus === "FAILED" || job.parseStatus === "FAILED"
+        ? "UNAVAILABLE"
+        : cv.parseStatus !== "READY" || job.parseStatus !== "READY"
+          ? "INCOMPLETE"
+          : deterministic.mayBeIncomplete === true
+            ? "INCOMPLETE"
+            : "AVAILABLE";
+    const score =
+      completeness === "AVAILABLE" &&
+      check.state === "READY" &&
+      attempt.state === "READY"
+        ? Number(attempt.hybridScore)
+        : completeness === "AVAILABLE" &&
+            check.state === "LIMITED" &&
+            attempt.state === "LIMITED"
+          ? Number(deterministic.score)
+          : null;
+    if (score !== null && !Number.isFinite(score)) continue;
     if (!scores.has(check.jobPostingId)) {
       scores.set(check.jobPostingId, {
         jobId: check.jobPostingId,
-        score: Math.round(numericScore),
+        score: score === null ? null : Math.round(score),
+        completeness,
+        presentationState: score === null ? completeness : "AVAILABLE",
+        scoreEligible: score !== null,
         checkId: check.id,
         cvVersion: check.cvVersion,
         jdVersion: check.jdVersion,
@@ -339,6 +364,7 @@ function jobSnapshot(row: JobSource): PrivateJdSnapshot {
     jdVersion: row.version,
     jdUpdatedAt: row.updatedAt.toISOString(),
     jdText,
+    parseStatus: "READY",
   };
 }
 
@@ -370,8 +396,20 @@ function snapshotRecord(value: unknown): Record<string, unknown> {
 }
 
 function listItem(check: PrivateCheckListRecord) {
-  const cv = snapshotRecord(check.cvSnapshot);
-  const job = snapshotRecord(check.jdSnapshot);
+  const cv = privateCvSnapshotSchema.safeParse(check.cvSnapshot);
+  const job = privateJdSnapshotSchema.safeParse(check.jdSnapshot);
+  if (!cv.success || !job.success) return null;
+  if (
+    cv.data.versionId !== check.cvVersionId ||
+    cv.data.version !== check.cvVersion ||
+    cv.data.checksumSha256.toLowerCase() !== check.cvDigest.toLowerCase() ||
+    job.data.jobId !== check.jobPostingId ||
+    job.data.jdVersion !== check.jdVersion ||
+    sha256(canonicalJson(job.data)).toLowerCase() !==
+      check.jdDigest.toLowerCase()
+  ) {
+    return null;
+  }
   const attempt = check.currentAttempt;
   const deterministic =
     attempt?.deterministicResultByAttempt ?? attempt?.deterministicResult;
@@ -386,36 +424,56 @@ function listItem(check: PrivateCheckListRecord) {
             ? "ANALYZING"
             : "QUEUED";
 
+  const hasCriteria =
+    job.data.requirements.length > 0 ||
+    job.data.requiredSkills.length > 0 ||
+    job.data.preferredSkills.length > 0 ||
+    job.data.requiredLanguages.length > 0 ||
+    job.data.requiredExperienceYears !== null;
+  const completeness =
+    cv.data.parseStatus === "FAILED" || job.data.parseStatus === "FAILED"
+      ? "UNAVAILABLE"
+      : cv.data.parseStatus !== "READY" ||
+          job.data.parseStatus !== "READY" ||
+          !hasCriteria ||
+          attempt?.deterministicResultByAttempt?.mayBeIncomplete === true
+        ? "INCOMPLETE"
+        : "AVAILABLE";
+  const candidateScore =
+    state === "READY"
+      ? Number(attempt?.hybridScore)
+      : state === "LIMITED"
+        ? Number(deterministic?.score)
+        : null;
+  const scoreEligible =
+    completeness === "AVAILABLE" && Number.isFinite(candidateScore);
+  const presentationState = scoreEligible ? "AVAILABLE" : completeness;
   return {
     checkId: check.id,
+    inputSource: "CV" as const,
+    completeness,
+    presentationState,
+    scoreEligible,
     state,
     createdAt: check.createdAt.toISOString(),
     expiresAt: check.expiresAt.toISOString(),
     job: {
-      jobId: typeof job.jobId === "string" ? job.jobId : check.jobPostingId,
-      slug: typeof job.slug === "string" ? job.slug : check.jobPostingId,
-      title: typeof job.title === "string" ? job.title : "Selected job",
-      company: typeof job.company === "string" ? job.company : "Company",
-      location:
-        typeof job.location === "string"
-          ? job.location
-          : "Location not specified",
+      jobId: job.data.jobId,
+      slug: job.data.slug,
+      title: job.data.title,
+      company: job.data.company,
+      location: job.data.location,
     },
     cv: {
-      versionId:
-        typeof cv.versionId === "string" ? cv.versionId : check.cvVersionId,
-      displayName: typeof cv.displayName === "string" ? cv.displayName : "CV",
-      fileName: typeof cv.fileName === "string" ? cv.fileName : "candidate-cv",
-      version: typeof cv.version === "number" ? cv.version : check.cvVersion,
+      versionId: cv.data.versionId,
+      displayName: cv.data.displayName,
+      fileName: cv.data.fileName,
+      version: cv.data.version,
     },
     hybridScore:
-      state === "READY" && typeof attempt?.hybridScore === "number"
-        ? attempt.hybridScore
-        : null,
+      scoreEligible && state === "READY" ? Number(attempt?.hybridScore) : null,
     deterministicScore:
-      deterministic && typeof deterministic.score === "number"
-        ? deterministic.score
-        : null,
+      scoreEligible && deterministic ? Number(deterministic.score) : null,
   };
 }
 
@@ -633,7 +691,12 @@ export class PrivateCvMatchService {
       this.clock(),
       50,
     );
-    return { items: checks.map(listItem) };
+    return {
+      items: checks.flatMap((check) => {
+        const item = listItem(check);
+        return item ? [item] : [];
+      }),
+    };
   }
 
   async delete(candidateUserId: string, checkId: string): Promise<void> {

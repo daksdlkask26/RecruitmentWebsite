@@ -8,14 +8,30 @@ const rounds = 10;
 const reportPath = resolve(
   process.cwd(),
   "..",
-  "docs",
-  "audits",
-  "2026-09-06-cf004-home-browser-performance.json",
+  process.env.CF004_BROWSER_REPORT_FILE ??
+    "docs/audits/candidate-first/pre-phase/evidence/cf004-browser-desktop.json",
 );
 
 function percentile95(values: readonly number[]) {
   const ordered = [...values].sort((left, right) => left - right);
   return ordered[Math.max(0, Math.ceil(ordered.length * 0.95) - 1)] ?? Infinity;
+}
+
+async function transferBytes(
+  response:
+    | {
+        headers(): Record<string, string>;
+        body(): Promise<Buffer>;
+      }
+    | null
+    | undefined,
+) {
+  if (!response) return 0;
+  const contentLength = Number(response.headers()["content-length"]);
+  if (Number.isFinite(contentLength) && contentLength >= 0) {
+    return contentLength;
+  }
+  return (await response.body()).byteLength;
 }
 
 async function createVisitors(browser: Browser) {
@@ -30,10 +46,17 @@ async function createVisitors(browser: Browser) {
   );
 }
 
-test("measures 100 concurrent-visitor Home and search samples against the required dataset", async ({ browser }, testInfo) => {
+test("measures 100 concurrent-visitor Home and search samples against the required dataset", async ({
+  browser,
+}, testInfo) => {
   test.setTimeout(900_000);
-  const datasetSize = (await runHomeE2EControl<{ count: number }>("public-job-count")).count;
-  expect(datasetSize, "performance evidence requires at least 1,000 active public jobs").toBeGreaterThanOrEqual(1_000);
+  const datasetSize = (
+    await runHomeE2EControl<{ count: number }>("public-job-count")
+  ).count;
+  expect(
+    datasetSize,
+    "performance evidence requires at least 1,000 active public jobs",
+  ).toBeGreaterThanOrEqual(1_000);
 
   // Compile the Home route once before opening concurrent contexts. The warm
   // request is excluded from the measured samples.
@@ -42,15 +65,13 @@ test("measures 100 concurrent-visitor Home and search samples against the requir
     localStorage.setItem("smarthire.home.locale", "en");
   });
   const warmPage = await warmContext.newPage();
-  await warmPage.goto("/", { waitUntil: "domcontentloaded" });
+  await warmPage.goto("/", { waitUntil: "load" });
   await warmPage.getByRole("heading", { level: 1 }).waitFor();
   // Production output loads each dynamic route on its first request. Warm
   // the measured Jobs route as well so the samples represent steady-state
   // navigation rather than one-time server module loading.
   const warmJobsPage = await warmContext.newPage();
-  await warmJobsPage.goto("/jobs?q=typescript", {
-    waitUntil: "domcontentloaded",
-  });
+  await warmJobsPage.goto("/jobs?q=typescript", { waitUntil: "load" });
   await warmJobsPage.getByRole("main").waitFor();
   await warmPage.waitForTimeout(500);
   await warmContext.close();
@@ -62,44 +83,61 @@ test("measures 100 concurrent-visitor Home and search samples against the requir
   // local disk/network scheduling instead of application work.
   await Promise.all(
     visitors.map(async ({ page }) => {
-      await page.goto("/jobs?q=typescript", {
-        waitUntil: "domcontentloaded",
-      });
+      await page.goto("/jobs?q=typescript", { waitUntil: "load" });
       await page.getByRole("main").waitFor();
     }),
   );
   const homeDurations: number[] = [];
   const searchDurations: number[] = [];
+  const homeTransferBytes: number[] = [];
+  const searchTransferBytes: number[] = [];
+  const homeCacheHeaders: string[] = [];
   const errors: string[] = [];
   const startedAt = new Date();
   try {
     for (let round = 0; round < rounds; round += 1) {
-      await Promise.all(visitors.map(async ({ page }, visitor) => {
-        try {
-          const homeStarted = performance.now();
-          await page.goto("/", { waitUntil: "domcontentloaded" });
-          await page.getByRole("heading", { level: 1 }).waitFor();
-          await page.waitForTimeout(250);
-          homeDurations.push(performance.now() - homeStarted);
-          const keyword = page.locator("form.home-hero-search input").first();
-          await expect(keyword).toBeVisible();
-          const searchQuery = `typescript ${round}-${visitor}`;
-          await keyword.fill(searchQuery);
-          await expect(keyword).toHaveValue(searchQuery);
-          const searchStarted = performance.now();
-          // Exercise the canonical query URL after the controlled form state
-          // has been observed. This avoids conflating React event scheduling
-          // with the server-side search measurement under load.
-          await page.goto(`/jobs?q=${encodeURIComponent(searchQuery)}`, {
-            waitUntil: "domcontentloaded",
-          });
-          await page.waitForURL(/\/jobs\?/u);
-          await page.getByRole("main").waitFor();
-          searchDurations.push(performance.now() - searchStarted);
-        } catch (error) {
-          errors.push(error instanceof Error ? error.message : "unknown browser error");
-        }
-      }));
+      await Promise.all(
+        visitors.map(async ({ page }, visitor) => {
+          try {
+            const homeStarted = performance.now();
+            const homeResponse = await page.goto("/", {
+              waitUntil: "load",
+            });
+            await page.getByRole("heading", { level: 1 }).waitFor();
+            await page.waitForTimeout(250);
+            homeDurations.push(performance.now() - homeStarted);
+            homeTransferBytes.push(await transferBytes(homeResponse));
+            const cacheHeader = homeResponse?.headers()["x-nextjs-cache"];
+            if (cacheHeader) homeCacheHeaders.push(cacheHeader);
+            const keyword = page.locator("form.home-hero-search input").first();
+            await expect(keyword).toBeVisible();
+            const searchQuery = `typescript ${round}-${visitor}`;
+            await keyword.fill(searchQuery);
+            await expect(keyword).toHaveValue(searchQuery);
+            const searchStarted = performance.now();
+            // Exercise the canonical query URL after the controlled form state
+            // has been observed. This avoids conflating React event scheduling
+            // with the server-side search measurement under load.
+            const searchResponse = await page.goto(
+              `/jobs?q=${encodeURIComponent(searchQuery)}`,
+              { waitUntil: "load" },
+            );
+            await page.waitForURL(/\/jobs\?/u);
+            await page.getByRole("main").waitFor();
+            searchDurations.push(performance.now() - searchStarted);
+            searchTransferBytes.push(await transferBytes(searchResponse));
+            // Let the post-navigation RSC/prefetch work settle before the
+            // next Home navigation. This delay is outside the measured
+            // sample and prevents one visitor's cancelled stream from
+            // contaminating the next round under sustained concurrency.
+            await page.waitForTimeout(250);
+          } catch (error) {
+            errors.push(
+              error instanceof Error ? error.message : "unknown browser error",
+            );
+          }
+        }),
+      );
     }
   } finally {
     await Promise.all(visitors.map(({ context }) => context.close()));
@@ -107,11 +145,12 @@ test("measures 100 concurrent-visitor Home and search samples against the requir
 
   const report = {
     project: testInfo.project.name,
-    environment: process.env.PLAYWRIGHT_PRODUCTION === "1"
-      ? "production-build-next-start"
-      : process.env.CI
-        ? "CI"
-        : "local",
+    environment:
+      process.env.PLAYWRIGHT_PRODUCTION === "1"
+        ? "production-build-next-start"
+        : process.env.CI
+          ? "CI"
+          : "local",
     externalConditions:
       process.env.PLAYWRIGHT_PRODUCTION === "1"
         ? "next build output served by next start; isolated test database"
@@ -125,10 +164,30 @@ test("measures 100 concurrent-visitor Home and search samples against the requir
     durationMs: Date.now() - startedAt.getTime(),
     datasetSize,
     concurrentVisitors: visitorCount,
-    measuredSamples: { home: homeDurations.length, search: searchDurations.length },
-    method: "nearest-rank P95 over browser-observed navigation-to-visible samples",
-    home: { p95Ms: percentile95(homeDurations), maximumMs: Math.max(...homeDurations) },
-    search: { p95Ms: percentile95(searchDurations), maximumMs: Math.max(...searchDurations) },
+    measuredSamples: {
+      home: homeDurations.length,
+      search: searchDurations.length,
+    },
+    method:
+      "nearest-rank P95 over browser-observed navigation-to-visible samples",
+    home: {
+      p95Ms: percentile95(homeDurations),
+      maximumMs: Math.max(...homeDurations),
+    },
+    search: {
+      p95Ms: percentile95(searchDurations),
+      maximumMs: Math.max(...searchDurations),
+    },
+    htmlTransferBytes: {
+      homeP95: percentile95(homeTransferBytes),
+      homeMaximum: Math.max(...homeTransferBytes),
+      searchP95: percentile95(searchTransferBytes),
+      searchMaximum: Math.max(...searchTransferBytes),
+    },
+    homeCacheHeaders: homeCacheHeaders.reduce<Record<string, number>>(
+      (counts, value) => ({ ...counts, [value]: (counts[value] ?? 0) + 1 }),
+      {},
+    ),
     errorRate: errors.length / (visitorCount * rounds * 2),
     errors: errors.slice(0, 10),
   };

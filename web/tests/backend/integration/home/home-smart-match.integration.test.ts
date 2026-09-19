@@ -102,6 +102,9 @@ describe("Home Smart Match composition", () => {
       {
         jobId: "checked-job",
         score: 96,
+        completeness: "AVAILABLE",
+        presentationState: "AVAILABLE",
+        scoreEligible: true,
         checkId: "pmc_checked-job",
         cvVersion: 2,
         jdVersion: 3,
@@ -120,6 +123,9 @@ describe("Home Smart Match composition", () => {
       checkId: "pmc_checked-job",
       cvVersion: 2,
       jdVersion: 3,
+      completeness: "AVAILABLE",
+      presentationState: "AVAILABLE",
+      scoreEligible: true,
     });
     expect(model.smartMatch).toMatchObject({
       kind: "personal",

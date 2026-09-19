@@ -1055,6 +1055,17 @@
   transform: translate(-50%, 0);
 }
 
+@media (max-width: 319px) {
+  .password-field-hint-tooltip {
+    transform: translate(calc(-50% - 3px), -3px);
+  }
+
+  .password-field-hint:hover .password-field-hint-tooltip,
+  .password-field-hint:focus-within .password-field-hint-tooltip {
+    transform: translate(calc(-50% - 3px), 0);
+  }
+}
+
 .password-requirement-checklist li {
   display: flex;
   align-items: center;
@@ -1112,7 +1123,7 @@
 
 .auth-panel-note {
   margin-top: 22px;
-  color: #96a1c2;
+  color: var(--sh-color-text-secondary);
   font-size: 12.5px;
 }
 

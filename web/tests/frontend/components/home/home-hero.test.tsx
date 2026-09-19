@@ -44,9 +44,9 @@ describe("Home Hero", () => {
     expect(container.querySelector(".home-cv-scan")).toHaveTextContent(
       "CV analysis in progress",
     );
-    expect(container.querySelector(".home-cv-score-card")).toHaveTextContent(
-      "87%",
-    );
+    const scoreCard = container.querySelector(".home-cv-score-card");
+    expect(scoreCard).toHaveTextContent("Evidence signal");
+    expect(scoreCard).not.toHaveTextContent(/\b\d+(?:\.\d+)?%/u);
   });
 
   it("submits only the concise discovery parameters", () => {

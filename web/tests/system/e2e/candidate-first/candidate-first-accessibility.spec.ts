@@ -17,7 +17,10 @@ const reportPath = resolve(
   "..",
   "docs",
   "audits",
-  "2026-09-06-cf004-candidate-accessibility.json",
+  "candidate-first",
+  "pre-phase",
+  "evidence",
+  "cf004-accessibility.json",
 );
 
 type Fixture = CandidateFirstDatabaseFixture;
