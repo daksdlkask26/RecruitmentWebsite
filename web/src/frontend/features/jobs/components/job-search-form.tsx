@@ -429,6 +429,7 @@ export function JobSearchForm({
         savedSearches: "Tìm kiếm đã lưu",
         reuseSaved: "Dùng lại tìm kiếm đã lưu…",
         saveFilter: "Lưu bộ lọc",
+        search: "Tìm kiếm",
         nameSearch: "Đặt tên tìm kiếm",
         savedDescription:
           "Tìm kiếm này lưu nguyên văn từ khóa và chế độ tìm kiếm hiện tại.",
@@ -467,6 +468,7 @@ export function JobSearchForm({
         savedSearches: "Saved searches",
         reuseSaved: "Reuse saved search…",
         saveFilter: "Save filter",
+        search: "Search",
         nameSearch: "Name this search",
         savedDescription:
           "This search keeps the raw keyword and current search mode.",
@@ -793,7 +795,11 @@ export function JobSearchForm({
           role="search"
           aria-label={vi ? "Tìm kiếm việc làm" : "Job search"}
           action="/jobs"
-          onSubmit={(event) => event.preventDefault()}
+          onSubmit={(event) => {
+            if (!onCriteriaChange) return;
+            event.preventDefault();
+            onCriteriaChange({ ...criteria }, "immediate");
+          }}
         >
           <header className="job-filter-heading">
             <span className="job-filter-icon" aria-hidden="true">
@@ -1080,6 +1086,9 @@ export function JobSearchForm({
             </label>
           </div>
           <div className="job-filter-actions">
+            <button className="sh-button" type="submit">
+              {copy.search}
+            </button>
             {onClear ? (
               <button
                 className="job-secondary-link job-filter-clear"

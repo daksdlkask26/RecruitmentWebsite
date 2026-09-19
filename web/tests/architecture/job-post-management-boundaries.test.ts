@@ -28,7 +28,8 @@ describe("job post management architecture boundaries", () => {
     );
     expect(repository).toMatch(/^import "server-only";/u);
     expect(repository).toContain("pg_advisory_xact_lock");
-    expect(publicRepository).toContain("verificationState\" = 'ACTIVE'");
-    expect(publicRepository).toContain("visibilityState\" = 'PUBLISHED'");
+    expect(publicRepository).toContain("getPublicCompanyWhere");
+    expect(publicRepository).toContain("candidateVisibleJobWhere");
+    expect(publicRepository).toContain('visibilityState: "PUBLISHED"');
   });
 });

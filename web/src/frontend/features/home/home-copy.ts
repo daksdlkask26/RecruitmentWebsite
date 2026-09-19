@@ -100,6 +100,8 @@ export type HomeCopy = {
     personal: string;
     illustrative: string;
     personalScore: string;
+    profileEstimate: string;
+    profileSignalsCompared: string;
     cvScore: string;
     sampleScore: string;
     matchingSkills: string;
@@ -131,6 +133,7 @@ export type HomeCopy = {
     illustrativeCaption: string;
     estimateDetailsLabel: string;
     cvMatchLimitation: string;
+    cvMatchIncompleteLimitation: string;
   };
   careerPaths: {
     eyebrow: string;
@@ -178,6 +181,8 @@ export type HomeCopy = {
     cvMatchScore: string;
     cvMatchPrivate: string;
     cvMatchContext: string;
+    cvMatchSourceLabel: string;
+    cvMatchIncomplete: string;
     reviewCvMatch: string;
     matchSignals: string;
     viewJobDetails: string;
@@ -308,7 +313,7 @@ export const homeCopy = {
       cvLabel: "CV",
       aiLabel: "AI",
       cvScanLabel: "CV analysis in progress",
-      cvScoreLabel: "Fit score",
+      cvScoreLabel: "Evidence signal",
       createProfile: "Create Profile",
       postJob: "Post a Job",
       postJobPending: "Under review",
@@ -437,6 +442,8 @@ export const homeCopy = {
       personal: "Personal job-fit recommendation",
       illustrative: "Illustrative Smart Match example",
       personalScore: "Personal match estimate",
+      profileEstimate: "Profile estimate",
+      profileSignalsCompared: "Profile signals compared",
       cvScore: "CV Match Check score: {score}%",
       sampleScore: "Illustrative match estimate",
       matchingSkills: "Matching skills",
@@ -474,6 +481,8 @@ export const homeCopy = {
       estimateDetailsLabel: "About this fit estimate",
       cvMatchLimitation:
         "This is the latest completed CV Match Check for this role, based on the CV and job description used when you ran the check.",
+      cvMatchIncompleteLimitation:
+        "This CV Match Check contains incomplete parser evidence. Review the private report before relying on the score.",
     },
     careerPaths: {
       eyebrow: "DIRECTIONS",
@@ -541,7 +550,7 @@ export const homeCopy = {
       bestMatch: "BEST MATCH FOR YOU",
       topSuggestion: "TOP SUGGESTION",
       lowMatchNotice:
-        "This is a low-confidence estimate from your current profile, not a strong match.",
+        "This is a low-confidence estimate because your current profile has limited evidence; review the role requirements before deciding.",
       featured: "FEATURED",
       postedRecently: "Recently posted",
       negotiableSalary: "Negotiable",
@@ -554,6 +563,9 @@ export const homeCopy = {
       cvMatchPrivate: "Private result for this exact role",
       cvMatchContext:
         "Checked against your latest CV and the current job description.",
+      cvMatchSourceLabel: "Source: CV Match Check",
+      cvMatchIncomplete:
+        "Some CV evidence is incomplete; review the private report.",
       reviewCvMatch: "Review match report",
       matchSignals: "Profile signals compared",
       viewJobDetails: "View job details",
@@ -761,7 +773,7 @@ export const homeCopy = {
       cvLabel: "CV",
       aiLabel: "AI",
       cvScanLabel: "AI đang đọc CV",
-      cvScoreLabel: "Điểm phù hợp",
+      cvScoreLabel: "Tín hiệu bằng chứng",
       createProfile: "Tạo hồ sơ",
       postJob: "Đăng tin tuyển dụng",
       postJobPending: "Đang xét duyệt",
@@ -891,6 +903,8 @@ export const homeCopy = {
       personal: "Gợi ý việc làm phù hợp với bạn",
       illustrative: "Ví dụ Smart Match minh họa",
       personalScore: "Ước tính phù hợp cá nhân",
+      profileEstimate: "Ước tính từ hồ sơ",
+      profileSignalsCompared: "Tín hiệu hồ sơ được đối chiếu",
       cvScore: "Điểm CV Match Check: {score}%",
       sampleScore: "Ước tính phù hợp minh họa",
       matchingSkills: "Kỹ năng phù hợp",
@@ -928,6 +942,8 @@ export const homeCopy = {
       estimateDetailsLabel: "Thông tin về ước tính phù hợp",
       cvMatchLimitation:
         "Đây là kết quả CV Match Check hoàn tất gần nhất cho vị trí này, dựa trên CV và mô tả công việc bạn đã dùng khi chấm.",
+      cvMatchIncompleteLimitation:
+        "Kết quả CV Match Check này còn thiếu một phần dữ liệu phân tích. Hãy xem báo cáo riêng trước khi dựa vào điểm.",
     },
     careerPaths: {
       eyebrow: "ĐỊNH HƯỚNG",
@@ -995,7 +1011,7 @@ export const homeCopy = {
       bestMatch: "PHÙ HỢP NHẤT VỚI BẠN",
       topSuggestion: "GỢI Ý HÀNG ĐẦU",
       lowMatchNotice:
-        "Đây là ước tính có độ tin cậy thấp dựa trên hồ sơ hiện tại, chưa phải một vị trí phù hợp cao.",
+        "Ước tính này có độ tin cậy thấp vì hồ sơ hiện tại còn ít bằng chứng; hãy xem yêu cầu vị trí trước khi quyết định.",
       featured: "NỔI BẬT",
       postedRecently: "Đăng gần đây",
       negotiableSalary: "Thỏa thuận",
@@ -1008,6 +1024,9 @@ export const homeCopy = {
       cvMatchPrivate: "Kết quả riêng tư cho đúng vị trí này",
       cvMatchContext:
         "Đã chấm bằng CV mới nhất của bạn và mô tả công việc hiện tại.",
+      cvMatchSourceLabel: "Nguồn: CV Match Check",
+      cvMatchIncomplete:
+        "Một phần dữ liệu CV chưa đầy đủ; hãy xem báo cáo riêng.",
       reviewCvMatch: "Xem lại báo cáo đối chiếu",
       matchSignals: "Tín hiệu hồ sơ được đối chiếu",
       viewJobDetails: "Xem chi tiết vị trí",

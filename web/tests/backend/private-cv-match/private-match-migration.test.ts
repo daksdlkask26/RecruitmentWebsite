@@ -13,7 +13,9 @@ describe("private CV match retry persistence", () => {
     expect(schema).not.toContain(
       "deterministicResultId String?                   @unique",
     );
-    expect(schema).toContain("aiResultId            String?                   @unique");
+    expect(schema).toContain(
+      "aiResultId            String?                   @unique",
+    );
     expect(schema).toContain(
       '@@unique([checkId, attemptNumber], map: "PrivateCvMatchAttempt_check_attempt_key")',
     );

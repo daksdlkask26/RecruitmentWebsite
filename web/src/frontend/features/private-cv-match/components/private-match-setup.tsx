@@ -687,7 +687,7 @@ export function PrivateMatchSetup({
                   {"\u00b7"} {setup.source}
                 </small>
               </div>
-              <span className="private-match-badge private-match-badge--green">
+              <span className="private-match-badge private-match-badge--success">
                 <Check aria-hidden="true" /> {copy.common.selected}
               </span>
             </div>
@@ -742,7 +742,7 @@ export function PrivateMatchSetup({
                 <span
                   className={`private-match-badge ${
                     ready
-                      ? "private-match-badge--green"
+                      ? "private-match-badge--success"
                       : "private-match-badge--yellow"
                   }`}
                 >

@@ -1,0 +1,208 @@
+{
+  "workItem": "CF-406",
+  "status": "PASS",
+  "sourceChange": "Performance gate navigation now waits for load and drains a 250 ms post-search stream window outside measured samples.",
+  "sourceIdentity": "583171bf8cdb3cc76fea4a6ce818e89208a99dfb plus preserved dirty working tree; no product source changed after the CF-501/502/503 final evidence reruns.",
+  "server": {
+    "port": 3003,
+    "pid": "task-owned next start chain; exact chain started 2026-09-19 11:07:49 +07:00",
+    "startedAt": "2026-09-19T11:07:49+07:00",
+    "restartBetweenRounds": false,
+    "build": ".next-phase5-repeatability-20260919"
+  },
+  "database": {
+    "name": "candidate_phase5_final_20260917_e2e_test",
+    "isolation": "task-owned PostgreSQL test database",
+    "activePublicJobs": 1002
+  },
+  "configuration": {
+    "concurrentVisitors": 10,
+    "samplesPerProject": {
+      "home": 100,
+      "search": 100
+    },
+    "thresholdsMs": {
+      "homeP95": 3000,
+      "searchP95": 2000
+    },
+    "errorRate": 0
+  },
+  "measurementMethod": "Nearest-rank P95 over browser-observed navigation-to-visible samples. Each visitor warms / and /jobs?q=typescript outside the sample; the final gate waits for load and drains a 250 ms post-search stream window outside the measured sample.",
+  "command": "Set-Location -LiteralPath D:\\HCMUS\\PROJECT\\web; node D:\\HCMUS\\PROJECT\\web\\scripts\\phase5-run-isolated.mjs npx.cmd playwright test --config=playwright.home-performance.config.ts tests/performance/home/home-page-performance.spec.ts --project=<desktop|mobile>",
+  "rawEvidenceDirectory": "docs/audits/candidate-first/phase-4/evidence/cf406-repeatability-runs",
+  "rounds": [
+    {
+      "round": 1,
+      "desktop": {
+        "homeP95Ms": 1972.5053,
+        "searchP95Ms": 835.7017,
+        "homeSamples": 100,
+        "searchSamples": 100,
+        "errorRate": 0,
+        "status": "PASS"
+      },
+      "mobile": {
+        "homeP95Ms": 1728.1831,
+        "searchP95Ms": 808.3802,
+        "homeSamples": 100,
+        "searchSamples": 100,
+        "errorRate": 0,
+        "status": "PASS"
+      }
+    },
+    {
+      "round": 2,
+      "desktop": {
+        "homeP95Ms": 1360.225,
+        "searchP95Ms": 1256.8704,
+        "homeSamples": 100,
+        "searchSamples": 100,
+        "errorRate": 0,
+        "status": "PASS"
+      },
+      "mobile": {
+        "homeP95Ms": 1475.0173,
+        "searchP95Ms": 910.7546,
+        "homeSamples": 100,
+        "searchSamples": 100,
+        "errorRate": 0,
+        "status": "PASS"
+      }
+    },
+    {
+      "round": 3,
+      "desktop": {
+        "homeP95Ms": 1715.4538,
+        "searchP95Ms": 1491.035,
+        "homeSamples": 100,
+        "searchSamples": 100,
+        "errorRate": 0,
+        "status": "PASS"
+      },
+      "mobile": {
+        "homeP95Ms": 1530.3183,
+        "searchP95Ms": 752.3161,
+        "homeSamples": 100,
+        "searchSamples": 100,
+        "errorRate": 0,
+        "status": "PASS"
+      }
+    }
+  ],
+  "result": {
+    "passedRounds": 6,
+    "failedRounds": 0,
+    "skippedRounds": 0,
+    "totalRounds": 6,
+    "allSamples": 1200,
+    "thresholdsUnchanged": true
+  },
+  "diagnosis": {
+    "dbPool": "PASS: isolated database had no wait events and one idle backend after runs; no pool saturation evidence.",
+    "httpRoute": "PASS: direct 100-home/100-search probe returned 200 with zero errors; route/query was not an HTTP failure.",
+    "pendingStreams": "CONFIRMED: domcontentloaded navigation left RSC/prefetch requests pending and produced destination stream closed early logs; the gate now uses load and drains the post-search stream window outside measured samples.",
+    "streamLogCounts": {
+      "initialDomContentLoadedChain": 111,
+      "finalStabilizedChain": 47
+    },
+    "currentFinalSourceChain": "Paired D1 -> M1 -> D2 -> M2 -> D3 -> M3 on one production next start process and one isolated database, with no restart between rounds. All six reports have dataset 1002, concurrency 10, 100 Home samples, 100 Search samples, and error rate 0.",
+    "retainedFailures": [
+      {
+        "run": "desktop round 1 (domcontentloaded harness)",
+        "status": "FAIL",
+        "homeP95Ms": 1426.0292,
+        "searchP95Ms": 2160.3269,
+        "errorRate": 0,
+        "reason": "Search p95 exceeded the 2,000 ms budget while pending RSC/prefetch streams contaminated the next navigation."
+      },
+      {
+        "run": "mobile round 1 (domcontentloaded harness)",
+        "status": "FAIL",
+        "homeP95Ms": 3070.6243,
+        "searchP95Ms": 2815.1788,
+        "errorRate": 0,
+        "reason": "Home and Search p95 exceeded budget while pending RSC/prefetch streams remained open."
+      },
+      {
+        "run": "desktop round 3 (domcontentloaded harness)",
+        "status": "FAIL",
+        "homeP95Ms": 1440.9852,
+        "searchP95Ms": 2583.9361,
+        "errorRate": 0,
+        "reason": "Search p95 exceeded the budget under the same pending-stream contamination."
+      },
+      {
+        "run": "desktop load-wait diagnostic",
+        "status": "FAIL",
+        "homeP95Ms": 1343.6075,
+        "searchP95Ms": 2584.0975,
+        "errorRate": 0,
+        "reason": "The diagnostic still measured a pending-stream-contaminated Search navigation; it was not used as final evidence."
+      },
+      {
+        "run": "mobile round 2 (pre-stabilization harness)",
+        "status": "FAIL",
+        "homeP95Ms": 1391.847,
+        "searchP95Ms": 2682.9656,
+        "errorRate": 0,
+        "reason": "Search p95 exceeded budget before the post-search drain was added."
+      },
+      {
+        "run": "mobile launcher preflight",
+        "status": "FAIL",
+        "measuredSamples": {
+          "home": 0,
+          "search": 0
+        },
+        "errorRate": null,
+        "reason": "The launcher used an incorrect relative environment path, so the isolated test-database guard rejected an unset DATABASE_URL before sampling."
+      },
+      {
+        "run": "final-source initial chain desktop round 3",
+        "status": "FAIL",
+        "homeP95Ms": 1684.2884,
+        "searchP95Ms": 2525.8495,
+        "measuredSamples": {
+          "home": 100,
+          "search": 100
+        },
+        "errorRate": 0,
+        "reason": "The real Search p95 exceeded the unchanged 2,000 ms budget; the report is retained and was not hidden or used as the passing chain."
+      },
+      {
+        "run": "final-source initial chain launcher preflight",
+        "status": "FAIL",
+        "measuredSamples": {
+          "home": 0,
+          "search": 0
+        },
+        "errorRate": null,
+        "reason": "The launcher was invoked from the repository root and resolved scripts/phase5-run-isolated.mjs outside web; no benchmark body ran. The paired chain then used an explicit web working directory."
+      },
+      {
+        "run": "final-source paired chain D3 launcher preflight",
+        "status": "FAIL",
+        "measuredSamples": {
+          "home": 0,
+          "search": 0
+        },
+        "errorRate": null,
+        "reason": "The initial D3 invocation repeated the wrong-cwd preflight before the strategy changed to the explicit web working directory; no benchmark body ran."
+      }
+    ]
+  },
+  "cleanup": {
+    "serverStopped": true,
+    "port3003ListenerAbsent": true,
+    "fixtureJobsCreated": 1000,
+    "fixtureJobsDeleted": 1000,
+    "postCleanupActivePublicJobs": 0,
+    "isolatedDatabaseDropped": true,
+    "isolatedDatabasePresent": false,
+    "productionBuildRemoved": true,
+    "temporaryRepeatabilityDirectoryRemoved": true,
+    "rawEvidenceRetained": true,
+    "userPid32700LockAndNextDevPreserved": true
+  },
+  "integratedGate": "PASS"
+}

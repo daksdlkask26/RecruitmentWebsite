@@ -35,7 +35,7 @@ export function HomeCvScan({ locale }: { locale: HomeLocale }) {
         </article>
         <div className="home-cv-score-card">
           <span className="home-cv-score-ai">{copy.aiLabel}</span>
-          <strong>87%</strong>
+          <strong>{copy.cvScoreLabel}</strong>
           <small>{copy.cvScoreLabel}</small>
           <span className="home-cv-score-check">
             <svg viewBox="0 0 16 16">

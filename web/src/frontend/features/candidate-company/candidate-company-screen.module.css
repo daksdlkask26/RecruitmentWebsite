@@ -296,6 +296,12 @@
   transform: translateY(-1px);
 }
 
+:global(:root[data-theme="dark"]) .button:hover:not(:disabled),
+:global(:root[data-theme="dark"]) .teamLink:hover {
+  border-color: var(--sh-color-brand-primary-pressed);
+  background: var(--sh-color-brand-primary-pressed);
+}
+
 .button:disabled {
   border-color: var(--sh-color-border-subtle);
   color: var(--sh-color-disabled-text);
@@ -569,6 +575,10 @@
   margin-bottom: var(--sh-space-5);
 }
 
+:global(:root[data-theme="dark"]) .backLink {
+  color: var(--sh-color-info);
+}
+
 .backLink:hover,
 .jobLink:hover {
   text-decoration: underline;
@@ -626,6 +636,10 @@
   font-weight: var(--sh-font-weight-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+:global(:root:not([data-theme="dark"])) .metadataItem dt {
+  color: #52627a;
 }
 
 .metadataItem dd {

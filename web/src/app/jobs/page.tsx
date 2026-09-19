@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { JobDiscoveryService } from "@/backend/services/jobs/job-discovery-service";
 import { optionalJobActor } from "@/backend/security/job-request-boundary";
 import { getWorkspaceContext } from "@/backend/auth/get-workspace-context";
+import { serverEnvironment } from "@/backend/env/runtime";
 import {
   LiveJobSearchExperience,
   type JobsLiveCopy,
@@ -101,9 +102,33 @@ const englishCopy: JobsLiveCopy = {
 
 export default async function JobsPage({ searchParams }: PageProps) {
   const raw = await searchParams;
-  const workspace = await getWorkspaceContext();
+  const requestHeaders = await headers();
+  const hasSessionCookie =
+    requestHeaders
+      .get("cookie")
+      ?.split(";")
+      .some(
+        (part) =>
+          part.trim().split("=", 1)[0] ===
+          serverEnvironment.SESSION_COOKIE_NAME,
+      ) ?? false;
+  const hasSessionCredentials =
+    hasSessionCookie || requestHeaders.has("authorization");
+  const workspace = hasSessionCookie ? await getWorkspaceContext() : null;
   const copy = workspace?.initialLocale === "vi" ? vietnameseCopy : englishCopy;
-  const actor = await optionalJobActor(await headers());
+  // getWorkspaceContext already validated the authenticated session for this
+  // request. Reuse that actor for public job projection instead of validating
+  // the same session a second time; guests still take the existing optional
+  // actor path.
+  const actor = workspace
+    ? {
+        kind: "user" as const,
+        userId: workspace.userId,
+        sessionId: workspace.sessionId,
+      }
+    : hasSessionCredentials
+      ? await optionalJobActor(requestHeaders)
+      : ({ kind: "visitor" } as const);
   const initialQuery = jobsPageQuery(raw);
   const [search, taxonomy] = await Promise.all([
     new JobDiscoveryService()

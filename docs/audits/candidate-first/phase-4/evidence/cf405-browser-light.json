@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "candidate-first-cf405-browser-run-v3",
+  "runDate": "2026-09-18",
+  "theme": "light",
+  "command": "$env:CF405_COLOR_SCHEME='light'; node scripts/phase5-run-isolated.mjs npx.cmd playwright test -c playwright.phase4.config.ts",
+  "testFiles": [
+    "tests/system/e2e/home/phase4-cf405-accessibility.spec.ts",
+    "tests/system/e2e/home/phase4-cf405-journey.spec.ts"
+  ],
+  "environment": {
+    "runtime": "task-owned next start from isolated production build",
+    "baseUrl": "http://127.0.0.1:3003",
+    "buildOutput": ".next-phase5-final-20260918",
+    "database": "candidate_phase5_final_20260917_e2e_test",
+    "sourceBuild": "node ../node_modules/next/dist/bin/next build PASS; .next-phase5-final-20260918; 116/116 static pages"
+  },
+  "matrix": [320, 375, 768, 1280],
+  "tests": {
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0,
+    "accessibility": "4/4 PASS",
+    "journey": "12/12 PASS",
+    "viewportProjects": "4/4 PASS",
+    "axeSeriousCritical": 0,
+    "zoom200Percent": "PASS",
+    "keyboardFocus": "PASS",
+    "reducedMotion": "PASS",
+    "overflow": "PASS",
+    "enVi": "PASS",
+    "appliedTheme": "PASS",
+    "revokedAndExpiredNavigationRace": "PASS"
+  },
+  "status": "PASS"
+}

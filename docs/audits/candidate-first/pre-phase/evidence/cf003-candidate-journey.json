@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "candidate-first-cf003-live-journey-v1",
+  "generatedAt": "2026-09-06T10:23:30.3668489Z",
+  "status": "PASS",
+  "projects": [
+    {
+      "status": "PASS",
+      "name": "desktop-chromium",
+      "tests": 1
+    },
+    {
+      "status": "PASS",
+      "name": "mobile-320",
+      "tests": 1
+    }
+  ],
+  "scanner": {
+    "clamavContainer": "smarthire-clamav-1",
+    "workerContainer": "smarthire-cv-worker-gate0",
+    "extractionSucceededEvents": 4,
+    "database": "smarthire_candidate_gate0_test_20260906",
+    "transport": "unix",
+    "scanCleanEvents": 4,
+    "evidence": "docs/audits/candidate-first/pre-phase/evidence/cf003-scanner.json",
+    "parseSucceededEvents": 4,
+    "workerLifecycle": "ephemeral test-only worker used for this run and removed after evidence capture; shared smarthire-cv-worker-1 was not stopped"
+  },
+  "steps": "login, profile, upload CV, scan/status, review, confirm, Home, Jobs, Company, Job Detail, Apply, Candidate Applications, application detail, notification, message",
+  "limitations": [
+    "EICAR proof is harmless test signature.",
+    "Journey uses isolated test database/storage; scanner and ClamAV are shared live services."
+  ]
+}

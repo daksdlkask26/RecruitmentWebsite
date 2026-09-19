@@ -17,16 +17,36 @@ type PrivateDatabase = typeof prisma | Prisma.TransactionClient;
 const checkReadInclude = {
   currentAttempt: {
     include: {
-      deterministicResultByAttempt: { include: { evidence: true } },
-      deterministicResult: { include: { evidence: true } },
+      deterministicResultByAttempt: {
+        include: {
+          evidence: true,
+          attempt: { select: { id: true, checkId: true } },
+        },
+      },
+      deterministicResult: {
+        include: {
+          evidence: true,
+          attempt: { select: { id: true, checkId: true } },
+        },
+      },
       aiResultByAttempt: true,
     },
   },
   attempts: {
     orderBy: [{ attemptNumber: "desc" as const }, { id: "desc" as const }],
     include: {
-      deterministicResultByAttempt: { include: { evidence: true } },
-      deterministicResult: { include: { evidence: true } },
+      deterministicResultByAttempt: {
+        include: {
+          evidence: true,
+          attempt: { select: { id: true, checkId: true } },
+        },
+      },
+      deterministicResult: {
+        include: {
+          evidence: true,
+          attempt: { select: { id: true, checkId: true } },
+        },
+      },
       aiResultByAttempt: true,
     },
   },
@@ -315,7 +335,12 @@ export class PrivateCvMatchRepository {
             requiredExperience: input.result.requiredExperience,
             detectedExperience: input.result.detectedExperience,
             evidenceCoverage: input.result.evidenceCoverage,
-            parserProvenance: jsonValue(input.result.parserProvenance),
+            parserProvenance: jsonValue({
+              ...input.result.parserProvenance,
+              cvVersion: input.result.cvVersion,
+              jdVersion: input.result.jdVersion,
+              configVersion: input.result.configVersion,
+            }),
             calculatedAt: input.calculatedAt,
             mayBeIncomplete: input.result.mayBeIncomplete,
             evidence: {

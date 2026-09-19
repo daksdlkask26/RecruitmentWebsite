@@ -48,6 +48,7 @@ function previewBand(
   locale: PrivateMatchLocale,
 ) {
   const copy = privateMatchCopy(locale).readyView;
+  if (!report.scoreEligible) return privateMatchCopy(locale).report.unavailable;
   if (report.view === "LIMITED_REPORT") return copy.aiUnavailable;
   if (report.matchBand === "HIGH_MATCH") return copy.strongPotential;
   if (report.matchBand === "MEDIUM_MATCH") return copy.goodPotential;
@@ -59,6 +60,8 @@ function headline(
   locale: PrivateMatchLocale,
 ) {
   const copy = privateMatchCopy(locale).readyView;
+  if (!report.scoreEligible)
+    return privateMatchCopy(locale).report.highHeadline;
   if (report.view === "LIMITED_REPORT") return copy.limitedHeadline;
   if (report.matchBand === "HIGH_MATCH") return copy.highHeadline;
   if (report.matchBand === "MEDIUM_MATCH") return copy.mediumHeadline;
@@ -75,8 +78,13 @@ export function PrivateMatchReady({
   const locale = useWorkspaceLocale();
   const copy = privateMatchCopy(locale);
   const limited = report.view === "LIMITED_REPORT";
-  const score = limited ? report.automatic.score : report.hybridScore;
-  const caution = limited || report.matchBand === "LOW_MATCH";
+  const score = report.scoreEligible
+    ? limited
+      ? report.automatic.score
+      : report.hybridScore
+    : null;
+  const caution =
+    !report.scoreEligible || limited || report.matchBand === "LOW_MATCH";
   return (
     <main className="private-match-page private-match-ready-page">
       <div className="private-match-breadcrumb">
@@ -94,6 +102,17 @@ export function PrivateMatchReady({
           </p>
         </div>
         <PrivateMatchStatusBadge state="completed" />
+      </div>
+      <div
+        className={`private-match-source-notice ${report.completeness === "INCOMPLETE" ? "private-match-source-notice--incomplete" : ""}`}
+        role="note"
+        aria-live="polite"
+      >
+        <strong>{copy.report.sourceLabel}: </strong>
+        {copy.report.sourceCv}.{" "}
+        {report.completeness === "INCOMPLETE"
+          ? copy.report.incompleteEvidence
+          : copy.report.completeEvidence}
       </div>
       <section
         className={`private-match-ready-banner ${limited ? "is-limited" : ""} ${caution ? "is-caution" : ""}`}
@@ -137,14 +156,20 @@ export function PrivateMatchReady({
               : copy.readyView.previewScore}
           </div>
           <div className="private-match-score-value">
-            <strong>{score}</strong>
-            <span>/ 100</span>
+            <strong>{score === null ? "—" : score}</strong>
+            {score === null ? null : <span>/ 100</span>}
           </div>
-          <div
-            className={`private-match-score-tag ${caution ? "private-match-score-tag--caution" : ""}`}
-          >
-            {previewBand(report, locale)}
-          </div>
+          {report.scoreEligible ? (
+            <div
+              className={`private-match-score-tag ${caution ? "private-match-score-tag--caution" : ""}`}
+            >
+              {previewBand(report, locale)}
+            </div>
+          ) : (
+            <div className="private-match-score-unavailable" role="status">
+              {copy.report.hybridUnavailable}
+            </div>
+          )}
         </div>
       </section>
 
@@ -171,8 +196,13 @@ export function PrivateMatchReady({
                   )}
                 </p>
               </div>
-              <span className="private-match-badge private-match-badge--green">
-                <BadgeCheck aria-hidden="true" /> {copy.common.ready}
+              <span
+                className={`private-match-badge ${report.cv.parseStatus === "READY" ? "private-match-badge--success" : "private-match-badge--yellow"}`}
+              >
+                <BadgeCheck aria-hidden="true" />{" "}
+                {report.cv.parseStatus === "READY"
+                  ? copy.common.ready
+                  : copy.report.unavailable}
               </span>
             </div>
             <div className="private-match-source-row">

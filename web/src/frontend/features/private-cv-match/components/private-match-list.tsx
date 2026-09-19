@@ -51,14 +51,14 @@ function statusCopy(
   const states = privateMatchCopy(locale).list.states;
   switch (state) {
     case "READY":
-      return { label: states.READY, className: "private-match-badge--green" };
+      return { label: states.READY, className: "private-match-badge--success" };
     case "LIMITED":
       return {
         label: states.LIMITED,
         className: "private-match-badge--yellow",
       };
     case "FAILED":
-      return { label: states.FAILED, className: "private-match-badge--red" };
+      return { label: states.FAILED, className: "private-match-badge--error" };
     case "ANALYZING":
       return {
         label: states.ANALYZING,

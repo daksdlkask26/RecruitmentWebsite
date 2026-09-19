@@ -1,6 +1,7 @@
 import "server-only";
 
 import { headers } from "next/headers";
+import { unstable_cache } from "next/cache";
 import { requireSession } from "@/backend/auth/session/require-session";
 import { prisma } from "@/backend/database/prisma";
 import { csrfProof } from "@/backend/security/csrf/csrf-proof";
@@ -21,11 +22,18 @@ import {
   type HomePublicCompanyRow,
 } from "@/backend/repositories/home/prisma-home-public-company-repository";
 import { PrismaPublicJobRepository } from "@/backend/repositories/jobs/prisma-public-job-repository";
+import {
+  isPublicDiscoverySafetyFallbackActive,
+  PUBLIC_DISCOVERY_TAGS,
+} from "@/backend/services/discovery/public-discovery-cache";
+import { readPublicDiscoveryWatermark } from "@/backend/services/discovery/public-discovery-watermark";
 import { illustrativeSmartMatch } from "@/frontend/features/home/home-display-data";
 import type {
   EmployerSpotlight,
   HomeCareerPath,
   HomeJob,
+  HomePublicJob,
+  HomePublicSnapshot,
   HomeJobMatchBreakdown,
   HomeCvMatchReference,
   HomeMatchFallbackReason,
@@ -47,6 +55,20 @@ type AccountProjection = {
 
 const homeTrendingJobLimit = 6;
 const meaningfulMatchMinimumScore = 50;
+const homePublicSnapshotMaxAgeMs = 30_000;
+const homePublicSnapshotRefreshDelayMs = 5_000;
+
+type HomePublicSnapshotCacheEntry = Readonly<{
+  watermark: string;
+  snapshot: HomePublicSnapshot;
+  refreshAt: number;
+}>;
+
+let homePublicSnapshotCache: HomePublicSnapshotCacheEntry | null = null;
+let homePublicSnapshotPromise: Promise<HomePublicSnapshotCacheEntry> | null =
+  null;
+let homePublicSnapshotPromiseWatermark: string | null = null;
+let homePublicSnapshotRefreshTimer: ReturnType<typeof setTimeout> | null = null;
 
 export type HomeContextDependencies = {
   requestHeaders: () => Promise<Headers>;
@@ -134,6 +156,171 @@ const defaultDependencies = (): HomeContextDependencies => ({
   now: () => new Date(),
 });
 
+/**
+ * Read only the visitor-safe Home projection. This function intentionally has
+ * no request headers, session, account, Profile, CSRF, or Candidate actor in
+ * its inputs. The default route wraps it in Next's tagged server cache; tests
+ * can inject a loader without touching the cache.
+ */
+export async function getHomePublicSnapshot(
+  dependencies: Pick<
+    HomeContextDependencies,
+    "searchJobs" | "careerPaths" | "listCompanies" | "countCompanies"
+  >,
+  now: Date,
+): Promise<HomePublicSnapshot> {
+  const [jobResult, companyResult, companyCountResult, careerPathResult] =
+    await Promise.allSettled([
+      dependencies.searchJobs({ kind: "visitor" }),
+      dependencies.listCompanies(now),
+      dependencies.countCompanies
+        ? dependencies.countCompanies(now)
+        : Promise.resolve(null),
+      dependencies.careerPaths
+        ? dependencies.careerPaths({ kind: "visitor" })
+        : Promise.resolve(unavailableCareerPaths()),
+    ]);
+  const jobs: HomePublicSnapshot["jobs"] =
+    jobResult.status === "fulfilled"
+      ? section(
+          jobResult.value
+            .slice(0, homeTrendingJobLimit)
+            .map((job) => projectPublicJob(job)),
+        )
+      : {
+          status: "error",
+          items: [],
+          recovery: { kind: "reloadHome" },
+        };
+  const spotlights: HomePublicSnapshot["spotlights"] =
+    companyResult.status === "fulfilled"
+      ? section(companyResult.value.map(companyProjection))
+      : { status: "error", items: [], recovery: { kind: "reloadHome" } };
+  return {
+    jobs,
+    spotlights,
+    companyCount:
+      companyCountResult.status === "fulfilled"
+        ? companyCountResult.value
+        : null,
+    careerPaths:
+      careerPathResult.status === "fulfilled"
+        ? careerPathResult.value
+        : unavailableCareerPaths(),
+  };
+}
+
+async function loadDefaultHomePublicSnapshot(
+  fallbackNow: Date,
+): Promise<HomePublicSnapshot> {
+  const watermark = await readPublicDiscoveryWatermark();
+  if (!watermark) {
+    // A missing/unavailable watermark is a cache safety failure. Read the
+    // authoritative projection directly instead of reusing an old key.
+    return getHomePublicSnapshot(defaultDependencies(), fallbackNow);
+  }
+
+  if (
+    homePublicSnapshotCache &&
+    homePublicSnapshotCache.watermark === watermark
+  ) {
+    if (homePublicSnapshotCache.refreshAt > Date.now()) {
+      return homePublicSnapshotCache.snapshot;
+    }
+    // Natural TTL expiry is safe to refresh in the background because the
+    // durable watermark has not changed. A mutation changes the watermark
+    // and therefore takes the synchronous branch below.
+    scheduleHomePublicSnapshotRefresh(watermark, fallbackNow);
+    return homePublicSnapshotCache.snapshot;
+  }
+
+  if (homePublicSnapshotRefreshTimer) {
+    clearTimeout(homePublicSnapshotRefreshTimer);
+    homePublicSnapshotRefreshTimer = null;
+  }
+  const refreshed = await refreshDefaultHomePublicSnapshot(
+    watermark,
+    fallbackNow,
+  );
+  return refreshed.snapshot;
+}
+
+function scheduleHomePublicSnapshotRefresh(
+  watermark: string,
+  fallbackNow: Date,
+) {
+  if (homePublicSnapshotRefreshTimer || homePublicSnapshotPromise) return;
+  homePublicSnapshotRefreshTimer = setTimeout(() => {
+    homePublicSnapshotRefreshTimer = null;
+    void refreshDefaultHomePublicSnapshot(watermark, fallbackNow).catch(
+      () => undefined,
+    );
+  }, homePublicSnapshotRefreshDelayMs);
+  homePublicSnapshotRefreshTimer.unref?.();
+}
+
+async function refreshDefaultHomePublicSnapshot(
+  watermark: string,
+  fallbackNow: Date,
+): Promise<HomePublicSnapshotCacheEntry> {
+  if (
+    !homePublicSnapshotPromise ||
+    homePublicSnapshotPromiseWatermark !== watermark
+  ) {
+    homePublicSnapshotPromiseWatermark = watermark;
+    homePublicSnapshotPromise = (async () => {
+      let snapshot: HomePublicSnapshot;
+      try {
+        const cached = unstable_cache(
+          async () => {
+            const dependencies = defaultDependencies();
+            return getHomePublicSnapshot(dependencies, new Date());
+          },
+          ["nextgen-careers-home-public-snapshot-v3", watermark],
+          {
+            revalidate: homePublicSnapshotMaxAgeMs / 1_000,
+            tags: [
+              PUBLIC_DISCOVERY_TAGS.homeJobs,
+              PUBLIC_DISCOVERY_TAGS.homeCompanies,
+            ],
+          },
+        );
+        snapshot = await cached();
+      } catch {
+        // Next's cache store is not available in some standalone execution
+        // contexts. Fail closed to an authoritative read.
+        snapshot = await getHomePublicSnapshot(
+          defaultDependencies(),
+          fallbackNow,
+        );
+      }
+      return {
+        watermark,
+        snapshot,
+        refreshAt: Date.now() + homePublicSnapshotMaxAgeMs,
+      };
+    })();
+  }
+
+  const activePromise = homePublicSnapshotPromise;
+  if (!activePromise) throw new Error("HOME_PUBLIC_REFRESH_NOT_STARTED");
+  try {
+    const refreshed = await activePromise;
+    if (homePublicSnapshotPromise === activePromise) {
+      homePublicSnapshotCache = refreshed;
+      homePublicSnapshotPromise = null;
+      homePublicSnapshotPromiseWatermark = null;
+    }
+    return refreshed;
+  } catch (error) {
+    if (homePublicSnapshotPromise === activePromise) {
+      homePublicSnapshotPromise = null;
+      homePublicSnapshotPromiseWatermark = null;
+    }
+    throw error;
+  }
+}
+
 function section<T>(items: readonly T[]): HomeSectionState<T> {
   return items.length ? { status: "ready", items } : { status: "empty", items };
 }
@@ -144,7 +331,7 @@ const unavailableCareerPaths = (): readonly HomeCareerPath[] =>
 function projectJob(
   job: JobCard,
   match?: {
-    score: number;
+    score: number | null;
     source: HomeMatchSource;
     breakdown?: HomeJobMatchBreakdown;
     cvMatch?: HomeCvMatchReference;
@@ -162,7 +349,9 @@ function projectJob(
     workArrangement: job.workArrangement,
     employmentType: job.employmentType,
     skills: job.skills.slice(0, 5),
-    ...(match ? { matchScore: match.score } : {}),
+    ...(match?.score !== null && match?.score !== undefined
+      ? { matchScore: match.score }
+      : {}),
     ...(match ? { matchSource: match.source } : {}),
     ...(match?.breakdown ? { matchBreakdown: match.breakdown } : {}),
     ...(match?.cvMatch ? { cvMatch: match.cvMatch } : {}),
@@ -170,6 +359,56 @@ function projectJob(
     publishedAt: job.publishedAt,
     saved: job.actions.saved,
     canSave: job.actions.canSave,
+  };
+}
+
+function projectPublicJob(job: JobCard): HomePublicJob {
+  return {
+    id: job.id,
+    slug: job.slug,
+    title: job.title,
+    companyName: job.company.displayName,
+    companySlug: job.company.slug,
+    companyLogoUrl: job.company.logoUrl,
+    companyDescription: job.company.publicDescription,
+    location: job.location,
+    workArrangement: job.workArrangement,
+    employmentType: job.employmentType,
+    skills: job.skills.slice(0, 5),
+    salary: job.salary,
+    publishedAt: job.publishedAt,
+  };
+}
+
+function hydratePublicJob(
+  job: HomePublicJob,
+  overlay?: Pick<HomeJob, "saved" | "canSave">,
+): HomeJob {
+  return {
+    ...job,
+    saved: overlay?.saved ?? false,
+    canSave: overlay?.canSave ?? false,
+  };
+}
+
+function publicSnapshotJobs(
+  snapshot: HomePublicSnapshot,
+  overlays: readonly JobCard[] = [],
+): HomeSectionState<HomeJob> {
+  if (snapshot.jobs.status === "error") {
+    return {
+      status: "error",
+      items: [],
+      recovery: { kind: "reloadHome" },
+    };
+  }
+  const byId = new Map(overlays.map((job) => [job.id, job]));
+  return {
+    status: snapshot.jobs.status,
+    items: snapshot.jobs.items.map((job) => {
+      const overlay = byId.get(job.id);
+      return hydratePublicJob(job, overlay?.actions);
+    }),
   };
 }
 
@@ -216,7 +455,7 @@ function matchCandidate(job: JobCard) {
 
 type HomeRecommendationMatch = Readonly<{
   candidate: ReturnType<typeof matchCandidate>;
-  score: number;
+  score: number | null;
   source: HomeMatchSource;
   breakdown?: HomeJobMatchBreakdown;
   cvMatch?: HomeCvMatchReference;
@@ -254,6 +493,9 @@ function personalMatch(
                 checkId: cvScore.checkId,
                 cvVersion: cvScore.cvVersion,
                 jdVersion: cvScore.jdVersion,
+                completeness: cvScore.completeness,
+                presentationState: cvScore.presentationState,
+                scoreEligible: cvScore.scoreEligible,
               }
             : undefined;
         return [
@@ -284,7 +526,9 @@ function personalMatch(
         : [];
     })
     .sort((left, right) => {
-      if (right.score !== left.score) return right.score - left.score;
+      const rightScore = right.score ?? -1;
+      const leftScore = left.score ?? -1;
+      if (rightScore !== leftScore) return rightScore - leftScore;
       if (left.source !== right.source) return left.source === "cv" ? -1 : 1;
       return (right.candidate.postedAt ?? "").localeCompare(
         left.candidate.postedAt ?? "",
@@ -299,16 +543,33 @@ function personalMatch(
       jobSlug: best.candidate.job.slug,
       jobTitle: best.candidate.job.title,
       score: best.score,
+      presentationState:
+        best.source === "cv"
+          ? (privateScoreByJobId.get(best.candidate.id)?.presentationState ??
+            "UNAVAILABLE")
+          : "AVAILABLE",
+      scoreEligible:
+        best.source === "cv"
+          ? (privateScoreByJobId.get(best.candidate.id)?.scoreEligible ?? false)
+          : true,
       quality:
+        best.score !== null &&
         best.score >= meaningfulMatchMinimumScore &&
         (best.source === "cv" || best.matchingSkills.length > 0)
           ? "meaningful"
           : "limited",
       scoreSource: best.source,
       ...(best.breakdown ? { matchBreakdown: best.breakdown } : {}),
+      completeness:
+        best.source === "cv"
+          ? (privateScoreByJobId.get(best.candidate.id)?.completeness ??
+            "UNAVAILABLE")
+          : "AVAILABLE",
+      ...(best.cvMatch ? { cvMatch: best.cvMatch } : {}),
       matchingSkills: best.matchingSkills,
       improvementAreas: best.improvementAreas,
-      limitations: ["profileSignals", "estimate"],
+      limitations:
+        best.source === "profile" ? ["profileSignals", "estimate"] : [],
     },
     ranked,
   };
@@ -333,9 +594,19 @@ export async function getHomePageContext(
       overrides.countCompanies ??
       (overrides.listCompanies ? undefined : defaults.countCompanies),
   };
+  const now = dependencies.now();
+  const publicDependencyOverride = [
+    "searchJobs",
+    "careerPaths",
+    "listCompanies",
+    "countCompanies",
+  ].some((key) => key in overrides);
+  const publicSnapshot =
+    !publicDependencyOverride && !isPublicDiscoverySafetyFallbackActive()
+      ? await loadDefaultHomePublicSnapshot(now)
+      : await getHomePublicSnapshot(dependencies, now);
   const requestHeaders = await dependencies.requestHeaders();
   const current = await dependencies.session(requestHeaders).catch(() => null);
-  const now = dependencies.now();
   const actor = current
     ? ({
         kind: "user",
@@ -344,46 +615,16 @@ export async function getHomePageContext(
       } as const)
     : ({ kind: "visitor" } as const);
 
-  const [jobResult, companyResult, companyCountResult, careerPathResult] =
-    await Promise.allSettled([
-      dependencies.searchJobs(actor),
-      dependencies.listCompanies(now),
-      dependencies.countCompanies
-        ? dependencies.countCompanies(now)
-        : Promise.resolve(null),
-      dependencies.careerPaths
-        ? dependencies.careerPaths(actor)
-        : Promise.resolve(unavailableCareerPaths()),
-    ]);
-  const rawJobs = jobResult.status === "fulfilled" ? jobResult.value : [];
-  const latestJobs = rawJobs.slice(0, homeTrendingJobLimit);
-  const spotlights: HomeSectionState<EmployerSpotlight> =
-    companyResult.status === "fulfilled"
-      ? section(companyResult.value.map(companyProjection))
-      : { status: "error", items: [], recovery: { kind: "reloadHome" } };
-  const companyCount =
-    companyCountResult.status === "fulfilled" ? companyCountResult.value : null;
-  const careerPaths =
-    careerPathResult.status === "fulfilled"
-      ? careerPathResult.value
-      : unavailableCareerPaths();
-  const failedJobs: HomeSectionState<HomeJob> = {
-    status: "error",
-    items: [],
-    recovery: { kind: "reloadHome" },
-  };
+  const publicJobs = publicSnapshotJobs(publicSnapshot);
 
   if (!current) {
     return {
       viewer: { kind: "guest" },
       initialLocale: "vi",
-      careerPaths,
-      jobs:
-        jobResult.status === "fulfilled"
-          ? section(latestJobs.map((job) => projectJob(job)))
-          : failedJobs,
-      spotlights,
-      companyCount,
+      careerPaths: publicSnapshot.careerPaths,
+      jobs: publicJobs,
+      spotlights: publicSnapshot.spotlights,
+      companyCount: publicSnapshot.companyCount,
       smartMatch: illustrativeSmartMatch(),
     };
   }
@@ -400,13 +641,10 @@ export async function getHomePageContext(
     return {
       viewer: { kind: "guest" },
       initialLocale: "vi",
-      careerPaths,
-      jobs:
-        jobResult.status === "fulfilled"
-          ? section(latestJobs.map((job) => projectJob(job)))
-          : failedJobs,
-      spotlights,
-      companyCount,
+      careerPaths: publicSnapshot.careerPaths,
+      jobs: publicJobs,
+      spotlights: publicSnapshot.spotlights,
+      companyCount: publicSnapshot.companyCount,
       smartMatch: illustrativeSmartMatch(),
     };
   }
@@ -417,21 +655,19 @@ export async function getHomePageContext(
   const profile =
     profileResult.status === "fulfilled" ? profileResult.value : null;
   const profileHasSignals = profile ? hasCandidateJobSignals(profile) : false;
-  const [recommendationCandidates, privateScores] =
-    !employer && profile
-      ? await Promise.all([
-          dependencies.recommendationJobs!(actor).catch(() => []),
-          dependencies.privateMatchScores!(current.userId, now).catch(() => []),
-        ])
-      : ([[], []] as const);
+  const [privateOverlayJobs, recommendationCandidates, privateScores] =
+    await Promise.all([
+      dependencies.searchJobs(actor).catch(() => []),
+      !employer && profile
+        ? dependencies.recommendationJobs!(actor).catch(() => [])
+        : Promise.resolve([] as readonly JobCard[]),
+      !employer && profile
+        ? dependencies.privateMatchScores!(current.userId, now).catch(() => [])
+        : Promise.resolve([] as readonly PrivateMatchHomeScore[]),
+    ]);
   const recommendation =
     profile && recommendationCandidates.length
-      ? personalMatch(
-          profile,
-          recommendationCandidates,
-          now,
-          privateScores,
-        )
+      ? personalMatch(profile, recommendationCandidates, now, privateScores)
       : null;
   const matchFallbackReason: HomeMatchFallbackReason | undefined =
     !employer && !profile
@@ -444,20 +680,28 @@ export async function getHomePageContext(
             ? "unavailable"
             : undefined;
   const jobs =
-    jobResult.status === "fulfilled"
-      ? section(
-          recommendation
-            ? recommendation.ranked.map((match) =>
-                projectJob(match.candidate.job, {
-                  score: match.score,
-                  source: match.source,
-                  ...(match.breakdown ? { breakdown: match.breakdown } : {}),
-                  ...(match.cvMatch ? { cvMatch: match.cvMatch } : {}),
-                }),
-              )
-            : latestJobs.map((job) => projectJob(job)),
-        )
-      : failedJobs;
+    publicSnapshot.jobs.status === "error"
+      ? publicJobs
+      : recommendation
+        ? section(
+            recommendation.ranked.map((match) =>
+              projectJob(match.candidate.job, {
+                score: match.score,
+                source: match.source,
+                ...(match.breakdown ? { breakdown: match.breakdown } : {}),
+                ...(match.cvMatch ? { cvMatch: match.cvMatch } : {}),
+              }),
+            ),
+          )
+        : section(
+            publicSnapshot.jobs.items.map((job) =>
+              hydratePublicJob(
+                job,
+                privateOverlayJobs.find((overlay) => overlay.id === job.id)
+                  ?.actions,
+              ),
+            ),
+          );
   const base = {
     displayName: account.name.trim(),
     avatarUrl: account.image,
@@ -471,14 +715,14 @@ export async function getHomePageContext(
         ? { kind: "employer", ...base, recruiterStatus }
         : { kind: "candidate", ...base },
     initialLocale: account.language === "VI" ? "vi" : "en",
-    careerPaths,
+    careerPaths: publicSnapshot.careerPaths,
     jobs,
-    spotlights,
-    companyCount,
+    spotlights: publicSnapshot.spotlights,
+    companyCount: publicSnapshot.companyCount,
     smartMatch:
       recommendation?.insight ??
       (matchFallbackReason
-        ? { kind: "illustrative", score: 82, reason: matchFallbackReason }
+        ? { kind: "illustrative", reason: matchFallbackReason }
         : illustrativeSmartMatch()),
   };
 }

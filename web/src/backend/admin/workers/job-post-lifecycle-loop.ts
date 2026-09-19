@@ -3,6 +3,10 @@ import { randomUUID } from "node:crypto";
 import { PrismaAuditRepository } from "@/backend/repositories/audit/prisma-audit-repository";
 import { prisma } from "@/backend/database/prisma";
 import { appendJobPostingLifecycleFact } from "@/backend/repositories/analytics/prisma-analytics-repository";
+import {
+  invalidatePublicCompanySafety,
+  invalidatePublicJobSafety,
+} from "@/backend/services/discovery/public-discovery-cache";
 
 /** Archives expired managed jobs in small idempotent batches. */
 export async function runJobPostLifecycleCycle(now: Date) {
@@ -12,7 +16,13 @@ export async function runJobPostLifecycleCycle(now: Date) {
       visibilityState: "PUBLISHED",
       publicJobPosting: { is: { applicationDeadline: { lte: now } } },
     },
-    select: { id: true, jobId: true, version: true, publicJobPostingId: true },
+    select: {
+      id: true,
+      jobId: true,
+      version: true,
+      publicJobPostingId: true,
+      publicJobPosting: { select: { companyId: true } },
+    },
     orderBy: { updatedAt: "asc" },
     take: 100,
   });
@@ -110,7 +120,13 @@ export async function runJobPostLifecycleCycle(now: Date) {
       });
       return true;
     });
-    if (result) archived++;
+    if (result) {
+      archived++;
+      if (row.publicJobPostingId)
+        invalidatePublicJobSafety(row.publicJobPostingId);
+      if (row.publicJobPosting?.companyId)
+        invalidatePublicCompanySafety(row.publicJobPosting.companyId);
+    }
   }
   return { scanned: rows.length, archived };
 }

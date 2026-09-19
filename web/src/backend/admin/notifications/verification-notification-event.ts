@@ -1,4 +1,5 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import type { Prisma } from "@/backend/generated/prisma/client";
 import { verificationBusinessEventKey } from "./notification-events";
 import {
@@ -98,7 +99,13 @@ export async function createVerificationNotificationEvent(
   const inApp = await createVerificationInAppNotification(
     tx,
     input,
-    `verification:${businessEventKey}`,
+    // In-app correlation IDs are bounded at 128 characters. Request IDs are
+    // database identifiers and may legitimately be longer than the compact
+    // fixture IDs, so retain deterministic traceability without overflowing
+    // the notification contract.
+    `verification:${businessEventKey}`.length <= 128
+      ? `verification:${businessEventKey}`
+      : `verification:${createHash("sha256").update(businessEventKey).digest("hex")}`,
   );
   if (existing) return existing;
 

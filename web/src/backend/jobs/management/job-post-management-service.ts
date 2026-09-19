@@ -19,8 +19,13 @@ import {
   jobManagementCommandSchema,
   jobManagementListQuerySchema,
 } from "@/shared/contracts/admin/job-post-management";
+import type { JobManagementCommand } from "@/shared/contracts/admin/job-post-management";
 import { assertJobPostManagementTransition } from "./job-post-management-policy";
 import { emitJobPostManagementOperation } from "./job-post-management-operations";
+import {
+  invalidatePublicCompanySafety,
+  invalidatePublicJobSafety,
+} from "@/backend/services/discovery/public-discovery-cache";
 
 function stateOf(row: {
   visibilityState: string;
@@ -34,11 +39,36 @@ function stateOf(row: {
   };
 }
 
+type JobPostManagementScope =
+  | "JOB_POST_MODERATE"
+  | "JOB_POST_FEATURE"
+  | "JOB_POST_ENFORCE";
+
+const jobPostManagementScope: Record<
+  JobManagementCommand["command"],
+  JobPostManagementScope
+> = {
+  HIDE: "JOB_POST_MODERATE",
+  RESTORE: "JOB_POST_MODERATE",
+  CLOSE_APPLICATIONS: "JOB_POST_MODERATE",
+  REOPEN_APPLICATIONS: "JOB_POST_MODERATE",
+  ARCHIVE: "JOB_POST_MODERATE",
+  SOFT_DELETE: "JOB_POST_ENFORCE",
+  REQUEST_CHANGES: "JOB_POST_MODERATE",
+  FEATURE: "JOB_POST_FEATURE",
+  AMEND_FEATURE: "JOB_POST_FEATURE",
+  UNFEATURE: "JOB_POST_FEATURE",
+  ENFORCE: "JOB_POST_ENFORCE",
+};
+
+type AdminDb = typeof prisma | Prisma.TransactionClient;
+
 export class JobPostManagementService {
-  /** An active Platform Administrator grant authorizes every job operation. */
+  /** An active, current-session grant with the required job scope authorizes an operation. */
   async assertActiveGrant(
     authority: AdminAuthority,
-    tx = prisma,
+    scope: JobPostManagementScope = "JOB_POST_MODERATE",
+    tx: AdminDb = prisma,
   ) {
     const grant = await tx.platformAdministratorGrant.findFirst({
       where: {
@@ -46,6 +76,11 @@ export class JobPostManagementService {
         userId: authority.userId,
         state: "ACTIVE",
         OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+        user: { state: "ACTIVE", deletedAt: null },
+        sessionPolicy: {
+          is: { designatedSessionId: authority.sessionId },
+        },
+        scopes: { some: { scope } },
       },
       select: { id: true },
     });
@@ -73,7 +108,8 @@ export class JobPostManagementService {
     idempotencyKey: string,
   ) {
     const command = jobManagementCommandSchema.parse(raw);
-    await this.assertActiveGrant(authority);
+    const scope = jobPostManagementScope[command.command];
+    await this.assertActiveGrant(authority, scope);
     const startedAt = Date.now();
     try {
       const result = await new PrismaAdminCommandRepository().execute(
@@ -87,6 +123,7 @@ export class JobPostManagementService {
           normalizedBody: { jobId, expectedVersion, command },
         },
         async (tx, correlationId) => {
+          await this.assertActiveGrant(authority, scope, tx);
           const row = await findManagedJobPostForCommand(tx, jobId);
           if (!row || !row.publicJobPosting || !row.approvedVersionId)
             throw new Error("TARGET_UNAVAILABLE");
@@ -503,6 +540,7 @@ export class JobPostManagementService {
           }
           return {
             jobId,
+            companyId: row.companyId,
             version,
             visibility,
             applicationState,
@@ -510,6 +548,8 @@ export class JobPostManagementService {
           };
         },
       );
+      invalidatePublicJobSafety(jobId);
+      invalidatePublicCompanySafety(result.companyId);
       emitJobPostManagementOperation({
         operation: command.command.toLowerCase(),
         outcome: "success",

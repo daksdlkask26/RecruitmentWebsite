@@ -48,7 +48,7 @@
 
 .private-match-breadcrumb {
   margin-bottom: var(--sh-space-5);
-  color: var(--sh-color-text-muted);
+  color: var(--sh-color-text-secondary);
   font-size: var(--sh-font-size-caption);
   line-height: var(--sh-line-height-caption);
 }
@@ -130,7 +130,7 @@
 }
 
 .private-match-stepper li small {
-  color: var(--sh-color-text-muted);
+  color: var(--sh-color-text-secondary);
   font-size: var(--sh-font-size-caption);
   line-height: var(--sh-line-height-caption);
 }
@@ -152,7 +152,7 @@
 }
 
 .private-match-stepper li.is-active strong {
-  color: var(--sh-color-brand-primary);
+  color: var(--sh-color-info);
 }
 
 .private-match-stepper li.is-complete > span {
@@ -209,7 +209,7 @@
 
 .private-match-card-label {
   margin-bottom: var(--sh-space-3);
-  color: var(--sh-color-text-muted);
+  color: var(--sh-color-text-secondary);
   font-family: var(--sh-font-family);
   font-size: var(--sh-font-size-caption);
   font-weight: var(--sh-font-weight-bold);
@@ -350,7 +350,7 @@
   height: var(--sh-icon-size-sm);
 }
 
-.private-match-badge--green {
+.private-match-badge--success {
   color: var(--sh-color-success);
   background: var(--sh-color-success-bg);
 }
@@ -361,7 +361,7 @@
 }
 
 .private-match-badge--blue {
-  color: var(--sh-color-brand-primary);
+  color: var(--sh-color-info);
   background: var(--sh-color-brand-soft);
 }
 
@@ -384,7 +384,7 @@
 }
 
 .private-match-status-card--analyzing {
-  color: var(--sh-color-brand-primary);
+  color: var(--sh-color-info);
 }
 
 .private-match-status-card svg {
@@ -393,7 +393,7 @@
   flex: 0 0 var(--sh-icon-size-sm);
 }
 
-.private-match-badge--red {
+.private-match-badge--error {
   color: var(--sh-color-error);
   background: var(--sh-color-error-bg);
 }
@@ -745,6 +745,11 @@
   border-color: var(--sh-color-brand-primary);
   color: var(--sh-color-brand-primary);
   background: var(--sh-color-info-bg);
+}
+
+:root[data-theme="dark"] .private-match-secondary-button:hover,
+:root[data-theme="dark"] .private-match-secondary-button:focus-visible {
+  color: var(--sh-color-info);
 }
 
 .private-match-secondary-button svg,
@@ -2250,11 +2255,11 @@
 
 /* A ready preview is actionable now, so its green state gets the same subtle
    live-indicator language used elsewhere in the workspace. */
-.private-match-list-title .private-match-badge--green {
+.private-match-list-title .private-match-badge--success {
   gap: 12px;
 }
 
-.private-match-list-title .private-match-badge--green i {
+.private-match-list-title .private-match-badge--success i {
   width: 8px;
   height: 8px;
   flex: 0 0 8px;
@@ -2262,7 +2267,7 @@
   box-shadow: 0 0 0 3px rgb(22 163 74 / 12%);
 }
 
-.private-match-list-title .private-match-badge--green i::after {
+.private-match-list-title .private-match-badge--success i::after {
   position: absolute;
   inset: -5px;
   border: 1px solid #16a34a;
@@ -2285,7 +2290,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .private-match-list-title .private-match-badge--green i::after {
+  .private-match-list-title .private-match-badge--success i::after {
     animation: none;
   }
 }
@@ -2532,7 +2537,7 @@
 .private-match-processing-banner strong {
   display: block;
   margin-top: var(--sh-space-3);
-  color: var(--sh-color-brand-primary);
+  color: var(--sh-color-info);
   font-size: var(--sh-font-size-caption);
 }
 
@@ -3419,7 +3424,7 @@
   line-height: 1.35;
 }
 
-.private-match-setup-page .private-match-badge--green {
+.private-match-setup-page .private-match-badge--success {
   color: var(--private-match-setup-green-700);
   background: var(--private-match-setup-green-50);
 }
@@ -4063,8 +4068,8 @@
   margin-top: 6px;
   padding: 4px 9px;
   border-radius: 999px;
-  color: var(--private-ready-green-700);
-  background: var(--private-ready-green-50);
+  color: var(--private-ready-blue-dark);
+  background: var(--private-ready-blue-50);
   font-size: 12.5px;
   font-weight: 700;
   line-height: 1.3;
@@ -4073,6 +4078,14 @@
 .private-match-ready-page .private-match-score-tag--caution {
   color: var(--private-ready-caution);
   background: #fffbeb;
+}
+
+.private-match-ready-page .private-match-score-unavailable {
+  margin-top: 6px;
+  color: var(--private-ready-caution);
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .private-match-ready-page .private-match-report-preview-card {
@@ -4204,10 +4217,10 @@
 
 .private-match-ready-page
   .private-match-analysis-list
-  .private-match-badge--green,
+  .private-match-badge--success,
 .private-match-ready-page
   .private-match-source-row
-  .private-match-badge--green {
+  .private-match-badge--success {
   color: var(--private-ready-green-700);
   background: var(--private-ready-green-50);
 }
@@ -6022,6 +6035,14 @@
   font-family: var(--sh-font-family);
 }
 
+/* The report is also rendered on white cards in light mode. Tailwind's
+ * slate-400 utility is too pale for 11–12px body text there, so keep the
+ * report's muted copy on the shared accessible secondary token. Dark mode
+ * remaps this selector below to the light-on-dark muted token. */
+.pmr-page :is([class*="text-slate-400"], [class*="text-slate-300"]) {
+  color: var(--sh-color-text-secondary) !important;
+}
+
 .pmr-page *,
 .pmr-page *::before,
 .pmr-page *::after {
@@ -6162,21 +6183,25 @@
   --private-match-setup-shadow-card: var(--sh-shadow-card);
 }
 
-:root[data-theme="dark"] .private-match-setup-page :is(
-  .private-match-picker,
-  .private-match-setup-info-row--neutral,
-  .private-match-check-grid li,
-  .private-match-number-list li
-) {
+:root[data-theme="dark"]
+  .private-match-setup-page
+  :is(
+    .private-match-picker,
+    .private-match-setup-info-row--neutral,
+    .private-match-check-grid li,
+    .private-match-number-list li
+  ) {
   background: var(--sh-color-surface-subtle);
 }
 
-:root[data-theme="dark"] .private-match-setup-page :is(
-  .private-match-picker > input,
-  .private-match-picker-option,
-  .private-match-large-icon,
-  .private-match-inset
-) {
+:root[data-theme="dark"]
+  .private-match-setup-page
+  :is(
+    .private-match-picker > input,
+    .private-match-picker-option,
+    .private-match-large-icon,
+    .private-match-inset
+  ) {
   color: var(--sh-color-text-primary);
   background: var(--sh-color-surface-card);
 }
@@ -6187,7 +6212,10 @@
 }
 
 :root[data-theme="dark"] .private-match-setup-page .private-match-limit-card p,
-:root[data-theme="dark"] .private-match-setup-page .private-match-limit-card p:last-child {
+:root[data-theme="dark"]
+  .private-match-setup-page
+  .private-match-limit-card
+  p:last-child {
   color: var(--sh-color-text-secondary) !important;
 }
 
@@ -6208,29 +6236,32 @@
   --private-ready-caution: var(--sh-color-warning);
 }
 
-:root[data-theme="dark"] .private-match-ready-page :is(
-  .private-match-ready-banner,
-  .private-match-card,
-  .private-match-status-card,
-  .private-match-preview-score,
-  .private-match-source-row
-) {
+:root[data-theme="dark"]
+  .private-match-ready-page
+  :is(
+    .private-match-ready-banner,
+    .private-match-card,
+    .private-match-status-card,
+    .private-match-preview-score,
+    .private-match-source-row
+  ) {
   background: var(--sh-color-surface-card);
   box-shadow: var(--sh-shadow-card);
 }
 
-:root[data-theme="dark"] .private-match-ready-page :is(
-  .private-match-analysis-list li,
-  .private-match-source-row,
-  .private-match-preview-list li
-) {
+:root[data-theme="dark"]
+  .private-match-ready-page
+  :is(
+    .private-match-analysis-list li,
+    .private-match-source-row,
+    .private-match-preview-list li
+  ) {
   background: var(--sh-color-surface-subtle);
 }
 
-:root[data-theme="dark"] .private-match-ready-page :is(
-  .private-match-preview-score,
-  .private-match-guidance-banner
-) {
+:root[data-theme="dark"]
+  .private-match-ready-page
+  :is(.private-match-preview-score, .private-match-guidance-banner) {
   background: linear-gradient(
     135deg,
     var(--sh-color-info-bg),
@@ -6238,11 +6269,17 @@
   );
 }
 
-:root[data-theme="dark"] .private-match-ready-page .private-match-score-tag--caution {
+:root[data-theme="dark"]
+  .private-match-ready-page
+  .private-match-score-tag--caution {
   background: var(--sh-color-warning-bg);
 }
 
-:root[data-theme="dark"] .private-match-ready-page .private-match-analysis-list li.is-pending .private-match-analysis-icon {
+:root[data-theme="dark"]
+  .private-match-ready-page
+  .private-match-analysis-list
+  li.is-pending
+  .private-match-analysis-icon {
   background: var(--sh-color-disabled-bg);
 }
 
@@ -6275,32 +6312,38 @@
   --private-report-amber-700: var(--sh-color-warning);
 }
 
-:root[data-theme="dark"] .private-match-report-page :is(
-  .private-match-report-score,
-  .private-match-report-summary,
-  .private-match-card,
-  .private-match-calc-card,
-  .private-match-privacy-card,
-  .private-match-secondary-button
-) {
+:root[data-theme="dark"]
+  .private-match-report-page
+  :is(
+    .private-match-report-score,
+    .private-match-report-summary,
+    .private-match-card,
+    .private-match-calc-card,
+    .private-match-privacy-card,
+    .private-match-secondary-button
+  ) {
   background: var(--sh-color-surface-card);
   box-shadow: var(--sh-shadow-card);
 }
 
-:root[data-theme="dark"] .private-match-report-page :is(
-  .private-match-report-summary,
-  .private-match-chip--unmatched,
-  .private-match-experience,
-  .private-match-evidence-list li,
-  .private-match-action-list li,
-  .private-match-calc-card p,
-  .private-match-calc-card > strong,
-  .private-match-calc-formula
-) {
+:root[data-theme="dark"]
+  .private-match-report-page
+  :is(
+    .private-match-report-summary,
+    .private-match-chip--unmatched,
+    .private-match-experience,
+    .private-match-evidence-list li,
+    .private-match-action-list li,
+    .private-match-calc-card p,
+    .private-match-calc-card > strong,
+    .private-match-calc-formula
+  ) {
   background: var(--sh-color-surface-subtle);
 }
 
-:root[data-theme="dark"] .private-match-report-page .private-match-report-score {
+:root[data-theme="dark"]
+  .private-match-report-page
+  .private-match-report-score {
   background: linear-gradient(
     180deg,
     var(--sh-color-info-bg),
@@ -6318,14 +6361,16 @@
   box-shadow: var(--sh-shadow-card);
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  .pmr-score,
-  .pmr-diagnostic,
-  .pmr-experience,
-  .pmr-evidence-list > li,
-  .pmr-action-list > li,
-  .pmr-calc-card > div > div
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is(
+    .pmr-score,
+    .pmr-diagnostic,
+    .pmr-experience,
+    .pmr-evidence-list > li,
+    .pmr-action-list > li,
+    .pmr-calc-card > div > div
+  ) {
   border-color: var(--sh-color-border-subtle) !important;
   background: var(--sh-color-surface-subtle) !important;
 }
@@ -6338,28 +6383,34 @@
   ) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="text-slate-900"],
-  [class*="text-slate-800"],
-  [class*="text-slate-700"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is(
+    [class*="text-slate-900"],
+    [class*="text-slate-800"],
+    [class*="text-slate-700"]
+  ) {
   color: var(--sh-color-text-primary) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="text-slate-600"],
-  [class*="text-slate-500"],
-  [class*="text-slate-400"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is(
+    [class*="text-slate-600"],
+    [class*="text-slate-500"],
+    [class*="text-slate-400"]
+  ) {
   color: var(--sh-color-text-muted) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="border-slate-"],
-  [class*="border-brand-"],
-  [class*="border-emerald-"],
-  [class*="border-amber-"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is(
+    [class*="border-slate-"],
+    [class*="border-brand-"],
+    [class*="border-emerald-"],
+    [class*="border-amber-"]
+  ) {
   border-color: var(--sh-color-border-subtle) !important;
 }
 
@@ -6376,52 +6427,62 @@
   color: var(--sh-color-text-primary);
 }
 
-:root[data-theme="dark"] .private-match-page:not(.pmr-page) :is(
-  .private-match-card,
-  .private-match-privacy-card,
-  .private-match-limit-card,
-  .private-match-processing-banner,
-  .private-match-ready-banner
-) {
+:root[data-theme="dark"]
+  .private-match-page:not(.pmr-page)
+  :is(
+    .private-match-card,
+    .private-match-privacy-card,
+    .private-match-limit-card,
+    .private-match-processing-banner,
+    .private-match-ready-banner
+  ) {
   border-color: var(--sh-color-border-subtle);
   background: var(--sh-color-surface-card);
   box-shadow: var(--sh-shadow-card);
 }
 
-:root[data-theme="dark"] .private-match-page:not(.pmr-page) :is(
-  .private-match-job-panel,
-  .private-match-analysis-list li,
-  .private-match-source-row,
-  .private-match-preview-list li,
-  .private-match-guidance-banner
-) {
+:root[data-theme="dark"]
+  .private-match-page:not(.pmr-page)
+  :is(
+    .private-match-job-panel,
+    .private-match-analysis-list li,
+    .private-match-source-row,
+    .private-match-preview-list li,
+    .private-match-guidance-banner
+  ) {
   border-color: var(--sh-color-border-subtle);
   background: var(--sh-color-surface-subtle);
 }
 
-:root[data-theme="dark"] .private-match-page:not(.pmr-page) :is(
-  .private-match-selected-job-card h2,
-  .private-match-card h2,
-  .private-match-ready-body h2,
-  .private-match-source-row strong,
-  .private-match-analysis-list strong
-) {
+:root[data-theme="dark"]
+  .private-match-page:not(.pmr-page)
+  :is(
+    .private-match-selected-job-card h2,
+    .private-match-card h2,
+    .private-match-ready-body h2,
+    .private-match-source-row strong,
+    .private-match-analysis-list strong
+  ) {
   color: var(--sh-color-text-primary);
 }
 
-:root[data-theme="dark"] .private-match-page:not(.pmr-page) :is(
-  .private-match-selected-job-card p,
-  .private-match-selected-job-card small,
-  .private-match-card p,
-  .private-match-ready-body p,
-  .private-match-source-row p,
-  .private-match-analysis-list p,
-  .private-match-preview-list span
-) {
+:root[data-theme="dark"]
+  .private-match-page:not(.pmr-page)
+  :is(
+    .private-match-selected-job-card p,
+    .private-match-selected-job-card small,
+    .private-match-card p,
+    .private-match-ready-body p,
+    .private-match-source-row p,
+    .private-match-analysis-list p,
+    .private-match-preview-list span
+  ) {
   color: var(--sh-color-text-secondary);
 }
 
-:root[data-theme="dark"] .private-match-page:not(.pmr-page) .private-match-job-tag {
+:root[data-theme="dark"]
+  .private-match-page:not(.pmr-page)
+  .private-match-job-tag {
   border-color: var(--sh-color-border-subtle);
   color: var(--sh-color-text-secondary);
   background: var(--sh-color-surface-subtle);
@@ -6430,76 +6491,74 @@
 /* Some match states still carry utility classes from the first visual pass.
  * Remap only those utilities inside the candidate match workspace so a light
  * card cannot leak into dark mode while preserving the page's blue actions. */
-:root[data-theme="dark"] .private-match-page:not(.pmr-page) :is(
-  [class*="bg-white"],
-  [class*="bg-slate-50"]
-) {
+:root[data-theme="dark"]
+  .private-match-page:not(.pmr-page)
+  :is([class*="bg-white"], [class*="bg-slate-50"]) {
   border-color: var(--sh-color-border-subtle) !important;
   background: var(--sh-color-surface-card) !important;
 }
 
-:root[data-theme="dark"] .private-match-page:not(.pmr-page) [class*="bg-slate-100"] {
+:root[data-theme="dark"]
+  .private-match-page:not(.pmr-page)
+  [class*="bg-slate-100"] {
   background: var(--sh-color-surface-subtle) !important;
 }
 
-:root[data-theme="dark"] .private-match-page:not(.pmr-page) :is(
-  [class*="text-slate-900"],
-  [class*="text-slate-800"],
-  [class*="text-slate-700"]
-) {
+:root[data-theme="dark"]
+  .private-match-page:not(.pmr-page)
+  :is(
+    [class*="text-slate-900"],
+    [class*="text-slate-800"],
+    [class*="text-slate-700"]
+  ) {
   color: var(--sh-color-text-primary) !important;
 }
 
-:root[data-theme="dark"] .private-match-page:not(.pmr-page) :is(
-  [class*="text-slate-600"],
-  [class*="text-slate-500"],
-  [class*="text-slate-400"]
-) {
+:root[data-theme="dark"]
+  .private-match-page:not(.pmr-page)
+  :is(
+    [class*="text-slate-600"],
+    [class*="text-slate-500"],
+    [class*="text-slate-400"]
+  ) {
   color: var(--sh-color-text-muted) !important;
 }
 
 :root[data-theme="dark"] .pmr-page > header,
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="bg-white"],
-  [class*="bg-slate-50"],
-  [class*="bg-slate-100"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is([class*="bg-white"], [class*="bg-slate-50"], [class*="bg-slate-100"]) {
   border-color: var(--sh-color-border-subtle) !important;
   background: var(--sh-color-surface-card) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="bg-slate-50"],
-  [class*="bg-slate-100"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is([class*="bg-slate-50"], [class*="bg-slate-100"]) {
   background: var(--sh-color-surface-subtle) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="bg-emerald-50"],
-  [class*="bg-emerald-100"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is([class*="bg-emerald-50"], [class*="bg-emerald-100"]) {
   background: var(--sh-color-success-bg) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="bg-amber-50"],
-  [class*="bg-amber-100"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is([class*="bg-amber-50"], [class*="bg-amber-100"]) {
   background: var(--sh-color-warning-bg) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="text-slate-600"],
-  [class*="text-slate-500"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is([class*="text-slate-600"], [class*="text-slate-500"]) {
   color: var(--sh-color-text-secondary) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="text-slate-400"],
-  [class*="text-slate-300"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is([class*="text-slate-400"], [class*="text-slate-300"]) {
   color: var(--sh-color-text-muted) !important;
 }
 
@@ -6537,31 +6596,35 @@
   color: var(--sh-color-text-secondary);
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  .pmr-hero,
-  .pmr-card,
-  .pmr-metric,
-  .pmr-score,
-  .pmr-diagnostic,
-  .pmr-experience,
-  .pmr-evidence-list > li,
-  .pmr-action-list > li,
-  .pmr-calc-card,
-  .pmr-calc-card > div > div
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is(
+    .pmr-hero,
+    .pmr-card,
+    .pmr-metric,
+    .pmr-score,
+    .pmr-diagnostic,
+    .pmr-experience,
+    .pmr-evidence-list > li,
+    .pmr-action-list > li,
+    .pmr-calc-card,
+    .pmr-calc-card > div > div
+  ) {
   border-color: var(--sh-color-border-subtle) !important;
   background: var(--sh-color-surface-card) !important;
   box-shadow: var(--sh-shadow-card);
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  .pmr-score,
-  .pmr-diagnostic,
-  .pmr-experience,
-  .pmr-evidence-list > li,
-  .pmr-action-list > li,
-  .pmr-calc-card > div > div
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is(
+    .pmr-score,
+    .pmr-diagnostic,
+    .pmr-experience,
+    .pmr-evidence-list > li,
+    .pmr-action-list > li,
+    .pmr-calc-card > div > div
+  ) {
   background: var(--sh-color-surface-subtle) !important;
 }
 
@@ -6573,85 +6636,150 @@
   ) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="bg-white"],
-  [class*="bg-slate-50"],
-  [class*="bg-slate-100"],
-  [class*="bg-brand-50"],
-  [class*="bg-emerald-50"],
-  [class*="bg-emerald-100"],
-  [class*="bg-amber-50"],
-  [class*="bg-amber-100"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is(
+    [class*="bg-white"],
+    [class*="bg-slate-50"],
+    [class*="bg-slate-100"],
+    [class*="bg-brand-50"],
+    [class*="bg-emerald-50"],
+    [class*="bg-emerald-100"],
+    [class*="bg-amber-50"],
+    [class*="bg-amber-100"]
+  ) {
   border-color: var(--sh-color-border-subtle) !important;
   background: var(--sh-color-surface-subtle) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="bg-emerald-50"],
-  [class*="bg-emerald-100"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is([class*="bg-emerald-50"], [class*="bg-emerald-100"]) {
   background: var(--sh-color-success-bg) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="bg-amber-50"],
-  [class*="bg-amber-100"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is([class*="bg-amber-50"], [class*="bg-amber-100"]) {
   background: var(--sh-color-warning-bg) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="text-slate-900"],
-  [class*="text-slate-800"],
-  [class*="text-slate-700"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is(
+    [class*="text-slate-900"],
+    [class*="text-slate-800"],
+    [class*="text-slate-700"]
+  ) {
   color: var(--sh-color-text-primary) !important;
 }
 
-:root[data-theme="dark"] .pmr-page :is(
-  [class*="text-slate-600"],
-  [class*="text-slate-500"],
-  [class*="text-slate-400"],
-  [class*="text-slate-300"]
-) {
+:root[data-theme="dark"]
+  .pmr-page
+  :is(
+    [class*="text-slate-600"],
+    [class*="text-slate-500"],
+    [class*="text-slate-400"],
+    [class*="text-slate-300"]
+  ) {
   color: var(--sh-color-text-muted) !important;
 }
 
 /* The setup/ready variants still contain a few legacy literal white
  * declarations. Override only their content surfaces; action buttons keep
  * their brand colors and therefore retain clear affordance. */
-:root[data-theme="dark"] .private-match-setup-page :is(
-  .private-match-stepper-card,
-  .private-match-card,
-  .private-match-picker,
-  .private-match-picker-option,
-  .private-match-large-icon,
-  .private-match-inset,
-  .private-match-local-import,
-  .private-match-cv-picker,
-  .private-match-privacy-card
-) {
+:root[data-theme="dark"]
+  .private-match-setup-page
+  :is(
+    .private-match-stepper-card,
+    .private-match-card,
+    .private-match-picker,
+    .private-match-picker-option,
+    .private-match-large-icon,
+    .private-match-inset,
+    .private-match-local-import,
+    .private-match-cv-picker,
+    .private-match-privacy-card
+  ) {
   border-color: var(--sh-color-border-subtle);
   background: var(--sh-color-surface-card);
 }
 
-:root[data-theme="dark"] .private-match-ready-page :is(
-  .private-match-status-card,
-  .private-match-ready-banner,
-  .private-match-card,
-  .private-match-preview-score
-) {
+:root[data-theme="dark"]
+  .private-match-ready-page
+  :is(
+    .private-match-status-card,
+    .private-match-ready-banner,
+    .private-match-card,
+    .private-match-preview-score
+  ) {
   border-color: var(--sh-color-border-subtle);
   background: var(--sh-color-surface-card);
   box-shadow: var(--sh-shadow-card);
 }
 
 :root[data-theme="dark"] .private-match-ready-page .private-match-preview-score,
-:root[data-theme="dark"] .private-match-ready-page .private-match-guidance-banner {
+:root[data-theme="dark"]
+  .private-match-ready-page
+  .private-match-guidance-banner {
   background: linear-gradient(
     135deg,
     var(--sh-color-info-bg),
     var(--sh-color-surface-card)
   );
+}
+
+/* Keep the ready-state supporting copy readable on both the page tint and
+ * the white source cards. The previous muted/faint values landed just below
+ * the 4.5:1 threshold at the rendered font sizes. */
+.private-match-ready-page
+  :is(
+    .private-match-breadcrumb,
+    .private-match-title-row > div > p,
+    .private-match-card-label,
+    small
+  ) {
+  color: var(--sh-color-text-secondary) !important;
+}
+
+/* Dark-mode semantic utility remapping for the compact report. The report
+ * still carries Tailwind utility names from its first visual pass; those
+ * literal light-mode foregrounds are not readable after the card surfaces
+ * switch to the dark semantic palette. */
+:root[data-theme="dark"]
+  .pmr-page
+  :is([class*="text-brand-"], [class*="text-blue-"]) {
+  color: var(--sh-color-info) !important;
+}
+
+:root[data-theme="dark"]
+  .pmr-page
+  :is([class*="text-emerald-"], [class*="text-green-"]) {
+  color: var(--sh-color-success) !important;
+}
+
+:root[data-theme="dark"]
+  .pmr-page
+  :is(
+    [class*="text-amber-700"],
+    [class*="text-amber-800"],
+    [class*="text-amber-900"]
+  ) {
+  color: var(--sh-color-warning) !important;
+}
+
+:root[data-theme="dark"]
+  .pmr-page
+  :is([class*="bg-brand-100"], [class*="bg-brand-50"]) {
+  background: var(--sh-color-info-bg) !important;
+}
+
+:root[data-theme="dark"] .pmr-page .pmr-recheck-button {
+  border-color: var(--sh-color-border-subtle) !important;
+  color: var(--sh-color-info) !important;
+  background: var(--sh-color-info-bg) !important;
+}
+
+:root[data-theme="dark"] .pmr-page .private-match-delete-link {
+  color: var(--sh-color-error) !important;
 }

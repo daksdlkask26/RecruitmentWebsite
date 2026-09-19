@@ -2,6 +2,12 @@ import { z } from "zod";
 
 const isoDateTime = z.string().datetime();
 
+export const matchPresentationStateSchema = z.enum([
+  "AVAILABLE",
+  "INCOMPLETE",
+  "UNAVAILABLE",
+]);
+
 export const privateMatchErrorCodeSchema = z.enum([
   "AUTH_REQUIRED",
   "FORBIDDEN",
@@ -27,6 +33,10 @@ export const createPrivateMatchRequestSchema = z
 
 export const sourceProvenanceSchema = z
   .object({
+    inputSource: z.literal("CV"),
+    completeness: matchPresentationStateSchema,
+    presentationState: matchPresentationStateSchema,
+    scoreEligible: z.boolean(),
     cvVersionId: z.string().min(1).max(128),
     cvVersion: z.number().int().positive(),
     jdVersion: z.number().int().positive(),
@@ -120,11 +130,11 @@ export const privateRequirementGapSchema = z
 
 export const privateAutomaticComponentSchema = z
   .object({
-    score: z.number().min(0).max(100),
+    score: z.number().min(0).max(100).nullable(),
     weight: z.union([z.literal(0.4), z.literal(0.6)]),
-    weightedContribution: z.number().min(0).max(60),
-    evidenceCoverage: z.number().min(0).max(100),
-    evidenceConfidence: z.number().min(0).max(100),
+    weightedContribution: z.number().min(0).max(60).nullable(),
+    evidenceCoverage: z.number().min(0).max(100).nullable(),
+    evidenceConfidence: z.number().min(0).max(100).nullable(),
     matchedRequirements: z.array(privateRequirementMatchSchema).max(200),
     gaps: z.array(privateRequirementGapSchema).max(200),
     requiredExperience: z.number().nonnegative().nullable(),
@@ -141,7 +151,10 @@ export const privateAutomaticComponentSchema = z
   })
   .strict()
   .superRefine((value, context) => {
-    if (value.weightedContribution > value.weight * 100) {
+    if (
+      value.weightedContribution !== null &&
+      value.weightedContribution > value.weight * 100
+    ) {
       context.addIssue({
         code: "custom",
         path: ["weightedContribution"],
@@ -152,9 +165,9 @@ export const privateAutomaticComponentSchema = z
 
 export const privateAiEvaluationSchema = z
   .object({
-    score: z.number().min(0).max(100),
+    score: z.number().min(0).max(100).nullable(),
     weight: z.union([z.literal(0.4), z.literal(0.6)]),
-    weightedContribution: z.number().min(0).max(60),
+    weightedContribution: z.number().min(0).max(60).nullable(),
     summary: z.string().min(1).max(1_000),
     strengths: z
       .array(
@@ -168,7 +181,7 @@ export const privateAiEvaluationSchema = z
       .max(4),
     mainGap: z.string().max(1_000).nullable(),
     actions: z.array(z.string().min(1).max(500)).max(4),
-    evidenceConfidence: z.number().int().min(0).max(100),
+    evidenceConfidence: z.number().int().min(0).max(100).nullable(),
     evidenceLevel: z.enum(["LOW", "MEDIUM", "HIGH"]),
     provider: z.string().min(1).max(100),
     model: z.string().min(1).max(200),
@@ -179,7 +192,10 @@ export const privateAiEvaluationSchema = z
   })
   .strict()
   .superRefine((value, context) => {
-    if (value.weightedContribution > value.weight * 100) {
+    if (
+      value.weightedContribution !== null &&
+      value.weightedContribution > value.weight * 100
+    ) {
       context.addIssue({
         code: "custom",
         path: ["weightedContribution"],
@@ -190,6 +206,10 @@ export const privateAiEvaluationSchema = z
 
 const privateMatchBaseSchema = {
   checkId: z.string().min(1).max(128),
+  inputSource: z.literal("CV"),
+  completeness: matchPresentationStateSchema,
+  presentationState: matchPresentationStateSchema,
+  scoreEligible: z.boolean(),
   createdAt: isoDateTime,
   expiresAt: isoDateTime,
   provenance: sourceProvenanceSchema,
@@ -223,7 +243,33 @@ export const limitedPrivateReportSchema = z
     completedAt: isoDateTime,
     failureCode: z.string().min(1).max(80).nullable(),
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if (value.presentationState !== "AVAILABLE") {
+      if (
+        value.automatic.score !== null ||
+        value.automatic.weightedContribution !== null ||
+        value.automatic.evidenceCoverage !== null ||
+        value.automatic.evidenceConfidence !== null ||
+        value.automatic.requiredExperience !== null ||
+        value.automatic.detectedExperience !== null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["automatic"],
+          message:
+            "Incomplete or unavailable reports cannot expose numeric results",
+        });
+      }
+    }
+    if (value.scoreEligible !== (value.presentationState === "AVAILABLE")) {
+      context.addIssue({
+        code: "custom",
+        path: ["scoreEligible"],
+        message: "Score eligibility must match presentation state",
+      });
+    }
+  });
 
 export const fullPrivateReportSchema = z
   .object({
@@ -231,11 +277,11 @@ export const fullPrivateReportSchema = z
     ...privateMatchBaseSchema,
     state: z.literal("READY"),
     mode: z.literal("HYBRID"),
-    hybridScore: z.number().min(0).max(100).multipleOf(0.1),
-    matchBand: z.enum(["HIGH_MATCH", "MEDIUM_MATCH", "LOW_MATCH"]),
+    hybridScore: z.number().min(0).max(100).multipleOf(0.1).nullable(),
+    matchBand: z.enum(["HIGH_MATCH", "MEDIUM_MATCH", "LOW_MATCH"]).nullable(),
     automatic: privateAutomaticComponentSchema,
     aiEvaluation: privateAiEvaluationSchema,
-    evidenceConfidence: z.number().int().min(0).max(100),
+    evidenceConfidence: z.number().int().min(0).max(100).nullable(),
     summary: z.string().min(1).max(1_000),
     actions: z.array(z.string().min(1).max(500)).max(4),
     canApply: z.boolean(),
@@ -243,11 +289,81 @@ export const fullPrivateReportSchema = z
     // A completed report stays readable while a new immutable AI attempt runs.
     retryInProgress: z.boolean(),
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    const available = value.presentationState === "AVAILABLE";
+    if (value.scoreEligible !== available) {
+      context.addIssue({
+        code: "custom",
+        path: ["scoreEligible"],
+        message: "Score eligibility must match presentation state",
+      });
+    }
+    if (available && (value.hybridScore === null || value.matchBand === null)) {
+      context.addIssue({
+        code: "custom",
+        path: ["hybridScore"],
+        message: "Available reports must expose a hybrid score and band",
+      });
+    }
+    if (!available && value.hybridScore !== null) {
+      context.addIssue({
+        code: "custom",
+        path: ["hybridScore"],
+        message:
+          "Incomplete or unavailable reports cannot expose a hybrid score",
+      });
+    }
+    if (!available && value.aiEvaluation.score !== null) {
+      context.addIssue({
+        code: "custom",
+        path: ["aiEvaluation", "score"],
+        message: "Incomplete or unavailable reports cannot expose an AI score",
+      });
+    }
+    if (!available) {
+      const numericFields = [
+        ["automatic", "score", value.automatic.score],
+        [
+          "automatic",
+          "weightedContribution",
+          value.automatic.weightedContribution,
+        ],
+        ["automatic", "evidenceCoverage", value.automatic.evidenceCoverage],
+        ["automatic", "evidenceConfidence", value.automatic.evidenceConfidence],
+        ["automatic", "requiredExperience", value.automatic.requiredExperience],
+        ["automatic", "detectedExperience", value.automatic.detectedExperience],
+        [
+          "aiEvaluation",
+          "weightedContribution",
+          value.aiEvaluation.weightedContribution,
+        ],
+        [
+          "aiEvaluation",
+          "evidenceConfidence",
+          value.aiEvaluation.evidenceConfidence,
+        ],
+      ] as const;
+      for (const [parent, field, fieldValue] of numericFields) {
+        if (fieldValue !== null) {
+          context.addIssue({
+            code: "custom",
+            path: [parent, field],
+            message:
+              "Incomplete or unavailable reports cannot expose numeric results",
+          });
+        }
+      }
+    }
+  });
 
 export const privateMatchListItemSchema = z
   .object({
     checkId: z.string().min(1).max(128),
+    inputSource: z.literal("CV"),
+    completeness: matchPresentationStateSchema,
+    presentationState: matchPresentationStateSchema,
+    scoreEligible: z.boolean(),
     state: z.enum(["QUEUED", "ANALYZING", "LIMITED", "READY", "FAILED"]),
     createdAt: isoDateTime,
     expiresAt: isoDateTime,
@@ -271,7 +387,26 @@ export const privateMatchListItemSchema = z
     hybridScore: z.number().min(0).max(100).multipleOf(0.1).nullable(),
     deterministicScore: z.number().min(0).max(100).nullable(),
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if (value.presentationState !== "AVAILABLE" && value.scoreEligible) {
+      context.addIssue({
+        code: "custom",
+        path: ["scoreEligible"],
+        message: "Only available list items may be score eligible",
+      });
+    }
+    if (
+      value.presentationState !== "AVAILABLE" &&
+      (value.hybridScore !== null || value.deterministicScore !== null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["hybridScore"],
+        message: "Incomplete or unavailable list items cannot expose scores",
+      });
+    }
+  });
 
 export const privateMatchListResponseSchema = z
   .object({ items: z.array(privateMatchListItemSchema).max(50) })
@@ -288,6 +423,9 @@ export type CreatePrivateMatchRequest = z.infer<
 >;
 export type PrivateMatchErrorCode = z.infer<typeof privateMatchErrorCodeSchema>;
 export type SourceProvenance = z.infer<typeof sourceProvenanceSchema>;
+export type MatchPresentationState = z.infer<
+  typeof matchPresentationStateSchema
+>;
 export type PrivateMatchCv = z.infer<typeof privateMatchCvSchema>;
 export type PrivateMatchJob = z.infer<typeof privateMatchJobSchema>;
 export type PrivateMatchJobsResponse = z.infer<

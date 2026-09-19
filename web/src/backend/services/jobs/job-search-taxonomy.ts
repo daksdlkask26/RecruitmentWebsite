@@ -6,6 +6,7 @@ import type { JobSearchTaxonomy } from "@/shared/contracts/jobs/taxonomy";
 import { recruiterIndustryTaxonomy } from "@/shared/contracts/jobs/industry-taxonomy";
 import { configuredJsonJobCatalogueRepository } from "@/backend/repositories/jobs/job-catalogue-repository-factory";
 import { listActiveJobTaxonomy } from "./job-taxonomy-service";
+import { readPublicDiscoveryWatermark } from "@/backend/services/discovery/public-discovery-watermark";
 
 export type { JobSearchTaxonomy } from "@/shared/contracts/jobs/taxonomy";
 
@@ -428,14 +429,18 @@ function applyCanonicalTaxonomy(
 type CachedCatalogTaxonomy = Readonly<{
   taxonomy: JobSearchTaxonomy;
   refreshAt: number;
+  publicDiscoveryWatermark?: string | null;
 }>;
 
 let catalogTaxonomyCache: CachedCatalogTaxonomy | null = null;
 let catalogTaxonomyPromise: Promise<CachedCatalogTaxonomy> | null = null;
 let candidateTaxonomyCache: CachedCatalogTaxonomy | null = null;
 let candidateTaxonomyPromise: Promise<CachedCatalogTaxonomy> | null = null;
+let candidateTaxonomyPromiseWatermark: string | null | undefined;
+let candidateTaxonomyRefreshTimer: ReturnType<typeof setTimeout> | null = null;
 
 const candidateTaxonomyMaxAgeMs = 60_000;
+const candidateTaxonomyRefreshDelayMs = 5_000;
 
 /** Clear both search projections after a review approval or catalogue write. */
 export function invalidateJobSearchTaxonomyCache() {
@@ -443,6 +448,11 @@ export function invalidateJobSearchTaxonomyCache() {
   catalogTaxonomyPromise = null;
   candidateTaxonomyCache = null;
   candidateTaxonomyPromise = null;
+  candidateTaxonomyPromiseWatermark = undefined;
+  if (candidateTaxonomyRefreshTimer) {
+    clearTimeout(candidateTaxonomyRefreshTimer);
+    candidateTaxonomyRefreshTimer = null;
+  }
 }
 
 async function readTaxonomyCatalog(): Promise<unknown> {
@@ -552,32 +562,79 @@ async function readCandidateVisibleTaxonomyRows(
  * jobs a candidate can actually discover.
  */
 export async function listCandidateVisibleJobSearchTaxonomy(): Promise<JobSearchTaxonomy> {
-  if (candidateTaxonomyCache && candidateTaxonomyCache.refreshAt > Date.now()) {
+  const publicDiscoveryWatermark = await readPublicDiscoveryWatermark();
+  if (
+    candidateTaxonomyCache &&
+    publicDiscoveryWatermark !== null &&
+    candidateTaxonomyCache.publicDiscoveryWatermark === publicDiscoveryWatermark
+  ) {
+    if (candidateTaxonomyCache.refreshAt > Date.now()) {
+      return candidateTaxonomyCache.taxonomy;
+    }
+    // Natural expiry is not a visibility mutation. Keep the last safe
+    // projection for this request and refresh it once in the background;
+    // otherwise a full-corpus taxonomy rebuild can queue every concurrent
+    // Jobs request behind the same 60-second timer.
+    scheduleCandidateTaxonomyRefresh(publicDiscoveryWatermark);
     return candidateTaxonomyCache.taxonomy;
   }
 
-  const now = new Date();
-  candidateTaxonomyPromise ??= Promise.all([
-    readTaxonomyCatalog().then((catalog) =>
-      z.array(taxonomyCatalogJobSchema).parse(catalog),
-    ),
-    readCandidateVisibleTaxonomyRows(now),
-    listActiveJobTaxonomy(),
-  ]).then(([catalog, rows, activeTaxonomy]) => ({
-    taxonomy: applyCanonicalTaxonomy(
-      buildCandidateVisibleTaxonomy(catalog, rows),
-      activeTaxonomy,
-    ),
-    // A short cache avoids repeatedly parsing the complete catalog, while a
-    // newly approved, expired, or seeded job is reflected promptly.
-    refreshAt: now.getTime() + candidateTaxonomyMaxAgeMs,
-  }));
+  if (candidateTaxonomyRefreshTimer) {
+    clearTimeout(candidateTaxonomyRefreshTimer);
+    candidateTaxonomyRefreshTimer = null;
+  }
+  const refreshed = await refreshCandidateTaxonomy(publicDiscoveryWatermark);
+  return refreshed.taxonomy;
+}
 
+function scheduleCandidateTaxonomyRefresh(publicDiscoveryWatermark: string) {
+  if (candidateTaxonomyRefreshTimer || candidateTaxonomyPromise) return;
+  candidateTaxonomyRefreshTimer = setTimeout(() => {
+    candidateTaxonomyRefreshTimer = null;
+    void refreshCandidateTaxonomy(publicDiscoveryWatermark).catch(() => {
+      // The next request retries the refresh while preserving the last
+      // successfully built taxonomy for this non-authoritative menu.
+    });
+  }, candidateTaxonomyRefreshDelayMs);
+  candidateTaxonomyRefreshTimer.unref?.();
+}
+
+async function refreshCandidateTaxonomy(
+  publicDiscoveryWatermark: string | null,
+) {
+  if (
+    !candidateTaxonomyPromise ||
+    candidateTaxonomyPromiseWatermark !== publicDiscoveryWatermark
+  ) {
+    const now = new Date();
+    candidateTaxonomyPromiseWatermark = publicDiscoveryWatermark;
+    candidateTaxonomyPromise = Promise.all([
+      readTaxonomyCatalog().then((catalog) =>
+        z.array(taxonomyCatalogJobSchema).parse(catalog),
+      ),
+      readCandidateVisibleTaxonomyRows(now),
+      listActiveJobTaxonomy(),
+    ]).then(([catalog, rows, activeTaxonomy]) => ({
+      taxonomy: applyCanonicalTaxonomy(
+        buildCandidateVisibleTaxonomy(catalog, rows),
+        activeTaxonomy,
+      ),
+      refreshAt: now.getTime() + candidateTaxonomyMaxAgeMs,
+      publicDiscoveryWatermark,
+    }));
+  }
+
+  const activePromise = candidateTaxonomyPromise;
+  if (!activePromise) throw new Error("JOB_TAXONOMY_REFRESH_NOT_STARTED");
   try {
-    candidateTaxonomyCache = await candidateTaxonomyPromise;
-    return candidateTaxonomyCache.taxonomy;
+    const refreshed = await activePromise;
+    candidateTaxonomyCache = refreshed;
+    return refreshed;
   } finally {
-    candidateTaxonomyPromise = null;
+    if (candidateTaxonomyPromise === activePromise) {
+      candidateTaxonomyPromise = null;
+      candidateTaxonomyPromiseWatermark = undefined;
+    }
   }
 }
 

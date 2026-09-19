@@ -11,9 +11,12 @@ import pg from "pg";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(import.meta.url);
 const database = "smarthire_gate0_recheck_20260906_test";
-const storage = resolve(root, ".local/gate0-recheck-20260906-test");
-const audit = resolve(root, "../docs/audits");
-const marker = resolve(audit, "2026-09-06-gate0-recheck-resource.json");
+const storage = resolve(root, ".local/gate0-recheck-test");
+const audit = resolve(
+  root,
+  "../docs/audits/candidate-first/pre-phase/evidence",
+);
+const marker = resolve(audit, "gate0-recheck-resource.json");
 const local = parse(await readFile(resolve(root, ".env.local"), "utf8"));
 const base = new URL(local.DIRECT_URL ?? local.DATABASE_URL);
 if (!["localhost", "127.0.0.1"].includes(base.hostname))
@@ -115,7 +118,7 @@ if (action === "create") {
       ledgerRows: counts,
     };
     await writeFile(
-      resolve(audit, "2026-09-06-gate0-recheck-shared-readonly.json"),
+      resolve(audit, "gate0-recheck-shared-readonly.json"),
       JSON.stringify(result, null, 2) + "\n",
     );
     console.log(JSON.stringify(result));

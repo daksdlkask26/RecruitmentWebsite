@@ -19,32 +19,28 @@ type ThemeContextValue = {
 const THEME_STORAGE_KEY = "smarthire-theme";
 
 /**
- * Marketing and authentication routes deliberately have one, stable visual
- * identity.  The workspace preference is kept in storage, but it must not
- * leak into these public screens when a signed-in user follows a login or
- * recovery link in the same browser session.
+ * Authentication and recovery routes deliberately have one, stable visual
+ * identity. Public discovery (Home and Jobs) still honours the user's theme
+ * preference so the complete Candidate journey can be verified in both
+ * themes.
  */
 export function isAlwaysLightRoute(pathname: string | null): boolean {
   if (!pathname) return false;
 
-  return (
-    pathname === "/" ||
-    pathname === "/home" ||
-    [
-      "/login",
-      "/register",
-      "/forgot-password",
-      "/reset-password",
-      "/two-factor",
-      "/check-email",
-      "/verify-email",
-      "/verify-company-email",
-      "/verify-email-change",
-      "/account-recovery",
-      "/business",
-      "/legal",
-    ].some((route) => pathname === route || pathname.startsWith(`${route}/`))
-  );
+  return [
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+    "/two-factor",
+    "/check-email",
+    "/verify-email",
+    "/verify-company-email",
+    "/verify-email-change",
+    "/account-recovery",
+    "/business",
+    "/legal",
+  ].some((route) => pathname === route || pathname.startsWith(`${route}/`));
 }
 
 const defaultThemeContext: ThemeContextValue = {

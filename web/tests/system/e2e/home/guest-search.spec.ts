@@ -41,5 +41,8 @@ test("guest conversion actions show the candidate and employer paths", async ({
   ).toHaveAttribute("href", "/jobs");
   await expect(
     page.getByRole("link", { name: "For employers →" }),
-  ).toHaveAttribute("href", "/business");
+  ).toHaveAttribute(
+    "href",
+    "/login?returnTo=%2Fdashboard%2Femployer-verification",
+  );
 });

@@ -39,16 +39,19 @@ export class Feature012AutomaticMatchingAdapter implements AutomaticMatchingPort
     private readonly parser = new DocumentParsingService(
       "private-cv-match-parser-v1",
     ),
+    private readonly clock: () => Date = () => new Date(),
   ) {}
 
   async match(input: ScoringInput): Promise<AutomaticMatchingResult> {
     const cvParsed = this.parser.parse({
       text: input.cvText,
       snapshotVersion: input.cvVersion,
+      failed: input.cvParseFailed,
     });
     const jdParsed = this.parser.parse({
       text: input.jdText,
       snapshotVersion: input.jdVersion,
+      failed: input.jdParseFailed,
     });
     const calculation = this.matcher.calculate({
       applicationId: input.inputId,
@@ -62,7 +65,7 @@ export class Feature012AutomaticMatchingAdapter implements AutomaticMatchingPort
       requiredSkills: input.requiredSkills,
       preferredSkills: input.preferredSkills,
       minimumExperienceYears: input.minimumExperienceYears,
-      now: new Date(),
+      now: this.clock(),
     });
     const automatic = calculation.result;
     const allSkills = [
@@ -113,6 +116,15 @@ export class Feature012AutomaticMatchingAdapter implements AutomaticMatchingPort
     const coverage = requiredCount
       ? Math.round((foundCount / requiredCount) * 100)
       : 100;
+    const mergedIntervals =
+      automatic.detectedExperience.kind === "DETECTED"
+        ? (automatic.detectedExperience.mergedIntervals ?? [])
+        : [];
+    const detectedExperienceMonths = mergedIntervals.reduce(
+      (total, interval) =>
+        total + interval.endMonthExclusive - interval.startMonth,
+      0,
+    );
     return {
       resultId: automatic.resultId,
       score: automatic.score,
@@ -128,6 +140,11 @@ export class Feature012AutomaticMatchingAdapter implements AutomaticMatchingPort
         automatic.detectedExperience.kind === "DETECTED"
           ? automatic.detectedExperience.years
           : null,
+      detectedExperienceMonths:
+        automatic.detectedExperience.kind === "DETECTED"
+          ? detectedExperienceMonths
+          : null,
+      experienceIntervals: mergedIntervals,
       evidenceCoverage: coverage,
       evidenceConfidence: Math.min(
         100,

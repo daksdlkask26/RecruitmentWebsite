@@ -61,7 +61,18 @@ export default async function JobDetailPage({ params }: Props) {
   try {
     job = await load((await params).slug);
   } catch (error) {
-    if (error instanceof JobServiceError && error.status === 404) notFound();
+    // Production bundles can materialize an error class through a separate
+    // route chunk, so keep the public-unavailable boundary structural as well
+    // as instanceof-based. A revoked Company/Job must return the neutral 404
+    // page instead of a generic 200 error shell.
+    if (
+      (error instanceof JobServiceError && error.status === 404) ||
+      (error &&
+        typeof error === "object" &&
+        "status" in error &&
+        (error as { status?: unknown }).status === 404)
+    )
+      return notFound();
     failed = true;
   }
   if (failed || !job) {

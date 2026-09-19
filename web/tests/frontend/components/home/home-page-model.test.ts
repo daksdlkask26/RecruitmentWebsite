@@ -19,9 +19,44 @@ describe("Home page model invariants", () => {
           match,
           jobs: [
             homeJob({
-              matchScore: match.score,
+              matchScore: match.score ?? undefined,
               matchSource: match.scoreSource,
               matchBreakdown: match.matchBreakdown,
+            }),
+          ],
+        }),
+      ),
+    ).toBeTruthy();
+  });
+
+  it("allows an explicit incomplete CV state without a numeric score", () => {
+    const cvMatch = {
+      checkId: "pmc_incomplete",
+      cvVersion: 2,
+      jdVersion: 3,
+      completeness: "INCOMPLETE" as const,
+      presentationState: "INCOMPLETE" as const,
+      scoreEligible: false,
+    };
+    const match = personalMatch({
+      jobSlug: "frontend-intern",
+      score: null,
+      presentationState: "INCOMPLETE",
+      scoreEligible: false,
+      scoreSource: "cv",
+      completeness: "INCOMPLETE",
+      cvMatch,
+    });
+
+    expect(
+      validateHomePageModel(
+        homeModel({
+          viewer: candidateViewer,
+          match,
+          jobs: [
+            homeJob({
+              matchSource: "cv",
+              cvMatch,
             }),
           ],
         }),

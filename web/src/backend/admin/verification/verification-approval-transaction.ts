@@ -9,6 +9,7 @@ import { createVerificationDecisionNotification } from "@/backend/admin/notifica
 import { splitCompanyIdentity } from "@/shared/contracts/employer-verification/business-verification";
 import { assertActiveOwnedCompanyCapacity } from "@/backend/company-members/company-ownership-limit";
 import { loadVerificationDecisionEligibility } from "./verification-decision-eligibility";
+import { invalidatePublicCompanySafety } from "@/backend/services/discovery/public-discovery-cache";
 
 export type ApprovalCommand = {
   expectedVersion: number;
@@ -29,13 +30,13 @@ function slug(name: string, suffix: string) {
 }
 
 export class VerificationApprovalTransaction {
-  execute(
+  async execute(
     authority: AdminAuthority,
     requestId: string,
     command: ApprovalCommand,
   ) {
     const now = new Date();
-    return new PrismaAdminCommandRepository().execute(
+    const result = await new PrismaAdminCommandRepository().execute(
       {
         actorUserId: authority.userId,
         actorSessionId: authority.sessionId,
@@ -216,5 +217,7 @@ export class VerificationApprovalTransaction {
         };
       },
     );
+    invalidatePublicCompanySafety(result.companyId);
+    return result;
   }
 }

@@ -4,6 +4,10 @@ import { Prisma } from "@/backend/generated/prisma/client";
 import { prisma } from "@/backend/database/prisma";
 import { candidateVisibleJobWhere } from "@/backend/repositories/jobs/candidate-visible-job-policy";
 import {
+  getPublicCompanySql,
+  getPublicCompanyWhere,
+} from "@/backend/repositories/companies/public-company-visibility-policy";
+import {
   normalizeSearchText,
   searchTextTokens,
 } from "@/backend/services/jobs/search-normalization";
@@ -24,13 +28,6 @@ import type {
   SearchMode,
 } from "@/shared/contracts/search/search-interpretation";
 
-const publicCompanyWhere = {
-  verifiedAt: { not: null },
-  verificationState: "ACTIVE" as const,
-  verificationInactiveAt: null,
-  moderationState: "ACTIVE" as const,
-};
-
 const publicCompanySelect = {
   id: true,
   slug: true,
@@ -41,6 +38,11 @@ const publicCompanySelect = {
   foundedYear: true,
   industry: true,
 } as const;
+
+// Preserve the repository's established exported object contract while the
+// actual predicate is now owned by the shared policy module.
+const publicCompanyWhere = getPublicCompanyWhere();
+export { publicCompanyWhere };
 
 const publicCompanySearchSelect = {
   ...publicCompanySelect,
@@ -148,15 +150,6 @@ export interface CompanyDiscoveryRepository {
 
 function companyColumn(alias: string, column: string) {
   return Prisma.raw(`${alias}."${column}"`);
-}
-
-function publicCompanySql(alias: string) {
-  return Prisma.sql`
-    ${companyColumn(alias, "verifiedAt")} IS NOT NULL
-    AND ${companyColumn(alias, "verificationState")} = 'ACTIVE'::"CompanyVerificationState"
-    AND ${companyColumn(alias, "verificationInactiveAt")} IS NULL
-    AND ${companyColumn(alias, "moderationState")} = 'ACTIVE'::"CompanyModerationState"
-  `;
 }
 
 function companyProjection(alias: string, projected: boolean) {
@@ -352,7 +345,7 @@ function companySearchQueryParts(
         ${cRaw.location} AS "normalizedLocation",
         ${cRaw.industry} AS "normalizedIndustry"
       FROM "Company" c
-      WHERE ${publicCompanySql("c")}
+      WHERE ${getPublicCompanySql("c")}
     )
   `;
   return { cte, matchWhere, locationWhere, score };
@@ -369,7 +362,7 @@ async function findCompanyCorrectionTerms(rawQuery: string) {
   >(Prisma.sql`
     SELECT c."displayName"
     FROM "Company" c
-    WHERE ${publicCompanySql("c")}
+    WHERE ${getPublicCompanySql("c")}
       AND similarity(${fields.displayName}, ${query}) >= 0.35
     ORDER BY similarity(${fields.displayName}, ${query}) DESC, c."id" ASC
     LIMIT 8
@@ -591,7 +584,7 @@ export class PrismaCompanyDiscoveryRepository implements CompanyDiscoveryReposit
     >(Prisma.sql`
       SELECT c."id", c."displayName", c."industry", c."publicLocation"
       FROM "Company" c
-      WHERE ${publicCompanySql("c")}
+      WHERE ${getPublicCompanySql("c")}
         AND (
           ${fields.displayName} LIKE ${`%${query}%`}
           OR ${compactDisplayName} LIKE ${`%${compactQuery}%`}
@@ -653,5 +646,3 @@ export class PrismaCompanyDiscoveryRepository implements CompanyDiscoveryReposit
     };
   }
 }
-
-export { publicCompanyWhere };

@@ -28,6 +28,10 @@ export async function runHomeE2EControl<T>(
     | "delete"
     | "expire-user"
     | "deactivate-company"
+    | "close-authoritative-job"
+    | "ban-authoritative-company"
+    | "unban-authoritative-company"
+    | "expire-job-for-race"
     | "set-language"
     | "public-job-count",
   payload: unknown = null,
@@ -50,5 +54,10 @@ export async function runHomeE2EControl<T>(
       windowsHide: true,
     },
   );
-  return JSON.parse(stdout) as T;
+  // Authoritative services emit structured operational events through
+  // console.info. The control process writes its result as the final JSON
+  // line, so parse that line without weakening the command's real output.
+  const resultLine = stdout.trim().split(/\r?\n/u).at(-1);
+  if (!resultLine) throw new Error("Home E2E control returned no result");
+  return JSON.parse(resultLine) as T;
 }

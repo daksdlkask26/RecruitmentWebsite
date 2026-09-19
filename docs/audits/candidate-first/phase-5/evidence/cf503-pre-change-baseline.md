@@ -1,0 +1,59 @@
+# CF-503 pre-change baseline execution report
+
+- Cases: 34; equivalent pairs: 17
+- Locales: en, vi; formats: TEXT, PDF_FLATTENED, DOCX_STRUCTURED
+- Required aggregate TP/FP/FN/support: 24/1/14/38
+- Preferred aggregate TP/FP/FN/support: 2/1/0/2
+- Experience maximum absolute error: 45 months
+- Required precision/recall: 0.96/0.632
+- Preferred precision/recall: 0.667/1
+- Required/preferred F1: 0.762/0.8
+- Bidirectional evidence trace: 58.82352941176471% valid
+- Incomplete classification: 82.35294117647058%
+- Score eligibility: 82.35294117647058%
+- Format extraction: 100% valid; PII-free: 100%
+- Deterministic checks: FAIL
+- Provenance role: pre-change; source commit: 583171bf8cdb3cc76fea4a6ce818e89208a99dfb (declared-snapshot)
+- Corpus identity SHA-256: 403DA808FCA06B94BD911931A0D1CAB42FA6FBCD7AD9E18B1A6677CD0462465A
+- Production source fingerprint SHA-256: 46B8D127ACCA293A12337F67631ABF941B98765E9911DDA2287A86FFF05393AA
+- Report payload integrity SHA-256: EFADFD1AA681AD6B9395006736BEB35606AB2E08B8895B051CA75F3ACCF32FBC
+- Baseline execution artifact: **CAPTURED and independently validated by the final evaluator**.
+- The nested `preChangeBaseline: UNVERIFIED` field in this pre-change run is expected: a pre-change run has no older before-baseline to compare against. It is not the status of this artifact when consumed by the final run.
+- Baseline comparison in the final report: PASS; the final run references this artifact and verifies its source/corpus/evaluator identities, changed production fingerprint, exact command, and payload hash.
+- Baseline metrics remain the genuine pre-change result: deterministic checks FAIL with required precision/recall `0.96/0.632` and preferred precision/recall `0.667/1`; these values are not replaced by final results.
+
+## Failing case IDs
+
+- pair-01-overlap-en: experienceMonths expected=30 actual=0
+- pair-01-overlap-vi: experienceMonths expected=30 actual=0, evidence-anchor-invalid, required-skill-set-drift
+- pair-02-adjacent-en: experienceMonths expected=13 actual=0
+- pair-02-adjacent-vi: experienceMonths expected=13 actual=0, evidence-anchor-invalid, required-skill-set-drift
+- pair-03-gap-en: experienceMonths expected=18 actual=0
+- pair-03-gap-vi: experienceMonths expected=18 actual=0, evidence-anchor-invalid, required-skill-set-drift
+- pair-04-reversed-vi: evidence-anchor-invalid, required-skill-set-drift
+- pair-05-year-only-en: experienceMonths expected=24 actual=0
+- pair-05-year-only-vi: experienceMonths expected=24 actual=0, evidence-anchor-invalid, required-skill-set-drift
+- pair-06-open-ended-en: experienceMonths expected=45 actual=0
+- pair-06-open-ended-vi: experienceMonths expected=45 actual=0, evidence-anchor-invalid, required-skill-set-drift
+- pair-07-nested-en: experienceMonths expected=36 actual=0
+- pair-07-nested-vi: experienceMonths expected=36 actual=0, evidence-anchor-invalid, required-skill-set-drift
+- pair-08-flattened-pdf-en: experienceMonths expected=28 actual=0
+- pair-08-flattened-pdf-vi: experienceMonths expected=28 actual=0, evidence-anchor-invalid, required-skill-set-drift
+- pair-09-structured-docx-en: experienceMonths expected=24 actual=0
+- pair-09-structured-docx-vi: experienceMonths expected=24 actual=0, evidence-anchor-invalid, required-skill-set-drift
+- pair-10-punctuation-en: experienceMonths expected=24 actual=0
+- pair-10-punctuation-vi: experienceMonths expected=24 actual=0, evidence-anchor-invalid, required-skill-set-drift
+- pair-11-negation-en: experienceMonths expected=24 actual=0
+- pair-11-negation-vi: experienceMonths expected=24 actual=0, evidence-anchor-invalid, required-skill-set-drift
+- pair-12-preferred-and-missing-en: experienceMonths expected=24 actual=0
+- pair-12-preferred-and-missing-vi: experienceMonths expected=24 actual=0, evidence-anchor-invalid, required-skill-set-drift, preferred-skill-set-drift
+- pair-13-partial-parse-en: incomplete expected=true actual=false, evidence-anchor-invalid, required-skill-set-drift, score-eligibility expected=false actual=true
+- pair-13-partial-parse-vi: incomplete expected=true actual=false, score-eligibility expected=false actual=true
+- pair-14-failed-job-parse-en: experienceMonths expected=24 actual=0, incomplete expected=true actual=false, score-eligibility expected=false actual=true
+- pair-14-failed-job-parse-vi: experienceMonths expected=24 actual=0, incomplete expected=true actual=false, evidence-anchor-invalid, required-skill-set-drift, score-eligibility expected=false actual=true
+- pair-15-missing-job-criteria-en: experienceMonths expected=24 actual=0, incomplete expected=true actual=false, score-eligibility expected=false actual=true
+- pair-15-missing-job-criteria-vi: experienceMonths expected=24 actual=0, incomplete expected=true actual=false, score-eligibility expected=false actual=true
+- pair-16-skill-formatting-en: experienceMonths expected=24 actual=0
+- pair-16-skill-formatting-vi: experienceMonths expected=24 actual=0, required-skill-set-drift
+- pair-17-preferred-positive-en: experienceMonths expected=24 actual=0
+- pair-17-preferred-positive-vi: experienceMonths expected=24 actual=0

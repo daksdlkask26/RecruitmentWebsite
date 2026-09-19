@@ -1,0 +1,4337 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-18T09:04:59.003Z",
+  "artifact": "CF-502",
+  "colorScheme": "dark",
+  "environment": {
+    "productionBuild": true,
+    "buildOutput": ".next-phase5-final-20260918-rerun",
+    "baseUrl": "http://localhost:3003",
+    "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+    "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+    "config": "playwright.phase5.config.ts",
+    "routeMocks": false
+  },
+  "command": {
+    "exact": "node scripts/phase5-run-isolated.mjs npx.cmd playwright test --config=playwright.phase5.config.ts",
+    "testFiles": [
+      "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts"
+    ],
+    "config": ["playwright.phase5.config.ts"],
+    "machineFiles": [
+      "dark-375.jsonl",
+      "dark-320.jsonl",
+      "dark-1280.jsonl",
+      "dark-768.jsonl"
+    ]
+  },
+  "playwright": {
+    "expected": 16,
+    "unexpected": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "durationMs": 239585.416
+  },
+  "coverage": {
+    "machineRows": 108,
+    "expectedMachineRows": 108,
+    "stateCount": 27,
+    "expectedStateCount": 27,
+    "stateRows": {
+      "Guest": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "Employer": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "Profile AVAILABLE": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "Candidate without Profile": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "CV AVAILABLE": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "FULL_REPORT MEDIUM": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "FULL_REPORT LOW": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "LIMITED_REPORT": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "incomplete CV": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "incomplete JD": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "missing criteria": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "evidence-empty": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "unavailable failed parse": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "queued": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "analyzing": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "retrying": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "retry failure": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "expired": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "revoked": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "deleted": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "direct link and refresh": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "Back Forward": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "second authenticated tab": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "cross-account denial": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "long EN VI": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "closed Apply": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      },
+      "expired Apply": {
+        "expectedRows": 4,
+        "rows": 4,
+        "pass": true,
+        "themes": {
+          "dark": 4
+        },
+        "viewports": {
+          "1280x900": 1,
+          "320x720": 1,
+          "375x812": 1,
+          "768x900": 1
+        },
+        "projects": {
+          "phase5-dark-1280": 1,
+          "phase5-dark-320": 1,
+          "phase5-dark-375": 1,
+          "phase5-dark-768": 1
+        },
+        "missingViewports": [],
+        "duplicateViewports": []
+      }
+    },
+    "viewports": {
+      "1280x900": 27,
+      "320x720": 27,
+      "375x812": 27,
+      "768x900": 27
+    },
+    "projects": {
+      "phase5-dark-1280": 27,
+      "phase5-dark-320": 27,
+      "phase5-dark-375": 27,
+      "phase5-dark-768": 27
+    }
+  },
+  "quality": {
+    "seriousCriticalAxeViolations": 0,
+    "qualityRows": 108,
+    "reducedMotionRows": 108,
+    "keyboardFocusRows": 108,
+    "overflowRows": 108,
+    "zoom200ReflowRows": 108,
+    "stateFailures": 0
+  },
+  "validation": {
+    "errors": [],
+    "inputErrors": []
+  },
+  "verdict": true,
+  "rows": [
+    {
+      "artifact": "CF-502",
+      "state": "Guest",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "light",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Employer",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Profile AVAILABLE",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Candidate without Profile",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "CV AVAILABLE",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "FULL_REPORT MEDIUM",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "FULL_REPORT LOW",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "LIMITED_REPORT",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "incomplete CV",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "incomplete JD",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "missing criteria",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "evidence-empty",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "unavailable failed parse",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "queued",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "analyzing",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "retrying",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "retry failure",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "expired",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "revoked",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "deleted",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "direct link and refresh",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Back Forward",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "second authenticated tab",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "cross-account denial",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "long EN VI",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "closed Apply",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "expired Apply",
+      "theme": "dark",
+      "viewport": "375x812",
+      "project": "phase5-dark-375",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 375,
+          "baseViewportHeight": 812,
+          "measuredViewportWidth": 188,
+          "measuredViewportHeight": 406,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Guest",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "light",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Employer",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Profile AVAILABLE",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Candidate without Profile",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "CV AVAILABLE",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "FULL_REPORT MEDIUM",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "FULL_REPORT LOW",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "LIMITED_REPORT",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "incomplete CV",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "incomplete JD",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "missing criteria",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "evidence-empty",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "unavailable failed parse",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "queued",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "analyzing",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "retrying",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "retry failure",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "expired",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "revoked",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "deleted",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "direct link and refresh",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Back Forward",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "second authenticated tab",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "cross-account denial",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "long EN VI",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "closed Apply",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "expired Apply",
+      "theme": "dark",
+      "viewport": "320x720",
+      "project": "phase5-dark-320",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 320,
+          "baseViewportHeight": 720,
+          "measuredViewportWidth": 160,
+          "measuredViewportHeight": 360,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Guest",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "light",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Employer",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Profile AVAILABLE",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Candidate without Profile",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "CV AVAILABLE",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "FULL_REPORT MEDIUM",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "FULL_REPORT LOW",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "LIMITED_REPORT",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "incomplete CV",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "incomplete JD",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "missing criteria",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "evidence-empty",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "unavailable failed parse",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "queued",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "analyzing",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "retrying",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "retry failure",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "expired",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "revoked",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "deleted",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "direct link and refresh",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Back Forward",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "second authenticated tab",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "cross-account denial",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "long EN VI",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "closed Apply",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "expired Apply",
+      "theme": "dark",
+      "viewport": "1280x900",
+      "project": "phase5-dark-1280",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 1280,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 640,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Guest",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "light",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Employer",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Profile AVAILABLE",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Candidate without Profile",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "CV AVAILABLE",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "FULL_REPORT MEDIUM",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "FULL_REPORT LOW",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "LIMITED_REPORT",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "incomplete CV",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "incomplete JD",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "missing criteria",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "evidence-empty",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "unavailable failed parse",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "queued",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "analyzing",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "retrying",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "retry failure",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "expired",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "revoked",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "deleted",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "direct link and refresh",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "Back Forward",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "second authenticated tab",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "cross-account denial",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "long EN VI",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "closed Apply",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    },
+    {
+      "artifact": "CF-502",
+      "state": "expired Apply",
+      "theme": "dark",
+      "viewport": "768x900",
+      "project": "phase5-dark-768",
+      "status": "PASS",
+      "quality": {
+        "overflow": true,
+        "reducedMotion": true,
+        "theme": "dark",
+        "keyboardFocus": true,
+        "seriousCriticalAxeViolations": 0,
+        "zoom": {
+          "requestedPercent": 200,
+          "method": "cdp-device-metrics-css-viewport-reflow",
+          "baseViewportWidth": 768,
+          "baseViewportHeight": 900,
+          "measuredViewportWidth": 384,
+          "measuredViewportHeight": 450,
+          "reflowVerified": true
+        }
+      },
+      "environment": {
+        "productionBuild": true,
+        "buildOutput": ".next-phase5-final-20260918-rerun",
+        "baseUrl": "http://localhost:3003",
+        "isolatedDatabase": "candidate_phase5_final_20260917_e2e_test",
+        "sourceSpec": "tests/system/e2e/candidate-first/phase5-cf502-accessibility.spec.ts",
+        "config": "playwright.phase5.config.ts",
+        "routeMocks": false
+      },
+      "error": null
+    }
+  ]
+}

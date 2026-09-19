@@ -3,9 +3,7 @@ import "server-only";
 import { PrivateCvMatchRepository } from "@/backend/repositories/private-cv-match/prisma-private-cv-match-repository";
 
 export class PrivateMatchRetentionService {
-  constructor(
-    private readonly repository = new PrivateCvMatchRepository(),
-  ) {}
+  constructor(private readonly repository = new PrivateCvMatchRepository()) {}
 
   async expire(now = new Date(), limit = 50): Promise<number> {
     return this.repository.expireDueChecks(now, limit);
@@ -23,9 +21,14 @@ export class PrivateMatchRetentionService {
       if (!checkId) break;
       claimed += 1;
       try {
-        if (await this.repository.physicallyDeleteClaimed(checkId, workerId, now)) deleted += 1;
+        if (
+          await this.repository.physicallyDeleteClaimed(checkId, workerId, now)
+        )
+          deleted += 1;
       } catch {
-        await this.repository.recordCleanupFailure(checkId, workerId, now).catch(() => undefined);
+        await this.repository
+          .recordCleanupFailure(checkId, workerId, now)
+          .catch(() => undefined);
       }
     }
     return { claimed, deleted };

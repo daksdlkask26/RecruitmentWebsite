@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Verification runs may provide a task-owned output directory so a
+  // production build never touches the user-owned .next/dev output.
+  distDir: process.env.PHASE5_NEXT_DIST_DIR ?? ".next",
   // Native canvas is used only by the server-side protected-document preview
   // pipeline. Keep its platform binary out of Turbopack's ESM chunks. PDF.js
   // itself is ESM and must remain bundled, including its browser worker.

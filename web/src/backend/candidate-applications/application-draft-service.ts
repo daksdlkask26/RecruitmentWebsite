@@ -3,6 +3,7 @@ import "server-only";
 import { createHash, randomUUID } from "node:crypto";
 import { Prisma } from "@/backend/generated/prisma/client";
 import { prisma } from "@/backend/database/prisma";
+import { candidateVisibleJobWhere } from "@/backend/repositories/jobs/candidate-visible-job-policy";
 import { createApplicationDocumentStorage } from "@/backend/applications/storage/factory";
 import { logCvUploadRejection } from "@/backend/cv/upload-observability";
 import { ensureCandidateCvLibrary } from "@/backend/services/profile/candidate-cv-library";
@@ -397,17 +398,6 @@ function draftProjection(row: {
   });
 }
 
-function openJobWhere(jobId: string | undefined, now: Date) {
-  return {
-    ...(jobId ? { id: jobId } : {}),
-    status: "ACTIVE" as const,
-    approvedAt: { not: null },
-    publishedAt: { not: null, lte: now },
-    OR: [{ applicationDeadline: null }, { applicationDeadline: { gt: now } }],
-    company: { verifiedAt: { not: null } },
-  };
-}
-
 async function candidateContact(db: DraftDatabase, candidateUserId: string) {
   const candidate = await db.candidateIdentity.findFirst({
     where: { userId: candidateUserId, user: { state: "ACTIVE" } },
@@ -565,7 +555,7 @@ export class ApplicationDraftService {
     const job = await this.db.jobPosting.findFirst({
       where: {
         slug,
-        ...openJobWhere(undefined, now),
+        ...candidateVisibleJobWhere(now),
       },
       select: {
         id: true,
@@ -584,7 +574,7 @@ export class ApplicationDraftService {
 
   private async assertOpenJob(jobId: string, now: Date) {
     const job = await this.db.jobPosting.findFirst({
-      where: openJobWhere(jobId, now),
+      where: candidateVisibleJobWhere(now, jobId),
       select: {
         id: true,
         slug: true,

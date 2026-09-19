@@ -27,6 +27,12 @@ import { appendJobPostingLifecycleFact } from "@/backend/repositories/analytics/
 import { publishApprovedJobToCatalogue } from "@/backend/services/jobs/publish-approved-job-to-catalogue";
 import { syncManagedJobPublicProjection } from "@/backend/repositories/jobs/prisma-job-post-management-repository";
 import { searchCatalogProvider } from "@/backend/services/search/catalogs/search-catalog-provider";
+import {
+  invalidatePublicCompany,
+  invalidatePublicJob,
+  invalidatePublicCompanySafety,
+  invalidatePublicJobSafety,
+} from "@/backend/services/discovery/public-discovery-cache";
 
 /**
  * Application boundary for the review lifecycle. User-story orchestration is
@@ -562,6 +568,8 @@ export class JobPostReviewService {
               closedAt: true,
               publicJobPosting: {
                 select: {
+                  id: true,
+                  companyId: true,
                   industryId: true,
                   subIndustryId: true,
                   industryCode: true,
@@ -632,6 +640,21 @@ export class JobPostReviewService {
         }
       }
     }
+    const visibility = await prisma.jobPostReviewVersion.findUnique({
+      where: { id: input.reviewId },
+      select: {
+        aggregate: {
+          select: {
+            companyId: true,
+            publicJobPostingId: true,
+          },
+        },
+      },
+    });
+    if (visibility?.aggregate.publicJobPostingId) {
+      invalidatePublicJob(visibility.aggregate.publicJobPostingId);
+      invalidatePublicCompany(visibility.aggregate.companyId);
+    }
     return parsed;
   }
 }
@@ -643,7 +666,7 @@ export async function closeManagedJobPost(input: {
   now?: Date;
 }) {
   const now = input.now ?? new Date();
-  return prisma.$transaction(async (transaction) => {
+  const result = await prisma.$transaction(async (transaction) => {
     const aggregate = await transaction.jobPostReviewAggregate.findUnique({
       where: { jobId: input.jobId },
     });
@@ -716,6 +739,11 @@ export async function closeManagedJobPost(input: {
     });
     return true;
   });
+  if (result) {
+    invalidatePublicJobSafety(input.jobId);
+    invalidatePublicCompanySafety(input.companyId);
+  }
+  return result;
 }
 
 export async function reopenManagedJobPost(input: {
@@ -725,7 +753,7 @@ export async function reopenManagedJobPost(input: {
   now?: Date;
 }) {
   const now = input.now ?? new Date();
-  return prisma.$transaction(async (transaction) => {
+  const result = await prisma.$transaction(async (transaction) => {
     const aggregate = await transaction.jobPostReviewAggregate.findUnique({
       where: { jobId: input.jobId },
     });
@@ -800,6 +828,11 @@ export async function reopenManagedJobPost(input: {
     });
     return true;
   });
+  if (result) {
+    invalidatePublicJobSafety(input.jobId);
+    invalidatePublicCompanySafety(input.companyId);
+  }
+  return result;
 }
 
 /**
@@ -911,7 +944,7 @@ export async function softDeleteManagedJobPost(input: {
   now?: Date;
 }) {
   const now = input.now ?? new Date();
-  return prisma.$transaction(async (transaction) => {
+  const result = await prisma.$transaction(async (transaction) => {
     const aggregate = await transaction.jobPostReviewAggregate.findUnique({
       where: { jobId: input.jobId },
     });
@@ -984,4 +1017,9 @@ export async function softDeleteManagedJobPost(input: {
     });
     return true;
   });
+  if (result) {
+    invalidatePublicJobSafety(input.jobId);
+    invalidatePublicCompanySafety(input.companyId);
+  }
+  return result;
 }

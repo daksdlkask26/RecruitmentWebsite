@@ -4,21 +4,19 @@ import { config as loadEnvironment } from "dotenv";
 
 loadEnvironment({ path: resolve(process.cwd(), ".env.local"), quiet: true });
 
-const { assertTestDatabaseEnvironment } = await import(
-  "../tests/helpers/test-database-guard.ts",
-);
+const { assertTestDatabaseEnvironment } =
+  await import("../tests/helpers/test-database-guard.ts");
 assertTestDatabaseEnvironment();
 
 const { prisma } = await import("../src/backend/database/prisma.ts");
-const {
-  createJobBoardDatabaseFixture,
-  deleteJobBoardDatabaseFixture,
-} = await import("../tests/helpers/job-board-database-fixture.ts");
+const { createJobBoardDatabaseFixture, deleteJobBoardDatabaseFixture } =
+  await import("../tests/helpers/job-board-database-fixture.ts");
 
 const [command, artifactArgument] = process.argv.slice(2);
 const artifactPath = resolve(
   process.cwd(),
-  artifactArgument ?? "../docs/audits/2026-09-06-cf004-browser-seed.json",
+  artifactArgument ??
+    "../docs/audits/candidate-first/pre-phase/evidence/cf004-browser-seed.json",
 );
 
 try {
@@ -75,14 +73,19 @@ try {
       fixture,
       namespace: { jobPrefix: prefix, createdJobs: created.count },
       activePublicJobs,
-      cleanup: `node scripts/prepare-cf004-browser-dataset.mjs delete ${artifactArgument ?? "../docs/audits/2026-09-06-cf004-browser-seed.json"}`,
+      cleanup: `node scripts/prepare-cf004-browser-dataset.mjs delete ${artifactArgument ?? "../docs/audits/candidate-first/pre-phase/evidence/cf004-browser-seed.json"}`,
     };
-    await writeFile(artifactPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
+    await writeFile(
+      artifactPath,
+      `${JSON.stringify(result, null, 2)}\n`,
+      "utf8",
+    );
     process.stdout.write(`${JSON.stringify(result)}\n`);
   } else if (command === "delete") {
     const result = JSON.parse(await readFile(artifactPath, "utf8"));
     const jobPrefix = result.namespace?.jobPrefix;
-    if (!jobPrefix || !result.fixture) throw new Error("CF004_DATASET_ARTIFACT_INVALID");
+    if (!jobPrefix || !result.fixture)
+      throw new Error("CF004_DATASET_ARTIFACT_INVALID");
     const deletedJobs = await prisma.jobPosting.deleteMany({
       where: { id: { startsWith: jobPrefix } },
     });
@@ -91,7 +94,9 @@ try {
       `${JSON.stringify({ deleted: true, deletedJobs: deletedJobs.count })}\n`,
     );
   } else {
-    throw new Error("usage: prepare-cf004-browser-dataset.mjs create|delete [artifact]");
+    throw new Error(
+      "usage: prepare-cf004-browser-dataset.mjs create|delete [artifact]",
+    );
   }
 } finally {
   await prisma.$disconnect();

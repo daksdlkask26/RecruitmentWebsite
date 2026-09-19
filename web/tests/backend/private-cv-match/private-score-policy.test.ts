@@ -1,8 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { calculatePrivateHybridScore, privateScoreBand } from "@/backend/scoring-engine/hybrid-score-policy";
-import { sanitizeCvText, type AiEvaluationResult, type AutomaticMatchingResult } from "@/backend/scoring-engine/scoring-contracts";
+import {
+  calculatePrivateHybridScore,
+  privateScoreBand,
+} from "@/backend/scoring-engine/hybrid-score-policy";
+import {
+  sanitizeCvText,
+  type AiEvaluationResult,
+  type AutomaticMatchingResult,
+} from "@/backend/scoring-engine/scoring-contracts";
 
-function automatic(score: number, evidenceCoverage = 100): AutomaticMatchingResult {
+function automatic(
+  score: number,
+  evidenceCoverage = 100,
+): AutomaticMatchingResult {
   return {
     resultId: "automatic-1",
     score,
@@ -15,7 +25,11 @@ function automatic(score: number, evidenceCoverage = 100): AutomaticMatchingResu
     evidenceCoverage,
     evidenceConfidence: 10,
     evidence: [],
-    parserProvenance: { parserVersion: "test", cvStatus: "ready", jdStatus: "ready" },
+    parserProvenance: {
+      parserVersion: "test",
+      cvStatus: "ready",
+      jdStatus: "ready",
+    },
     mayBeIncomplete: false,
     cvVersion: "cv-v1",
     jdVersion: "jd-v1",
@@ -70,14 +84,18 @@ describe("private CV match scoring boundary", () => {
   });
 
   it("rejects a component from a different immutable input lineage", () => {
-    expect(() => calculatePrivateHybridScore(automatic(92), {
-      ...ai(88),
-      jdVersion: "jd-v2",
-    })).toThrow("INCOMPATIBLE_SCORE_LINEAGE");
+    expect(() =>
+      calculatePrivateHybridScore(automatic(92), {
+        ...ai(88),
+        jdVersion: "jd-v2",
+      }),
+    ).toThrow("INCOMPATIBLE_SCORE_LINEAGE");
   });
 
   it("removes sensitive attributes before either component sees the CV text", () => {
-    const safe = sanitizeCvText("Java engineer\nGender: female\nAge: 31\nBuilt REST APIs\nname@example.com");
+    const safe = sanitizeCvText(
+      "Java engineer\nGender: female\nAge: 31\nBuilt REST APIs\nname@example.com",
+    );
     expect(safe).toContain("Java engineer");
     expect(safe).toContain("Built REST APIs");
     expect(safe).not.toMatch(/female|age:|name@example.com/iu);

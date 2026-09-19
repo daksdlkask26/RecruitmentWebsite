@@ -18,50 +18,24 @@ describe("Home Smart Match", () => {
 
   afterEach(() => vi.unstubAllGlobals());
 
-  it("renders the animated CV-to-role illustration and accessible composition", () => {
+  it("renders a non-numeric explainer when no actual result exists", () => {
     const { container } = render(
       <HomeSmartMatch model={homeModel()} locale="en" />,
     );
 
     expect(screen.getByText("AI Smart Match")).toBeInTheDocument();
     expect(
-      screen.getByRole("img", { name: "Fit estimate: 82%" }),
+      screen.getByText("This example does not use your profile or a live job."),
     ).toBeInTheDocument();
     expect(
-      container.querySelector(".home-match-connectors"),
-    ).toBeInTheDocument();
-    expect(
-      container.querySelector(".home-match-score-progress"),
-    ).toBeInTheDocument();
-    expect(
-      container.querySelector(".home-match-score-orbit"),
-    ).toBeInTheDocument();
-    const connectorPaths = container.querySelectorAll(
-      ".home-match-connectors path",
-    );
-    expect(connectorPaths).toHaveLength(2);
-    expect(connectorPaths.item(0)).toHaveAttribute(
-      "d",
-      "M55 32C110 32 130 110 170 150",
-    );
-    expect(connectorPaths.item(1)).toHaveAttribute(
-      "d",
-      "M285 32C230 32 210 110 170 150",
-    );
-    expect(screen.getAllByRole("button")).toHaveLength(4);
-    expect(
-      screen.getByRole("button", { name: "Skills: 38%" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Insufficient data: 18%" }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Skills: 38%" })).toHaveAttribute(
-      "data-tooltip",
-      "Skills: 38%",
-    );
+      screen.getByRole("link", { name: "Browse opportunities" }),
+    ).toHaveAttribute("href", "/jobs");
+    expect(container.querySelector(".home-match-score-progress")).toBeNull();
+    expect(container.querySelector(".home-match-connectors")).toBeNull();
+    expect(container.textContent).not.toContain("82%");
   });
 
-  it("keeps the Smart Match panel illustrative when personal scores exist", () => {
+  it("renders an actual score with source semantics when personal data exists", () => {
     const match = personalMatch({ score: 75 });
     render(
       <HomeSmartMatch
@@ -70,13 +44,43 @@ describe("Home Smart Match", () => {
       />,
     );
 
-    expect(screen.getByText("Minh Anh")).toBeInTheDocument();
-    expect(screen.getByText("Frontend Developer")).toBeInTheDocument();
+    expect(screen.getByText(match.jobTitle)).toBeInTheDocument();
+    expect(screen.getByText("Profile estimate")).toBeInTheDocument();
     expect(
-      screen.getByRole("img", { name: "Fit estimate: 82%" }),
+      screen.getByRole("img", { name: /75%.*available/u }),
     ).toBeInTheDocument();
-    expect(screen.queryByText(candidateViewer.displayName)).not.toBeInTheDocument();
-    expect(screen.queryByText(match.jobTitle)).not.toBeInTheDocument();
-    expect(screen.queryByRole("img", { name: "Fit estimate: 75%" })).toBeNull();
+    expect(screen.queryByText("Minh Anh")).not.toBeInTheDocument();
+    expect(screen.queryByRole("img", { name: /82%/u })).toBeNull();
+  });
+
+  it("does not render a ring or band for an incomplete CV result", () => {
+    const match = personalMatch({
+      score: null,
+      presentationState: "INCOMPLETE",
+      scoreEligible: false,
+      scoreSource: "cv",
+      completeness: "INCOMPLETE",
+      cvMatch: {
+        checkId: "pmc_incomplete",
+        cvVersion: 2,
+        jdVersion: 3,
+        completeness: "INCOMPLETE",
+        presentationState: "INCOMPLETE",
+        scoreEligible: false,
+      },
+    });
+    const { container } = render(
+      <HomeSmartMatch
+        model={homeModel({ viewer: candidateViewer, match })}
+        locale="en"
+      />,
+    );
+
+    expect(container.querySelector(".home-match-score-progress")).toBeNull();
+    expect(container.querySelector(".home-match-stackbar")).toBeNull();
+    expect(screen.queryByRole("img", { name: /%/u })).toBeNull();
+    expect(
+      screen.getByRole("link", { name: "Review match report" }),
+    ).toHaveAttribute("href", "/cv-match-check/pmc_incomplete");
   });
 });

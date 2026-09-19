@@ -7,13 +7,15 @@ test("locale switching covers visible and assistive Home copy without changing r
   await page.goto("/");
   await setHomeLocale(page, "en");
   const firstJob = page.locator(".home-job-card h3").first();
-  const recordTitle = await firstJob.textContent();
+  const recordTitle = (await firstJob.count())
+    ? await firstJob.textContent()
+    : null;
   await page.getByLabel("Keyword").fill("TypeScript");
   await page.getByLabel("Location").fill("Hà Nội");
   await page.getByLabel("Home language").selectOption("vi");
   await expect(
     page.getByRole("heading", {
-      name: "Tìm việc theo năng lực. CV được chấm điểm minh bạch.",
+      name: "AI hiểu CV. Bạn chọn bước tiếp theo.",
     }),
   ).toBeVisible();
   await expect(page.getByLabel("Mở menu điều hướng")).toHaveAttribute(
@@ -25,6 +27,6 @@ test("locale switching covers visible and assistive Home copy without changing r
   if (recordTitle) await expect(firstJob).toHaveText(recordTitle);
   await page.getByLabel("Ngôn ngữ trang chủ").selectOption("en");
   await expect(
-    page.getByText("Illustrative Smart Match example"),
+    page.getByText("This example does not use your profile or a live job."),
   ).toBeVisible();
 });

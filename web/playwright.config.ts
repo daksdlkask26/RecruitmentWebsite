@@ -4,6 +4,12 @@ const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_SERVER === "1";
 const appOnlyServer = process.env.PLAYWRIGHT_APP_ONLY === "1";
 const productionServer = process.env.PLAYWRIGHT_PRODUCTION === "1";
 const nextOnlyServer = process.env.PLAYWRIGHT_NEXT_ONLY === "1";
+const appPort = process.env.PLAYWRIGHT_PORT ?? "3001";
+const appBaseUrl =
+  process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${appPort}`;
+const candidateOrigin = appBaseUrl;
+const adminOrigin = `http://console.admin.localhost:${appPort}`;
+const recruiterOrigin = `http://console.recruiter.localhost:${appPort}`;
 
 export default defineConfig({
   testDir: "./tests/system/e2e",
@@ -12,7 +18,7 @@ export default defineConfig({
   workers: 1,
   webServer: {
     command: nextOnlyServer
-      ? "next start --port 3001"
+      ? `next start --port ${appPort}`
       : appOnlyServer
         ? productionServer
           ? "npm run start"
@@ -22,10 +28,16 @@ export default defineConfig({
     reuseExistingServer,
     env: {
       EMAIL_ADAPTER: "capture",
-      ...(productionServer || nextOnlyServer ? { NODE_ENV: "production" } : {}),
+      PORT: appPort,
+      CANDIDATE_ORIGIN: candidateOrigin,
+      ADMIN_ORIGIN: adminOrigin,
+      RECRUITER_ORIGIN: recruiterOrigin,
+      ...(productionServer || nextOnlyServer
+        ? { NODE_ENV: "production", HOSTNAME: "::" }
+        : {}),
     },
   },
-  use: { baseURL: "http://localhost:3001" },
+  use: { baseURL: appBaseUrl },
   projects: [
     { name: "desktop-chromium", use: { ...devices["Desktop Chrome"] } },
     {

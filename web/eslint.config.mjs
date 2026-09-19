@@ -75,4 +75,13 @@ export default defineConfig([
       ],
     },
   },
+  {
+    files: ["scripts/evaluate-phase5-corpus.ts"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { varsIgnorePattern: "^_", argsIgnorePattern: "^_" },
+      ],
+    },
+  },
 ]);

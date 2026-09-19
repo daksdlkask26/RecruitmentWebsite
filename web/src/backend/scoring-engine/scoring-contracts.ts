@@ -28,10 +28,17 @@ export const scoringInputSchema = z
     automaticScore: z.number().min(0).max(100).optional(),
     automaticEvidence: z
       .array(
-        z.object({ title: z.string().min(1).max(200), excerpt: z.string().min(1).max(1_000) }).strict(),
+        z
+          .object({
+            title: z.string().min(1).max(200),
+            excerpt: z.string().min(1).max(1_000),
+          })
+          .strict(),
       )
       .max(30)
       .optional(),
+    cvParseFailed: z.boolean().optional(),
+    jdParseFailed: z.boolean().optional(),
   })
   .strict();
 
@@ -82,6 +89,12 @@ export type AutomaticMatchingResult = Readonly<{
   gaps: readonly RequirementGap[];
   requiredExperience: number | null;
   detectedExperience: number | null;
+  /** Calendar-month union exposed for deterministic audit/evaluation only. */
+  detectedExperienceMonths?: number | null;
+  experienceIntervals?: readonly Readonly<{
+    startMonth: number;
+    endMonthExclusive: number;
+  }>[];
   evidenceCoverage: number;
   evidenceConfidence: number;
   evidence: readonly MatchEvidence[];
@@ -121,7 +134,11 @@ export type AiEvaluationResult = Readonly<{
 export function sanitizeCvText(value: string): string {
   const normalizedValue = Array.from(value.normalize("NFKC"), (character) => {
     const code = character.charCodeAt(0);
-    return code === 10 || code === 13 ? character : code < 32 || code === 127 ? " " : character;
+    return code === 10 || code === 13
+      ? character
+      : code < 32 || code === 127
+        ? " "
+        : character;
   }).join("");
   return normalizedValue
     .split(/\r?\n/gu)

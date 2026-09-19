@@ -8,12 +8,12 @@ const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const inputFile = resolve(
   workspaceRoot,
   process.env.CF002_VITEST_RAW ??
-    "docs/audits/2026-09-06-gate0-recheck-final-source-raw.json",
+    "docs/audits/candidate-first/pre-phase/evidence/full-run-raw.json",
 );
 const outputFile = resolve(
   workspaceRoot,
   process.env.CF002_VITEST_TRIAGE ??
-    "docs/audits/2026-09-06-gate0-recheck-final-source-triage.json",
+    "docs/audits/candidate-first/pre-phase/evidence/full-run-triage.json",
 );
 
 const stripAnsi = (value) => stripVTControlCharacters(String(value ?? ""));
@@ -648,9 +648,19 @@ const changedScopeSuiteFailures = suiteFailures.filter(
   (item) => item.scope !== "broader-regression-surface",
 );
 function scopeTotals(scopes) {
-  const results = (raw.testResults ?? []).filter((result) => scopes.includes(scopeFor(relativeSuite(result.name))));
+  const results = (raw.testResults ?? []).filter((result) =>
+    scopes.includes(scopeFor(relativeSuite(result.name))),
+  );
   const assertions = results.flatMap((result) => result.assertionResults ?? []);
-  return { files: results.length, tests: assertions.length, passed: assertions.filter((item) => item.status === "passed").length, failed: assertions.filter((item) => item.status === "failed").length, skipped: assertions.filter((item) => ["skipped", "pending", "todo"].includes(item.status)).length };
+  return {
+    files: results.length,
+    tests: assertions.length,
+    passed: assertions.filter((item) => item.status === "passed").length,
+    failed: assertions.filter((item) => item.status === "failed").length,
+    skipped: assertions.filter((item) =>
+      ["skipped", "pending", "todo"].includes(item.status),
+    ).length,
+  };
 }
 
 const triage = {
@@ -681,7 +691,8 @@ const triage = {
       "Test application and test workers absent; shared Docker services left running. Scanner tests probe shared services read-only.",
   },
   historicalBaseline: {
-    artifact: "candidate-first-baseline-triage-2026-09-05.md",
+    artifact:
+      "docs/audits/candidate-first/pre-phase/evidence/baseline-triage.md",
     suites: 18,
     tests: 35,
   },

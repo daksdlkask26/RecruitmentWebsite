@@ -144,7 +144,6 @@ describe("Trending Opportunities", () => {
           viewer: candidateViewer,
           match: {
             kind: "illustrative",
-            score: 82,
             reason: "noOpportunities",
           },
           jobs: [homeJob()],
@@ -174,6 +173,9 @@ describe("Trending Opportunities", () => {
         checkId: "pmc_checked-job",
         cvVersion: 2,
         jdVersion: 3,
+        completeness: "AVAILABLE",
+        presentationState: "AVAILABLE",
+        scoreEligible: true,
       },
     });
     render(
@@ -203,6 +205,50 @@ describe("Trending Opportunities", () => {
     expect(
       screen.getByRole("link", { name: "Review match report" }),
     ).toHaveAttribute("href", "/cv-match-check/pmc_checked-job");
+  });
+
+  it("shows a neutral private-report prompt when the CV result is incomplete", () => {
+    const cvMatch = {
+      checkId: "pmc_incomplete",
+      cvVersion: 2,
+      jdVersion: 3,
+      completeness: "INCOMPLETE" as const,
+      presentationState: "INCOMPLETE" as const,
+      scoreEligible: false,
+    };
+    const job = homeJob({
+      id: "incomplete-job",
+      slug: "incomplete-job",
+      matchSource: "cv",
+      cvMatch,
+    });
+    const { container } = render(
+      <HomeTrendingJobs
+        model={homeModel({
+          viewer: candidateViewer,
+          match: personalMatch({
+            jobSlug: "incomplete-job",
+            jobTitle: job.title,
+            score: null,
+            presentationState: "INCOMPLETE",
+            scoreEligible: false,
+            scoreSource: "cv",
+            completeness: "INCOMPLETE",
+            cvMatch,
+          }),
+          jobs: [job],
+        })}
+        locale="en"
+      />,
+    );
+
+    expect(container.querySelector(".home-job-match-prompt")).toHaveTextContent(
+      "Some CV evidence is incomplete; review the private report.",
+    );
+    expect(screen.queryByRole("img", { name: /\d+%/u })).toBeNull();
+    expect(
+      screen.getByRole("link", { name: "Review match report" }),
+    ).toHaveAttribute("href", "/cv-match-check/pmc_incomplete");
   });
 
   it("does not show a fabricated score when there is no personal match", () => {

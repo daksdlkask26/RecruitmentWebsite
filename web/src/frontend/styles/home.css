@@ -6284,11 +6284,8 @@
   place-items: center;
   margin: 0 0 16px;
   overflow: hidden;
-  border: 1px solid color-mix(
-    in srgb,
-    var(--home-path-accent) 18%,
-    var(--home-body-border)
-  );
+  border: 1px solid
+    color-mix(in srgb, var(--home-path-accent) 18%, var(--home-body-border));
   border-radius: 16px;
   background: linear-gradient(
     145deg,
@@ -6370,11 +6367,8 @@
   height: 28px;
   flex: 0 0 28px;
   place-items: center;
-  border: 1px solid color-mix(
-    in srgb,
-    var(--home-path-accent) 22%,
-    var(--home-body-border)
-  );
+  border: 1px solid
+    color-mix(in srgb, var(--home-path-accent) 22%, var(--home-body-border));
   border-radius: var(--sh-radius-full);
   background: color-mix(
     in srgb,
@@ -6587,7 +6581,8 @@
   background: linear-gradient(
     90deg,
     color-mix(in srgb, var(--home-body-border) 20%, transparent),
-    color-mix(in srgb, var(--home-process-accent) 23%, var(--home-body-border)) 48%,
+    color-mix(in srgb, var(--home-process-accent) 23%, var(--home-body-border))
+      48%,
     color-mix(in srgb, var(--home-body-border) 20%, transparent)
   );
 }
@@ -6600,7 +6595,8 @@
   height: 5px;
   border-radius: var(--sh-radius-full);
   background: var(--home-process-accent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--home-process-soft) 70%, transparent);
+  box-shadow: 0 0 0 4px
+    color-mix(in srgb, var(--home-process-soft) 70%, transparent);
   content: "";
   opacity: 0.66;
   transform: translate(-50%, -50%);
@@ -6631,7 +6627,8 @@
   height: 56px;
   place-items: center;
   margin-bottom: var(--sh-space-4);
-  border: 1px solid color-mix(in srgb, var(--home-process-accent) 18%, var(--home-body-border));
+  border: 1px solid
+    color-mix(in srgb, var(--home-process-accent) 18%, var(--home-body-border));
   border-radius: 18px;
   background:
     radial-gradient(circle at 28% 22%, rgb(255 255 255 / 76%), transparent 39%),
@@ -6642,7 +6639,8 @@
   z-index: 1;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 62%),
-    0 11px 24px -18px color-mix(in srgb, var(--home-process-accent) 74%, transparent);
+    0 11px 24px -18px
+      color-mix(in srgb, var(--home-process-accent) 74%, transparent);
   transition:
     box-shadow 180ms ease,
     transform 180ms ease;
@@ -6721,7 +6719,11 @@
   right: 0;
   left: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--home-trust-accent), color-mix(in srgb, var(--home-trust-accent) 35%, transparent));
+  background: linear-gradient(
+    90deg,
+    var(--home-trust-accent),
+    color-mix(in srgb, var(--home-trust-accent) 35%, transparent)
+  );
   content: "";
   opacity: 0;
   transform: scaleX(0.34);
@@ -6769,7 +6771,8 @@
   height: 48px;
   place-items: center;
   margin-bottom: var(--sh-space-4);
-  border: 1px solid color-mix(in srgb, var(--home-trust-accent) 16%, var(--home-body-border));
+  border: 1px solid
+    color-mix(in srgb, var(--home-trust-accent) 16%, var(--home-body-border));
   border-radius: 15px;
   background:
     radial-gradient(circle at 28% 22%, rgb(255 255 255 / 76%), transparent 39%),
@@ -6777,7 +6780,8 @@
   color: var(--home-trust-accent);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 62%),
-    0 11px 22px -18px color-mix(in srgb, var(--home-trust-accent) 76%, transparent);
+    0 11px 22px -18px
+      color-mix(in srgb, var(--home-trust-accent) 76%, transparent);
   overflow: hidden;
   position: relative;
   transition:
@@ -6794,7 +6798,8 @@
 
 @media (hover: hover) and (pointer: fine) {
   .home-process-step:hover .home-process-icon {
-    box-shadow: 0 16px 26px -18px color-mix(in srgb, var(--home-process-accent) 70%, transparent);
+    box-shadow: 0 16px 26px -18px
+      color-mix(in srgb, var(--home-process-accent) 70%, transparent);
     transform: translateY(-3px) rotate(-3deg);
   }
 
@@ -6803,8 +6808,13 @@
   }
 
   .home-candidate-trust-card:hover {
-    border-color: color-mix(in srgb, var(--home-trust-accent) 28%, var(--home-body-border));
-    box-shadow: 0 20px 34px -24px color-mix(in srgb, var(--home-trust-accent) 23%, rgb(16 20 43 / 16%));
+    border-color: color-mix(
+      in srgb,
+      var(--home-trust-accent) 28%,
+      var(--home-body-border)
+    );
+    box-shadow: 0 20px 34px -24px
+      color-mix(in srgb, var(--home-trust-accent) 23%, rgb(16 20 43 / 16%));
     transform: translateY(-4px);
   }
 
@@ -6814,7 +6824,8 @@
   }
 
   .home-candidate-trust-card:hover .home-candidate-trust-icon {
-    box-shadow: 0 14px 24px -17px color-mix(in srgb, var(--home-trust-accent) 72%, transparent);
+    box-shadow: 0 14px 24px -17px
+      color-mix(in srgb, var(--home-trust-accent) 72%, transparent);
     transform: scale(1.07) rotate(-4deg);
   }
 }
@@ -7058,7 +7069,11 @@
   flex: 0 0 46px;
   place-items: center;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--home-primary), var(--home-company-more));
+  background: linear-gradient(
+    135deg,
+    var(--home-primary),
+    var(--home-company-more)
+  );
   color: var(--sh-color-text-inverse);
   font-family: var(--sh-font-family-label);
   font-size: 15px;
@@ -7072,13 +7087,21 @@
 
 @media (hover: hover) and (pointer: fine) {
   .home-company-hiring-card:hover {
-    border-color: color-mix(in srgb, var(--home-primary) 26%, var(--home-body-border));
+    border-color: color-mix(
+      in srgb,
+      var(--home-primary) 26%,
+      var(--home-body-border)
+    );
     box-shadow: 0 16px 28px -23px rgb(16 20 43 / 26%);
     transform: translateY(-3px);
   }
 
   .home-company-hiring-card--more:hover {
-    border-color: color-mix(in srgb, var(--home-company-more) 33%, var(--home-body-border));
+    border-color: color-mix(
+      in srgb,
+      var(--home-company-more) 33%,
+      var(--home-body-border)
+    );
   }
 }
 
@@ -7102,6 +7125,24 @@
   .home-company-hiring-card {
     transition: none;
   }
+}
+
+/* Keep small brand text legible on dark public surfaces. Filled controls keep
+ * the darker action token; only the text-on-surface accents need the lighter
+ * semantic foreground. */
+:root[data-theme="dark"]
+  .home-page
+  :is(
+    .home-guest-actions > a:first-child,
+    .home-button--secondary,
+    .home-section-heading > p,
+    .home-section-heading > a,
+    .home-job-spotlight-tag,
+    .home-job-spotlight-tag > span,
+    .home-job-company p,
+    .home-job-list-main p span:first-child
+  ) {
+  color: #bfdbfe;
 }
 
 /* Workspace-aligned job cards: the same quiet surface language used by
@@ -7138,7 +7179,8 @@
   left: 24px;
   min-height: 26px;
   padding: 5px 10px;
-  border: 1px solid color-mix(in srgb, var(--home-primary) 18%, var(--home-border));
+  border: 1px solid
+    color-mix(in srgb, var(--home-primary) 18%, var(--home-border));
   background: var(--home-soft);
   color: var(--home-primary);
   font-size: 10.5px;
@@ -7285,7 +7327,8 @@
 
 .home-job-list-match {
   min-height: 28px;
-  border: 1px solid color-mix(in srgb, var(--home-primary) 14%, var(--home-border));
+  border: 1px solid
+    color-mix(in srgb, var(--home-primary) 14%, var(--home-border));
   background: var(--home-soft);
 }
 
@@ -7376,9 +7419,14 @@
   gap: 5px;
   padding: 12px;
   margin: var(--sh-space-4) auto 0;
-  border: 1px solid color-mix(in srgb, var(--sh-color-success) 28%, var(--home-border));
+  border: 1px solid
+    color-mix(in srgb, var(--sh-color-success) 28%, var(--home-border));
   border-radius: var(--sh-radius-md);
-  background: color-mix(in srgb, var(--sh-color-success-bg) 72%, var(--sh-color-surface));
+  background: color-mix(
+    in srgb,
+    var(--sh-color-success-bg) 72%,
+    var(--sh-color-surface)
+  );
   color: var(--home-muted);
   font-size: var(--sh-font-size-caption);
   line-height: 1.45;
@@ -7409,6 +7457,18 @@
 .home-job-cv-match-context a:hover,
 .home-job-cv-match-context a:focus-visible {
   text-decoration: underline;
+}
+
+:root[data-theme="dark"] .home-button:hover,
+:root[data-theme="dark"] .home-button:focus-visible,
+:root[data-theme="dark"] .home-section-state button:hover,
+:root[data-theme="dark"] .home-section-state button:focus-visible {
+  border-color: var(--sh-color-brand-primary-pressed);
+  background: var(--sh-color-brand-primary-pressed);
+}
+
+:root[data-theme="dark"] .home-job-cv-match-context a {
+  color: var(--sh-color-brand-accent);
 }
 
 :root[data-theme="dark"] .home-process-icon,

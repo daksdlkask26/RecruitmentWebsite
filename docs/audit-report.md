@@ -6,8 +6,8 @@
 
 > **Phân biệt snapshot:** Đây là báo cáo audit gốc ở trạng thái read-only của
 > commit lịch sử. Lát cắt triển khai Candidate-first và các kiểm chứng mới nhất
-> được ghi riêng trong [Candidate-first upgrade plan](audits/candidate-first-upgrade-plan-2026-09-05.md)
-> và [Candidate-first baseline](audits/candidate-first-baseline-2026-09-05.md).
+> được ghi riêng trong [Candidate-first upgrade plan](audits/candidate-first/roadmap.md)
+> và [Candidate-first baseline](audits/candidate-first/pre-phase/evidence/baseline.md).
 > Các thống kê CodeGraph và số liệu suite trong báo cáo này là snapshot lịch sử;
 > không dùng chúng để suy ra trạng thái hiện hành của source hoặc kiểm thử.
 
@@ -331,7 +331,7 @@ function encrypted(content: Buffer) {
 > **Kết luận:** Hệ thống **SmartHire / NextGen-Careers** sở hữu nền tảng kiến trúc được tổ chức rất bài bản, phân quyền và sandbox bảo mật ở tầng container (OCR, ClamAV) rất tốt cùng bộ test 855 file đáng tin cậy. Khi khắc phục các điểm nghẽn về thuật toán kinh nghiệm, stream backup dữ liệu, đánh index cho 62 foreign keys và đồng bộ hoá kiến trúc realtime/UI, hệ thống sẽ đạt tiêu chuẩn chất lượng cao của một nền tảng tuyển dụng quy mô enterprise.
 ## Appendix - Candidate-first implementation checkpoint (2026-09-05)
 
-This file remains the original broad audit snapshot. Current implementation and verification are tracked in the [Candidate-first upgrade plan](audits/candidate-first-upgrade-plan-2026-09-05.md), [baseline](audits/candidate-first-baseline-2026-09-05.md) and [baseline triage](audits/candidate-first-baseline-triage-2026-09-05.md).
+This file remains the original broad audit snapshot. Current implementation and verification are tracked in the [Candidate-first upgrade plan](audits/candidate-first/roadmap.md), [baseline](audits/candidate-first/pre-phase/evidence/baseline.md) and [baseline triage](audits/candidate-first/pre-phase/evidence/baseline-triage.md).
 
 Evidence recorded at that 2026-09-05 checkpoint: CF-001 guard and rollback lifecycle were verified on isolated `smarthire_candidate_first_test`; CF-002 retained the historical 35-failure ownership table while the broad rerun snapshot was 807 files/3152 tests (captured before the final reconciliation-fixture adjustment) with 134 failures and 5 skips; CF-003 scanner/retry/reconciliation integration was 32/32 but live smoke was blocked by missing ClamAV/worker readiness; CF-004 Home keyboard and responsive browser matrices were 8/8 each across desktop/mobile projects. Performance pXX, realtime load, full Candidate journey, accessibility scoring and restore drill were still unverified. The latest 2026-09-06 evidence appears in the appendix below.
 
@@ -345,9 +345,9 @@ The full Candidate smoke now passes **2/2** in headless Chromium (desktop and 32
 
 CF-004 evidence is now split by gate: isolated Home backend measurements use 1,000 active public jobs and record p50/p95/p99, query count, pool wait and concurrent width 10; realtime is **12/12** at widths 1/10/40/100; Candidate accessibility is **25/25** with zero serious/critical axe violations, zero horizontal overflow and CDP 200% scale coverage; the restore rehearsal returns four durable rows and matching CV/application digests in **7,840ms**. The browser performance gate remains a real failure (Home p95 **13.9s**, search p95 **40.3s**, 0.5% observed error rate and one hydration input timeout). Realtime uses an in-memory repository double, and restore does not prove automated object-storage bundling.
 
-The earlier full-suite snapshots are historical and have been superseded. The authoritative current raw report is [2026-09-06-gate0-recheck-final-source-raw.json](audits/2026-09-06-gate0-recheck-final-source-raw.json), with its owner/work-item grouping in [2026-09-06-gate0-recheck-final-source-triage.json](audits/2026-09-06-gate0-recheck-final-source-triage.json).
+The earlier full-suite snapshots are historical and have been superseded. The authoritative current raw report is [full-run-raw.json](audits/candidate-first/pre-phase/evidence/full-run-raw.json), with its owner/work-item grouping in [full-run-triage.json](audits/candidate-first/pre-phase/evidence/full-run-triage.json).
 
-Machine-readable evidence is indexed in [2026-09-06-verification.json](audits/2026-09-06-verification.json), including the smoke, scanner, Home performance, browser performance, realtime, accessibility, restore and refreshed DB-write inventory artifacts.
+Machine-readable evidence is indexed in [verification-index.json](audits/candidate-first/pre-phase/evidence/verification-index.json), including the smoke, scanner, Home performance, browser performance, realtime, accessibility, restore and refreshed DB-write inventory artifacts.
 
 ## Appendix — Candidate-first verification update (2026-09-06, historical pre-live-gate snapshot)
 
@@ -359,9 +359,9 @@ Các báo cáo Vitest cũ chỉ là lịch sử. Acceptance scope hiện tại �
 
 The closure note below is historical. The Team Application UNKNOWN path and the full-process evidence were subsequently rechecked; CF-001 remains limited to database/fixture isolation and UI encoding belongs to CF-004.
 
-The authoritative current decision is recorded in the [Candidate-first upgrade plan](audits/candidate-first-upgrade-plan-2026-09-05.md) and [stage-0 final verification](audits/2026-09-06-gate0-stage0-final-verification.json). **Gate 0 is CLOSED for the defined Candidate-first scope.** CF-001 and CF-101 are PASS, CF-002 is PASS_WITH_EXTERNAL_RUNTIME_EVIDENCE, CF-003 is PASS, and CF-004 is PASS_WITH_RECORDED_LIMITATIONS.
+The authoritative current decision is recorded in the [Candidate-first upgrade plan](audits/candidate-first/roadmap.md) and [stage-0 final verification](audits/candidate-first/pre-phase/integrated-gate.json). **Gate 0 is CLOSED for the defined Candidate-first scope.** CF-001 and CF-101 are PASS, CF-002 is PASS_WITH_EXTERNAL_RUNTIME_EVIDENCE, CF-003 is PASS, and CF-004 is PASS_WITH_RECORDED_LIMITATIONS.
 
-The final evidence is: Candidate UI **9/9** plus CV accessibility **15/15** and live Candidate accessibility **25/25**; CV safety **16 files/66 focused tests** and **9 files/32 selected integration tests**; changed scope **108/108**; live scanner boundary **4/4** and Candidate smoke **2/2**; production build **115/115 routes** with desktop Home/Jobs p95 **2,042/1,853 ms**, mobile **1,763/1,359 ms**, and error rate **0**. The final-source raw snapshot retains **3,193 tests (3,090 pass, 102 fail, 1 opt-in skip)**; the acceptance-scope two Docker launch failures are documented as external runtime evidence and the remaining **100 failures/1 skip** are outside Stage 0 in [final-source triage](audits/2026-09-06-gate0-recheck-final-source-triage.json).
+The final evidence is: Candidate UI **9/9** plus CV accessibility **15/15** and live Candidate accessibility **25/25**; CV safety **16 files/66 focused tests** and **9 files/32 selected integration tests**; changed scope **108/108**; live scanner boundary **4/4** and Candidate smoke **2/2**; production build **115/115 routes** with desktop Home/Jobs p95 **2,042/1,853 ms**, mobile **1,763/1,359 ms**, and error rate **0**. The final-source raw snapshot retains **3,193 tests (3,090 pass, 102 fail, 1 opt-in skip)**; the acceptance-scope two Docker launch failures are documented as external runtime evidence and the remaining **100 failures/1 skip** are outside Stage 0 in [full-run triage](audits/candidate-first/pre-phase/evidence/full-run-triage.json).
 
 The backup decision is explicit: the restore rehearsal is **PASS_WITH_LIMITATION** for database rows and a separate object manifest; automated object-storage bundling is assigned to **CF-803** and does not keep Gate 0 open. Multi-instance realtime adapter validation remains **CF-651–653**.
 
@@ -385,6 +385,6 @@ Checkpoint này đã được superseded bởi Stage 0 final verification; các 
 
 **Gate 0 is CLOSED for the Candidate-first scope.** The final-source run removed all skips from the acceptance scope and passed the changed scope **108/108**. Its only two in-scope failures were caused by the sandbox refusing to launch Docker; the same live ClamAV boundary suite passed **4/4** outside that sandbox. Candidate-first focused tests pass **66/66**, selected integration passes **32/32**, and typecheck, ESLint and diff checks pass.
 
-The owned isolated database and storage were removed. A final read-only shared probe confirmed migration 089's checksum and zero rows in both promotion ledgers. This decision does not mark the whole product green: **100 failures and 1 opt-in skip** remain outside Stage 0. The authoritative compact record is [2026-09-06-gate0-stage0-final-verification.json](audits/2026-09-06-gate0-stage0-final-verification.json).
+The owned isolated database and storage were removed. A final read-only shared probe confirmed migration 089's checksum and zero rows in both promotion ledgers. This decision does not mark the whole product green: **100 failures and 1 opt-in skip** remain outside Stage 0. The authoritative compact record is [integrated-gate.json](audits/candidate-first/pre-phase/integrated-gate.json).
 
 Post-cleanup verification on the current working tree is **16/66** for the focused Candidate-first suite and **8/28** for the selected CV/Application/Team Application integration slice, with zero failures or skips. Typecheck, ESLint, `git diff --check`, retained JSON parsing (**20/20**) and audit Markdown artifact links (**6/6**) pass. Forty intermediate Candidate-first artifacts were removed; the reusable isolation/fixture scripts, product source/tests, migration 089 and canonical audit set remain. Generic `.local/mail` and `.local/cv-storage` captures were left untouched because their ownership spans multiple E2E suites and they may contain verification tokens or CV objects.

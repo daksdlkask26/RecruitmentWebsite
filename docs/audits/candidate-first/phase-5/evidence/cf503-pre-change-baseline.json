@@ -1,0 +1,2016 @@
+{
+  "generatedAt": "2026-09-18T06:34:34.421Z",
+  "fixedClock": "2026-09-14T00:00:00.000Z",
+  "corpusCases": 34,
+  "locales": [
+    "en",
+    "vi"
+  ],
+  "formats": [
+    "TEXT",
+    "PDF_FLATTENED",
+    "DOCX_STRUCTURED"
+  ],
+  "equivalentPairs": 17,
+  "provenance": {
+    "role": "pre-change",
+    "sourceCommit": "583171bf8cdb3cc76fea4a6ce818e89208a99dfb",
+    "sourceCommitSource": "declared-snapshot",
+    "corpusIdentitySha256": "403DA808FCA06B94BD911931A0D1CAB42FA6FBCD7AD9E18B1A6677CD0462465A",
+    "corpusSourceSha256": "C3A10C7A2B6A398BF1964AC106C1DFEDBD9C7DCCA41B093D3CBB8512F215DB72",
+    "evaluatorSourceSha256": "0C1F55A822016E98752B35EA3A88CAF2A4AE9B89E00D495F78667EA44537AEC8",
+    "adapterSourceSha256": "46B744EDE11DAFD7A41E47A56F492FAE8E5E6172CADB651E6DD4CABEC87BA24A",
+    "productionSourceFingerprint": "46B8D127ACCA293A12337F67631ABF941B98765E9911DDA2287A86FFF05393AA",
+    "sourceFiles": {
+      "corpus": "C3A10C7A2B6A398BF1964AC106C1DFEDBD9C7DCCA41B093D3CBB8512F215DB72",
+      "evaluator": "0C1F55A822016E98752B35EA3A88CAF2A4AE9B89E00D495F78667EA44537AEC8",
+      "adapter": "46B744EDE11DAFD7A41E47A56F492FAE8E5E6172CADB651E6DD4CABEC87BA24A",
+      "skillEvidence": "9C1EDA1E1AE7D850F112B2936B322C2CD6E16CE19930E36C73D194E30E011625",
+      "experienceDuration": "8039F944BC0B58557A632D58C870F1B951057F4661A1E1CE3E67EE7686D76510",
+      "pdfExtraction": "EF18B12014373368F226290F15546FFB0BD5C23BA2F0D5D095C19FA58CF50AFB",
+      "docxExtraction": "168BF58B0D420AA47CA343A0D0390448F45B4CABE6590B25B9577412694F15D2"
+    },
+    "command": "node --conditions=react-server --import tsx scripts/evaluate-phase5-corpus.ts"
+  },
+  "preChangeBaseline": {
+    "status": "UNVERIFIED",
+    "reason": "No reproducible pre-change corpus/evaluator report is available in the current repository state; the retained historical report cannot be used as a before baseline."
+  },
+  "deterministicChecksPassed": false,
+  "thresholds": {
+    "maxExperienceAbsoluteErrorMonths": 0,
+    "maxEquivalentScoreAbsoluteDifference": 1,
+    "minimumRequiredPrecision": 0.95,
+    "minimumRequiredRecall": 0.95,
+    "minimumPreferredPrecision": 0.95,
+    "minimumPreferredRecall": 0.95,
+    "minimumRequiredSupport": 1,
+    "minimumPreferredSupport": 1,
+    "evidenceTraceValidity": 1,
+    "incompleteClassificationAccuracy": 1,
+    "scoreEligibilityAccuracy": 1,
+    "formatExtractionValidity": 1,
+    "piiFree": 1
+  },
+  "aggregateConfusion": {
+    "required": {
+      "truePositive": 24,
+      "falsePositive": 1,
+      "falseNegative": 14,
+      "support": 38,
+      "precision": 0.96,
+      "recall": 0.632,
+      "f1": 0.762
+    },
+    "preferred": {
+      "truePositive": 2,
+      "falsePositive": 1,
+      "falseNegative": 0,
+      "support": 2,
+      "precision": 0.667,
+      "recall": 1,
+      "f1": 0.8
+    }
+  },
+  "metrics": {
+    "experienceMaxAbsoluteErrorMonths": 45,
+    "requiredPrecision": 0.96,
+    "requiredRecall": 0.632,
+    "preferredPrecision": 0.667,
+    "preferredRecall": 1,
+    "requiredF1": 0.762,
+    "preferredF1": 0.8,
+    "requiredSupport": 38,
+    "preferredSupport": 2,
+    "evidenceTraceValidity": 0.5882352941176471,
+    "incompleteClassificationAccuracy": 0.8235294117647058,
+    "scoreEligibilityAccuracy": 0.8235294117647058,
+    "formatExtractionValidity": 1,
+    "piiFreeRate": 1,
+    "equivalentScoreMaxAbsoluteDifference": 75
+  },
+  "baselineComparison": {
+    "requiredPrecision": false,
+    "requiredRecall": false,
+    "preferredPrecision": false,
+    "preferredRecall": false
+  },
+  "cases": [
+    {
+      "id": "pair-01-overlap-en",
+      "pairId": "pair-01-overlap",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 30,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=30 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-01-overlap-vi",
+      "pairId": "pair-01-overlap",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 25,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 30,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=30 actual=0",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-02-adjacent-en",
+      "pairId": "pair-02-adjacent",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 13,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=13 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-02-adjacent-vi",
+      "pairId": "pair-02-adjacent",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 25,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 13,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=13 actual=0",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-03-gap-en",
+      "pairId": "pair-03-gap",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 18,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=18 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-03-gap-vi",
+      "pairId": "pair-03-gap",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 25,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 18,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=18 actual=0",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-04-reversed-en",
+      "pairId": "pair-04-reversed",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": true,
+      "score": 75,
+      "expectedScoreMayBeShown": false,
+      "actualScoreMayBeShown": false,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 0,
+      "incomplete": true,
+      "expectedIncomplete": true,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "INCOMPLETE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-04-reversed-vi",
+      "pairId": "pair-04-reversed",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 0,
+      "expectedScoreMayBeShown": false,
+      "actualScoreMayBeShown": false,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 0,
+      "incomplete": true,
+      "expectedIncomplete": true,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "evidence-anchor-invalid",
+        "required-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "INCOMPLETE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-05-year-only-en",
+      "pairId": "pair-05-year-only",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-05-year-only-vi",
+      "pairId": "pair-05-year-only",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 25,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-06-open-ended-en",
+      "pairId": "pair-06-open-ended",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 45,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=45 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-06-open-ended-vi",
+      "pairId": "pair-06-open-ended",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 25,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 45,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=45 actual=0",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-07-nested-en",
+      "pairId": "pair-07-nested",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 36,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=36 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-07-nested-vi",
+      "pairId": "pair-07-nested",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 25,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 36,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=36 actual=0",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-08-flattened-pdf-en",
+      "pairId": "pair-08-flattened-pdf",
+      "locale": "en",
+      "format": "PDF_FLATTENED",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 28,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=28 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-08-flattened-pdf-vi",
+      "pairId": "pair-08-flattened-pdf",
+      "locale": "vi",
+      "format": "PDF_FLATTENED",
+      "pass": false,
+      "score": 25,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 28,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=28 actual=0",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-09-structured-docx-en",
+      "pairId": "pair-09-structured-docx",
+      "locale": "en",
+      "format": "DOCX_STRUCTURED",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-09-structured-docx-vi",
+      "pairId": "pair-09-structured-docx",
+      "locale": "vi",
+      "format": "DOCX_STRUCTURED",
+      "pass": false,
+      "score": 25,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-10-punctuation-en",
+      "pairId": "pair-10-punctuation",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 3,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "cpp",
+        "dotnet",
+        "node"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "cpp",
+        "dotnet",
+        "node"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "cpp|SKILL|unpaged",
+        "dotnet|SKILL|unpaged",
+        "node|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-10-punctuation-vi",
+      "pairId": "pair-10-punctuation",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 75,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0.667,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 2,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "cpp",
+        "dotnet",
+        "node"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "cpp",
+        "dotnet"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "cpp|SKILL|unpaged",
+        "dotnet|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-11-negation-en",
+      "pairId": "pair-11-negation",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 62.5,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication",
+        "python"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-11-negation-vi",
+      "pairId": "pair-11-negation",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 25,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication",
+        "python"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-12-preferred-and-missing-en",
+      "pairId": "pair-12-preferred-and-missing",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [
+        "leadership"
+      ],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-12-preferred-and-missing-vi",
+      "pairId": "pair-12-preferred-and-missing",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 25,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0,
+      "preferredPrecision": 0,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift",
+        "preferred-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 1,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [
+        "leadership"
+      ],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [
+        "leadership"
+      ],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "leadership|OTHER|unpaged"
+      ],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-13-partial-parse-en",
+      "pairId": "pair-13-partial-parse",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": false,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 0,
+      "incomplete": false,
+      "expectedIncomplete": true,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 0,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "incomplete expected=true actual=false",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift",
+        "score-eligibility expected=false actual=true"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 1,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "UNAVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-13-partial-parse-vi",
+      "pairId": "pair-13-partial-parse",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 25,
+      "expectedScoreMayBeShown": false,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 0,
+      "incomplete": false,
+      "expectedIncomplete": true,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "incomplete expected=true actual=false",
+        "score-eligibility expected=false actual=true"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "UNAVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-14-failed-job-parse-en",
+      "pairId": "pair-14-failed-job-parse",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": false,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": true,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0",
+        "incomplete expected=true actual=false",
+        "score-eligibility expected=false actual=true"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "UNAVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-14-failed-job-parse-vi",
+      "pairId": "pair-14-failed-job-parse",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 25,
+      "expectedScoreMayBeShown": false,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": true,
+      "evidenceAnchorsValid": false,
+      "requiredPrecision": 1,
+      "requiredRecall": 0,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0",
+        "incomplete expected=true actual=false",
+        "evidence-anchor-invalid",
+        "required-skill-set-drift",
+        "score-eligibility expected=false actual=true"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "UNAVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": false,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-15-missing-job-criteria-en",
+      "pairId": "pair-15-missing-job-criteria",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": false,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": true,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0",
+        "incomplete expected=true actual=false",
+        "score-eligibility expected=false actual=true"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-15-missing-job-criteria-vi",
+      "pairId": "pair-15-missing-job-criteria",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": false,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": true,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0",
+        "incomplete expected=true actual=false",
+        "score-eligibility expected=false actual=true"
+      ],
+      "requiredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-16-skill-formatting-en",
+      "pairId": "pair-16-skill-formatting",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 3,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication",
+        "data-analysis",
+        "problem-solving"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication",
+        "data-analysis",
+        "problem-solving"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged",
+        "data-analysis|SKILL|unpaged",
+        "problem-solving|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-16-skill-formatting-vi",
+      "pairId": "pair-16-skill-formatting",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 75,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 0.667,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0",
+        "required-skill-set-drift"
+      ],
+      "requiredCounts": {
+        "truePositive": 2,
+        "falsePositive": 0,
+        "falseNegative": 1
+      },
+      "preferredCounts": {
+        "truePositive": 0,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication",
+        "data-analysis",
+        "problem-solving"
+      ],
+      "preferredSkillIds": [],
+      "requiredMatchedIds": [
+        "communication",
+        "data-analysis"
+      ],
+      "preferredMatchedIds": [],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged",
+        "data-analysis|SKILL|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-17-preferred-positive-en",
+      "pairId": "pair-17-preferred-positive",
+      "locale": "en",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [
+        "leadership"
+      ],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [
+        "leadership"
+      ],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged",
+        "leadership|OTHER|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    },
+    {
+      "id": "pair-17-preferred-positive-vi",
+      "pairId": "pair-17-preferred-positive",
+      "locale": "vi",
+      "format": "TEXT",
+      "pass": false,
+      "score": 100,
+      "expectedScoreMayBeShown": true,
+      "actualScoreMayBeShown": true,
+      "experienceMonths": null,
+      "expectedExperienceMonths": 24,
+      "incomplete": false,
+      "expectedIncomplete": false,
+      "evidenceAnchorsValid": true,
+      "requiredPrecision": 1,
+      "requiredRecall": 1,
+      "preferredPrecision": 1,
+      "preferredRecall": 1,
+      "diagnostics": [
+        "experienceMonths expected=24 actual=0"
+      ],
+      "requiredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "preferredCounts": {
+        "truePositive": 1,
+        "falsePositive": 0,
+        "falseNegative": 0
+      },
+      "requiredSkillIds": [
+        "communication"
+      ],
+      "preferredSkillIds": [
+        "leadership"
+      ],
+      "requiredMatchedIds": [
+        "communication"
+      ],
+      "preferredMatchedIds": [
+        "leadership"
+      ],
+      "presentationState": "AVAILABLE",
+      "evidenceSemantics": [
+        "communication|SKILL|unpaged",
+        "leadership|OTHER|unpaged"
+      ],
+      "evidenceTraceValid": true,
+      "formatExtractionValid": true,
+      "piiFree": true
+    }
+  ],
+  "pairChecks": [
+    {
+      "pairId": "pair-01-overlap",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 75,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-02-adjacent",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 75,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-03-gap",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 75,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-04-reversed",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 75,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-05-year-only",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 75,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-06-open-ended",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 75,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-07-nested",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 75,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-08-flattened-pdf",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 75,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-09-structured-docx",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 75,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-10-punctuation",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 25,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-11-negation",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 37.5,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-12-preferred-and-missing",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 75,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": false,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "preferred-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-13-partial-parse",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 75,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-14-failed-job-parse",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 75,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-15-missing-job-criteria",
+      "cardinality": 2,
+      "pass": true,
+      "scoreDifference": 0,
+      "experienceDifference": 0,
+      "requiredSetEqual": true,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": true,
+      "diagnostics": []
+    },
+    {
+      "pairId": "pair-16-skill-formatting",
+      "cardinality": 2,
+      "pass": false,
+      "scoreDifference": 25,
+      "experienceDifference": 0,
+      "requiredSetEqual": false,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": false,
+      "diagnostics": [
+        "required-set-differs",
+        "evidence-semantics-differs",
+        "deterministic-score-differs"
+      ]
+    },
+    {
+      "pairId": "pair-17-preferred-positive",
+      "cardinality": 2,
+      "pass": true,
+      "scoreDifference": 0,
+      "experienceDifference": 0,
+      "requiredSetEqual": true,
+      "preferredSetEqual": true,
+      "presentationStateEqual": true,
+      "scoreEligibilityEqual": true,
+      "evidenceSemanticsEqual": true,
+      "diagnostics": []
+    }
+  ],
+  "passed": false,
+  "passedThresholds": {
+    "experience": false,
+    "pairs": false,
+    "pairCardinality": true,
+    "requiredPrecision": true,
+    "requiredRecall": false,
+    "preferredPrecision": false,
+    "preferredRecall": true,
+    "requiredSupport": true,
+    "preferredSupport": true,
+    "evidence": false,
+    "incomplete": false,
+    "scoreEligibility": false,
+    "formatExtraction": true,
+    "piiFree": true
+  },
+  "integrity": {
+    "algorithm": "SHA-256",
+    "payloadSha256": "EFADFD1AA681AD6B9395006736BEB35606AB2E08B8895B051CA75F3ACCF32FBC"
+  }
+}

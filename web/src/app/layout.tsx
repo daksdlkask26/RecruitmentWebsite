@@ -27,7 +27,7 @@ const themeBootstrapScript = [
   "  try {",
   "    var pathname = window.location.pathname;",
   "    var publicRoutes = [",
-  '      "/", "/home", "/login", "/register", "/forgot-password",',
+  '      "/login", "/register", "/forgot-password",',
   '      "/reset-password", "/two-factor", "/check-email", "/verify-email",',
   '      "/verify-company-email", "/verify-email-change", "/account-recovery",',
   '      "/business", "/help", "/legal"',

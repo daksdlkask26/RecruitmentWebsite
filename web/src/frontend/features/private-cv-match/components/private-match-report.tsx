@@ -39,6 +39,7 @@ function number(value: number) {
 
 function bandLabel(report: PrivateReport, locale: PrivateMatchLocale) {
   const copy = privateMatchCopy(locale).report;
+  if (!report.scoreEligible) return copy.unavailable;
   if (report.view === "LIMITED_REPORT") return copy.unavailable;
   if (report.matchBand === "HIGH_MATCH") return copy.strongMatch;
   if (report.matchBand === "MEDIUM_MATCH") return copy.goodMatch;
@@ -59,9 +60,14 @@ function applyHref(report: PrivateReport) {
   return `/jobs/${encodeURIComponent(report.job.slug)}/apply?${params.toString()}`;
 }
 
-function confidenceLabel(value: number, locale: PrivateMatchLocale) {
+function confidenceLabel(value: number | null, locale: PrivateMatchLocale) {
   const copy = privateMatchCopy(locale).report;
+  if (value === null) return copy.unavailable;
   return value >= 80 ? copy.high : value >= 60 ? copy.medium : copy.low;
+}
+
+function displayNumber(value: number | null | undefined) {
+  return value === null || value === undefined ? "—" : number(value);
 }
 
 function evidenceTypeLabel(type: string, locale: PrivateMatchLocale) {
@@ -213,10 +219,27 @@ export function PrivateMatchReport({
   const locale = useWorkspaceLocale();
   const copy = privateMatchCopy(locale);
   const limited = report.view === "LIMITED_REPORT";
+  const scoreEligible = report.scoreEligible;
   const confidence = limited
-    ? report.automatic.evidenceConfidence
+    ? scoreEligible
+      ? report.automatic.evidenceConfidence
+      : null
     : report.evidenceConfidence;
-  const score = limited ? null : report.hybridScore;
+  const score = scoreEligible
+    ? limited
+      ? report.automatic.score
+      : report.hybridScore
+    : null;
+  const automaticScore = scoreEligible ? report.automatic.score : null;
+  const automaticContribution = scoreEligible
+    ? report.automatic.weightedContribution
+    : null;
+  const evidenceCoverage = scoreEligible
+    ? report.automatic.evidenceCoverage
+    : null;
+  const aiScore = !limited && scoreEligible ? report.aiEvaluation.score : null;
+  const aiContribution =
+    !limited && scoreEligible ? report.aiEvaluation.weightedContribution : null;
   const automaticWeight = report.automatic.weight * 100;
   const aiWeight = (report.aiEvaluation?.weight ?? 0.6) * 100;
   const matchedCount = report.automatic.matchedRequirements.filter(
@@ -370,6 +393,18 @@ export function PrivateMatchReport({
         </div>
       ) : null}
 
+      <div
+        className={`rounded-xl border p-4 text-xs sm:text-sm ${report.completeness === "INCOMPLETE" ? "border-amber-200 bg-amber-50 text-amber-900" : "border-slate-200 bg-slate-50 text-slate-700"}`}
+        role="note"
+        aria-live="polite"
+      >
+        <strong>{copy.report.sourceLabel}: </strong>
+        {copy.report.sourceCv}.{" "}
+        {report.completeness === "INCOMPLETE"
+          ? copy.report.incompleteEvidence
+          : copy.report.completeEvidence}
+      </div>
+
       {/* ========================================================================= */}
       {/* 2. HERO: SCORE CARD & AI QUALITATIVE FEEDBACK                              */}
       {/* ========================================================================= */}
@@ -392,30 +427,40 @@ export function PrivateMatchReport({
             <div className="my-auto py-2">
               <div className="flex items-baseline justify-center gap-1 text-slate-900">
                 <span className="text-brand-700 text-5xl font-black tracking-tight">
-                  {limited
-                    ? number(report.automatic.score)
-                    : number(score ?? 0)}
+                  {displayNumber(score)}
                 </span>
-                <span className="text-sm font-bold text-slate-400">/ 100</span>
+                {score === null ? null : (
+                  <span className="text-sm font-bold text-slate-400">
+                    / 100
+                  </span>
+                )}
               </div>
-              <span
-                className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
-                  limited
-                    ? "border border-amber-200/60 bg-amber-50 text-amber-700"
-                    : report.matchBand === "LOW_MATCH"
+              {scoreEligible ? (
+                <span
+                  className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
+                    limited
                       ? "border border-amber-200/60 bg-amber-50 text-amber-700"
-                      : "border border-emerald-200/60 bg-emerald-50 text-emerald-700"
-                }`}
-              >
-                <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                {bandLabel(report, locale)}
-              </span>
+                      : report.matchBand === "LOW_MATCH"
+                        ? "border border-amber-200/60 bg-amber-50 text-amber-700"
+                        : "border-brand-200/60 bg-brand-50 text-brand-700 border"
+                  }`}
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                  {bandLabel(report, locale)}
+                </span>
+              ) : (
+                <span className="mt-2 text-xs font-semibold text-slate-500">
+                  {copy.report.hybridUnavailable}
+                </span>
+              )}
             </div>
 
             <div className="border-t border-slate-200/60 pt-2 text-[11px] text-slate-400">
               {copy.report.auditMethod}{" "}
               <code className="font-mono font-semibold text-slate-600">
-                {copy.report.hybridMethod}
+                {limited
+                  ? copy.report.deterministicMethod
+                  : copy.report.hybridMethod}
               </code>
             </div>
           </div>
@@ -506,9 +551,13 @@ export function PrivateMatchReport({
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-3xl font-extrabold tracking-tight text-slate-900">
-                {number(report.automatic.score)}
+                {displayNumber(automaticScore)}
               </span>
-              <span className="text-xs font-medium text-slate-400">/ 100</span>
+              {automaticScore === null ? null : (
+                <span className="text-xs font-medium text-slate-400">
+                  / 100
+                </span>
+              )}
             </div>
           </div>
           <div className="space-y-1.5 border-t border-slate-100 pt-2 text-[11px] text-slate-400">
@@ -518,21 +567,23 @@ export function PrivateMatchReport({
               aria-label={copy.report.automaticMatching}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-valuenow={report.automatic.score}
+              aria-valuenow={automaticScore ?? undefined}
             >
               <div
                 className="h-full rounded-full bg-emerald-500"
-                style={{ width: `${report.automatic.score}%` }}
+                style={{ width: `${automaticScore ?? 0}%` }}
               ></div>
             </div>
             <p>
-              {limited ? (
+              {!scoreEligible ? (
+                copy.report.hybridUnavailable
+              ) : limited ? (
                 copy.report.deterministicAvailable
               ) : (
                 <>
                   {copy.report.weightedContribution("")}
                   <strong className="font-bold text-slate-800">
-                    {number(report.automatic.weightedContribution)}
+                    {displayNumber(automaticContribution)}
                   </strong>
                 </>
               )}
@@ -565,11 +616,13 @@ export function PrivateMatchReport({
               ) : (
                 <>
                   <span className="text-3xl font-extrabold tracking-tight text-slate-900">
-                    {number(report.aiEvaluation.score)}
+                    {displayNumber(aiScore)}
                   </span>
-                  <span className="text-xs font-medium text-slate-400">
-                    / 100
-                  </span>
+                  {aiScore === null ? null : (
+                    <span className="text-xs font-medium text-slate-400">
+                      / 100
+                    </span>
+                  )}
                 </>
               )}
             </div>
@@ -581,23 +634,23 @@ export function PrivateMatchReport({
               aria-label={copy.report.aiEvaluation}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-valuenow={limited ? undefined : report.aiEvaluation.score}
+              aria-valuenow={aiScore ?? undefined}
             >
               <div
                 className="h-full rounded-full bg-emerald-500"
                 style={{
-                  width: `${limited ? 0 : report.aiEvaluation.score}%`,
+                  width: `${aiScore ?? 0}%`,
                 }}
               ></div>
             </div>
             <p>
-              {limited ? (
+              {limited || !scoreEligible ? (
                 copy.report.aiContributionUnavailable
               ) : (
                 <>
                   {copy.report.weightedContribution("")}
                   <strong className="font-bold text-slate-800">
-                    {number(report.aiEvaluation.weightedContribution)}
+                    {displayNumber(aiContribution)}
                   </strong>
                 </>
               )}
@@ -621,7 +674,8 @@ export function PrivateMatchReport({
               </span>
             </div>
             <div className="text-3xl font-extrabold tracking-tight text-slate-900">
-              {number(report.automatic.evidenceCoverage)}%
+              {displayNumber(evidenceCoverage)}
+              {evidenceCoverage === null ? "" : "%"}
             </div>
           </div>
           <div className="space-y-1.5 border-t border-slate-100 pt-2 text-[11px] text-slate-400">
@@ -631,11 +685,11 @@ export function PrivateMatchReport({
               aria-label={copy.report.evidenceCoverage}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-valuenow={report.automatic.evidenceCoverage}
+              aria-valuenow={evidenceCoverage ?? undefined}
             >
               <div
                 className="h-full rounded-full bg-emerald-500"
-                style={{ width: `${report.automatic.evidenceCoverage}%` }}
+                style={{ width: `${evidenceCoverage ?? 0}%` }}
               ></div>
             </div>
             <p className="truncate">
@@ -660,7 +714,8 @@ export function PrivateMatchReport({
               </span>
             </div>
             <div className="text-3xl font-extrabold tracking-tight text-slate-900">
-              {number(confidence)}%
+              {displayNumber(confidence)}
+              {confidence === null ? "" : "%"}
             </div>
           </div>
           <div className="space-y-1.5 border-t border-slate-100 pt-2 text-[11px] text-slate-400">
@@ -670,11 +725,11 @@ export function PrivateMatchReport({
               aria-label={copy.report.evidenceConfidence}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-valuenow={confidence}
+              aria-valuenow={confidence ?? undefined}
             >
               <div
                 className="h-full rounded-full bg-emerald-500"
-                style={{ width: `${confidence}%` }}
+                style={{ width: `${confidence ?? 0}%` }}
               ></div>
             </div>
             <p className="truncate">{copy.report.confidenceNotScored}</p>
@@ -928,17 +983,17 @@ export function PrivateMatchReport({
           >
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase">
-                {limited
+                {!scoreEligible || limited
                   ? copy.report.hybridUnavailable
                   : copy.report.howCalculated(number(score ?? 0))}
               </h3>
               <Info className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
             </div>
 
-            {limited ? (
+            {limited && scoreEligible ? (
               <div className="space-y-1 rounded-xl border border-slate-100 bg-slate-50 p-3.5 font-mono text-xs text-slate-800">
                 <p>
-                  {number(report.automatic.score)} × {automaticWeight}% + AI ×{" "}
+                  {displayNumber(automaticScore)} × {automaticWeight}% + AI ×{" "}
                   {aiWeight}%
                 </p>
                 <strong className="text-brand-700 block text-sm">
@@ -948,12 +1003,12 @@ export function PrivateMatchReport({
                   {copy.report.deterministicEvidenceAvailable}
                 </small>
               </div>
-            ) : (
+            ) : scoreEligible ? (
               <>
                 <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-3.5 font-mono text-xs text-slate-800">
                   <span>
-                    {number(report.automatic.score)} × {automaticWeight}% +{" "}
-                    {number(report.aiEvaluation?.score ?? 0)} × {aiWeight}%
+                    {displayNumber(automaticScore)} × {automaticWeight}% +{" "}
+                    {displayNumber(aiScore)} × {aiWeight}%
                   </span>
                   <span className="text-brand-700 text-sm font-bold">
                     = {number(score ?? 0)} / 100
@@ -966,6 +1021,10 @@ export function PrivateMatchReport({
                   {report.provenance.scoringConfigVersion}
                 </p>
               </>
+            ) : (
+              <div className="rounded-xl border border-amber-100 bg-amber-50 p-3.5 text-xs text-amber-900">
+                {copy.report.incompleteEvidence}
+              </div>
             )}
           </section>
 

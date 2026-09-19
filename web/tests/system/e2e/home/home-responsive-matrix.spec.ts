@@ -9,13 +9,19 @@ const viewports = [
   { name: "tablet-768", width: 768, height: 1024 },
   { name: "desktop-1280", width: 1280, height: 800 },
 ] as const;
+const colorScheme: "light" | "dark" =
+  process.env.CF405_COLOR_SCHEME === "dark" ? "dark" : "light";
 
 for (const viewport of viewports) {
-  test(`Home remains usable in EN/VI, dark mode, and reduced motion at ${viewport.name}`, async ({
+  test(`Home remains usable in EN/VI, ${colorScheme} mode, and reduced motion at ${viewport.name}`, async ({
     page,
   }, testInfo) => {
     await page.setViewportSize(viewport);
-    await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+    await page.emulateMedia({ colorScheme, reducedMotion: "reduce" });
+    await page.addInitScript(
+      (theme) => window.localStorage.setItem("smarthire-theme", theme),
+      colorScheme,
+    );
     await page.goto("/");
     await setHomeLocale(page, "en");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -33,13 +39,16 @@ for (const viewport of viewports) {
         reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)")
           .matches,
       })),
-    ).toEqual({ dark: true, reducedMotion: true });
+    ).toEqual({ dark: colorScheme === "dark", reducedMotion: true });
+    expect(
+      await page.evaluate(() => ({
+        appliedTheme: document.documentElement.dataset.theme,
+        colorScheme: document.documentElement.style.colorScheme,
+      })),
+    ).toEqual({ appliedTheme: colorScheme, colorScheme });
 
     await setHomeLocale(page, "vi");
-    await expect(page.getByRole("combobox").first()).not.toHaveAttribute(
-      "aria-label",
-      "Home language",
-    );
+    await expect(page.getByLabel("Ngôn ngữ trang chủ")).toHaveValue("vi");
     await setHomeLocale(page, "en");
 
     if (viewport.width <= 768) {

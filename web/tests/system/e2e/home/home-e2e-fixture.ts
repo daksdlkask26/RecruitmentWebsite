@@ -8,7 +8,13 @@ import {
 const password = "Home candidate 2026!";
 
 export async function createHomeE2EFixture(label: string) {
-  return runHomeE2EControl<HomeE2EFixture>("create", { label });
+  // Keep the disposable publication window relative to the runtime clock so
+  // production E2E checks do not silently expire the fixture as the calendar
+  // moves past the fixture's historical default date.
+  return runHomeE2EControl<HomeE2EFixture>("create", {
+    label,
+    now: new Date(Date.now() - 24 * 60 * 60_000).toISOString(),
+  });
 }
 
 export async function deleteHomeE2EFixture(
@@ -19,6 +25,10 @@ export async function deleteHomeE2EFixture(
 
 export async function signInHomeUser(page: Page, email: string) {
   await page.goto("/login");
+  // The login form is server-rendered. Wait for the client bundle to hydrate
+  // before submitting so a cold development harness cannot fall back to the
+  // browser's native GET form submission.
+  await page.waitForLoadState("networkidle");
   await page.getByLabel("Email address").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();

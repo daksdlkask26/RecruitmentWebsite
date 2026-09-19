@@ -51,6 +51,9 @@ export type HomeCvMatchReference = Readonly<{
   checkId: string;
   cvVersion: number;
   jdVersion: number;
+  completeness: "AVAILABLE" | "INCOMPLETE" | "UNAVAILABLE";
+  presentationState: "AVAILABLE" | "INCOMPLETE" | "UNAVAILABLE";
+  scoreEligible: boolean;
 }>;
 
 export type HomeJobSalary = Readonly<{
@@ -83,6 +86,21 @@ export type HomeJob = Readonly<{
   canSave: boolean;
 }>;
 
+/**
+ * The cacheable Home projection. It intentionally has no viewer, session,
+ * action, match, or CSRF fields; request-private overlays are merged only in
+ * the server composition boundary.
+ */
+export type HomePublicJob = Omit<
+  HomeJob,
+  | "saved"
+  | "canSave"
+  | "matchScore"
+  | "matchSource"
+  | "matchBreakdown"
+  | "cvMatch"
+>;
+
 export type EmployerSpotlight = Readonly<{
   slug: string;
   name: string;
@@ -100,17 +118,20 @@ export type SmartMatchInsight =
       kind: "personal";
       jobSlug: string;
       jobTitle: string;
-      score: number;
+      score: number | null;
+      presentationState: "AVAILABLE" | "INCOMPLETE" | "UNAVAILABLE";
+      scoreEligible: boolean;
       quality: "meaningful" | "limited";
       scoreSource: HomeMatchSource;
       matchBreakdown?: HomeJobMatchBreakdown;
       matchingSkills: readonly string[];
       improvementAreas: readonly string[];
       limitations: readonly ("profileSignals" | "estimate")[];
+      completeness: "AVAILABLE" | "INCOMPLETE" | "UNAVAILABLE";
+      cvMatch?: HomeCvMatchReference;
     }>
   | Readonly<{
       kind: "illustrative";
-      score: number;
       reason?: HomeMatchFallbackReason;
     }>;
 
@@ -129,12 +150,33 @@ export type HomePageModel = Readonly<{
   smartMatch: SmartMatchInsight;
 }>;
 
+export type HomePublicSnapshot = Readonly<{
+  careerPaths: readonly HomeCareerPath[];
+  jobs: HomeSectionState<HomePublicJob>;
+  spotlights: HomeSectionState<EmployerSpotlight>;
+  companyCount: number | null;
+}>;
+
 function hasOnlyKeys(value: object, allowed: readonly string[]) {
   return Object.keys(value).every((key) => allowed.includes(key));
 }
 
 function validScore(score: number) {
   return Number.isInteger(score) && score >= 0 && score <= 100;
+}
+
+function validCompleteness(
+  value: unknown,
+): value is "AVAILABLE" | "INCOMPLETE" | "UNAVAILABLE" {
+  return (
+    value === "AVAILABLE" || value === "INCOMPLETE" || value === "UNAVAILABLE"
+  );
+}
+
+function validPresentation(
+  value: unknown,
+): value is "AVAILABLE" | "INCOMPLETE" | "UNAVAILABLE" {
+  return validCompleteness(value);
 }
 
 function validBreakdown(breakdown: HomeJobMatchBreakdown) {
@@ -179,8 +221,20 @@ export function validateHomePageModel(model: HomePageModel) {
     throw new Error("HOME_VIEWER_PRIVATE_FIELD");
   if (model.smartMatch.kind === "personal" && model.viewer.kind !== "candidate")
     throw new Error("HOME_PERSONAL_MATCH_AUTHORITY");
-  if (!validScore(model.smartMatch.score))
-    throw new Error("HOME_MATCH_SCORE_INVALID");
+  if (model.smartMatch.kind === "personal") {
+    const personal = model.smartMatch;
+    if (!validPresentation(personal.presentationState))
+      throw new Error("HOME_MATCH_PRESENTATION_INVALID");
+    if (personal.scoreEligible !== (personal.presentationState === "AVAILABLE"))
+      throw new Error("HOME_MATCH_SCORE_ELIGIBILITY");
+    if (
+      personal.scoreEligible &&
+      (personal.score === null || !validScore(personal.score))
+    )
+      throw new Error("HOME_MATCH_SCORE_INVALID");
+    if (!personal.scoreEligible && personal.score !== null)
+      throw new Error("HOME_MATCH_SCORE_LEAK");
+  }
   if (
     model.smartMatch.kind !== "personal" &&
     model.jobs.items.some(
@@ -191,26 +245,38 @@ export function validateHomePageModel(model: HomePageModel) {
   if (model.smartMatch.kind === "personal") {
     const personal = model.smartMatch;
     if (
-      model.jobs.items.some(
-        (job) =>
-          job.matchScore === undefined ||
-          !validScore(job.matchScore) ||
-          job.matchSource === undefined ||
-          (job.matchSource === "profile" &&
-            (!job.matchBreakdown ||
-              !validBreakdown(job.matchBreakdown) ||
-              job.cvMatch !== undefined)) ||
-          (job.matchSource === "cv" &&
-            (job.matchBreakdown !== undefined ||
-              (job.cvMatch !== undefined &&
-                (!job.cvMatch.checkId ||
-                  job.cvMatch.cvVersion < 1 ||
-                  job.cvMatch.jdVersion < 1)))),
-      ) ||
+      model.jobs.items.some((job) => {
+        if (job.matchSource === undefined) return true;
+        if (job.matchSource === "profile")
+          return (
+            job.matchScore === undefined ||
+            !validScore(job.matchScore) ||
+            !job.matchBreakdown ||
+            !validBreakdown(job.matchBreakdown) ||
+            job.cvMatch !== undefined
+          );
+        return (
+          job.cvMatch === undefined ||
+          job.matchBreakdown !== undefined ||
+          (job.matchScore !== undefined && !validScore(job.matchScore)) ||
+          (job.cvMatch !== undefined &&
+            (!job.cvMatch.checkId ||
+              job.cvMatch.cvVersion < 1 ||
+              job.cvMatch.jdVersion < 1 ||
+              !validCompleteness(job.cvMatch.completeness) ||
+              !validPresentation(job.cvMatch.presentationState) ||
+              job.cvMatch.scoreEligible !==
+                (job.cvMatch.presentationState === "AVAILABLE") ||
+              (job.cvMatch.scoreEligible && job.matchScore === undefined) ||
+              (!job.cvMatch.scoreEligible && job.matchScore !== undefined)))
+        );
+      }) ||
       !model.jobs.items.some(
         (job) =>
           job.slug === personal.jobSlug &&
-          job.matchScore === personal.score &&
+          (personal.score === null
+            ? job.matchScore === undefined
+            : job.matchScore === personal.score) &&
           job.matchSource === personal.scoreSource &&
           (personal.scoreSource !== "profile" ||
             JSON.stringify(job.matchBreakdown) ===
@@ -218,6 +284,18 @@ export function validateHomePageModel(model: HomePageModel) {
       )
     )
       throw new Error("HOME_JOB_SCORE_ASSOCIATION");
+    if (!validCompleteness(personal.completeness))
+      throw new Error("HOME_MATCH_COMPLETENESS_INVALID");
+    if (
+      personal.scoreSource === "cv" &&
+      personal.cvMatch?.completeness !== personal.completeness
+    )
+      throw new Error("HOME_MATCH_COMPLETENESS_MISMATCH");
+    if (
+      personal.scoreSource === "cv" &&
+      personal.cvMatch?.presentationState !== personal.presentationState
+    )
+      throw new Error("HOME_MATCH_PRESENTATION_MISMATCH");
   }
   if (
     model.spotlights.items.some(

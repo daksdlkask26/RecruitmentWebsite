@@ -148,6 +148,14 @@ export type InAppNotification = Prisma.InAppNotificationModel
  */
 export type AuditEvent = Prisma.AuditEventModel
 /**
+ * Model PublicDiscoveryInvalidation
+ * Monotonic public-discovery revision shared by the Next server and
+ * standalone workers. The database trigger advances it in the same
+ * transaction as public Company/Job mutations, so a web process can never
+ * reuse a pre-mutation public snapshot after the commit becomes visible.
+ */
+export type PublicDiscoveryInvalidation = Prisma.PublicDiscoveryInvalidationModel
+/**
  * Model Company
  * 
  */
