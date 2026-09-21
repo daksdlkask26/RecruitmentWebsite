@@ -1,0 +1,520 @@
+{
+  "schema": "candidate-first-phase6a-db-realtime-v1",
+  "startedAt": "2026-09-19T09:20:23.525Z",
+  "completedAt": "2026-09-19T09:20:34.845Z",
+  "source": {
+    "commit": "ac17ec1efb70c9b963b7c979c45d07d733295f8d",
+    "dirtyWorktree": true,
+    "strategy": "eager"
+  },
+  "environment": {
+    "cwd": "D:\\HCMUS\\PROJECT\\web",
+    "node": "v24.18.0",
+    "database": "candidate_phase6a_20260919_e2e_test",
+    "databaseGuard": "isolated-test-database",
+    "transport": "websocket",
+    "socketPath": "/chat",
+    "repetitions": 3,
+    "datasetConversations": 100,
+    "fixtureNamespace": "task-owned-redacted"
+  },
+  "fixedThresholds": {
+    "socketReadyP95MsAt100": 2000,
+    "errorRate": 0,
+    "roomsPerSocket": "pre-change-width"
+  },
+  "summary": {
+    "status": "PASS",
+    "failedMeasurements": 0,
+    "widths": [1, 10, 40, 100]
+  },
+  "byWidth": [
+    {
+      "width": 1,
+      "repetitions": 3,
+      "status": "PASS",
+      "sqlQueryCount": [64, 52, 58],
+      "sqlQueryCountP95": 64,
+      "sqlQueryGroups": [
+        {
+          "participant-list": 4,
+          "conversation-access": 10,
+          "context-application": 10,
+          "context-membership": 10,
+          "block": 10,
+          "other": 20
+        },
+        {
+          "participant-list": 4,
+          "conversation-access": 8,
+          "context-application": 8,
+          "context-membership": 8,
+          "block": 8,
+          "other": 16
+        },
+        {
+          "participant-list": 4,
+          "conversation-access": 9,
+          "context-application": 9,
+          "context-membership": 9,
+          "block": 9,
+          "other": 18
+        }
+      ],
+      "socketReadyP50Ms": 54.31,
+      "socketReadyP95Ms": 67.66,
+      "reconnectP50Ms": 50.4,
+      "reconnectP95Ms": 57.18,
+      "roomsPerSocket": [1, 1, 1],
+      "errorRate": 0
+    },
+    {
+      "width": 10,
+      "repetitions": 3,
+      "status": "PASS",
+      "sqlQueryCount": [274, 268, 268],
+      "sqlQueryCountP95": 274,
+      "sqlQueryGroups": [
+        {
+          "participant-list": 4,
+          "conversation-access": 45,
+          "context-application": 45,
+          "context-membership": 45,
+          "block": 45,
+          "other": 90
+        },
+        {
+          "participant-list": 4,
+          "conversation-access": 44,
+          "context-application": 44,
+          "context-membership": 44,
+          "block": 44,
+          "other": 88
+        },
+        {
+          "participant-list": 4,
+          "conversation-access": 44,
+          "context-application": 44,
+          "context-membership": 44,
+          "block": 44,
+          "other": 88
+        }
+      ],
+      "socketReadyP50Ms": 177.99,
+      "socketReadyP95Ms": 183.04,
+      "reconnectP50Ms": 270.04,
+      "reconnectP95Ms": 303.89,
+      "roomsPerSocket": [11, 10, 10],
+      "errorRate": 0
+    },
+    {
+      "width": 40,
+      "repetitions": 3,
+      "status": "PASS",
+      "sqlQueryCount": [1006, 988, 1000],
+      "sqlQueryCountP95": 1006,
+      "sqlQueryGroups": [
+        {
+          "participant-list": 4,
+          "conversation-access": 167,
+          "context-application": 167,
+          "context-membership": 167,
+          "block": 167,
+          "other": 334
+        },
+        {
+          "participant-list": 4,
+          "conversation-access": 164,
+          "context-application": 164,
+          "context-membership": 164,
+          "block": 164,
+          "other": 328
+        },
+        {
+          "participant-list": 4,
+          "conversation-access": 166,
+          "context-application": 166,
+          "context-membership": 166,
+          "block": 166,
+          "other": 332
+        }
+      ],
+      "socketReadyP50Ms": 390.68,
+      "socketReadyP95Ms": 535.45,
+      "reconnectP50Ms": 501.79,
+      "reconnectP95Ms": 651.58,
+      "roomsPerSocket": [40, 40, 40],
+      "errorRate": 0
+    },
+    {
+      "width": 100,
+      "repetitions": 3,
+      "status": "PASS",
+      "sqlQueryCount": [2404, 2404, 2404],
+      "sqlQueryCountP95": 2404,
+      "sqlQueryGroups": [
+        {
+          "participant-list": 4,
+          "conversation-access": 400,
+          "context-application": 400,
+          "context-membership": 400,
+          "block": 400,
+          "other": 800
+        },
+        {
+          "participant-list": 4,
+          "conversation-access": 400,
+          "context-application": 400,
+          "context-membership": 400,
+          "block": 400,
+          "other": 800
+        },
+        {
+          "participant-list": 4,
+          "conversation-access": 400,
+          "context-application": 400,
+          "context-membership": 400,
+          "block": 400,
+          "other": 800
+        }
+      ],
+      "socketReadyP50Ms": 848.13,
+      "socketReadyP95Ms": 1506.12,
+      "reconnectP50Ms": 767.78,
+      "reconnectP95Ms": 842.25,
+      "roomsPerSocket": [100, 100, 100],
+      "errorRate": 0
+    }
+  ],
+  "raw": [
+    {
+      "width": 1,
+      "repetition": 1,
+      "status": "PASS",
+      "durationMs": 236.97,
+      "socketReadyMs": [54.31, 59.94],
+      "reconnectMs": 57.18,
+      "roomsBeforeReconnect": {
+        "candidate": 1,
+        "recruiter": 1
+      },
+      "roomsAfterReconnect": {
+        "candidate": 1,
+        "recruiter": 2
+      },
+      "sqlQueryCount": 64,
+      "sqlQueryGroups": {
+        "participant-list": 4,
+        "conversation-access": 10,
+        "context-application": 10,
+        "context-membership": 10,
+        "block": 10,
+        "other": 20
+      },
+      "sqlQueryDurationMsP95": 11.82,
+      "poolWaitMsP95": 0.7
+    },
+    {
+      "width": 1,
+      "repetition": 2,
+      "status": "PASS",
+      "durationMs": 212.79,
+      "socketReadyMs": [67.66, 66.49],
+      "reconnectMs": 32.23,
+      "roomsBeforeReconnect": {
+        "candidate": 1,
+        "recruiter": 1
+      },
+      "roomsAfterReconnect": {
+        "candidate": 1,
+        "recruiter": 1
+      },
+      "sqlQueryCount": 52,
+      "sqlQueryGroups": {
+        "participant-list": 4,
+        "conversation-access": 8,
+        "context-application": 8,
+        "context-membership": 8,
+        "block": 8,
+        "other": 16
+      },
+      "sqlQueryDurationMsP95": 20.03,
+      "poolWaitMsP95": 0.21
+    },
+    {
+      "width": 1,
+      "repetition": 3,
+      "status": "PASS",
+      "durationMs": 215.03,
+      "socketReadyMs": [52.67, 51.39],
+      "reconnectMs": 50.4,
+      "roomsBeforeReconnect": {
+        "candidate": 1,
+        "recruiter": 1
+      },
+      "roomsAfterReconnect": {
+        "candidate": 2,
+        "recruiter": 1
+      },
+      "sqlQueryCount": 58,
+      "sqlQueryGroups": {
+        "participant-list": 4,
+        "conversation-access": 9,
+        "context-application": 9,
+        "context-membership": 9,
+        "block": 9,
+        "other": 18
+      },
+      "sqlQueryDurationMsP95": 44.78,
+      "poolWaitMsP95": 0.26
+    },
+    {
+      "width": 10,
+      "repetition": 1,
+      "status": "PASS",
+      "durationMs": 538.46,
+      "socketReadyMs": [113.56, 117.32],
+      "reconnectMs": 303.89,
+      "roomsBeforeReconnect": {
+        "candidate": 11,
+        "recruiter": 10
+      },
+      "roomsAfterReconnect": {
+        "candidate": 10,
+        "recruiter": 10
+      },
+      "sqlQueryCount": 274,
+      "sqlQueryGroups": {
+        "participant-list": 4,
+        "conversation-access": 45,
+        "context-application": 45,
+        "context-membership": 45,
+        "block": 45,
+        "other": 90
+      },
+      "sqlQueryDurationMsP95": 9.15,
+      "poolWaitMsP95": 0.17
+    },
+    {
+      "width": 10,
+      "repetition": 2,
+      "status": "PASS",
+      "durationMs": 555.28,
+      "socketReadyMs": [178.79, 177.99],
+      "reconnectMs": 256.8,
+      "roomsBeforeReconnect": {
+        "candidate": 10,
+        "recruiter": 10
+      },
+      "roomsAfterReconnect": {
+        "candidate": 10,
+        "recruiter": 10
+      },
+      "sqlQueryCount": 268,
+      "sqlQueryGroups": {
+        "participant-list": 4,
+        "conversation-access": 44,
+        "context-application": 44,
+        "context-membership": 44,
+        "block": 44,
+        "other": 88
+      },
+      "sqlQueryDurationMsP95": 8.6,
+      "poolWaitMsP95": 0.14
+    },
+    {
+      "width": 10,
+      "repetition": 3,
+      "status": "PASS",
+      "durationMs": 563.09,
+      "socketReadyMs": [183.04, 182.33],
+      "reconnectMs": 270.04,
+      "roomsBeforeReconnect": {
+        "candidate": 10,
+        "recruiter": 10
+      },
+      "roomsAfterReconnect": {
+        "candidate": 10,
+        "recruiter": 10
+      },
+      "sqlQueryCount": 268,
+      "sqlQueryGroups": {
+        "participant-list": 4,
+        "conversation-access": 44,
+        "context-application": 44,
+        "context-membership": 44,
+        "block": 44,
+        "other": 88
+      },
+      "sqlQueryDurationMsP95": 9.67,
+      "poolWaitMsP95": 0.14
+    },
+    {
+      "width": 40,
+      "repetition": 1,
+      "status": "PASS",
+      "durationMs": 767.75,
+      "socketReadyMs": [365.51, 359.65],
+      "reconnectMs": 281.62,
+      "roomsBeforeReconnect": {
+        "candidate": 40,
+        "recruiter": 41
+      },
+      "roomsAfterReconnect": {
+        "candidate": 40,
+        "recruiter": 41
+      },
+      "sqlQueryCount": 1006,
+      "sqlQueryGroups": {
+        "participant-list": 4,
+        "conversation-access": 167,
+        "context-application": 167,
+        "context-membership": 167,
+        "block": 167,
+        "other": 334
+      },
+      "sqlQueryDurationMsP95": 3.04,
+      "poolWaitMsP95": 0.1
+    },
+    {
+      "width": 40,
+      "repetition": 2,
+      "status": "PASS",
+      "durationMs": 1312.36,
+      "socketReadyMs": [535.45, 529.98],
+      "reconnectMs": 651.58,
+      "roomsBeforeReconnect": {
+        "candidate": 40,
+        "recruiter": 40
+      },
+      "roomsAfterReconnect": {
+        "candidate": 40,
+        "recruiter": 40
+      },
+      "sqlQueryCount": 988,
+      "sqlQueryGroups": {
+        "participant-list": 4,
+        "conversation-access": 164,
+        "context-application": 164,
+        "context-membership": 164,
+        "block": 164,
+        "other": 328
+      },
+      "sqlQueryDurationMsP95": 8.71,
+      "poolWaitMsP95": 0.12
+    },
+    {
+      "width": 40,
+      "repetition": 3,
+      "status": "PASS",
+      "durationMs": 1012.5,
+      "socketReadyMs": [390.68, 394.64],
+      "reconnectMs": 501.79,
+      "roomsBeforeReconnect": {
+        "candidate": 40,
+        "recruiter": 40
+      },
+      "roomsAfterReconnect": {
+        "candidate": 40,
+        "recruiter": 41
+      },
+      "sqlQueryCount": 1000,
+      "sqlQueryGroups": {
+        "participant-list": 4,
+        "conversation-access": 166,
+        "context-application": 166,
+        "context-membership": 166,
+        "block": 166,
+        "other": 332
+      },
+      "sqlQueryDurationMsP95": 5.66,
+      "poolWaitMsP95": 0.11
+    },
+    {
+      "width": 100,
+      "repetition": 1,
+      "status": "PASS",
+      "durationMs": 1825.43,
+      "socketReadyMs": [858.57, 848.13],
+      "reconnectMs": 842.25,
+      "roomsBeforeReconnect": {
+        "candidate": 100,
+        "recruiter": 100
+      },
+      "roomsAfterReconnect": {
+        "candidate": 100,
+        "recruiter": 100
+      },
+      "sqlQueryCount": 2404,
+      "sqlQueryGroups": {
+        "participant-list": 4,
+        "conversation-access": 400,
+        "context-application": 400,
+        "context-membership": 400,
+        "block": 400,
+        "other": 800
+      },
+      "sqlQueryDurationMsP95": 3.42,
+      "poolWaitMsP95": 0.09
+    },
+    {
+      "width": 100,
+      "repetition": 2,
+      "status": "PASS",
+      "durationMs": 1688.2,
+      "socketReadyMs": [793.31, 792.42],
+      "reconnectMs": 767.78,
+      "roomsBeforeReconnect": {
+        "candidate": 100,
+        "recruiter": 100
+      },
+      "roomsAfterReconnect": {
+        "candidate": 100,
+        "recruiter": 100
+      },
+      "sqlQueryCount": 2404,
+      "sqlQueryGroups": {
+        "participant-list": 4,
+        "conversation-access": 400,
+        "context-application": 400,
+        "context-membership": 400,
+        "block": 400,
+        "other": 800
+      },
+      "sqlQueryDurationMsP95": 2.71,
+      "poolWaitMsP95": 0.08
+    },
+    {
+      "width": 100,
+      "repetition": 3,
+      "status": "PASS",
+      "durationMs": 2349.01,
+      "socketReadyMs": [1506.12, 1494.7],
+      "reconnectMs": 719.25,
+      "roomsBeforeReconnect": {
+        "candidate": 100,
+        "recruiter": 100
+      },
+      "roomsAfterReconnect": {
+        "candidate": 100,
+        "recruiter": 100
+      },
+      "sqlQueryCount": 2404,
+      "sqlQueryGroups": {
+        "participant-list": 4,
+        "conversation-access": 400,
+        "context-application": 400,
+        "context-membership": 400,
+        "block": 400,
+        "other": 800
+      },
+      "sqlQueryDurationMsP95": 6.7,
+      "poolWaitMsP95": 0.1
+    }
+  ],
+  "errors": [],
+  "limitations": [
+    "This probe measures the real PostgreSQL-backed repositories and production Socket.IO gateway in one process; it does not claim multi-instance behavior.",
+    "The pre-change run uses a task-owned eager initialization compatibility path solely to reproduce the measured old query shape; that path is removed before the final-source run."
+  ]
+}

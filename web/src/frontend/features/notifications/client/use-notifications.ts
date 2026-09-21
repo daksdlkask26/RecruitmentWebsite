@@ -15,11 +15,11 @@ import {
 import { useEffect, useRef } from "react";
 import { NOTIFICATION_CHANGED_EVENT } from "./use-notification-context-read";
 
-const REFRESH_INTERVAL_MS = 30_000;
+const REFRESH_INTERVAL_MS = 4_000;
 
 const visibleInterval = () =>
   typeof document === "undefined" || document.visibilityState === "visible"
-    ? REFRESH_INTERVAL_MS
+    ? 4_000
     : false;
 
 async function readJson(response: Response) {

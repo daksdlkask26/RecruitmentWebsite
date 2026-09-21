@@ -70,11 +70,9 @@ async function executeFirstConversationRun(
     await editor.fill(content);
     await page.getByRole("button", { name: "Gửi" }).click();
   }
-  const outboxItem = page
-    .getByRole("list", { name: "Tin nhắn đang gửi" })
-    .getByRole("listitem")
-    .filter({ hasText: content });
-  await expect(outboxItem).toContainText("Đã gửi");
+  await expect(
+    page.getByRole("status").filter({ hasText: "Đã gửi" }),
+  ).toBeVisible();
   return Date.now() - startedAt;
 }
 

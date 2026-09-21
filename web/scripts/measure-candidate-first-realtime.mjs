@@ -220,16 +220,48 @@ async function runMeasurement(width, repetition) {
     [candidate, recruiter] = connected;
     await eventually(
       () =>
-        registry.conversationIdsForSocket(candidate.socket.id).size === width &&
-        registry.conversationIdsForSocket(recruiter.socket.id).size === width,
-      `${width} authorized conversation rooms`,
+        registry.conversationIdsForSocket(candidate.socket.id).size === 0 &&
+        registry.conversationIdsForSocket(recruiter.socket.id).size === 0,
+      `${width} lazy conversation rooms`,
+    );
+    const listInvalidated = once(recruiter.socket, "messaging:changed");
+    const listAcknowledged = await candidate.socket.emitWithAck(
+      "message:send",
+      {
+        conversationId: deps.conversationIds[0],
+        clientOperationId: crypto.randomUUID(),
+        content: `list-only probe ${width}`,
+      },
+    );
+    const invalidation = await listInvalidated;
+    if (!listAcknowledged?.ok || invalidation?.reason !== "MESSAGE") {
+      throw new Error("List-only invalidation assertion failed");
+    }
+    const joins = await Promise.all([
+      candidate.socket.emitWithAck("conversation:join", {
+        conversationId: deps.conversationIds[0],
+      }),
+      recruiter.socket.emitWithAck("conversation:join", {
+        conversationId: deps.conversationIds[0],
+      }),
+    ]);
+    if (joins.some((result) => !result?.ok)) {
+      throw new Error(
+        `Explicit conversation join failed: ${JSON.stringify(joins)}`,
+      );
+    }
+    await eventually(
+      () =>
+        registry.conversationIdsForSocket(candidate.socket.id).size === 1 &&
+        registry.conversationIdsForSocket(recruiter.socket.id).size === 1,
+      `${width} active conversation room`,
     );
     const joinedAt = nowMs();
     const delivered = once(recruiter.socket, "message:new");
     const acknowledged = await candidate.socket.emitWithAck("message:send", {
       conversationId: deps.conversationIds[0],
       clientOperationId: crypto.randomUUID(),
-      content: `realtime probe ${width}`,
+      content: `active-room probe ${width}`,
     });
     let event;
     try {
@@ -250,7 +282,7 @@ async function runMeasurement(width, repetition) {
     const deliveryMs = nowMs() - joinedAt;
     if (
       !acknowledged?.ok ||
-      event?.message?.content !== `realtime probe ${width}`
+      event?.message?.content !== `active-room probe ${width}`
     ) {
       throw new Error("Realtime message delivery assertion failed");
     }
@@ -269,10 +301,9 @@ async function runMeasurement(width, repetition) {
     await eventually(
       () =>
         registry.conversationIdsForSocket(reconnected[0].socket.id).size ===
-          width &&
-        registry.conversationIdsForSocket(reconnected[1].socket.id).size ===
-          width,
-      `${width} rooms after reconnect`,
+          0 &&
+        registry.conversationIdsForSocket(reconnected[1].socket.id).size === 0,
+      `${width} lazy rooms after reconnect`,
     );
     reconnected[0].socket.disconnect();
     reconnected[1].socket.disconnect();
@@ -282,8 +313,9 @@ async function runMeasurement(width, repetition) {
       repetition,
       expectedSockets: 2,
       connectedSockets: 2,
-      expectedRoomsPerSocket: width,
-      roomsPerSocket: width,
+      expectedRoomsPerSocket: 0,
+      roomsPerSocket: 0,
+      explicitJoinedRoomsPerSocket: 1,
       connectLatencyMs: {
         candidate: Number(connected[0].latencyMs.toFixed(2)),
         recruiter: Number(connected[1].latencyMs.toFixed(2)),
@@ -373,7 +405,7 @@ const byWidth = widths.map((width) => {
 });
 
 const report = {
-  schema: "candidate-first-realtime-v1",
+  schema: "candidate-first-realtime-phase6a-v1",
   startedAt,
   completedAt: new Date().toISOString(),
   environment: {
@@ -388,9 +420,10 @@ const report = {
     widths,
     eachWidthRequires: [
       "two authenticated sockets connect",
-      "each socket is auto-joined to every authorized conversation room",
-      "message acknowledgement and recipient delivery succeed",
-      "disconnect/reconnect restores all rooms",
+      "connection keeps zero conversation rooms regardless of authorized width",
+      "list-only message acknowledgement and account invalidation succeed",
+      "explicit conversation join and active-room delivery succeed",
+      "disconnect/reconnect restores clean lazy-room state",
       "presence transitions include online and offline",
     ],
   },

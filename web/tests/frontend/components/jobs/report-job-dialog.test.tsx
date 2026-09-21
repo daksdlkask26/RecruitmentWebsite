@@ -7,7 +7,7 @@ afterEach(() => vi.unstubAllGlobals());
 describe("report job dialog", () => {
   it("keeps invalid content, explains conditional details, and supports cancel", async () => {
     render(<ReportJobDialog jobId="job-1" />);
-    const trigger = screen.getByRole("button", { name: /report job/i });
+    const trigger = screen.getByRole("button", { name: /report this job/i });
     fireEvent.click(trigger);
     expect(
       screen.getByRole("dialog", { name: /report this job/i }),
@@ -20,7 +20,7 @@ describe("report job dialog", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /submit report/i }));
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      /20 characters/i,
+      /review the report fields/i,
     );
     expect(screen.getByLabelText(/details/i)).toHaveValue("short");
     fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
@@ -46,14 +46,14 @@ describe("report job dialog", () => {
       });
     vi.stubGlobal("fetch", fetchMock);
     render(<ReportJobDialog jobId="job-1" />);
-    const trigger = screen.getByRole("button", { name: /report job/i });
+    const trigger = screen.getByRole("button", { name: /report this job/i });
     fireEvent.click(trigger);
     fireEvent.change(screen.getByLabelText(/reason/i), {
       target: { value: "FRAUD" },
     });
     fireEvent.click(screen.getByRole("button", { name: /submit report/i }));
     expect(await screen.findByRole("status")).toHaveTextContent(
-      /received for review/i,
+      /report submitted/i,
     );
     expect(fetchMock).toHaveBeenLastCalledWith(
       "/api/jobs/job-1/reports",

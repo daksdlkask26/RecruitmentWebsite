@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
+import { useModalA11y } from "@/frontend/components/ui/use-modal-a11y";
 import type { WorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
 import type { MessagingMessage } from "@/shared/contracts/messaging/messages";
 import { messagingReportInputSchema } from "@/shared/contracts/messaging/safety";
@@ -34,6 +35,9 @@ export function ReportMessagingDialog({
     readonly [ReportCategory, string]
   >;
   const trigger = useRef<HTMLButtonElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<ReportCategory>("SPAM_OR_DUPLICATE");
   const [detail, setDetail] = useState("");
@@ -42,8 +46,14 @@ export function ReportMessagingDialog({
   const [busy, setBusy] = useState(false);
   function close() {
     setOpen(false);
-    queueMicrotask(() => trigger.current?.focus());
   }
+  const managedDialogRef = useModalA11y({
+    open,
+    busy,
+    onClose: close,
+    initialFocusRef: closeButton,
+    returnFocusRef: trigger,
+  });
   async function submit() {
     const parsed = messagingReportInputSchema.safeParse({
       conversationId,
@@ -86,10 +96,12 @@ export function ReportMessagingDialog({
       {open ? (
         <div className="messaging-modal-layer">
           <section
+            ref={managedDialogRef}
             className="messaging-modal messaging-report-modal"
             role="dialog"
             aria-modal="true"
-            aria-label={copy.reportConversation}
+            aria-labelledby={titleId}
+            aria-describedby={descriptionId}
           >
             <div className="messaging-modal-heading">
               <div
@@ -102,8 +114,8 @@ export function ReportMessagingDialog({
                 </svg>
               </div>
               <div>
-                <h3>{copy.reportInappropriate}</h3>
-                <p>{copy.reportDescription}</p>
+                <h3 id={titleId}>{copy.reportInappropriate}</h3>
+                <p id={descriptionId}>{copy.reportDescription}</p>
               </div>
             </div>
             <div className="messaging-report-fields">
@@ -163,6 +175,7 @@ export function ReportMessagingDialog({
                 {busy ? copy.sending : copy.submitReport}
               </button>
               <button
+                ref={closeButton}
                 className="messaging-secondary-button"
                 type="button"
                 disabled={busy}

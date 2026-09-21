@@ -1,0 +1,46 @@
+{
+  "schema": "candidate-first-phase6a-notification-baseline-triage-v1",
+  "source": {
+    "commit": "ac17ec1efb70c9b963b7c979c45d07d733295f8d",
+    "dirtyWorktree": true,
+    "database": "candidate_phase6a_20260919_final_e2e_test",
+    "databaseGuard": "isolated-test-database",
+    "sharedDatabaseMutated": false,
+    "specKitChanged": false
+  },
+  "fullSuite": {
+    "status": "FAIL",
+    "command": "npm.cmd run test:notifications -- --reporter=dot",
+    "files": 25,
+    "passedFiles": 24,
+    "tests": 68,
+    "passedTests": 67,
+    "failedTests": 1,
+    "failureFile": "tests/backend/contract/notifications/notification-openapi-parity.test.ts",
+    "failure": "The unchanged SpecKit Feature 016 OpenAPI contract does not contain COMPANY_INVITATION.",
+    "classification": "outside-phase6a-diff-and-explicitly-out-of-scope"
+  },
+  "affectedPhase6aScope": {
+    "status": "PASS",
+    "command": "npm.cmd exec -- vitest run all notification suite files except notification-openapi-parity.test.ts --passWithNoTests --reporter=dot",
+    "files": 24,
+    "tests": 66,
+    "passedFiles": 24,
+    "passedTests": 66,
+    "failedTests": 0,
+    "scope": [
+      "notification repositories and services",
+      "notification convergence, retry, context-read, read-all, and unread state",
+      "notification privacy/security/architecture/performance",
+      "notification component and accessibility tests"
+    ]
+  },
+  "boundaryChecks": {
+    "parityTestChanged": false,
+    "specKitContractChanged": false,
+    "phase6aNotificationRuntimeInvariant": "PASS; durable notification recovery and read convergence are covered by cf603 and the affected suite",
+    "fullSuiteFailureKeptAsFail": true,
+    "acceptedForPhase6aGate": true
+  },
+  "privatePayloadsRecorded": false
+}

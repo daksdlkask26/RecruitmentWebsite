@@ -177,10 +177,37 @@ describe("image-assisted job-search controls", () => {
     fireEvent.click(
       screen.getByRole("button", { name: "Search jobs from an image" }),
     );
+    const imageDialog = screen.getByRole("dialog", {
+      name: "Search jobs from an image",
+    });
+    const closeImageSearch = screen.getByRole("button", {
+      name: "Close image search",
+    });
+    await waitFor(() => expect(closeImageSearch).toHaveFocus());
+    const imageFocusable = Array.from(
+      imageDialog.querySelectorAll<HTMLElement>(
+        "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href]",
+      ),
+    );
+    expect(imageFocusable.length).toBeGreaterThan(1);
+    imageFocusable.at(-1)?.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(imageFocusable[0]).toHaveFocus();
     const file = screen.getByLabelText("Job poster image");
     expect(file).toBeDisabled();
     fireEvent.click(screen.getByRole("checkbox"));
     expect(file).toBeEnabled();
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("dialog", { name: "Search jobs from an image" }),
+      ).not.toBeInTheDocument(),
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "Search jobs from an image" }),
+      ).toHaveFocus(),
+    );
     window.history.replaceState(null, "", "/");
   });
 
@@ -405,10 +432,27 @@ describe("image-assisted job-search controls", () => {
     expect(navigate).toHaveBeenCalledWith("/jobs");
   });
 
-  it("shows a server-derived category flyout without crowding the header with location", () => {
+  it("shows a server-derived category flyout without crowding the header with location", async () => {
     render(<GlobalImageSearch taxonomy={taxonomy} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Job Category" }));
+    const trigger = screen.getByRole("button", { name: "Job Category" });
+    fireEvent.click(trigger);
+    const categoryDialog = screen.getByRole("dialog", {
+      name: "Job categories",
+    });
+    const categorySearch = screen.getByRole("searchbox", {
+      name: "Filter roles",
+    });
+    await waitFor(() => expect(categorySearch).toHaveFocus());
+    const categoryFocusable = Array.from(
+      categoryDialog.querySelectorAll<HTMLElement>(
+        "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href]",
+      ),
+    );
+    expect(categoryFocusable.length).toBeGreaterThan(1);
+    categoryFocusable.at(-1)?.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(categoryFocusable[0]).toHaveFocus();
     expect(
       screen.getAllByText("Sales & Business Development").at(0),
     ).toBeVisible();
@@ -423,7 +467,7 @@ describe("image-assisted job-search controls", () => {
     expect(
       screen.queryByRole("dialog", { name: "Job categories" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Job Category" })).toHaveFocus();
+    await waitFor(() => expect(trigger).toHaveFocus());
   });
 
   it("keeps wheel and touch input inside the role explorer", () => {

@@ -1,4 +1,7 @@
-import type { MessagingMessage, ReadBoundary } from "@/shared/contracts/messaging";
+import type {
+  MessagingMessage,
+  ReadBoundary,
+} from "@/shared/contracts/messaging";
 
 export type MessagingAccessRevocationCause =
   | "BLOCK"
@@ -25,7 +28,11 @@ export interface MessagingRealtimePublisherPort {
 }
 
 export interface MessagingPresencePort {
-  register(input: { socketId: string; userId: string; sessionId: string }): void;
+  register(input: {
+    socketId: string;
+    userId: string;
+    sessionId: string;
+  }): void;
   unregister(socketId: string): void;
   isOnline(userId: string): boolean;
 }
@@ -36,6 +43,8 @@ export interface MessagingSocketRegistryPort extends MessagingPresencePort {
   socketIdsForUser(userId: string): ReadonlySet<string>;
   socketIdsForSession(sessionId: string): ReadonlySet<string>;
   socketIdsForConversation(conversationId: string): ReadonlySet<string>;
+  userIdsForConversation(conversationId: string): ReadonlySet<string>;
+  conversationIdsForUser(userId: string): ReadonlySet<string>;
   userIdForSocket(socketId: string): string | null;
   conversationIdsForSocket(socketId: string): ReadonlySet<string>;
 }

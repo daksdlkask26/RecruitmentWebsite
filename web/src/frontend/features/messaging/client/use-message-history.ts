@@ -135,7 +135,12 @@ export function useMessageHistory(
               item.id === message.id || item.sequence === message.sequence,
           )
           ? current
-          : { ...current, items: [...current.items, message] }
+          : {
+              ...current,
+              items: [...current.items, message].toSorted(
+                (left, right) => left.sequence - right.sequence,
+              ),
+            }
         : current,
     );
   }, []);

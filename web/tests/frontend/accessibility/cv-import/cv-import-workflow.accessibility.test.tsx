@@ -147,7 +147,7 @@ describe("CV import cross-state accessibility workflow", () => {
     );
     await waitFor(() =>
       expect(
-        screen.getByRole("button", { name: /confirm cancel and delete/i }),
+        screen.getByRole("button", { name: /keep import/i }),
       ).toHaveFocus(),
     );
     await expectNoAxeViolations(status.container);
@@ -380,11 +380,7 @@ describe("CV import cross-state accessibility workflow", () => {
                       uploadId: longUploadId,
                       status: "SCAN_FAILED",
                       stage: "SCAN",
-                      availableActions: [
-                        "RETRY",
-                        "DELETE",
-                        "MANUAL_PROFILE",
-                      ],
+                      availableActions: ["RETRY", "DELETE", "MANUAL_PROFILE"],
                       pollingAfterMs: null,
                       scanRetriesRemaining: 2,
                       extractionRetriesRemaining: 2,
@@ -393,11 +389,7 @@ describe("CV import cross-state accessibility workflow", () => {
                         code: "SCANNER_UNAVAILABLE",
                         message: "Scanner unavailable.",
                         retryable: true,
-                        suggestedActions: [
-                          "RETRY",
-                          "MANUAL_PROFILE",
-                          "DELETE",
-                        ],
+                        suggestedActions: ["RETRY", "MANUAL_PROFILE", "DELETE"],
                       },
                     }}
                   />

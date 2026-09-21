@@ -18,7 +18,8 @@ export function MessageComposer({
   const copy = messagingCopy(locale);
   const [content, setContent] = useState("");
   const [validation, setValidation] = useState<string | null>(null);
-  const { send } = useSendMessage(conversationId);
+  const { send, outbox } = useSendMessage(conversationId);
+  const latest = outbox.at(-1);
 
   async function submit() {
     const parsed = messageContentSchema.safeParse(content);
@@ -77,6 +78,22 @@ export function MessageComposer({
         </button>
       </form>
       <p className="messaging-composer-hint">{copy.sendHint}</p>
+      {latest?.status === "SENT" ? (
+        <p className="messaging-inline-status" role="status" aria-live="polite">
+          {copy.deliverySent}
+        </p>
+      ) : null}
+      {latest?.status === "FAILED" ? (
+        <p className="messaging-inline-alert" role="alert">
+          <span>{copy.sendFailed}</span>
+          <button
+            type="button"
+            onClick={() => void send(latest.content, latest.clientOperationId)}
+          >
+            {copy.retry}
+          </button>
+        </p>
+      ) : null}
       {validation ? (
         <p className="messaging-inline-alert" role="alert">
           {validation}

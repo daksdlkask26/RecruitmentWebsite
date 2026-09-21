@@ -60,14 +60,14 @@ export function JobsWorkspaceNav({
           saved: "Việc đã lưu",
           matches: "Việc làm đề xuất",
           settings: "Cài đặt gợi ý việc làm",
-          navigation: "Không gian ứng viên",
+          navigation: "Điều hướng việc làm",
         }
       : {
           search: "Find jobs",
           saved: "Saved Jobs",
           matches: "Suggested Jobs",
           settings: "Job Recommendation Settings",
-          navigation: "Candidate workspace",
+          navigation: "Jobs navigation",
         };
 
   return (

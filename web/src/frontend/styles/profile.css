@@ -55,7 +55,7 @@
 }
 
 .profile-navigation a[aria-current="page"] {
-  color: var(--primary, var(--sh-color-brand-primary));
+  color: var(--sh-color-info);
   background: var(--sh-profile-surface);
   font-weight: 600;
   box-shadow: var(--sh-shadow-control);
@@ -1497,7 +1497,10 @@
  * its reference-level refinements. Those refinements intentionally tune the
  * compact layout, but their original light-only surface values leaked into
  * dark mode. */
-:root[data-theme="dark"] .profile-page--standalone .security-grid > .security-panel {
+:root[data-theme="dark"]
+  .profile-page--standalone
+  .security-grid
+  > .security-panel {
   border-color: var(--sh-color-border-subtle);
   background: var(--sh-color-surface-card);
   box-shadow: var(--sh-shadow-card);
@@ -1508,12 +1511,18 @@
   background: var(--sh-color-warning-bg);
 }
 
-:root[data-theme="dark"] .profile-page--standalone .security-password-protected {
+:root[data-theme="dark"]
+  .profile-page--standalone
+  .security-password-protected {
   color: var(--sh-color-text-primary);
   background: var(--sh-color-success-bg);
 }
 
-:root[data-theme="dark"] .profile-page--standalone .security-panel .field input {
+:root[data-theme="dark"]
+  .profile-page--standalone
+  .security-panel
+  .field
+  input {
   border-color: var(--sh-color-border-subtle);
   color: var(--sh-color-text-primary);
   background: var(--sh-color-surface-subtle);
@@ -1539,14 +1548,21 @@
   color: var(--sh-color-text-primary);
 }
 
-:root[data-theme="dark"] .profile-page--standalone .security-panel .panel-kicker {
+:root[data-theme="dark"]
+  .profile-page--standalone
+  .security-panel
+  .panel-kicker {
   color: var(--sh-color-brand-accent);
 }
 
 :root[data-theme="dark"] .profile-page--standalone .security-field-label span,
 :root[data-theme="dark"] .profile-page--standalone .password-field-hint,
 :root[data-theme="dark"] .profile-page--standalone .security-panel-copy,
-:root[data-theme="dark"] .profile-page--standalone .password-change-form .field > p {
+:root[data-theme="dark"]
+  .profile-page--standalone
+  .password-change-form
+  .field
+  > p {
   color: var(--sh-color-text-muted);
 }
 
@@ -1558,7 +1574,9 @@
   background: var(--sh-color-surface-subtle);
 }
 
-:root[data-theme="dark"] .profile-page--standalone .password-field-hint-tooltip {
+:root[data-theme="dark"]
+  .profile-page--standalone
+  .password-field-hint-tooltip {
   color: var(--sh-color-text-primary);
   border-color: var(--sh-color-border-subtle);
   background: var(--sh-color-surface-card);
@@ -1620,13 +1638,19 @@
   background: var(--sh-color-success-bg);
 }
 
-:root[data-theme="dark"] .profile-page--standalone .password-requirement-checklist li {
+:root[data-theme="dark"]
+  .profile-page--standalone
+  .password-requirement-checklist
+  li {
   border-color: var(--sh-color-border-subtle);
   color: var(--sh-color-text-muted);
   background: var(--sh-color-surface-subtle);
 }
 
-:root[data-theme="dark"] .profile-page--standalone .password-requirement-checklist li[data-met="true"] {
+:root[data-theme="dark"]
+  .profile-page--standalone
+  .password-requirement-checklist
+  li[data-met="true"] {
   border-color: color-mix(
     in srgb,
     var(--sh-color-success) 34%,

@@ -5,10 +5,11 @@ describe("pipeline accessibility boundary", () => {
   it("provides labelled list/kanban switching, columns, load-more, and non-color state copy", () => {
     const workspace = readFileSync("src/frontend/features/recruiter-applications/recruiter-candidate-workspace.tsx", "utf8");
     const column = readFileSync("src/frontend/features/recruiter-applications/recruitment-pipeline-column.tsx", "utf8");
-    expect(workspace).toMatch(/aria-label=.*view/i);
+    expect(workspace).toContain("aria-label={copy.candidates}");
+    expect(workspace).toContain("<CandidateRankingList");
     expect(column).toContain('role="region"');
-    expect(column).toMatch(/Load more/i);
-    expect(column).toMatch(/No applications/i);
+    expect(column).toContain("copy.loadMore");
+    expect(column).toContain("copy.noCandidates");
   });
 
   it("uses shared theme tokens for board, card, controls, and dialog surfaces", () => {

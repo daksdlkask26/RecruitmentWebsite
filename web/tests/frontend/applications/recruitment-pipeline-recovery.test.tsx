@@ -17,7 +17,8 @@ describe("pipeline recovery", () => {
     expect(hook).toContain("preserve: true");
 
     const rankingHook = readFileSync("src/frontend/features/recruiter-applications/use-ranked-candidates.ts", "utf8");
-    expect(rankingHook).toContain("RANKED_REFRESH_INTERVAL_MS");
+    expect(rankingHook).toContain("RANKED_PAGE_CACHE_MAX_AGE_MS");
+    expect(rankingHook).toContain("rankedPageRequestVersions");
     expect(rankingHook).toContain("requestInFlight");
     expect(rankingHook).toContain("visibilitychange");
   });

@@ -25,6 +25,9 @@ describe("job recommendation settings localization", () => {
     expect(
       screen.getByRole("link", { name: "Cài đặt gợi ý việc làm" }),
     ).toHaveAttribute("aria-current", "page");
+    expect(
+      screen.getByRole("navigation", { name: "Điều hướng việc làm" }),
+    ).toBeVisible();
     expect(screen.getByText("Thông tin cá nhân")).toBeVisible();
     expect(screen.getByLabelText(/vị trí chuyên môn/i)).toHaveAttribute(
       "placeholder",
@@ -38,6 +41,7 @@ describe("job recommendation settings localization", () => {
   it("retains the English copy for English workspaces", () => {
     render(
       <WorkspaceLocaleProvider initialLocale="en">
+        <JobsWorkspaceNav activeTab="settings" />
         <JobPreferencesForm
           initialPreferences={defaultJobPreferences}
           positionOptions={[]}
@@ -46,6 +50,9 @@ describe("job recommendation settings localization", () => {
       </WorkspaceLocaleProvider>,
     );
 
+    expect(
+      screen.getByRole("navigation", { name: "Jobs navigation" }),
+    ).toBeVisible();
     expect(screen.getByText("Personal information")).toBeVisible();
     expect(screen.getByRole("button", { name: "Update" })).toBeVisible();
   });

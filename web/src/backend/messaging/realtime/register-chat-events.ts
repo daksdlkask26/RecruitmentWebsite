@@ -96,6 +96,7 @@ export function registerChatEvents(
     blocks: MessagingBlockRepositoryPort;
     send: SendMessageService;
     revalidateSession: () => Promise<boolean>;
+    joinConversationRoom?: (room: string) => void | Promise<void>;
   },
 ) {
   socket.on("conversation:join", async (raw, acknowledge) => {
@@ -109,7 +110,13 @@ export function registerChatEvents(
         userId: socket.data.userId,
         ...dependencies,
       });
-      await socket.join(conversationRoom(input.conversationId));
+      if (dependencies.joinConversationRoom) {
+        await dependencies.joinConversationRoom(
+          conversationRoom(input.conversationId),
+        );
+      } else {
+        await socket.join(conversationRoom(input.conversationId));
+      }
       dependencies.registry.joinConversation(socket.id, input.conversationId);
       acknowledge({
         ok: true,

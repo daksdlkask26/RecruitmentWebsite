@@ -1589,10 +1589,10 @@ body:has(.global-image-search-overlay) {
   width: 52px;
   height: 66px;
   place-items: center;
-  border: 1.5px dashed #dce5f8;
+  border: 1.5px dashed var(--sh-color-border-subtle);
   border-radius: 8px;
-  color: #96a1c2;
-  background: #fff;
+  color: var(--sh-color-text-secondary);
+  background: var(--sh-color-surface-card);
   font-size: 8px;
   font-weight: 600;
 }

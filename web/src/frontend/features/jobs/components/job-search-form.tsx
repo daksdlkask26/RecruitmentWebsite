@@ -16,6 +16,7 @@ import type { StructuredSearchFilter } from "@/shared/contracts/search/natural-l
 import type { JobSearchTaxonomy } from "@/shared/contracts/jobs/taxonomy";
 import type { SavedFilterPreset } from "@/shared/contracts/jobs/catalog";
 import { SavedSearchVersionNotice } from "./saved-search-version-notice";
+import { useModalA11y } from "@/frontend/components/ui/use-modal-a11y";
 
 export type JobSearchCriteria = Partial<
   Record<string, string | string[] | number | undefined>
@@ -489,8 +490,8 @@ export function JobSearchForm({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [customSalaryMin, setCustomSalaryMin] = useState("");
   const [customSalaryMax, setCustomSalaryMax] = useState("");
-  const drawer = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const mobileCloseButton = useRef<HTMLButtonElement>(null);
   const form = useRef<HTMLFormElement>(null);
   const live = Boolean(onCriteriaChange);
   const shared = useOptionalJobInteraction();
@@ -499,6 +500,34 @@ export function JobSearchForm({
   const [selectedPresetId, setSelectedPresetId] = useState("");
   const [restoredPreset, setRestoredPreset] =
     useState<SavedFilterPreset | null>(null);
+  const saveNameInput = useRef<HTMLInputElement>(null);
+  const saveTrigger = useRef<HTMLButtonElement>(null);
+  const closeSaveDialog = () => {
+    setPresetName("");
+    setSaveDialogOpen(false);
+  };
+  const saveDialog = useModalA11y({
+    open: saveDialogOpen,
+    onClose: closeSaveDialog,
+    initialFocusRef: saveNameInput,
+    returnFocusRef: saveTrigger,
+  });
+  const drawer = useModalA11y<HTMLElement>({
+    open: mobileOpen,
+    onClose: () => setMobileOpen(false),
+    initialFocusRef: mobileCloseButton,
+    returnFocusRef: trigger,
+  });
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const focusTimer = window.setTimeout(
+      () => mobileCloseButton.current?.focus(),
+      100,
+    );
+    return () => window.clearTimeout(focusTimer);
+  }, [mobileOpen]);
+
   const optionLabel = (value: string) =>
     (vi ? valueLabelsVi : valueLabels)[value] ?? value;
 
@@ -560,44 +589,6 @@ export function JobSearchForm({
     if (rawQuery) next.searchMode = preset.searchMode ?? legacyMode;
     onCriteriaChange(next, "immediate");
   };
-
-  useEffect(() => {
-    if (!mobileOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    const returnTarget = trigger.current;
-    document.body.style.overflow = "hidden";
-    const focusTimer = window.setTimeout(() => drawer.current?.focus(), 0);
-    const keydown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setMobileOpen(false);
-        return;
-      }
-      if (event.key !== "Tab" || !drawer.current) return;
-      const controls = Array.from(
-        drawer.current.querySelectorAll<HTMLElement>(
-          "button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex='-1'])",
-        ),
-      );
-      const first = controls[0];
-      const last = controls.at(-1);
-      if (!first || !last) return;
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener("keydown", keydown);
-    return () => {
-      window.clearTimeout(focusTimer);
-      document.removeEventListener("keydown", keydown);
-      document.body.style.overflow = previousOverflow;
-      returnTarget?.focus();
-    };
-  }, [mobileOpen]);
 
   useEffect(() => {
     const filterColumn =
@@ -825,6 +816,7 @@ export function JobSearchForm({
               </div>
             </div>
             <button
+              ref={mobileCloseButton}
               className="job-filter-mobile-close"
               type="button"
               aria-label={copy.close}
@@ -1053,6 +1045,7 @@ export function JobSearchForm({
               <span>{copy.arrangement}</span>
               <select
                 name="workArrangement"
+                aria-label={copy.arrangement}
                 {...valueProps("workArrangement")}
                 onChange={(event) =>
                   updateCriterion(
@@ -1124,7 +1117,11 @@ export function JobSearchForm({
               <strong>{copy.keepSearch}</strong>
               <p>{copy.saveDescription}</p>
             </div>
-            <button type="button" onClick={() => setSaveDialogOpen(true)}>
+            <button
+              ref={saveTrigger}
+              type="button"
+              onClick={() => setSaveDialogOpen(true)}
+            >
               {copy.saveFilter}
             </button>
             {shared.savedFilterPresets.length ? (
@@ -1153,19 +1150,21 @@ export function JobSearchForm({
       {saveDialogOpen && shared ? (
         <div className="job-save-filter-dialog-backdrop">
           <section
+            ref={saveDialog}
             className="job-save-filter-dialog"
             role="dialog"
             aria-modal="true"
             aria-labelledby="live-save-filter-title"
+            aria-describedby="live-save-filter-description"
           >
             <p className="panel-kicker">{copy.saveFilter}</p>
             <h2 id="live-save-filter-title">{copy.nameSearch}</h2>
-            <p>{copy.savedDescription}</p>
+            <p id="live-save-filter-description">{copy.savedDescription}</p>
             <label>
               {copy.searchName}
               <input
+                ref={saveNameInput}
                 className="sh-input"
-                autoFocus
                 maxLength={160}
                 value={presetName}
                 placeholder={copy.searchExample}
@@ -1176,10 +1175,7 @@ export function JobSearchForm({
               <button
                 className="sh-button sh-button--secondary"
                 type="button"
-                onClick={() => {
-                  setPresetName("");
-                  setSaveDialogOpen(false);
-                }}
+                onClick={closeSaveDialog}
               >
                 {copy.cancel}
               </button>
@@ -1193,8 +1189,7 @@ export function JobSearchForm({
                     filterSnapshot,
                     presetMetadata,
                   );
-                  setPresetName("");
-                  setSaveDialogOpen(false);
+                  closeSaveDialog();
                 }}
               >
                 {copy.saveFilterAction}

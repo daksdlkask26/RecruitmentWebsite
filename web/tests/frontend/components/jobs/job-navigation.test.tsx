@@ -5,6 +5,7 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
@@ -316,12 +317,20 @@ describe("job board navigation", () => {
 
   it("shows the Profile workspace bar and marks Jobs as active", () => {
     render(
-      <WorkspaceShell
-        csrfProof="proof"
-        profile={{ name: "Job Candidate", email: "candidate@example.test" }}
+      <QueryClientProvider
+        client={
+          new QueryClient({
+            defaultOptions: { queries: { retry: false } },
+          })
+        }
       >
-        <h1>Jobs</h1>
-      </WorkspaceShell>,
+        <WorkspaceShell
+          csrfProof="proof"
+          profile={{ name: "Job Candidate", email: "candidate@example.test" }}
+        >
+          <h1>Jobs</h1>
+        </WorkspaceShell>
+      </QueryClientProvider>,
     );
 
     expect(

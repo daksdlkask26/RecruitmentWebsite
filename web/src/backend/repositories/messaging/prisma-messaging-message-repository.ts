@@ -11,7 +11,10 @@ export class PrismaMessagingMessageRepository implements MessagingMessageReposit
 
   async accept(input: Parameters<MessagingMessageRepositoryPort["accept"]>[0]) {
     const replay = await this.findReplay(input);
-    if (replay) return replay;
+    if (replay) {
+      await this.tryCreateMessageNotification(input, replay.message);
+      return replay;
+    }
 
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
@@ -75,28 +78,11 @@ export class PrismaMessagingMessageRepository implements MessagingMessageReposit
                 lastMessageAt: input.now,
               },
             });
-            const recipient =
-              await new NotificationRecipientPolicy(
-                tx,
-              ).otherConversationParticipant(
-                input.conversationId,
-                input.senderId,
-              );
-            if (recipient) {
-              await createInAppNotification(tx, {
-                recipientUserId: recipient.userId,
-                kind: "MESSAGE_RECEIVED",
-                deduplicationKey: `message:${input.conversationId}:${recipient.userId}:after:${recipient.lastReadSequence}`,
-                correlationId: created.id,
-                occurredAt: input.now,
-                contextType: "CONVERSATION",
-                contextId: input.conversationId,
-              });
-            }
             return created;
           },
           { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
         );
+        await this.tryCreateMessageNotification(input, message);
         return { message, deduplicated: false };
       } catch (error) {
         if (
@@ -104,7 +90,13 @@ export class PrismaMessagingMessageRepository implements MessagingMessageReposit
           error.code === "P2002"
         ) {
           const replayAfterConflict = await this.findReplay(input);
-          if (replayAfterConflict) return replayAfterConflict;
+          if (replayAfterConflict) {
+            await this.tryCreateMessageNotification(
+              input,
+              replayAfterConflict.message,
+            );
+            return replayAfterConflict;
+          }
         }
         if (
           error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -117,6 +109,29 @@ export class PrismaMessagingMessageRepository implements MessagingMessageReposit
       }
     }
     throw new MessagingError("PERSISTENCE_UNAVAILABLE", 503, true);
+  }
+
+  private async tryCreateMessageNotification(
+    input: Parameters<MessagingMessageRepositoryPort["accept"]>[0],
+    message: { id: string; conversationId: string },
+  ) {
+    try {
+      const recipient = await new NotificationRecipientPolicy(
+        this.db,
+      ).otherConversationParticipant(input.conversationId, input.senderId);
+      if (!recipient) return;
+      await createInAppNotification(this.db, {
+        recipientUserId: recipient.userId,
+        kind: "MESSAGE_RECEIVED",
+        deduplicationKey: `message:${input.conversationId}:${recipient.userId}:after:${recipient.lastReadSequence}`,
+        correlationId: message.id,
+        occurredAt: input.now,
+        contextType: "CONVERSATION",
+        contextId: input.conversationId,
+      });
+    } catch {
+      // A notification failure must not roll back or fail a durable message.
+    }
   }
 
   private async findReplay(

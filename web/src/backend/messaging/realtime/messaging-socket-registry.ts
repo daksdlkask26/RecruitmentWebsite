@@ -37,7 +37,8 @@ export class MessagingSocketRegistry implements MessagingSocketRegistryPort {
         this.socketsBySession.delete(identity.sessionId);
       }
     }
-    for (const conversationId of this.conversationsBySocket.get(socketId) ?? []) {
+    for (const conversationId of this.conversationsBySocket.get(socketId) ??
+      []) {
       this.leaveConversation(socketId, conversationId);
     }
     this.conversationsBySocket.delete(socketId);
@@ -46,10 +47,12 @@ export class MessagingSocketRegistry implements MessagingSocketRegistryPort {
 
   joinConversation(socketId: string, conversationId: string) {
     if (!this.identities.has(socketId)) return;
-    const conversations = this.conversationsBySocket.get(socketId) ?? new Set<string>();
+    const conversations =
+      this.conversationsBySocket.get(socketId) ?? new Set<string>();
     conversations.add(conversationId);
     this.conversationsBySocket.set(socketId, conversations);
-    const sockets = this.socketsByConversation.get(conversationId) ?? new Set<string>();
+    const sockets =
+      this.socketsByConversation.get(conversationId) ?? new Set<string>();
     sockets.add(socketId);
     this.socketsByConversation.set(conversationId, sockets);
   }
@@ -71,6 +74,25 @@ export class MessagingSocketRegistry implements MessagingSocketRegistryPort {
 
   socketIdsForConversation(conversationId: string): ReadonlySet<string> {
     return this.socketsByConversation.get(conversationId) ?? new Set();
+  }
+
+  userIdsForConversation(conversationId: string): ReadonlySet<string> {
+    const userIds = new Set<string>();
+    for (const socketId of this.socketIdsForConversation(conversationId)) {
+      const userId = this.userIdForSocket(socketId);
+      if (userId) userIds.add(userId);
+    }
+    return userIds;
+  }
+
+  conversationIdsForUser(userId: string): ReadonlySet<string> {
+    const conversationIds = new Set<string>();
+    for (const socketId of this.socketIdsForUser(userId)) {
+      for (const conversationId of this.conversationIdsForSocket(socketId)) {
+        conversationIds.add(conversationId);
+      }
+    }
+    return conversationIds;
   }
 
   userIdForSocket(socketId: string) {

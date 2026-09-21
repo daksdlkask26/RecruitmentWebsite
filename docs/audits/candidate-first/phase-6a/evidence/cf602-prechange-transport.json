@@ -1,0 +1,203 @@
+{
+  "schema": "candidate-first-realtime-phase6a-v1",
+  "startedAt": "2026-09-19T09:17:14.488Z",
+  "completedAt": "2026-09-19T09:17:15.178Z",
+  "environment": {
+    "transport": "websocket",
+    "socketPath": "/chat",
+    "realSocketIoGateway": true,
+    "repositoryMode": "in-memory-contract-double",
+    "databaseMutations": false,
+    "repetitions": 1
+  },
+  "acceptance": {
+    "widths": [1, 10, 40, 100],
+    "eachWidthRequires": [
+      "two authenticated sockets connect",
+      "connection auto-joins every authorized conversation room",
+      "list-only message acknowledgement and account invalidation succeed",
+      "active-room delivery succeeds after eager initialization",
+      "disconnect/reconnect restores all authorized rooms",
+      "presence transitions include online and offline"
+    ]
+  },
+  "summary": {
+    "totalMeasurements": 4,
+    "failedMeasurements": 0,
+    "passedWidths": 4,
+    "status": "PASS"
+  },
+  "byWidth": [
+    {
+      "width": 1,
+      "repetitions": 1,
+      "status": "PASS",
+      "connectLatencyMsP50": 16.19,
+      "connectLatencyMsP95": 20.84,
+      "reconnectLatencyMsP50": 12.39,
+      "reconnectLatencyMsP95": 12.39,
+      "messageDeliveryMsP50": 1.25,
+      "messageDeliveryMsP95": 1.25,
+      "maxRoomsPerSocket": 1,
+      "maxHeapDeltaBytes": 2656704,
+      "maxRepositoryCalls": 10
+    },
+    {
+      "width": 10,
+      "repetitions": 1,
+      "status": "PASS",
+      "connectLatencyMsP50": 8.2,
+      "connectLatencyMsP95": 8.85,
+      "reconnectLatencyMsP50": 9.5,
+      "reconnectLatencyMsP95": 9.5,
+      "messageDeliveryMsP50": 1.85,
+      "messageDeliveryMsP95": 1.85,
+      "maxRoomsPerSocket": 10,
+      "maxHeapDeltaBytes": 1570968,
+      "maxRepositoryCalls": 46
+    },
+    {
+      "width": 40,
+      "repetitions": 1,
+      "status": "PASS",
+      "connectLatencyMsP50": 10.9,
+      "connectLatencyMsP95": 12.27,
+      "reconnectLatencyMsP50": 9.83,
+      "reconnectLatencyMsP95": 9.83,
+      "messageDeliveryMsP50": 1.67,
+      "messageDeliveryMsP95": 1.67,
+      "maxRoomsPerSocket": 40,
+      "maxHeapDeltaBytes": 2583792,
+      "maxRepositoryCalls": 166
+    },
+    {
+      "width": 100,
+      "repetitions": 1,
+      "status": "PASS",
+      "connectLatencyMsP50": 8.82,
+      "connectLatencyMsP95": 9.62,
+      "reconnectLatencyMsP50": 8.34,
+      "reconnectLatencyMsP95": 8.34,
+      "messageDeliveryMsP50": 0.99,
+      "messageDeliveryMsP95": 0.99,
+      "maxRoomsPerSocket": 100,
+      "maxHeapDeltaBytes": 4000856,
+      "maxRepositoryCalls": 406
+    }
+  ],
+  "raw": [
+    {
+      "width": 1,
+      "repetition": 1,
+      "expectedSockets": 2,
+      "connectedSockets": 2,
+      "expectedRoomsPerSocket": 1,
+      "roomsPerSocket": 1,
+      "explicitJoinedRoomsPerSocket": 1,
+      "connectLatencyMs": {
+        "candidate": 20.84,
+        "recruiter": 16.19
+      },
+      "reconnectLatencyMs": 12.39,
+      "messageDeliveryMs": 1.25,
+      "presenceOnlineTransitions": 4,
+      "presenceOfflineTransitions": 2,
+      "repositoryCalls": {
+        "listAuthorized": 4,
+        "findAccess": 10,
+        "authorizeContext": 8,
+        "blockChecks": 8,
+        "canMessage": 2,
+        "accept": 2
+      },
+      "heapDeltaBytes": 2656704,
+      "status": "PASS"
+    },
+    {
+      "width": 10,
+      "repetition": 1,
+      "expectedSockets": 2,
+      "connectedSockets": 2,
+      "expectedRoomsPerSocket": 10,
+      "roomsPerSocket": 10,
+      "explicitJoinedRoomsPerSocket": 10,
+      "connectLatencyMs": {
+        "candidate": 8.85,
+        "recruiter": 8.2
+      },
+      "reconnectLatencyMs": 9.5,
+      "messageDeliveryMs": 1.85,
+      "presenceOnlineTransitions": 4,
+      "presenceOfflineTransitions": 2,
+      "repositoryCalls": {
+        "listAuthorized": 4,
+        "findAccess": 46,
+        "authorizeContext": 44,
+        "blockChecks": 44,
+        "canMessage": 2,
+        "accept": 2
+      },
+      "heapDeltaBytes": 1570968,
+      "status": "PASS"
+    },
+    {
+      "width": 40,
+      "repetition": 1,
+      "expectedSockets": 2,
+      "connectedSockets": 2,
+      "expectedRoomsPerSocket": 40,
+      "roomsPerSocket": 40,
+      "explicitJoinedRoomsPerSocket": 40,
+      "connectLatencyMs": {
+        "candidate": 12.27,
+        "recruiter": 10.9
+      },
+      "reconnectLatencyMs": 9.83,
+      "messageDeliveryMs": 1.67,
+      "presenceOnlineTransitions": 4,
+      "presenceOfflineTransitions": 2,
+      "repositoryCalls": {
+        "listAuthorized": 4,
+        "findAccess": 166,
+        "authorizeContext": 164,
+        "blockChecks": 164,
+        "canMessage": 2,
+        "accept": 2
+      },
+      "heapDeltaBytes": 2583792,
+      "status": "PASS"
+    },
+    {
+      "width": 100,
+      "repetition": 1,
+      "expectedSockets": 2,
+      "connectedSockets": 2,
+      "expectedRoomsPerSocket": 100,
+      "roomsPerSocket": 100,
+      "explicitJoinedRoomsPerSocket": 100,
+      "connectLatencyMs": {
+        "candidate": 9.62,
+        "recruiter": 8.82
+      },
+      "reconnectLatencyMs": 8.34,
+      "messageDeliveryMs": 0.99,
+      "presenceOnlineTransitions": 4,
+      "presenceOfflineTransitions": 2,
+      "repositoryCalls": {
+        "listAuthorized": 4,
+        "findAccess": 406,
+        "authorizeContext": 404,
+        "blockChecks": 404,
+        "canMessage": 2,
+        "accept": 2
+      },
+      "heapDeltaBytes": 4000856,
+      "status": "PASS"
+    }
+  ],
+  "errors": [],
+  "limitations": [
+    "This stress probe uses the production Socket.IO gateway and the repository interfaces with an in-memory contract double, so it isolates transport, authorization and room fan-out overhead without writing application data.",
+    "Database-backed query latency and cross-process adapter behavior require a separate production-like load test; this report does not claim those properties."
+  ]
+}

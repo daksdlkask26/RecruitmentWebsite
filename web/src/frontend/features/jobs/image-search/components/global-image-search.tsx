@@ -49,6 +49,7 @@ import {
 
 import { useCsrfProof } from "@/frontend/features/authentication/client/csrf-proof-context";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
+import { useModalA11y } from "@/frontend/components/ui/use-modal-a11y";
 import type { JobSearchTaxonomy } from "@/shared/contracts/jobs/taxonomy";
 import type { ManualSearchContext } from "@/shared/contracts/jobs/image-search";
 import { applyImageSearchIntent } from "../client/apply-image-search-intent";
@@ -351,8 +352,8 @@ function JobCategoryMenu({
     Record<string, { name: string; categoryIds: readonly string[] }>
   >({});
   const menu = useRef<HTMLDivElement>(null);
-  const explorer = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const categorySearch = useRef<HTMLInputElement>(null);
   const categoryButtons = useRef<Record<string, HTMLButtonElement | null>>({});
   const active =
     taxonomy.industries.find((industry) => industry.code === activeCode) ??
@@ -389,8 +390,14 @@ function JobCategoryMenu({
   const close = useCallback(() => {
     resetDraft();
     setOpen(false);
-    trigger.current?.focus();
   }, [resetDraft]);
+  const explorer = useModalA11y<HTMLDivElement>({
+    open,
+    onClose: close,
+    initialFocusRef: categorySearch,
+    returnFocusRef: trigger,
+    lockBodyScroll: false,
+  });
 
   const openMenu = () => {
     if (open) {
@@ -455,25 +462,20 @@ function JobCategoryMenu({
 
   useEffect(() => {
     if (!open) return;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
+    const closeOutside = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (
+        !menu.current?.contains(target) &&
+        !explorer.current?.contains(target)
+      ) {
         close();
       }
     };
-    const closeOutside = (event: PointerEvent) => {
-      if (!menu.current?.contains(event.target as Node)) {
-        resetDraft();
-        setOpen(false);
-      }
-    };
-    document.addEventListener("keydown", closeOnEscape);
     document.addEventListener("pointerdown", closeOutside);
     return () => {
-      document.removeEventListener("keydown", closeOnEscape);
       document.removeEventListener("pointerdown", closeOutside);
     };
-  }, [close, open, resetDraft]);
+  }, [close, explorer, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -499,7 +501,7 @@ function JobCategoryMenu({
       document.removeEventListener("wheel", preventBackgroundScroll, true);
       document.removeEventListener("touchmove", preventBackgroundScroll, true);
     };
-  }, [open]);
+  }, [explorer, open]);
 
   if (!taxonomy.industries.length) return null;
 
@@ -564,363 +566,385 @@ function JobCategoryMenu({
         </button>
       ) : null}
 
-      {open && active ? (
-        <div
-          ref={explorer}
-          id="job-category-flyout"
-          className="job-category-flyout"
-          role="dialog"
-          aria-modal="true"
-          aria-label={vi ? "Nhóm ngành việc làm" : "Job categories"}
-        >
-          <header className="job-category-explorer-header">
-            <div className="job-category-explorer-intro">
-              <span className="job-category-explorer-logo" aria-hidden="true">
-                <Layers />
-              </span>
-              <div>
-                <p>
-                  {vi
-                    ? "Khám phá cơ hội theo ngành"
-                    : "Browse opportunities by industry"}
-                </p>
-                <small>
-                  {vi
-                    ? "Chọn vị trí cụ thể hoặc toàn bộ ngành để lọc việc làm"
-                    : "Select roles or an entire field to refine your job search"}
-                </small>
-              </div>
-            </div>
-            <label className="job-category-explorer-search">
-              <SearchIcon aria-hidden="true" />
-              <span className="sr-only">
-                {vi ? "Lọc vị trí" : "Filter roles"}
-              </span>
-              <input
-                type="search"
-                value={filterQuery}
-                placeholder={
-                  vi
-                    ? "Lọc kỹ năng hoặc vị trí..."
-                    : "Filter skills or titles..."
-                }
-                onChange={(event) => setFilterQuery(event.currentTarget.value)}
-              />
-            </label>
-            <button
-              className="job-category-close"
-              type="button"
-              aria-label={vi ? "Đóng" : "Close job categories"}
-              onClick={close}
-            >
-              <X aria-hidden="true" />
-            </button>
-          </header>
-          <div className="job-category-explorer-body">
-            <aside className="job-category-explorer-sidebar">
-              <p className="job-category-industry-count">
-                {vi
-                  ? `Ngành nghề (${taxonomy.industries.length})`
-                  : `Industries (${taxonomy.industries.length})`}
-              </p>
-              <ul
-                className="job-category-industries"
-                aria-label={vi ? "Nhóm ngành" : "Job categories"}
+      {open && active && typeof document !== "undefined"
+        ? createPortal(
+            <div className="global-image-search job-category-explorer-portal">
+              <div
+                ref={explorer}
+                id="job-category-flyout"
+                className="job-category-flyout"
+                role="dialog"
+                aria-modal="true"
+                aria-label={vi ? "Nhóm ngành việc làm" : "Job categories"}
               >
-                {taxonomy.industries.map((industry) => {
-                  const selected = industry.code === active.code;
-                  return (
-                    <li
-                      className="job-category-industry-item"
-                      key={industry.code}
+                <div className="job-category-explorer-header">
+                  <div className="job-category-explorer-intro">
+                    <span
+                      className="job-category-explorer-logo"
+                      aria-hidden="true"
                     >
+                      <Layers />
+                    </span>
+                    <div>
+                      <p>
+                        {vi
+                          ? "Khám phá cơ hội theo ngành"
+                          : "Browse opportunities by industry"}
+                      </p>
+                      <small>
+                        {vi
+                          ? "Chọn vị trí cụ thể hoặc toàn bộ ngành để lọc việc làm"
+                          : "Select roles or an entire field to refine your job search"}
+                      </small>
+                    </div>
+                  </div>
+                  <label className="job-category-explorer-search">
+                    <SearchIcon aria-hidden="true" />
+                    <span className="sr-only">
+                      {vi ? "Lọc vị trí" : "Filter roles"}
+                    </span>
+                    <input
+                      ref={categorySearch}
+                      type="search"
+                      value={filterQuery}
+                      placeholder={
+                        vi
+                          ? "Lọc kỹ năng hoặc vị trí..."
+                          : "Filter skills or titles..."
+                      }
+                      onChange={(event) =>
+                        setFilterQuery(event.currentTarget.value)
+                      }
+                    />
+                  </label>
+                  <button
+                    className="job-category-close"
+                    type="button"
+                    aria-label={vi ? "Đóng" : "Close job categories"}
+                    onClick={close}
+                  >
+                    <X aria-hidden="true" />
+                  </button>
+                </div>
+                <div className="job-category-explorer-body">
+                  <aside className="job-category-explorer-sidebar">
+                    <p className="job-category-industry-count">
+                      {vi
+                        ? `Ngành nghề (${taxonomy.industries.length})`
+                        : `Industries (${taxonomy.industries.length})`}
+                    </p>
+                    <ul
+                      className="job-category-industries"
+                      aria-label={vi ? "Nhóm ngành" : "Job categories"}
+                    >
+                      {taxonomy.industries.map((industry) => {
+                        const selected = industry.code === active.code;
+                        return (
+                          <li
+                            className="job-category-industry-item"
+                            key={industry.code}
+                          >
+                            <button
+                              ref={(element) => {
+                                categoryButtons.current[industry.code] =
+                                  element;
+                              }}
+                              className="job-category-industry"
+                              data-active={selected}
+                              type="button"
+                              aria-pressed={selected}
+                              onClick={() => selectIndustry(industry.code)}
+                              onKeyDown={(event) => {
+                                if (event.key === "ArrowDown") {
+                                  event.preventDefault();
+                                  moveIndustryFocus(industry.code, 1);
+                                } else if (event.key === "ArrowUp") {
+                                  event.preventDefault();
+                                  moveIndustryFocus(industry.code, -1);
+                                } else if (event.key === "Home") {
+                                  event.preventDefault();
+                                  const first = taxonomy.industries[0];
+                                  if (!first) return;
+                                  selectIndustry(first.code);
+                                  categoryButtons.current[first.code]?.focus();
+                                } else if (event.key === "End") {
+                                  event.preventDefault();
+                                  const last = taxonomy.industries.at(-1);
+                                  if (!last) return;
+                                  selectIndustry(last.code);
+                                  categoryButtons.current[last.code]?.focus();
+                                }
+                              }}
+                            >
+                              <span
+                                className="job-category-industry-icon"
+                                data-industry-code={industry.code}
+                                aria-hidden="true"
+                              >
+                                <IndustryIcon code={industry.code} />
+                              </span>
+                              <span className="job-category-industry-copy">
+                                <strong>{industry.name}</strong>
+                                <small>
+                                  {industry.count}{" "}
+                                  {vi ? "vị trí đang tuyển" : "open roles"}
+                                </small>
+                              </span>
+                              <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="m9 6 6 6-6 6" />
+                              </svg>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </aside>
+                  <div className="job-category-detail">
+                    <div className="job-category-detail-heading">
+                      <div>
+                        <div className="job-category-detail-title-row">
+                          <p className="job-category-detail-title">
+                            {active.name}
+                          </p>
+                          <span className="job-category-total-count">
+                            {active.count}
+                          </span>
+                        </div>
+                        <p className="job-category-open-roles">
+                          {vi
+                            ? "Chọn vị trí cụ thể để thêm vào bộ lọc"
+                            : "Select specific roles to add them to your filter"}
+                        </p>
+                      </div>
                       <button
-                        ref={(element) => {
-                          categoryButtons.current[industry.code] = element;
-                        }}
-                        className="job-category-industry"
-                        data-active={selected}
+                        className="job-category-industry-pill"
                         type="button"
-                        aria-pressed={selected}
-                        onClick={() => selectIndustry(industry.code)}
-                        onKeyDown={(event) => {
-                          if (event.key === "ArrowDown") {
-                            event.preventDefault();
-                            moveIndustryFocus(industry.code, 1);
-                          } else if (event.key === "ArrowUp") {
-                            event.preventDefault();
-                            moveIndustryFocus(industry.code, -1);
-                          } else if (event.key === "Home") {
-                            event.preventDefault();
-                            const first = taxonomy.industries[0];
-                            if (!first) return;
-                            selectIndustry(first.code);
-                            categoryButtons.current[first.code]?.focus();
-                          } else if (event.key === "End") {
-                            event.preventDefault();
-                            const last = taxonomy.industries.at(-1);
-                            if (!last) return;
-                            selectIndustry(last.code);
-                            categoryButtons.current[last.code]?.focus();
-                          }
+                        data-selected={draftIndustryCode === active.code}
+                        aria-pressed={draftIndustryCode === active.code}
+                        aria-label={
+                          draftIndustryCode === active.code
+                            ? `${vi ? "Bỏ chọn toàn ngành" : "Clear entire industry"}: ${active.name}`
+                            : `${vi ? "Chọn toàn ngành" : "Select entire industry"}: ${active.name}`
+                        }
+                        onClick={() => {
+                          setDraftIndustryCode((current) =>
+                            current === active.code ? undefined : active.code,
+                          );
+                          setDraftCategoryIds([]);
+                          setDraftRoles({});
                         }}
                       >
-                        <span
-                          className="job-category-industry-icon"
-                          data-industry-code={industry.code}
-                          aria-hidden="true"
-                        >
-                          <IndustryIcon code={industry.code} />
-                        </span>
-                        <span className="job-category-industry-copy">
-                          <strong>{industry.name}</strong>
-                          <small>
-                            {industry.count}{" "}
-                            {vi ? "vị trí đang tuyển" : "open roles"}
-                          </small>
-                        </span>
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                          <path d="m9 6 6 6-6 6" />
-                        </svg>
+                        <CircleDot aria-hidden="true" />
+                        <strong>
+                          {draftIndustryCode === active.code
+                            ? vi
+                              ? "Đã chọn toàn ngành"
+                              : "Entire industry selected"
+                            : vi
+                              ? "Chọn toàn ngành"
+                              : "Select entire industry"}
+                        </strong>
+                        <small>
+                          {draftIndustryCode === active.code
+                            ? vi
+                              ? "Đang chọn · nhấn để bỏ"
+                              : "Selected · click to clear"
+                            : vi
+                              ? "Toàn ngành"
+                              : "Entire industry"}
+                        </small>
                       </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </aside>
-            <div className="job-category-detail">
-              <header className="job-category-detail-heading">
-                <div>
-                  <div className="job-category-detail-title-row">
-                    <p className="job-category-detail-title">{active.name}</p>
-                    <span className="job-category-total-count">
-                      {active.count}
-                    </span>
+                    </div>
+                    {visibleSubIndustries?.map((subIndustry) => (
+                      <section
+                        className="job-category-subindustry"
+                        key={subIndustry.name}
+                      >
+                        {(() => {
+                          const categoryId =
+                            subIndustry.code ??
+                            subIndustry.titles[0]?.categoryIds[0] ??
+                            undefined;
+                          const selectedCategory = categoryId
+                            ? draftCategoryIds.includes(categoryId)
+                            : false;
+                          return (
+                            <div className="job-category-subindustry-heading">
+                              <h2>
+                                {subIndustry.name}{" "}
+                                <span>({subIndustry.count})</span>
+                              </h2>
+                              {categoryId ? (
+                                <button
+                                  className="job-category-subindustry-select"
+                                  type="button"
+                                  data-selected={selectedCategory}
+                                  aria-pressed={selectedCategory}
+                                  aria-label={
+                                    vi
+                                      ? `${selectedCategory ? "Bỏ chọn" : "Chọn"} nhóm ngành: ${subIndustry.name}`
+                                      : `${selectedCategory ? "Clear" : "Select"} sub-industry: ${subIndustry.name}`
+                                  }
+                                  onClick={() => {
+                                    setDraftIndustryCode(undefined);
+                                    setDraftRoles({});
+                                    setDraftCategoryIds((current) =>
+                                      selectedCategory
+                                        ? current.filter(
+                                            (id) => id !== categoryId,
+                                          )
+                                        : [...current, categoryId],
+                                    );
+                                  }}
+                                >
+                                  {selectedCategory
+                                    ? vi
+                                      ? "Đã chọn"
+                                      : "Selected"
+                                    : vi
+                                      ? "Chọn"
+                                      : "Select"}
+                                </button>
+                              ) : null}
+                            </div>
+                          );
+                        })()}
+                        <div>
+                          {subIndustry.titles.map((title) => {
+                            const key = roleSelectionKey(
+                              active.code,
+                              subIndustry.name,
+                              title,
+                            );
+                            const selected = Boolean(draftRoles[key]);
+                            return (
+                              <button
+                                className="job-category-title-pill"
+                                key={title.name}
+                                type="button"
+                                data-selected={selected}
+                                aria-pressed={selected}
+                                title={title.name}
+                                onClick={() => {
+                                  setDraftIndustryCode(undefined);
+                                  setDraftCategoryIds([]);
+                                  setDraftRoles((current) => {
+                                    if (current[key]) {
+                                      const next = { ...current };
+                                      delete next[key];
+                                      return next;
+                                    }
+                                    return {
+                                      ...current,
+                                      [key]: {
+                                        name: title.name,
+                                        categoryIds: title.categoryIds,
+                                      },
+                                    };
+                                  });
+                                }}
+                              >
+                                {selected ? <Check aria-hidden="true" /> : null}
+                                {title.name}
+                                {title.count > 1 ? (
+                                  <small className="job-category-title-count">
+                                    {title.count}
+                                  </small>
+                                ) : null}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </section>
+                    ))}
+                    {!visibleSubIndustries?.length ? (
+                      <p className="job-category-empty-roles">
+                        {vi
+                          ? "Không tìm thấy vị trí phù hợp."
+                          : "No matching roles found."}
+                      </p>
+                    ) : null}
                   </div>
-                  <p className="job-category-open-roles">
-                    {vi
-                      ? "Chọn vị trí cụ thể để thêm vào bộ lọc"
-                      : "Select specific roles to add them to your filter"}
-                  </p>
                 </div>
-                <button
-                  className="job-category-industry-pill"
-                  type="button"
-                  data-selected={draftIndustryCode === active.code}
-                  aria-pressed={draftIndustryCode === active.code}
-                  aria-label={
-                    draftIndustryCode === active.code
-                      ? `${vi ? "Bỏ chọn toàn ngành" : "Clear entire industry"}: ${active.name}`
-                      : `${vi ? "Chọn toàn ngành" : "Select entire industry"}: ${active.name}`
-                  }
-                  onClick={() => {
-                    setDraftIndustryCode((current) =>
-                      current === active.code ? undefined : active.code,
-                    );
-                    setDraftCategoryIds([]);
-                    setDraftRoles({});
-                  }}
-                >
-                  <CircleDot aria-hidden="true" />
-                  <strong>
-                    {draftIndustryCode === active.code
-                      ? vi
-                        ? "Đã chọn toàn ngành"
-                        : "Entire industry selected"
-                      : vi
-                        ? "Chọn toàn ngành"
-                        : "Select entire industry"}
-                  </strong>
-                  <small>
-                    {draftIndustryCode === active.code
-                      ? vi
-                        ? "Đang chọn · nhấn để bỏ"
-                        : "Selected · click to clear"
-                      : vi
-                        ? "Toàn ngành"
-                        : "Entire industry"}
-                  </small>
-                </button>
-              </header>
-              {visibleSubIndustries?.map((subIndustry) => (
-                <section
-                  className="job-category-subindustry"
-                  key={subIndustry.name}
-                >
-                  {(() => {
-                    const categoryId =
-                      subIndustry.code ??
-                      subIndustry.titles[0]?.categoryIds[0] ??
-                      undefined;
-                    const selectedCategory = categoryId
-                      ? draftCategoryIds.includes(categoryId)
-                      : false;
-                    return (
-                      <div className="job-category-subindustry-heading">
-                        <h2>
-                          {subIndustry.name} <span>({subIndustry.count})</span>
-                        </h2>
-                        {categoryId ? (
-                          <button
-                            className="job-category-subindustry-select"
-                            type="button"
-                            data-selected={selectedCategory}
-                            aria-pressed={selectedCategory}
-                            aria-label={
-                              vi
-                                ? `${selectedCategory ? "Bỏ chọn" : "Chọn"} nhóm ngành: ${subIndustry.name}`
-                                : `${selectedCategory ? "Clear" : "Select"} sub-industry: ${subIndustry.name}`
-                            }
-                            onClick={() => {
-                              setDraftIndustryCode(undefined);
-                              setDraftRoles({});
-                              setDraftCategoryIds((current) =>
-                                selectedCategory
-                                  ? current.filter((id) => id !== categoryId)
-                                  : [...current, categoryId],
-                              );
-                            }}
-                          >
-                            {selectedCategory
-                              ? vi
-                                ? "Đã chọn"
-                                : "Selected"
-                              : vi
-                                ? "Chọn"
-                                : "Select"}
-                          </button>
-                        ) : null}
-                      </div>
-                    );
-                  })()}
-                  <div>
-                    {subIndustry.titles.map((title) => {
-                      const key = roleSelectionKey(
-                        active.code,
-                        subIndustry.name,
-                        title,
-                      );
-                      const selected = Boolean(draftRoles[key]);
-                      return (
-                        <button
-                          className="job-category-title-pill"
-                          key={title.name}
-                          type="button"
-                          data-selected={selected}
-                          aria-pressed={selected}
-                          title={title.name}
-                          onClick={() => {
-                            setDraftIndustryCode(undefined);
-                            setDraftCategoryIds([]);
-                            setDraftRoles((current) => {
-                              if (current[key]) {
-                                const next = { ...current };
-                                delete next[key];
-                                return next;
-                              }
-                              return {
-                                ...current,
-                                [key]: {
-                                  name: title.name,
-                                  categoryIds: title.categoryIds,
-                                },
-                              };
-                            });
-                          }}
-                        >
-                          {selected ? <Check aria-hidden="true" /> : null}
-                          {title.name}
-                          {title.count > 1 ? (
-                            <small className="job-category-title-count">
-                              {title.count}
-                            </small>
-                          ) : null}
-                        </button>
-                      );
-                    })}
+                <div className="job-category-explorer-footer">
+                  <div
+                    className="job-category-selection-summary"
+                    aria-live="polite"
+                  >
+                    <strong>{selectionCount}</strong>
+                    <span>
+                      {draftIndustryCode
+                        ? vi
+                          ? "ngành đã chọn"
+                          : "industry selected"
+                        : draftCategoryIds.length
+                          ? vi
+                            ? "nhóm ngành đã chọn"
+                            : "sub-industries selected"
+                          : vi
+                            ? "vị trí đã chọn"
+                            : "roles selected"}
+                    </span>
+                    {hasSelection ? (
+                      <button
+                        className="job-category-selection-clear-all"
+                        type="button"
+                        onClick={() => {
+                          setDraftIndustryCode(undefined);
+                          setDraftCategoryIds([]);
+                          setDraftRoles({});
+                        }}
+                      >
+                        {vi ? "Xóa tất cả" : "Clear all"}
+                      </button>
+                    ) : null}
                   </div>
-                </section>
-              ))}
-              {!visibleSubIndustries?.length ? (
-                <p className="job-category-empty-roles">
-                  {vi
-                    ? "Không tìm thấy vị trí phù hợp."
-                    : "No matching roles found."}
-                </p>
-              ) : null}
-            </div>
-          </div>
-          <footer className="job-category-explorer-footer">
-            <div className="job-category-selection-summary" aria-live="polite">
-              <strong>{selectionCount}</strong>
-              <span>
-                {draftIndustryCode
-                  ? vi
-                    ? "ngành đã chọn"
-                    : "industry selected"
-                  : draftCategoryIds.length
-                    ? vi
-                      ? "nhóm ngành đã chọn"
-                      : "sub-industries selected"
-                    : vi
-                      ? "vị trí đã chọn"
-                      : "roles selected"}
-              </span>
-              {hasSelection ? (
-                <button
-                  className="job-category-selection-clear-all"
-                  type="button"
-                  onClick={() => {
-                    setDraftIndustryCode(undefined);
-                    setDraftCategoryIds([]);
-                    setDraftRoles({});
-                  }}
-                >
-                  {vi ? "Xóa tất cả" : "Clear all"}
-                </button>
-              ) : null}
-            </div>
-            <div className="job-category-explorer-actions">
-              <button
-                className="job-category-cancel"
-                type="button"
-                onClick={close}
-              >
-                {vi ? "Hủy" : "Cancel"}
-              </button>
-              <button
-                className="job-category-apply"
-                type="button"
-                disabled={!canApply}
-                onClick={() => {
-                  onApply({
-                    industryCode: draftIndustryCode,
-                    categoryIds: draftIndustryCode
-                      ? []
-                      : draftCategoryIds.length
-                        ? draftCategoryIds
-                        : Object.values(draftRoles).flatMap(
-                            (role) => role.categoryIds,
-                          ),
-                    roleTitles: draftIndustryCode
-                      ? []
-                      : draftCategoryIds.length
-                        ? []
-                        : Object.values(draftRoles).map((role) => role.name),
-                  });
-                  setOpen(false);
-                  trigger.current?.focus();
-                }}
-              >
-                <Check aria-hidden="true" />
-                {vi
-                  ? `Áp dụng bộ lọc (${selectionCount})`
-                  : `Apply filters (${selectionCount})`}
-              </button>
-            </div>
-          </footer>
-        </div>
-      ) : null}
+                  <div className="job-category-explorer-actions">
+                    <button
+                      className="job-category-cancel"
+                      type="button"
+                      onClick={close}
+                    >
+                      {vi ? "Hủy" : "Cancel"}
+                    </button>
+                    <button
+                      className="job-category-apply"
+                      type="button"
+                      disabled={!canApply}
+                      onClick={() => {
+                        onApply({
+                          industryCode: draftIndustryCode,
+                          categoryIds: draftIndustryCode
+                            ? []
+                            : draftCategoryIds.length
+                              ? draftCategoryIds
+                              : Object.values(draftRoles).flatMap(
+                                  (role) => role.categoryIds,
+                                ),
+                          roleTitles: draftIndustryCode
+                            ? []
+                            : draftCategoryIds.length
+                              ? []
+                              : Object.values(draftRoles).map(
+                                  (role) => role.name,
+                                ),
+                        });
+                        setOpen(false);
+                        trigger.current?.focus();
+                      }}
+                    >
+                      <Check aria-hidden="true" />
+                      {vi
+                        ? `Áp dụng bộ lọc (${selectionCount})`
+                        : `Apply filters (${selectionCount})`}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
@@ -1250,7 +1274,7 @@ export function GlobalImageSearch({
   const queryRef = useRef("");
   const locationQueryRef = useRef("");
   const cameraButton = useRef<HTMLButtonElement>(null);
-  const panel = useRef<HTMLDivElement>(null);
+  const closePanelButton = useRef<HTMLButtonElement>(null);
   const search = useImageSearch({
     currentCriteria: criteria,
     csrfProof: activeCsrfProof,
@@ -1322,26 +1346,18 @@ export function GlobalImageSearch({
     else console.warn(message);
   }, [taxonomy]);
 
-  useEffect(() => {
-    if (!showPanel) return;
-    const keydown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape" || busy) return;
-      event.preventDefault();
-      setPanelOpen(false);
-      setExternalConsent(false);
-      search.clear();
-      cameraButton.current?.focus();
-    };
-    document.addEventListener("keydown", keydown);
-    return () => document.removeEventListener("keydown", keydown);
-  }, [busy, search, showPanel]);
-
   const closePanel = () => {
     setPanelOpen(false);
     setExternalConsent(false);
     search.clear();
-    cameraButton.current?.focus();
   };
+  const panel = useModalA11y<HTMLDivElement>({
+    open: showPanel,
+    busy,
+    onClose: closePanel,
+    initialFocusRef: closePanelButton,
+    returnFocusRef: cameraButton,
+  });
 
   const submitJobTextSearch = () => {
     navigateJobSearch(jobTextSearchHref(window.location.href, query));
@@ -1637,6 +1653,7 @@ export function GlobalImageSearch({
                     </p>
                   </div>
                   <button
+                    ref={closePanelButton}
                     className="global-image-search-close"
                     type="button"
                     aria-label={

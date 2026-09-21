@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import {
   cvDeletionOutcomeSchema,
@@ -15,6 +15,7 @@ import {
   type CvLocale,
 } from "../i18n/cv-import-copy";
 import styles from "./cv-retention-actions.module.css";
+import { useModalA11y } from "@/frontend/components/ui/use-modal-a11y";
 
 export type CvRetentionActionResource = Readonly<{
   uploadId: string;
@@ -69,8 +70,7 @@ export function CvRetentionActions({
   const locale = useWorkspaceLocale();
   const copy = cvCopy(locale).retention;
   const trigger = useRef<HTMLButtonElement>(null);
-  const dialog = useRef<HTMLElement>(null);
-  const confirm = useRef<HTMLButtonElement>(null);
+  const keep = useRef<HTMLButtonElement>(null);
   const active = useRef(false);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -92,41 +92,14 @@ export function CvRetentionActions({
   const close = useCallback(() => {
     if (busy) return;
     setOpen(false);
-    window.setTimeout(() => trigger.current?.focus(), 0);
   }, [busy]);
-
-  useEffect(() => {
-    if (!open) return;
-    const focusTimer = window.setTimeout(() => confirm.current?.focus(), 0);
-    const keydown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !busy) {
-        event.preventDefault();
-        close();
-        return;
-      }
-      if (event.key !== "Tab" || !dialog.current) return;
-      const controls = Array.from(
-        dialog.current.querySelectorAll<HTMLButtonElement>(
-          "button:not(:disabled)",
-        ),
-      );
-      const first = controls[0];
-      const last = controls.at(-1);
-      if (!first || !last) return;
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener("keydown", keydown);
-    return () => {
-      window.clearTimeout(focusTimer);
-      document.removeEventListener("keydown", keydown);
-    };
-  }, [busy, close, open]);
+  const dialogRef = useModalA11y({
+    open,
+    busy,
+    onClose: close,
+    initialFocusRef: keep,
+    returnFocusRef: trigger,
+  });
 
   const remove = async () => {
     if (active.current) return;
@@ -151,7 +124,6 @@ export function CvRetentionActions({
             : "Deletion could not be accepted. This import remains unchanged.",
       });
       setOpen(false);
-      window.setTimeout(() => trigger.current?.focus(), 0);
     } finally {
       active.current = false;
       setBusy(false);
@@ -235,7 +207,7 @@ export function CvRetentionActions({
           }}
         >
           <section
-            ref={dialog}
+            ref={dialogRef}
             className={styles.dialog}
             role="dialog"
             aria-modal="true"
@@ -247,7 +219,6 @@ export function CvRetentionActions({
             <p id="cv-retention-dialog-description">{copy.deleteDescription}</p>
             <div className={styles.dialogActions}>
               <button
-                ref={confirm}
                 type="button"
                 disabled={busy}
                 aria-busy={busy}
@@ -255,7 +226,7 @@ export function CvRetentionActions({
               >
                 {copy.confirmDelete}
               </button>
-              <button type="button" disabled={busy} onClick={close}>
+              <button ref={keep} type="button" disabled={busy} onClick={close}>
                 {copy.keep}
               </button>
             </div>

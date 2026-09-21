@@ -91,7 +91,9 @@ describe("workspace job-card salary display", () => {
       />,
     );
     expect(
-      screen.getByText("Applied", { selector: ".application-stage-badge" }),
+      screen.getByText("Application submitted", {
+        selector: ".application-stage-badge",
+      }),
     ).toBeVisible();
     expect(screen.getByText("CV analysis: completed")).toBeVisible();
   });

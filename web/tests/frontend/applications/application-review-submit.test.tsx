@@ -87,7 +87,11 @@ describe("application review and submit", () => {
       screen.getByText("Confirm the application details before submitting."),
     ).toBeVisible();
 
-    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(
+      screen.getByRole("checkbox", {
+        name: /I confirm that the information is correct/i,
+      }),
+    );
     expect(
       screen.getByRole("button", { name: "Submit application" }),
     ).toBeEnabled();

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "candidate-first-phase7-bundle-v1",
+  "generatedAt": "2026-09-21T10:12:30+07:00",
+  "sourceCommit": "ac17ec1e",
+  "distDir": "web/.next-phase7-final",
+  "method": "Recursive byte totals under web/<distDir>/static, grouped by .js and .css extension.",
+  "buildCommand": "$env:PHASE5_NEXT_DIST_DIR='.next-phase7-final'; node ..\\node_modules\\next\\dist\\bin\\next build",
+  "baseline": {
+    "capturedAt": "2026-09-20T01:35:04+07:00",
+    "buildId": "UsgBOYepTXa8AIgA1Zozv",
+    "totalBytes": 8809921,
+    "jsBytes": 5303032,
+    "cssBytes": 1642675,
+    "fileCount": 202,
+    "jsCount": 119,
+    "cssCount": 34
+  },
+  "final": {
+    "capturedAt": "2026-09-21T10:12:30+07:00",
+    "buildId": "lAfLL8pY3Wp8U0hQYjmf2",
+    "totalBytes": 8815460,
+    "jsBytes": 5308072,
+    "cssBytes": 1643174,
+    "fileCount": 202,
+    "jsCount": 119,
+    "cssCount": 34
+  },
+  "delta": {
+    "totalBytes": 5539,
+    "totalPercent": 0.06,
+    "jsBytes": 5040,
+    "jsPercent": 0.1,
+    "cssBytes": 499,
+    "cssPercent": 0.03,
+    "fileCount": 0,
+    "jsCount": 0,
+    "cssCount": 0
+  },
+  "notes": [
+    "Bundle file counts are unchanged; the byte increase is bounded and includes the shared modal-a11y contract, final Category portal fix, semantic labels, and token CSS changes.",
+    "The production build passed TypeScript and generated 116/116 static pages.",
+    "The public overlay matrix, authenticated keyboard profiles, and CV-retention companion rerun all used this final build.",
+    "The build emitted two pre-existing dynamic-filesystem tracing warnings; neither is caused by the Phase 7 slice."
+  ]
+}
