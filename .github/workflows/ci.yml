@@ -84,6 +84,10 @@ jobs:
       - run: npm run search:catalog:bootstrap --workspace @smarthire/web -- --apply
       - run: npm run admin:contracts --workspace @smarthire/web
       - run: npm run typecheck
+      - name: Run Candidate-first Phase 8 security and recovery contracts
+        run: npm run test:phase8 --workspace @smarthire/web
+      - name: Run Candidate-first Phase 8 isolated recovery rehearsal
+        run: npm run test:phase8:integration --workspace @smarthire/web
       - run: npm run test:search --workspace @smarthire/web
       - run: npm run search:occupation:audit:catalog --workspace @smarthire/web -- --summary --limit-error-samples=20
       - run: npm run search:relevance --workspace @smarthire/web

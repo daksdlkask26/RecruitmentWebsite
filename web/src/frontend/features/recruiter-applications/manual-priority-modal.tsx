@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ListOrdered, ShieldCheck, Trash2 } from "lucide-react";
 import type { RankedApplicationRow } from "@/shared/contracts/scoring";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
+import { mutateWithCurrentCsrf } from "@/frontend/features/authentication/client/current-csrf-proof";
+import { useCsrfProof } from "@/frontend/features/authentication/client/csrf-proof-context";
 import { RankingModalFrame } from "./ranking-modal-frame";
 import { applicationDetailCopy } from "./application-detail-copy";
 
@@ -28,6 +30,7 @@ export function ManualPriorityModal({
   onCompleted: () => void;
 }) {
   const copy = applicationDetailCopy(useWorkspaceLocale()).priority;
+  const csrfProof = useCsrfProof();
   const [value, setValue] = useState<"HIGH" | "NORMAL" | "LOW" | "HOLD" | "">(
     candidate.manualPriority?.value ?? "",
   );
@@ -39,7 +42,7 @@ export function ManualPriorityModal({
     setSaving(true);
     setError(null);
     try {
-      const response = await fetch(
+      const response = await mutateWithCurrentCsrf(
         "/api/recruiter/applications/" +
           encodeURIComponent(candidate.applicationId) +
           "/priority",
@@ -56,6 +59,7 @@ export function ManualPriorityModal({
             expectedVersion: candidate.manualPriority?.version ?? 0,
           }),
         },
+        csrfProof,
       );
       if (!response.ok) throw new Error(copy.saveError);
       onCompleted();
@@ -70,7 +74,7 @@ export function ManualPriorityModal({
     setSaving(true);
     setError(null);
     try {
-      const response = await fetch(
+      const response = await mutateWithCurrentCsrf(
         "/api/recruiter/applications/" +
           encodeURIComponent(candidate.applicationId) +
           "/priority",
@@ -87,6 +91,7 @@ export function ManualPriorityModal({
             expectedVersion: candidate.manualPriority.version,
           }),
         },
+        csrfProof,
       );
       if (!response.ok) throw new Error(copy.removeError);
       onCompleted();

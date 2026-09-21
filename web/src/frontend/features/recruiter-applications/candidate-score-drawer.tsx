@@ -29,6 +29,8 @@ import { RankingModalFrame } from "./ranking-modal-frame";
 import { ScoreBadgeFromLabel, formatScore } from "./candidate-ranking-ui";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
 import { applicationDetailCopy } from "./application-detail-copy";
+import { mutateWithCurrentCsrf } from "@/frontend/features/authentication/client/current-csrf-proof";
+import { useCsrfProof } from "@/frontend/features/authentication/client/csrf-proof-context";
 
 type Tab = "automatic" | "ai" | "documents" | "profile";
 type CandidateScoreDrawerCandidate =
@@ -82,6 +84,7 @@ function CandidateScoreDrawerContent({
   onScoringChanged,
 }: CandidateScoreDrawerProps) {
   const locale = useWorkspaceLocale();
+  const csrfProof = useCsrfProof();
   const detailCopy = useMemo(() => applicationDetailCopy(locale), [locale]);
   const copy = detailCopy.drawer;
   const [activeTab, setActiveTab] = useState<Tab>("automatic");
@@ -294,7 +297,7 @@ function CandidateScoreDrawerContent({
   const retry = async () => {
     setRetryConfirm(false);
     try {
-      const response = await fetch(
+      const response = await mutateWithCurrentCsrf(
         `/api/recruiter/applications/${encodeURIComponent(candidate.applicationId)}/scoring/retry-ai`,
         {
           method: "POST",
@@ -304,6 +307,7 @@ function CandidateScoreDrawerContent({
           },
           body: JSON.stringify({ confirmed: true }),
         },
+        csrfProof,
       );
       const payload = await response.json().catch(() => null);
       if (response.ok && payload?.scoring) {
@@ -323,7 +327,7 @@ function CandidateScoreDrawerContent({
     setScoringActionLoading(true);
     setError(null);
     try {
-      const response = await fetch(
+      const response = await mutateWithCurrentCsrf(
         `/api/recruiter/applications/${encodeURIComponent(candidate.applicationId)}/scoring/score`,
         {
           method: "POST",
@@ -333,6 +337,7 @@ function CandidateScoreDrawerContent({
           },
           body: JSON.stringify({ confirmed: true }),
         },
+        csrfProof,
       );
       if (!response.ok) throw new Error(copy.scoreError);
       setDetail(await loadDetail());

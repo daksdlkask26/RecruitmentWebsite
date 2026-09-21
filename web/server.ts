@@ -79,10 +79,12 @@ export async function start() {
   );
 
   try {
-    const { configureSearchObservability } = await import(
-      "./src/backend/observability/search-observability-composition"
-    );
+    const { configureSearchObservability } =
+      await import("./src/backend/observability/search-observability-composition");
+    const { configurePlatformOperationalMetrics } =
+      await import("./src/backend/observability/platform-operational-metrics");
     configureSearchObservability();
+    configurePlatformOperationalMetrics();
     const { attachSocketIoChatGateway } =
       await import("./src/backend/messaging/realtime/socket-io-chat-gateway");
     await app.prepare();
@@ -110,14 +112,16 @@ export async function start() {
     let closing: Promise<void> | null = null;
     const close = () => {
       if (closing) return closing;
-      scoring.stop();
-      candidateExports.stop();
-      closing = new Promise<void>((resolveClose, rejectClose) =>
-        chat.close((error) => {
-          if (error) rejectClose(error);
-          else resolveClose();
-        }),
-      )
+      closing = Promise.all([scoring.stop(), candidateExports.stop()])
+        .then(
+          () =>
+            new Promise<void>((resolveClose, rejectClose) =>
+              chat.close((error) => {
+                if (error) rejectClose(error);
+                else resolveClose();
+              }),
+            ),
+        )
         .then(() => app.close())
         .catch((error) => {
           console.error("SmartHire application shutdown failed", error);

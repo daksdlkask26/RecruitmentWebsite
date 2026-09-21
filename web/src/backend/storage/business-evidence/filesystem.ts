@@ -23,7 +23,7 @@ function key() {
 }
 
 function defaultRoot() {
-  const workingDirectory = resolve(process.cwd());
+  const workingDirectory = resolve(/* turbopackIgnore: true */ process.cwd());
   const workspaceWebRoot = resolve(workingDirectory, "web");
 
   // The root development supervisor starts the web workspace with the

@@ -137,6 +137,16 @@ export const ExportRequestStatus = {
 export type ExportRequestStatus = (typeof ExportRequestStatus)[keyof typeof ExportRequestStatus]
 
 
+export const ExportAuditObligationState = {
+  PENDING: 'PENDING',
+  LEASED: 'LEASED',
+  COMPLETED: 'COMPLETED',
+  DEAD_LETTER: 'DEAD_LETTER'
+} as const
+
+export type ExportAuditObligationState = (typeof ExportAuditObligationState)[keyof typeof ExportAuditObligationState]
+
+
 export const BackupRunTrigger = {
   MANUAL: 'MANUAL',
   SCHEDULED: 'SCHEDULED'

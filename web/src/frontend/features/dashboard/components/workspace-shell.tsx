@@ -27,6 +27,7 @@ import {
 } from "../client/workspace-locale";
 import { WorkspaceNavigation } from "./workspace-navigation";
 import { closeMessagingConnectionOnLogout } from "@/frontend/features/messaging/client/use-chat-connection";
+import { AppProviders } from "@/frontend/providers/app-providers";
 
 import { RecruiterHeaderAction } from "@/frontend/features/recruiter-header/components/recruiter-header-action";
 import type { RecruiterHeaderStatus } from "@/shared/contracts/recruiter-header-status";
@@ -80,19 +81,21 @@ export function WorkspaceShell({
   recruiterContent?: React.ReactNode;
 }) {
   return (
-    <WorkspaceLocaleProvider initialLocale={initialLocale}>
-      <WorkspaceShellContent
-        csrfProof={csrfProof}
-        initialRecruiterStatus={initialRecruiterStatus}
-        profile={profile}
-        contentMode={contentMode}
-        initialWorkspaceMode={initialWorkspaceMode}
-        initialRecruiterJobData={initialRecruiterJobData}
-        recruiterContent={recruiterContent}
-      >
-        {children}
-      </WorkspaceShellContent>
-    </WorkspaceLocaleProvider>
+    <AppProviders>
+      <WorkspaceLocaleProvider initialLocale={initialLocale}>
+        <WorkspaceShellContent
+          csrfProof={csrfProof}
+          initialRecruiterStatus={initialRecruiterStatus}
+          profile={profile}
+          contentMode={contentMode}
+          initialWorkspaceMode={initialWorkspaceMode}
+          initialRecruiterJobData={initialRecruiterJobData}
+          recruiterContent={recruiterContent}
+        >
+          {children}
+        </WorkspaceShellContent>
+      </WorkspaceLocaleProvider>
+    </AppProviders>
   );
 }
 
@@ -476,7 +479,10 @@ function WorkspaceShellContent({
                   )}
                 </span>
                 <span className="workspace-account-copy">
-                  <strong>{greetingName || workspaceProfile.name}</strong>
+                  <strong>{workspaceProfile.name || greetingName}</strong>
+                  {workspaceProfile.email ? (
+                    <small>{workspaceProfile.email}</small>
+                  ) : null}
                 </span>
                 <svg
                   className="workspace-account-chevron"

@@ -1,7 +1,6 @@
 import "server-only";
 
-import { cvConfiguration } from "@/backend/cv/config";
-import { createMetadataCryptor } from "@/backend/cv/encryption/metadata-cryptor";
+import { safeCvFilename } from "@/backend/cv/safe-filename";
 import { prisma } from "@/backend/database/prisma";
 import {
   CV_AVAILABLE_ACTIONS,
@@ -31,34 +30,7 @@ function isSafeFailureCode(value: string): value is CvSafeFailureCode {
   return failureCodes.has(value as CvSafeFailureCode);
 }
 
-function metadataCryptor() {
-  return createMetadataCryptor({
-    activeKeyVersion: cvConfiguration.encryption.activeKeyVersion,
-    keys: Object.fromEntries(
-      Object.entries(cvConfiguration.encryption.encodedKeys).map(
-        ([version, encoded]) => [
-          Number(version),
-          Buffer.from(encoded, "base64"),
-        ],
-      ),
-    ),
-  });
-}
-
-export function safeFilename(
-  encrypted: string | null,
-  context: { accountId: string; uploadId: string },
-): string | null {
-  if (!encrypted) return null;
-  const cryptor = metadataCryptor();
-  try {
-    return cryptor.decryptDisplayFilename(encrypted, context);
-  } catch {
-    return null;
-  } finally {
-    cryptor.destroy();
-  }
-}
+export { safeCvFilename as safeFilename } from "@/backend/cv/safe-filename";
 
 function stage(
   status: CvUploadStatus,
@@ -226,7 +198,7 @@ export async function listCvImports(accountId: string) {
   return cvImportListSchema.parse({
     items: orderedRows.map((row) => ({
       uploadId: row.id,
-      displayFilename: safeFilename(row.displayFilenameCiphertext, {
+      displayFilename: safeCvFilename(row.displayFilenameCiphertext, {
         accountId: row.accountId,
         uploadId: row.id,
       }),
@@ -337,7 +309,7 @@ export async function getCvImportResource(accountId: string, uploadId: string) {
   const ocr = row.extractions[0]?.ocrAttempt ?? null;
   return cvImportResourceSchema.parse({
     uploadId: row.id,
-    displayFilename: safeFilename(row.displayFilenameCiphertext, {
+    displayFilename: safeCvFilename(row.displayFilenameCiphertext, {
       accountId: row.accountId,
       uploadId: row.id,
     }),

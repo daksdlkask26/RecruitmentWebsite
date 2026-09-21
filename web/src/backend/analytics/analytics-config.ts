@@ -33,10 +33,7 @@ export function analyticsConfiguration() {
     platformTimeZone:
       process.env.ANALYTICS_PLATFORM_TIME_ZONE?.trim() ||
       ANALYTICS_PLATFORM_TIME_ZONE,
-    maxRangeDays: positiveInteger(
-      process.env.ANALYTICS_MAX_RANGE_DAYS,
-      731,
-    ),
+    maxRangeDays: positiveInteger(process.env.ANALYTICS_MAX_RANGE_DAYS, 731),
     viewBotUserAgentPattern:
       /(?:bot|crawler|spider|slurp|headless|uptimerobot|pingdom|preview)/iu,
     exportLeaseSeconds: positiveInteger(
@@ -50,6 +47,17 @@ export function analyticsConfiguration() {
     exportBatchSize: Math.min(
       1_000,
       positiveInteger(process.env.ANALYTICS_EXPORT_BATCH_SIZE, 500),
+    ),
+    exportMaxRows: Math.min(
+      1_000_000,
+      positiveInteger(process.env.ANALYTICS_EXPORT_MAX_ROWS, 250_000),
+    ),
+    exportMaxBytes: Math.min(
+      512 * 1024 * 1024,
+      positiveInteger(
+        process.env.ANALYTICS_EXPORT_MAX_BYTES,
+        128 * 1024 * 1024,
+      ),
     ),
   });
 }

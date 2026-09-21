@@ -1,3 +1,5 @@
+import "server-only";
+
 import { randomUUID } from "node:crypto";
 import { chmod, mkdir, open, readFile, stat, unlink } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";

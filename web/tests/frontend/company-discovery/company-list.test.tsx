@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import { CompanyListScreen } from "@/frontend/features/candidate-company/company-list-screen";
+import {
+  CompanyListScreen,
+  CompanyLocationSelect,
+} from "@/frontend/features/candidate-company/company-list-screen";
 import type { SearchSuggestion } from "@/shared/contracts/search/search-suggestions";
 
 vi.mock("@/frontend/features/dashboard/client/workspace-locale", () => ({
@@ -242,6 +245,36 @@ describe("Candidate Company list", () => {
       suggestionState.open = false;
       suggestionState.activeIndex = -1;
     }
+  });
+
+  it("moves location focus into the options and returns it after selection or Escape", () => {
+    const onChange = vi.fn();
+    render(
+      <CompanyLocationSelect
+        value=""
+        options={["Hanoi", "Da Nang"]}
+        label="Location"
+        allLocationsLabel="All locations"
+        onChange={onChange}
+      />,
+    );
+
+    const trigger = screen.getByRole("combobox", { name: "Location" });
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    const options = screen.getAllByRole("option");
+    expect(document.activeElement).toBe(options[0]);
+
+    fireEvent.keyDown(options[0], { key: "ArrowDown" });
+    expect(document.activeElement).toBe(options[1]);
+    fireEvent.keyDown(options[1], { key: "Enter" });
+    expect(onChange).toHaveBeenCalledWith("Hanoi");
+    expect(document.activeElement).toBe(trigger);
+
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    expect(document.activeElement).toBe(screen.getAllByRole("option")[0]);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(document.activeElement).toBe(trigger);
   });
 
   it("keeps literal mode while the debounced company query changes", () => {

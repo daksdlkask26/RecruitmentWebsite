@@ -73,6 +73,7 @@ export function CompanyLocationSelect({
   const fieldRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const focusFirstOptionOnOpen = useRef(false);
   const [open, setOpen] = useState(false);
   const optionItems = [
     { value: "", label: allLocationsLabel },
@@ -83,6 +84,11 @@ export function CompanyLocationSelect({
 
   useEffect(() => {
     if (!open) return;
+
+    if (focusFirstOptionOnOpen.current) {
+      focusFirstOptionOnOpen.current = false;
+      optionRefs.current[0]?.focus();
+    }
 
     function closeWhenOutside(event: PointerEvent) {
       const target = event.target;
@@ -150,11 +156,11 @@ export function CompanyLocationSelect({
         onClick={() => setOpen((current) => !current)}
         onChange={(event) => onChange(event.currentTarget.value)}
         onKeyDown={(event) => {
-          if (
-            event.key === "ArrowDown" ||
-            event.key === "Enter" ||
-            event.key === " "
-          ) {
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            if (!open) focusFirstOptionOnOpen.current = true;
+            setOpen(true);
+          } else if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             setOpen(true);
           }

@@ -3189,6 +3189,23 @@ export type EnumExportRequestStatusWithAggregatesFilter<$PrismaModel = never> = 
   _max?: Prisma.NestedEnumExportRequestStatusFilter<$PrismaModel>
 }
 
+export type EnumExportAuditObligationStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.ExportAuditObligationState | Prisma.EnumExportAuditObligationStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ExportAuditObligationState[] | Prisma.ListEnumExportAuditObligationStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ExportAuditObligationState[] | Prisma.ListEnumExportAuditObligationStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumExportAuditObligationStateFilter<$PrismaModel> | $Enums.ExportAuditObligationState
+}
+
+export type EnumExportAuditObligationStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ExportAuditObligationState | Prisma.EnumExportAuditObligationStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ExportAuditObligationState[] | Prisma.ListEnumExportAuditObligationStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ExportAuditObligationState[] | Prisma.ListEnumExportAuditObligationStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumExportAuditObligationStateWithAggregatesFilter<$PrismaModel> | $Enums.ExportAuditObligationState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumExportAuditObligationStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumExportAuditObligationStateFilter<$PrismaModel>
+}
+
 export type EnumBackupRunTriggerFilter<$PrismaModel = never> = {
   equals?: $Enums.BackupRunTrigger | Prisma.EnumBackupRunTriggerFieldRefInput<$PrismaModel>
   in?: $Enums.BackupRunTrigger[] | Prisma.ListEnumBackupRunTriggerFieldRefInput<$PrismaModel>
@@ -6429,6 +6446,23 @@ export type NestedEnumExportRequestStatusWithAggregatesFilter<$PrismaModel = nev
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumExportRequestStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumExportRequestStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumExportAuditObligationStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.ExportAuditObligationState | Prisma.EnumExportAuditObligationStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ExportAuditObligationState[] | Prisma.ListEnumExportAuditObligationStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ExportAuditObligationState[] | Prisma.ListEnumExportAuditObligationStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumExportAuditObligationStateFilter<$PrismaModel> | $Enums.ExportAuditObligationState
+}
+
+export type NestedEnumExportAuditObligationStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ExportAuditObligationState | Prisma.EnumExportAuditObligationStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ExportAuditObligationState[] | Prisma.ListEnumExportAuditObligationStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ExportAuditObligationState[] | Prisma.ListEnumExportAuditObligationStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumExportAuditObligationStateWithAggregatesFilter<$PrismaModel> | $Enums.ExportAuditObligationState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumExportAuditObligationStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumExportAuditObligationStateFilter<$PrismaModel>
 }
 
 export type NestedEnumBackupRunTriggerFilter<$PrismaModel = never> = {

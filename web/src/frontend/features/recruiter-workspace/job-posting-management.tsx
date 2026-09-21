@@ -1159,7 +1159,10 @@ export function RecruiterJobPostingManagement({
     base.setUTCDate(base.getUTCDate() + 30);
     const response = await fetch("/api/recruiter/job-postings", {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-csrf-token": csrfProof,
+      },
       body: JSON.stringify({
         ...job,
         status: "active",

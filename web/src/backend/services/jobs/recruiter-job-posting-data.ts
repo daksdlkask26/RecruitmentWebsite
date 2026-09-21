@@ -14,7 +14,10 @@ import {
   withdrawManagedJobPostReview,
 } from "@/backend/jobs/review/job-post-review-service";
 import { applyRecruiterCapacityIncrease } from "@/backend/services/jobs/recruiter-capacity-service";
-import { purgeCompanyDeletionRequest } from "./company-deletion-manifest-service";
+import {
+  COMPANY_DELETION_LEGACY_RESOURCE_TYPES,
+  purgeCompanyDeletionRequest,
+} from "./company-deletion-manifest-service";
 import { findActiveCompanyDeletionRetentionBlock } from "./company-deletion-retention";
 import {
   companyCatalogSchema,
@@ -61,6 +64,11 @@ const companiesRepository =
 const applicationsRepository =
   configuredJsonJobCatalogueRepository("applications.json");
 const MAX_COMPANY_LOGO_BYTES = 800 * 1024;
+
+const legacyCatalogueAggregateResourceTypes =
+  COMPANY_DELETION_LEGACY_RESOURCE_TYPES.slice(0, 3);
+const legacyCatalogueJobResourceType = "LEGACY_CATALOGUE_JOB" as const;
+const legacyCatalogueCompanyResourceType = "LEGACY_CATALOGUE_COMPANY" as const;
 
 function isCatalogueWriterConfigured() {
   return (
@@ -923,11 +931,15 @@ function removeRawCompany(
   rawCompanies: unknown[],
   companyIds: ReadonlySet<string>,
   taxCode?: string,
+  legacyCompanyIds: ReadonlySet<string> = new Set(),
 ) {
   return rawCompanies.filter((value) => {
     const record = rawRecord(value);
     if (!record) return true;
-    if (typeof record.id === "string" && companyIds.has(record.id)) {
+    if (
+      typeof record.id === "string" &&
+      (companyIds.has(record.id) || legacyCompanyIds.has(record.id))
+    ) {
       return false;
     }
     return !(taxCode && record.taxCode === taxCode);
@@ -939,8 +951,16 @@ function rawJobCompanyId(value: unknown) {
   return typeof record?.companyId === "string" ? record.companyId : null;
 }
 
-function removeRawJobs(rawJobs: unknown[], companyIds: ReadonlySet<string>) {
+function removeRawJobs(
+  rawJobs: unknown[],
+  companyIds: ReadonlySet<string>,
+  legacyJobIds: ReadonlySet<string> = new Set(),
+) {
   return rawJobs.filter((value) => {
+    const record = rawRecord(value);
+    if (typeof record?.id === "string" && legacyJobIds.has(record.id)) {
+      return false;
+    }
     const companyId = rawJobCompanyId(value);
     return !companyId || !companyIds.has(companyId);
   });
@@ -958,6 +978,91 @@ function removeRawApplications(
 async function readApplicationsForDeletion(): Promise<JobApplicationRecord[]> {
   const value = await applicationsRepository.read();
   return z.array(applicationSchema).parse(value);
+}
+
+type LegacyDeletionCompany = {
+  id: string;
+  taxCode?: string;
+  databaseId?: string;
+  databaseBacked?: boolean;
+};
+
+type LegacyDeletionManifestEntry = Readonly<{
+  resourceType: string;
+  recordId: string | null;
+  state:
+    | "PENDING"
+    | "DELETED"
+    | "RETAINED_SHARED"
+    | "BLOCKED_BY_LEGAL_HOLD"
+    | "RETRYABLE"
+    | "CONFLICT";
+}>;
+
+function legacyJobIdsForCompany(
+  company: Pick<LegacyDeletionCompany, "id" | "databaseId">,
+  rawJobs: readonly unknown[],
+) {
+  const companyIds = new Set(
+    [company.id, company.databaseId].filter((id): id is string => Boolean(id)),
+  );
+  return new Set(
+    rawJobs.flatMap((value) => {
+      const record = rawRecord(value);
+      const id = typeof record?.id === "string" ? record.id : null;
+      return id && companyIds.has(rawJobCompanyId(value) ?? "") ? [id] : [];
+    }),
+  );
+}
+
+function legacyCompanyIdsForCompany(
+  company: LegacyDeletionCompany,
+  rawCompanies: readonly unknown[],
+) {
+  const companyIds = new Set(
+    [company.id, company.databaseId].filter((id): id is string => Boolean(id)),
+  );
+  return new Set(
+    rawCompanies.flatMap((value) => {
+      const record = rawRecord(value);
+      if (!record || typeof record.id !== "string") return [];
+      return companyIds.has(record.id) ||
+        Boolean(company.taxCode && record.taxCode === company.taxCode)
+        ? [record.id]
+        : [];
+    }),
+  );
+}
+
+function legacyDeletionManifestData(
+  requestId: string,
+  companyId: string,
+  legacyJobIds: Iterable<string>,
+  legacyCompanyIds: Iterable<string>,
+) {
+  return [
+    ...legacyCatalogueAggregateResourceTypes.map((resourceType) => ({
+      requestId,
+      identityKey: `database:${resourceType}:${companyId}`,
+      resourceKind: "DATABASE_RECORD" as const,
+      resourceType,
+      recordId: companyId,
+    })),
+    ...[...legacyJobIds].map((recordId) => ({
+      requestId,
+      identityKey: `database:${legacyCatalogueJobResourceType}:${recordId}`,
+      resourceKind: "DATABASE_RECORD" as const,
+      resourceType: legacyCatalogueJobResourceType,
+      recordId,
+    })),
+    ...[...legacyCompanyIds].map((recordId) => ({
+      requestId,
+      identityKey: `database:${legacyCatalogueCompanyResourceType}:${recordId}`,
+      resourceKind: "DATABASE_RECORD" as const,
+      resourceType: legacyCatalogueCompanyResourceType,
+      recordId,
+    })),
+  ];
 }
 
 async function readApplications(): Promise<JobApplicationRecord[]> {
@@ -2072,6 +2177,8 @@ async function hardDeleteDatabaseCompany(
   userId: string,
   now: Date,
   existingRequestId?: string,
+  legacyJobIds: readonly string[] = [],
+  legacyCompanyIds: readonly string[] = [],
 ): Promise<Readonly<{ requestId: string; blocked: boolean }>> {
   if (existingRequestId) {
     await transaction.$queryRaw`
@@ -2254,6 +2361,12 @@ async function hardDeleteDatabaseCompany(
         resourceType,
         recordId,
       })),
+      ...legacyDeletionManifestData(
+        deletionRequest.id,
+        companyId,
+        legacyJobIds,
+        legacyCompanyIds,
+      ),
       ...[...objectEntries.values()].map((entry) => ({
         requestId: deletionRequest.id,
         identityKey: `object:${entry.objectKeyEncrypted}`,
@@ -2492,6 +2605,7 @@ async function hardDeleteDatabaseCompany(
     where: {
       requestId: deletionRequest.id,
       resourceKind: "DATABASE_RECORD",
+      resourceType: { notIn: [...COMPANY_DELETION_LEGACY_RESOURCE_TYPES] },
       state: "PENDING",
     },
     data: {
@@ -2560,6 +2674,27 @@ export async function resumeBlockedRecruiterCompanyDeletion(
       return purgeCompanyDeletionRequest(requestId, { now });
     }
 
+    const catalog = await readCatalog();
+    const catalogCompany = catalog.companies.find(
+      (candidate) =>
+        candidate.id === request.companyId ||
+        candidate.databaseId === request.companyId,
+    );
+    const deletionCompany: LegacyDeletionCompany = catalogCompany ?? {
+      id: request.companyId,
+      databaseId: request.companyId,
+      taxCode: undefined,
+      databaseBacked: true,
+    };
+    const legacyJobIds = legacyJobIdsForCompany(
+      deletionCompany,
+      catalog.rawJobs,
+    );
+    const legacyCompanyIds = legacyCompanyIdsForCompany(
+      deletionCompany,
+      catalog.rawCompanies,
+    );
+
     if (request.state === "BLOCKED_BY_LEGAL_HOLD") {
       const databaseDeletion = await prisma.$transaction((transaction) =>
         hardDeleteDatabaseCompany(
@@ -2568,6 +2703,8 @@ export async function resumeBlockedRecruiterCompanyDeletion(
           request.requestedByUserId,
           now,
           request.id,
+          [...legacyJobIds],
+          [...legacyCompanyIds],
         ),
       );
       if (databaseDeletion.blocked) {
@@ -2583,60 +2720,235 @@ export async function resumeBlockedRecruiterCompanyDeletion(
       }
     }
 
+    try {
+      await deleteLegacyCompanyData(
+        deletionCompany,
+        catalog.rawJobs,
+        catalog.rawCompanies,
+        { requestId, now },
+      );
+    } catch (error) {
+      await recordLegacyDeletionFailure(requestId, error);
+    }
+
     return purgeCompanyDeletionRequest(requestId, { now });
   });
 }
 
 async function deleteLegacyCompanyData(
-  company: RecruiterCompany,
-  rawJobs: unknown[],
-  rawCompanies: unknown[],
+  company: LegacyDeletionCompany,
+  rawJobs: readonly unknown[],
+  rawCompanies: readonly unknown[],
+  input: Readonly<{ requestId?: string; now?: Date }> = {},
 ) {
+  const now = input.now ?? new Date();
+  let manifestEntries: LegacyDeletionManifestEntry[] = [];
+  if (input.requestId) {
+    await prisma.companyDeletionManifestEntry.createMany({
+      data: legacyDeletionManifestData(
+        input.requestId,
+        company.databaseId ?? company.id,
+        legacyJobIdsForCompany(company, rawJobs),
+        legacyCompanyIdsForCompany(company, rawCompanies),
+      ),
+      skipDuplicates: true,
+    });
+    manifestEntries = await readLegacyDeletionManifest(input.requestId);
+  }
+
   const companyIds = new Set(
     [company.id, company.databaseId].filter((id): id is string => Boolean(id)),
   );
-  const legacyJobIds = new Set(
-    rawJobs.flatMap((value) => {
-      const record = rawRecord(value);
-      const id = typeof record?.id === "string" ? record.id : null;
-      return id && companyIds.has(rawJobCompanyId(value) ?? "") ? [id] : [];
-    }),
-  );
+  const legacyJobIds = new Set<string>([
+    ...legacyJobIdsForCompany(company, rawJobs),
+    ...manifestEntries
+      .filter((entry) => entry.resourceType === legacyCatalogueJobResourceType)
+      .flatMap((entry) => (entry.recordId ? [entry.recordId] : [])),
+  ]);
+  const legacyCompanyIds = new Set<string>([
+    ...legacyCompanyIdsForCompany(company, rawCompanies),
+    ...manifestEntries
+      .filter(
+        (entry) => entry.resourceType === legacyCatalogueCompanyResourceType,
+      )
+      .flatMap((entry) => (entry.recordId ? [entry.recordId] : [])),
+  ]);
+  const legacyState = (resourceType: string) =>
+    manifestEntries.find((entry) => entry.resourceType === resourceType)?.state;
+  const markLegacyStep = async (resourceType: string, outcomeCode: string) => {
+    if (!input.requestId) return;
+    await prisma.companyDeletionManifestEntry.updateMany({
+      where: {
+        requestId: input.requestId,
+        resourceKind: "DATABASE_RECORD",
+        resourceType,
+        state: { in: ["PENDING", "RETRYABLE"] },
+      },
+      data: {
+        state: "DELETED",
+        outcomeCode,
+        attemptCount: { increment: 1 },
+        lastAttemptAt: now,
+        deletedAt: now,
+      },
+    });
+  };
+
   const hasRawCompany = rawCompanies.some((value) => {
     const record = rawRecord(value);
     return Boolean(
       record &&
-      ((typeof record.id === "string" && companyIds.has(record.id)) ||
+      ((typeof record.id === "string" &&
+        (companyIds.has(record.id) || legacyCompanyIds.has(record.id))) ||
         (company.taxCode && record.taxCode === company.taxCode)),
     );
   });
-  const hasLegacyData = hasRawCompany || legacyJobIds.size > 0;
+  const pendingJobs = legacyState("LEGACY_CATALOGUE_JOBS") !== "DELETED";
+  const pendingApplications =
+    legacyState("LEGACY_CATALOGUE_APPLICATIONS") !== "DELETED";
+  const pendingCompanies =
+    legacyState("LEGACY_CATALOGUE_COMPANIES") !== "DELETED";
+  const hasLegacyData =
+    hasRawCompany || legacyJobIds.size > 0 || legacyCompanyIds.size > 0;
+  const hasPendingLegacyWrites =
+    (pendingJobs && legacyJobIds.size > 0) ||
+    (pendingApplications && legacyJobIds.size > 0) ||
+    (pendingCompanies && hasRawCompany);
   if (
     company.databaseBacked &&
     hasLegacyData &&
+    hasPendingLegacyWrites &&
     !isCatalogueWriterConfigured()
   ) {
     throw new Error("CATALOGUE_WRITER_REQUIRED");
   }
 
-  if (legacyJobIds.size) {
-    await jobsRepository.mutate((current) =>
-      removeRawJobs(current, companyIds),
-    );
-    const applications = await readApplicationsForDeletion();
-    const remainingApplications = removeRawApplications(
-      applications,
-      legacyJobIds,
-    );
-    if (remainingApplications.length !== applications.length) {
-      await applicationsRepository.mutate(() => remainingApplications);
+  if (pendingJobs) {
+    if (legacyJobIds.size) {
+      await jobsRepository.mutate((current) =>
+        removeRawJobs(current, companyIds, legacyJobIds),
+      );
+      await markLegacyStep(
+        "LEGACY_CATALOGUE_JOB",
+        "LEGACY_CATALOGUE_JOBS_DELETED",
+      );
+      await markLegacyStep(
+        "LEGACY_CATALOGUE_JOBS",
+        "LEGACY_CATALOGUE_JOBS_DELETED",
+      );
+    } else {
+      await markLegacyStep(
+        "LEGACY_CATALOGUE_JOBS",
+        "LEGACY_CATALOGUE_JOBS_ALREADY_ABSENT",
+      );
     }
   }
-  if (hasRawCompany) {
-    await companiesRepository.mutate((current) =>
-      removeRawCompany(current, companyIds, company.taxCode),
-    );
+
+  if (pendingApplications) {
+    if (legacyJobIds.size) {
+      const applications = await readApplicationsForDeletion();
+      const remainingApplications = removeRawApplications(
+        applications,
+        legacyJobIds,
+      );
+      if (remainingApplications.length !== applications.length) {
+        await applicationsRepository.mutate(() => remainingApplications);
+      }
+      await markLegacyStep(
+        "LEGACY_CATALOGUE_APPLICATIONS",
+        "LEGACY_CATALOGUE_APPLICATIONS_DELETED",
+      );
+    } else {
+      await markLegacyStep(
+        "LEGACY_CATALOGUE_APPLICATIONS",
+        "LEGACY_CATALOGUE_APPLICATIONS_ALREADY_ABSENT",
+      );
+    }
   }
+
+  if (pendingCompanies) {
+    if (hasRawCompany) {
+      await companiesRepository.mutate((current) =>
+        removeRawCompany(
+          current,
+          companyIds,
+          company.taxCode,
+          legacyCompanyIds,
+        ),
+      );
+      await markLegacyStep(
+        "LEGACY_CATALOGUE_COMPANIES",
+        "LEGACY_CATALOGUE_COMPANIES_DELETED",
+      );
+    } else {
+      await markLegacyStep(
+        "LEGACY_CATALOGUE_COMPANIES",
+        "LEGACY_CATALOGUE_COMPANIES_ALREADY_ABSENT",
+      );
+    }
+  }
+}
+
+async function readLegacyDeletionManifest(requestId: string) {
+  const entries = await prisma.companyDeletionManifestEntry.findMany({
+    where: {
+      requestId,
+      resourceKind: "DATABASE_RECORD",
+      resourceType: { in: [...COMPANY_DELETION_LEGACY_RESOURCE_TYPES] },
+    },
+    select: { resourceType: true, recordId: true, state: true },
+  });
+  return entries as LegacyDeletionManifestEntry[];
+}
+
+async function recordLegacyDeletionFailure(requestId: string, error: unknown) {
+  const failureCode =
+    error instanceof Error && error.message === "CATALOGUE_WRITER_REQUIRED"
+      ? "CATALOGUE_WRITER_REQUIRED"
+      : "LEGACY_CATALOGUE_RECONCILIATION_FAILED";
+  await prisma.companyDeletionRequest.update({
+    where: { id: requestId },
+    data: {
+      state: "RETRY_REQUIRED",
+      purgeState: "RETRYABLE",
+      lastFailureCode: failureCode,
+    },
+  });
+}
+
+async function createLegacyDeletionRequest(
+  company: LegacyDeletionCompany,
+  userId: string,
+  now: Date,
+  legacyJobIds: ReadonlySet<string>,
+  legacyCompanyIds: ReadonlySet<string>,
+) {
+  const request = await prisma.companyDeletionRequest.create({
+    data: {
+      companyId: company.id,
+      requestedByUserId: userId,
+      requestedAt: now,
+      retentionEligibleAt: now,
+    },
+    select: { id: true },
+  });
+  await prisma.companyDeletionManifestEntry.createMany({
+    data: legacyDeletionManifestData(
+      request.id,
+      company.id,
+      legacyJobIds,
+      legacyCompanyIds,
+    ),
+  });
+  await prisma.companyDeletionRequest.update({
+    where: { id: request.id },
+    data: {
+      state: "PURGING",
+      purgeState: "PENDING",
+      physicalPurgeStartedAt: now,
+    },
+  });
+  return request.id;
 }
 
 /**
@@ -2668,13 +2980,23 @@ export async function deleteRecruiterCompany(
 
     const now = new Date();
     const databaseCompanyId = company.databaseId;
+    const legacyJobIds = legacyJobIdsForCompany(company, rawJobs);
+    const legacyCompanyIds = legacyCompanyIdsForCompany(company, rawCompanies);
     let databaseDeletion: Readonly<{
       requestId: string;
       blocked: boolean;
     }> | null = null;
     if (company.databaseBacked && databaseCompanyId) {
       databaseDeletion = await prisma.$transaction(async (transaction) =>
-        hardDeleteDatabaseCompany(transaction, databaseCompanyId, userId, now),
+        hardDeleteDatabaseCompany(
+          transaction,
+          databaseCompanyId,
+          userId,
+          now,
+          undefined,
+          [...legacyJobIds],
+          [...legacyCompanyIds],
+        ),
       );
       if (databaseDeletion.blocked) {
         invalidateCatalogueCache();
@@ -2687,22 +3009,41 @@ export async function deleteRecruiterCompany(
       }
     }
 
-    await deleteLegacyCompanyData(company, rawJobs, rawCompanies);
+    const deletionRequestId =
+      databaseDeletion?.requestId ??
+      (await createLegacyDeletionRequest(
+        company,
+        userId,
+        now,
+        legacyJobIds,
+        legacyCompanyIds,
+      ));
 
-    if (databaseDeletion) {
-      const purge = await purgeCompanyDeletionRequest(
-        databaseDeletion.requestId,
-        { now },
-      );
-      if (purge.status !== "COMPLETED") {
-        invalidateCatalogueCache();
-        return {
-          companyId: company.id,
-          deleted: false as const,
-          status: "PURGE_PENDING" as const,
-          requestId: databaseDeletion.requestId,
-        };
-      }
+    try {
+      await deleteLegacyCompanyData(company, rawJobs, rawCompanies, {
+        requestId: deletionRequestId,
+        now,
+      });
+    } catch (error) {
+      await recordLegacyDeletionFailure(deletionRequestId, error);
+      invalidateCatalogueCache();
+      return {
+        companyId: company.id,
+        deleted: false as const,
+        status: "PURGE_PENDING" as const,
+        requestId: deletionRequestId,
+      };
+    }
+
+    const purge = await purgeCompanyDeletionRequest(deletionRequestId, { now });
+    if (purge.status !== "COMPLETED") {
+      invalidateCatalogueCache();
+      return {
+        companyId: company.id,
+        deleted: false as const,
+        status: "PURGE_PENDING" as const,
+        requestId: deletionRequestId,
+      };
     }
 
     invalidatePublicCompany(databaseCompanyId ?? company.id);

@@ -820,6 +820,13 @@ export type JobPostingLifecycleFact = Prisma.JobPostingLifecycleFactModel
  */
 export type ExportRequest = Prisma.ExportRequestModel
 /**
+ * Model ExportAuditObligation
+ * Completion is recorded before the audit write is attempted.  A pending
+ * obligation keeps a successful export truthful and gives a later worker an
+ * idempotent audit retry without deleting a claimed artifact.
+ */
+export type ExportAuditObligation = Prisma.ExportAuditObligationModel
+/**
  * Model BackupConfiguration
  * 
  */

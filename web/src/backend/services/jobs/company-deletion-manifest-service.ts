@@ -13,6 +13,31 @@ type PurgeStatus =
   | "BLOCKED_BY_LEGAL_HOLD"
   | "NOT_FOUND";
 
+/**
+ * Legacy JSON catalogue work is represented in the existing deletion manifest
+ * as durable database-record checkpoints.  Keeping these names in one module
+ * prevents the purge worker from treating a completed PostgreSQL delete as a
+ * completed cross-store delete.
+ */
+export const COMPANY_DELETION_LEGACY_RESOURCE_TYPES = [
+  "LEGACY_CATALOGUE_JOBS",
+  "LEGACY_CATALOGUE_APPLICATIONS",
+  "LEGACY_CATALOGUE_COMPANIES",
+  "LEGACY_CATALOGUE_JOB",
+  "LEGACY_CATALOGUE_COMPANY",
+] as const;
+
+type CompanyDeletionLegacyResourceType =
+  (typeof COMPANY_DELETION_LEGACY_RESOURCE_TYPES)[number];
+
+function isLegacyCatalogueResourceType(
+  resourceType: string,
+): resourceType is CompanyDeletionLegacyResourceType {
+  return (COMPANY_DELETION_LEGACY_RESOURCE_TYPES as readonly string[]).includes(
+    resourceType,
+  );
+}
+
 export type CompanyDeletionPurgeResult = Readonly<{
   requestId: string;
   status: PurgeStatus;
@@ -221,7 +246,7 @@ export async function purgeCompanyDeletionRequest(
       retentionEligibleAt: true,
       manifestEntries: {
         where: { resourceKind: "DATABASE_RECORD" },
-        select: { resourceType: true, recordId: true },
+        select: { resourceType: true, recordId: true, state: true },
       },
     },
   });
@@ -238,6 +263,11 @@ export async function purgeCompanyDeletionRequest(
   const databaseEntries = Array.isArray(request.manifestEntries)
     ? request.manifestEntries
     : [];
+  const pendingLegacyEntries = databaseEntries.filter(
+    (entry) =>
+      isLegacyCatalogueResourceType(entry.resourceType) &&
+      (entry.state === "PENDING" || entry.state === "RETRYABLE"),
+  );
   const retentionBlock = request.companyId
     ? await findActiveCompanyDeletionRetentionBlock(prisma, {
         companyId: request.companyId,
@@ -279,6 +309,23 @@ export async function purgeCompanyDeletionRequest(
       },
     });
     return emptyPurgeResult(requestId, "BLOCKED_BY_LEGAL_HOLD");
+  }
+
+  // PostgreSQL deletion and JSON catalogue writes do not share a transaction.
+  // Never publish COMPLETED while a catalogue checkpoint still needs work.
+  if (pendingLegacyEntries.length > 0) {
+    await prisma.companyDeletionRequest.update({
+      where: { id: requestId },
+      data: {
+        state: "RETRY_REQUIRED",
+        purgeState: "RETRYABLE",
+        lastFailureCode: "LEGACY_CATALOGUE_RECONCILIATION_PENDING",
+      },
+    });
+    return {
+      ...emptyPurgeResult(requestId, "RETRY_REQUIRED"),
+      retryableObjects: pendingLegacyEntries.length,
+    };
   }
 
   const entries = await prisma.companyDeletionManifestEntry.findMany({
@@ -406,21 +453,22 @@ export async function purgeCompanyDeletionRequest(
             transaction,
             objectKeyEncrypted,
           );
-          const claimed = await transaction.companyDeletionManifestEntry.updateMany({
-            where: {
-              id: entry.id,
-              resourceKind: "OBJECT",
-              state: { in: ["PENDING", "RETRYABLE"] },
-              objectKeyEncrypted,
-              objectVersion: entry.objectVersion ?? null,
-            },
-            data: {
-              state: "RETRYABLE",
-              outcomeCode: "PURGE_CLAIMED",
-              attemptCount: { increment: 1 },
-              lastAttemptAt: now,
-            },
-          });
+          const claimed =
+            await transaction.companyDeletionManifestEntry.updateMany({
+              where: {
+                id: entry.id,
+                resourceKind: "OBJECT",
+                state: { in: ["PENDING", "RETRYABLE"] },
+                objectKeyEncrypted,
+                objectVersion: entry.objectVersion ?? null,
+              },
+              data: {
+                state: "RETRYABLE",
+                outcomeCode: "PURGE_CLAIMED",
+                attemptCount: { increment: 1 },
+                lastAttemptAt: now,
+              },
+            });
           if (claimed.count !== 1) return { kind: "CLAIM_LOST" } as const;
 
           if (
@@ -544,7 +592,10 @@ export async function runCompanyDeletionManifestReconciliation(
   let blocked = 0;
   for (const request of requests) {
     const result =
-      request.state === "BLOCKED_BY_LEGAL_HOLD" && resumeBlockedRequest
+      resumeBlockedRequest &&
+      (request.state === "BLOCKED_BY_LEGAL_HOLD" ||
+        request.state === "PURGING" ||
+        request.state === "RETRY_REQUIRED")
         ? await resumeBlockedRequest(request.id, now)
         : await purgeCompanyDeletionRequest(request.id, { now });
     if (result.status === "COMPLETED") completed++;

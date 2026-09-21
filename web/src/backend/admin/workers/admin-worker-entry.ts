@@ -20,6 +20,8 @@ import { runBackupScheduleCycle } from "./backup-schedule-loop";
 import { runDeletedJobReviewRetentionCycle } from "@/backend/jobs/review/job-post-review-retention";
 import { runTeamApplicationRetentionCycle } from "@/backend/jobs/team-application-retention";
 import { runCandidateCvArtifactReconciliationCycle } from "@/backend/cv/candidate-cv-artifact-reconciliation-worker";
+import { runCompanyDeletionManifestReconciliation } from "@/backend/services/jobs/company-deletion-manifest-service";
+import { resumeBlockedRecruiterCompanyDeletion } from "@/backend/services/jobs/recruiter-job-posting-data";
 
 export async function startAdminWorker(options: { probe?: boolean } = {}) {
   const runtime = new AdminWorkerRuntime([
@@ -91,6 +93,16 @@ export async function startAdminWorker(options: { probe?: boolean } = {}) {
       name: "candidate-cv-artifact-reconciliation",
       intervalMs: 60_000,
       run: runCandidateCvArtifactReconciliationCycle,
+    },
+    {
+      name: "company-deletion-reconciliation",
+      intervalMs: 60_000,
+      run: (now) =>
+        runCompanyDeletionManifestReconciliation(
+          now,
+          50,
+          resumeBlockedRecruiterCompanyDeletion,
+        ),
     },
     { name: "backup", intervalMs: 5_000, run: runBackupScheduleCycle },
   ]);

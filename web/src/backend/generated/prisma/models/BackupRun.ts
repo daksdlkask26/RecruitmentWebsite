@@ -27,10 +27,14 @@ export type AggregateBackupRun = {
 }
 
 export type BackupRunAvgAggregateOutputType = {
+  leaseEpoch: number | null
+  attemptCount: number | null
   byteCount: number | null
 }
 
 export type BackupRunSumAggregateOutputType = {
+  leaseEpoch: number | null
+  attemptCount: number | null
   byteCount: number | null
 }
 
@@ -43,6 +47,8 @@ export type BackupRunMinAggregateOutputType = {
   idempotencyKey: string | null
   leaseOwner: string | null
   leaseExpiresAt: Date | null
+  leaseEpoch: number | null
+  attemptCount: number | null
   driveFileId: string | null
   driveFolderId: string | null
   fileName: string | null
@@ -63,6 +69,8 @@ export type BackupRunMaxAggregateOutputType = {
   idempotencyKey: string | null
   leaseOwner: string | null
   leaseExpiresAt: Date | null
+  leaseEpoch: number | null
+  attemptCount: number | null
   driveFileId: string | null
   driveFolderId: string | null
   fileName: string | null
@@ -83,6 +91,8 @@ export type BackupRunCountAggregateOutputType = {
   idempotencyKey: number
   leaseOwner: number
   leaseExpiresAt: number
+  leaseEpoch: number
+  attemptCount: number
   driveFileId: number
   driveFolderId: number
   fileName: number
@@ -97,10 +107,14 @@ export type BackupRunCountAggregateOutputType = {
 
 
 export type BackupRunAvgAggregateInputType = {
+  leaseEpoch?: true
+  attemptCount?: true
   byteCount?: true
 }
 
 export type BackupRunSumAggregateInputType = {
+  leaseEpoch?: true
+  attemptCount?: true
   byteCount?: true
 }
 
@@ -113,6 +127,8 @@ export type BackupRunMinAggregateInputType = {
   idempotencyKey?: true
   leaseOwner?: true
   leaseExpiresAt?: true
+  leaseEpoch?: true
+  attemptCount?: true
   driveFileId?: true
   driveFolderId?: true
   fileName?: true
@@ -133,6 +149,8 @@ export type BackupRunMaxAggregateInputType = {
   idempotencyKey?: true
   leaseOwner?: true
   leaseExpiresAt?: true
+  leaseEpoch?: true
+  attemptCount?: true
   driveFileId?: true
   driveFolderId?: true
   fileName?: true
@@ -153,6 +171,8 @@ export type BackupRunCountAggregateInputType = {
   idempotencyKey?: true
   leaseOwner?: true
   leaseExpiresAt?: true
+  leaseEpoch?: true
+  attemptCount?: true
   driveFileId?: true
   driveFolderId?: true
   fileName?: true
@@ -260,6 +280,8 @@ export type BackupRunGroupByOutputType = {
   idempotencyKey: string | null
   leaseOwner: string | null
   leaseExpiresAt: Date | null
+  leaseEpoch: number
+  attemptCount: number
   driveFileId: string | null
   driveFolderId: string | null
   fileName: string | null
@@ -303,6 +325,8 @@ export type BackupRunWhereInput = {
   idempotencyKey?: Prisma.StringNullableFilter<"BackupRun"> | string | null
   leaseOwner?: Prisma.StringNullableFilter<"BackupRun"> | string | null
   leaseExpiresAt?: Prisma.DateTimeNullableFilter<"BackupRun"> | Date | string | null
+  leaseEpoch?: Prisma.IntFilter<"BackupRun"> | number
+  attemptCount?: Prisma.IntFilter<"BackupRun"> | number
   driveFileId?: Prisma.StringNullableFilter<"BackupRun"> | string | null
   driveFolderId?: Prisma.StringNullableFilter<"BackupRun"> | string | null
   fileName?: Prisma.StringNullableFilter<"BackupRun"> | string | null
@@ -323,6 +347,8 @@ export type BackupRunOrderByWithRelationInput = {
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   leaseOwner?: Prisma.SortOrderInput | Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  leaseEpoch?: Prisma.SortOrder
+  attemptCount?: Prisma.SortOrder
   driveFileId?: Prisma.SortOrderInput | Prisma.SortOrder
   driveFolderId?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -347,6 +373,8 @@ export type BackupRunWhereUniqueInput = Prisma.AtLeast<{
   idempotencyKey?: Prisma.StringNullableFilter<"BackupRun"> | string | null
   leaseOwner?: Prisma.StringNullableFilter<"BackupRun"> | string | null
   leaseExpiresAt?: Prisma.DateTimeNullableFilter<"BackupRun"> | Date | string | null
+  leaseEpoch?: Prisma.IntFilter<"BackupRun"> | number
+  attemptCount?: Prisma.IntFilter<"BackupRun"> | number
   driveFileId?: Prisma.StringNullableFilter<"BackupRun"> | string | null
   driveFolderId?: Prisma.StringNullableFilter<"BackupRun"> | string | null
   fileName?: Prisma.StringNullableFilter<"BackupRun"> | string | null
@@ -367,6 +395,8 @@ export type BackupRunOrderByWithAggregationInput = {
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   leaseOwner?: Prisma.SortOrderInput | Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  leaseEpoch?: Prisma.SortOrder
+  attemptCount?: Prisma.SortOrder
   driveFileId?: Prisma.SortOrderInput | Prisma.SortOrder
   driveFolderId?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -395,6 +425,8 @@ export type BackupRunScalarWhereWithAggregatesInput = {
   idempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"BackupRun"> | string | null
   leaseOwner?: Prisma.StringNullableWithAggregatesFilter<"BackupRun"> | string | null
   leaseExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"BackupRun"> | Date | string | null
+  leaseEpoch?: Prisma.IntWithAggregatesFilter<"BackupRun"> | number
+  attemptCount?: Prisma.IntWithAggregatesFilter<"BackupRun"> | number
   driveFileId?: Prisma.StringNullableWithAggregatesFilter<"BackupRun"> | string | null
   driveFolderId?: Prisma.StringNullableWithAggregatesFilter<"BackupRun"> | string | null
   fileName?: Prisma.StringNullableWithAggregatesFilter<"BackupRun"> | string | null
@@ -415,6 +447,8 @@ export type BackupRunCreateInput = {
   idempotencyKey?: string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
+  leaseEpoch?: number
+  attemptCount?: number
   driveFileId?: string | null
   driveFolderId?: string | null
   fileName?: string | null
@@ -435,6 +469,8 @@ export type BackupRunUncheckedCreateInput = {
   idempotencyKey?: string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
+  leaseEpoch?: number
+  attemptCount?: number
   driveFileId?: string | null
   driveFolderId?: string | null
   fileName?: string | null
@@ -455,6 +491,8 @@ export type BackupRunUpdateInput = {
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  leaseEpoch?: Prisma.IntFieldUpdateOperationsInput | number
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   driveFolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -475,6 +513,8 @@ export type BackupRunUncheckedUpdateInput = {
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  leaseEpoch?: Prisma.IntFieldUpdateOperationsInput | number
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   driveFolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -495,6 +535,8 @@ export type BackupRunCreateManyInput = {
   idempotencyKey?: string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
+  leaseEpoch?: number
+  attemptCount?: number
   driveFileId?: string | null
   driveFolderId?: string | null
   fileName?: string | null
@@ -515,6 +557,8 @@ export type BackupRunUpdateManyMutationInput = {
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  leaseEpoch?: Prisma.IntFieldUpdateOperationsInput | number
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   driveFolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -535,6 +579,8 @@ export type BackupRunUncheckedUpdateManyInput = {
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  leaseEpoch?: Prisma.IntFieldUpdateOperationsInput | number
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   driveFolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -560,6 +606,8 @@ export type BackupRunCountOrderByAggregateInput = {
   idempotencyKey?: Prisma.SortOrder
   leaseOwner?: Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrder
+  leaseEpoch?: Prisma.SortOrder
+  attemptCount?: Prisma.SortOrder
   driveFileId?: Prisma.SortOrder
   driveFolderId?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
@@ -572,6 +620,8 @@ export type BackupRunCountOrderByAggregateInput = {
 }
 
 export type BackupRunAvgOrderByAggregateInput = {
+  leaseEpoch?: Prisma.SortOrder
+  attemptCount?: Prisma.SortOrder
   byteCount?: Prisma.SortOrder
 }
 
@@ -584,6 +634,8 @@ export type BackupRunMaxOrderByAggregateInput = {
   idempotencyKey?: Prisma.SortOrder
   leaseOwner?: Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrder
+  leaseEpoch?: Prisma.SortOrder
+  attemptCount?: Prisma.SortOrder
   driveFileId?: Prisma.SortOrder
   driveFolderId?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
@@ -604,6 +656,8 @@ export type BackupRunMinOrderByAggregateInput = {
   idempotencyKey?: Prisma.SortOrder
   leaseOwner?: Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrder
+  leaseEpoch?: Prisma.SortOrder
+  attemptCount?: Prisma.SortOrder
   driveFileId?: Prisma.SortOrder
   driveFolderId?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
@@ -616,6 +670,8 @@ export type BackupRunMinOrderByAggregateInput = {
 }
 
 export type BackupRunSumOrderByAggregateInput = {
+  leaseEpoch?: Prisma.SortOrder
+  attemptCount?: Prisma.SortOrder
   byteCount?: Prisma.SortOrder
 }
 
@@ -638,6 +694,8 @@ export type BackupRunSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   idempotencyKey?: boolean
   leaseOwner?: boolean
   leaseExpiresAt?: boolean
+  leaseEpoch?: boolean
+  attemptCount?: boolean
   driveFileId?: boolean
   driveFolderId?: boolean
   fileName?: boolean
@@ -658,6 +716,8 @@ export type BackupRunSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   idempotencyKey?: boolean
   leaseOwner?: boolean
   leaseExpiresAt?: boolean
+  leaseEpoch?: boolean
+  attemptCount?: boolean
   driveFileId?: boolean
   driveFolderId?: boolean
   fileName?: boolean
@@ -678,6 +738,8 @@ export type BackupRunSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   idempotencyKey?: boolean
   leaseOwner?: boolean
   leaseExpiresAt?: boolean
+  leaseEpoch?: boolean
+  attemptCount?: boolean
   driveFileId?: boolean
   driveFolderId?: boolean
   fileName?: boolean
@@ -698,6 +760,8 @@ export type BackupRunSelectScalar = {
   idempotencyKey?: boolean
   leaseOwner?: boolean
   leaseExpiresAt?: boolean
+  leaseEpoch?: boolean
+  attemptCount?: boolean
   driveFileId?: boolean
   driveFolderId?: boolean
   fileName?: boolean
@@ -709,7 +773,7 @@ export type BackupRunSelectScalar = {
   completedAt?: boolean
 }
 
-export type BackupRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "trigger" | "status" | "activeKey" | "requestedById" | "idempotencyKey" | "leaseOwner" | "leaseExpiresAt" | "driveFileId" | "driveFolderId" | "fileName" | "checksum" | "byteCount" | "failureCode" | "requestedAt" | "startedAt" | "completedAt", ExtArgs["result"]["backupRun"]>
+export type BackupRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "trigger" | "status" | "activeKey" | "requestedById" | "idempotencyKey" | "leaseOwner" | "leaseExpiresAt" | "leaseEpoch" | "attemptCount" | "driveFileId" | "driveFolderId" | "fileName" | "checksum" | "byteCount" | "failureCode" | "requestedAt" | "startedAt" | "completedAt", ExtArgs["result"]["backupRun"]>
 
 export type $BackupRunPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "BackupRun"
@@ -723,6 +787,8 @@ export type $BackupRunPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     idempotencyKey: string | null
     leaseOwner: string | null
     leaseExpiresAt: Date | null
+    leaseEpoch: number
+    attemptCount: number
     driveFileId: string | null
     driveFolderId: string | null
     fileName: string | null
@@ -1163,6 +1229,8 @@ export interface BackupRunFieldRefs {
   readonly idempotencyKey: Prisma.FieldRef<"BackupRun", 'String'>
   readonly leaseOwner: Prisma.FieldRef<"BackupRun", 'String'>
   readonly leaseExpiresAt: Prisma.FieldRef<"BackupRun", 'DateTime'>
+  readonly leaseEpoch: Prisma.FieldRef<"BackupRun", 'Int'>
+  readonly attemptCount: Prisma.FieldRef<"BackupRun", 'Int'>
   readonly driveFileId: Prisma.FieldRef<"BackupRun", 'String'>
   readonly driveFolderId: Prisma.FieldRef<"BackupRun", 'String'>
   readonly fileName: Prisma.FieldRef<"BackupRun", 'String'>

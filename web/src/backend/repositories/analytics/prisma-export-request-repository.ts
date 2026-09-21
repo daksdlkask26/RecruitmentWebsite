@@ -116,7 +116,7 @@ export class PrismaExportRequestRepository {
     return client.exportRequest.findUnique({ where: { id: candidate.id } });
   }
 
-  succeed(
+  async succeed(
     exportId: string,
     input: {
       workerId: string;
@@ -128,27 +128,216 @@ export class PrismaExportRequestRepository {
       rowCount: number;
       completedAt: Date;
       expiresAt: Date;
+      auditObligation: {
+        requesterUserId: string;
+        format: "CSV" | "XLSX";
+        rowCount: number;
+        occurredAt: Date;
+      };
     },
   ) {
-    return this.db.exportRequest.updateMany({
-      where: {
-        id: exportId,
-        status: "LEASED",
-        leaseOwner: input.workerId,
-      },
-      data: {
-        status: "SUCCEEDED",
-        storageLocator: input.storageLocator,
-        fileName: input.fileName,
-        mediaType: input.mediaType,
-        byteCount: input.byteCount,
-        checksum: input.checksum,
+    const complete = async (db: Database): Promise<{ count: number }> => {
+      const result = await db.exportRequest.updateMany({
+        where: {
+          id: exportId,
+          status: "LEASED",
+          leaseOwner: input.workerId,
+        },
+        data: {
+          status: "SUCCEEDED",
+          storageLocator: input.storageLocator,
+          fileName: input.fileName,
+          mediaType: input.mediaType,
+          byteCount: input.byteCount,
+          checksum: input.checksum,
+          rowCount: input.rowCount,
+          completedAt: input.completedAt,
+          expiresAt: input.expiresAt,
+          leaseOwner: null,
+          leaseExpiresAt: null,
+          version: { increment: 1 },
+        },
+      });
+      if (result.count !== 1) return result;
+      await db.exportAuditObligation.upsert({
+        where: { exportRequestId: exportId },
+        create: {
+          exportRequestId: exportId,
+          requesterUserId: input.auditObligation.requesterUserId,
+          format: input.auditObligation.format,
+          rowCount: input.auditObligation.rowCount,
+          occurredAt: input.auditObligation.occurredAt,
+        },
+        update: {
+          requesterUserId: input.auditObligation.requesterUserId,
+          format: input.auditObligation.format,
+          rowCount: input.auditObligation.rowCount,
+          occurredAt: input.auditObligation.occurredAt,
+        },
+      });
+      return result;
+    };
+
+    const transaction = (this.db as typeof prisma).$transaction;
+    if (typeof transaction === "function") {
+      return (await transaction.call(this.db, complete)) as { count: number };
+    }
+    return complete(this.db);
+  }
+
+  ensureAuditObligation(
+    exportRequestId: string,
+    input: {
+      requesterUserId: string;
+      format: "CSV" | "XLSX";
+      rowCount: number;
+      occurredAt: Date;
+    },
+  ) {
+    return this.db.exportAuditObligation.upsert({
+      where: { exportRequestId },
+      create: {
+        exportRequestId,
+        requesterUserId: input.requesterUserId,
+        format: input.format,
         rowCount: input.rowCount,
-        completedAt: input.completedAt,
-        expiresAt: input.expiresAt,
+        occurredAt: input.occurredAt,
+      },
+      update: {
+        requesterUserId: input.requesterUserId,
+        format: input.format,
+        rowCount: input.rowCount,
+        occurredAt: input.occurredAt,
+      },
+    });
+  }
+
+  async claimPendingAuditObligations(
+    workerId: string,
+    now: Date,
+    leaseExpiresAt: Date,
+    take = 25,
+  ) {
+    const maxAttempts = analyticsConfiguration().exportMaxAttempts;
+    const select = {
+      id: true,
+      exportRequestId: true,
+      requesterUserId: true,
+      format: true,
+      rowCount: true,
+      occurredAt: true,
+      attemptCount: true,
+    } as const;
+    const maybeDatabase = this.db as typeof prisma;
+    if (typeof maybeDatabase.$transaction === "function") {
+      return maybeDatabase.$transaction(
+        async (tx: Prisma.TransactionClient) => {
+          const candidates = await tx.$queryRawUnsafe<Array<{ id: string }>>(
+            'SELECT "id" FROM "ExportAuditObligation" WHERE "attemptCount" < $1 AND (("state" = $2 AND "nextAttemptAt" <= $3) OR ("state" = $4 AND "leaseExpiresAt" < $3)) ORDER BY "nextAttemptAt" ASC, "occurredAt" ASC, "id" ASC FOR UPDATE SKIP LOCKED LIMIT $5',
+            maxAttempts,
+            "PENDING",
+            now,
+            "LEASED",
+            take,
+          );
+          const ids = candidates.map(({ id }) => id);
+          if (ids.length === 0) return [];
+          await tx.exportAuditObligation.updateMany({
+            where: { id: { in: ids } },
+            data: {
+              state: "LEASED",
+              leaseOwner: workerId,
+              leaseExpiresAt,
+              attemptCount: { increment: 1 },
+            },
+          });
+          return tx.exportAuditObligation.findMany({
+            where: { id: { in: ids }, state: "LEASED", leaseOwner: workerId },
+            orderBy: [
+              { nextAttemptAt: "asc" },
+              { occurredAt: "asc" },
+              { id: "asc" },
+            ],
+            select,
+          });
+        },
+      );
+    }
+
+    const candidates = await this.db.exportAuditObligation.findMany({
+      where: {
+        attemptCount: { lt: maxAttempts },
+        OR: [
+          { state: "PENDING", nextAttemptAt: { lte: now } },
+          { state: "LEASED", leaseExpiresAt: { lt: now } },
+        ],
+      },
+      orderBy: [{ nextAttemptAt: "asc" }, { occurredAt: "asc" }, { id: "asc" }],
+      take,
+      select: { id: true },
+    });
+    const claimed = [];
+    for (const candidate of candidates) {
+      const changed = await this.db.exportAuditObligation.updateMany({
+        where: {
+          id: candidate.id,
+          attemptCount: { lt: maxAttempts },
+          OR: [
+            { state: "PENDING", nextAttemptAt: { lte: now } },
+            { state: "LEASED", leaseExpiresAt: { lt: now } },
+          ],
+        },
+        data: {
+          state: "LEASED",
+          leaseOwner: workerId,
+          leaseExpiresAt,
+          attemptCount: { increment: 1 },
+        },
+      });
+      if (changed.count !== 1) continue;
+      const obligation = await this.db.exportAuditObligation.findFirst({
+        where: { id: candidate.id, state: "LEASED", leaseOwner: workerId },
+        select,
+      });
+      if (obligation) claimed.push(obligation);
+    }
+    return claimed;
+  }
+
+  completeAuditObligation(
+    obligationId: string,
+    workerId: string,
+    completedAt: Date,
+  ) {
+    return this.db.exportAuditObligation.updateMany({
+      where: { id: obligationId, state: "LEASED", leaseOwner: workerId },
+      data: {
+        state: "COMPLETED",
+        completedAt,
+        lastFailureCode: null,
         leaseOwner: null,
         leaseExpiresAt: null,
-        version: { increment: 1 },
+      },
+    });
+  }
+
+  failAuditObligation(
+    obligationId: string,
+    workerId: string,
+    failureCode: string,
+    now: Date,
+    retry: boolean,
+    nextAttemptAt: Date,
+  ) {
+    return this.db.exportAuditObligation.updateMany({
+      where: { id: obligationId, state: "LEASED", leaseOwner: workerId },
+      data: {
+        state: retry ? "PENDING" : "DEAD_LETTER",
+        nextAttemptAt,
+        leaseOwner: null,
+        leaseExpiresAt: null,
+        lastFailureCode: failureCode,
+        updatedAt: now,
       },
     });
   }
