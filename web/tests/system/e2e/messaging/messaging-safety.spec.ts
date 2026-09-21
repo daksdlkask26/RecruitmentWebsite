@@ -192,7 +192,7 @@ test("membership loss removes the recruiter from the affected conversation", asy
     await recruiter.reload();
     await expect(
       recruiter.getByText(
-        "Tin nhắn xuất hiện khi bạn ứng tuyển vào một vị trí hoặc kết nối với nhà tuyển dụng.",
+        "Tin nhắn sẽ xuất hiện khi bạn ứng tuyển hoặc kết nối với nhà tuyển dụng.",
       ),
     ).toBeVisible({
       timeout: 10_000,

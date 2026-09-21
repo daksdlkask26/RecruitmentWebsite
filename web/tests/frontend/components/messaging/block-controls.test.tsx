@@ -28,6 +28,9 @@ describe("BlockParticipantDialog", () => {
     expect(screen.getByRole("dialog")).toHaveTextContent(
       /lịch sử tin nhắn vẫn được lưu/i,
     );
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /hủy|huỷ/i })).toHaveFocus(),
+    );
     fireEvent.click(screen.getByRole("button", { name: /xác nhận chặn/i }));
     await waitFor(() => expect(changed).toHaveBeenCalledWith(true));
     await waitFor(() => expect(trigger).toHaveFocus());

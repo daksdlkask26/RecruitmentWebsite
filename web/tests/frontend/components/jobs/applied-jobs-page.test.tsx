@@ -70,12 +70,16 @@ describe("AppliedJobsPage", () => {
 
   it("filters by semantic group and exact stage", () => {
     render(<AppliedJobsPage applications={applications} />);
-    fireEvent.click(screen.getByRole("button", { name: /Completed\s*3/u }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /Terminal\s*3/u }),
+    );
     expect(
       document.querySelectorAll(".application-tracking-card"),
     ).toHaveLength(3);
 
-    fireEvent.click(screen.getByRole("button", { name: /All\s*9/u }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /All applications\s*9/u }),
+    );
     fireEvent.change(screen.getByRole("combobox", { name: "Stage" }), {
       target: { value: "WAITLISTED" },
     });
@@ -134,7 +138,7 @@ describe("AppliedJobsPage", () => {
       <AppliedJobsPage applications={applications} nextCursor="cursor-1" />,
     );
     fireEvent.click(
-      screen.getByRole("button", { name: "Load more applications" }),
+      screen.getByRole("button", { name: "Next page" }),
     );
 
     await waitFor(() => expect(screen.getByText("Role 20")).toBeVisible());

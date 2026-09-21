@@ -8,12 +8,27 @@ export type PresenceTransition = {
 export class MessagingPresenceRegistry {
   private readonly socketsByUser = new Map<string, Set<string>>();
   private readonly userBySocket = new Map<string, string>();
-  private readonly pendingOffline = new Map<string, ReturnType<typeof setTimeout>>();
+  private readonly pendingOffline = new Map<
+    string,
+    ReturnType<typeof setTimeout>
+  >();
 
   constructor(
     private readonly graceMs: number,
-    private readonly onTransition: (event: PresenceTransition) => void | Promise<void>,
+    private readonly onTransition: (
+      event: PresenceTransition,
+    ) => void | Promise<void>,
   ) {}
+
+  private emitTransition(event: PresenceTransition) {
+    // Presence is a best-effort side effect. A failed fan-out must never become
+    // an unhandled rejection on the Socket.IO event loop.
+    try {
+      void Promise.resolve(this.onTransition(event)).catch(() => undefined);
+    } catch {
+      // Synchronous publisher failures are contained as well.
+    }
+  }
 
   register(socketId: string, userId: string) {
     const pending = this.pendingOffline.get(userId);
@@ -26,7 +41,7 @@ export class MessagingPresenceRegistry {
     sockets.add(socketId);
     this.socketsByUser.set(userId, sockets);
     this.userBySocket.set(socketId, userId);
-    if (wasOffline) void this.onTransition({ userId, presence: "ONLINE" });
+    if (wasOffline) this.emitTransition({ userId, presence: "ONLINE" });
   }
 
   unregister(socketId: string) {
@@ -40,7 +55,7 @@ export class MessagingPresenceRegistry {
     const timer = setTimeout(() => {
       this.pendingOffline.delete(userId);
       if (!this.isOnline(userId)) {
-        void this.onTransition({ userId, presence: "OFFLINE" });
+        this.emitTransition({ userId, presence: "OFFLINE" });
       }
     }, this.graceMs);
     this.pendingOffline.set(userId, timer);

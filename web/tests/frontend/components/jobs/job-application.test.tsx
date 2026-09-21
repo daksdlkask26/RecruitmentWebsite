@@ -52,7 +52,7 @@ describe("job application form", () => {
       />,
     );
 
-    const select = screen.getByLabelText(/select cv/i);
+    const select = screen.getByLabelText(/select a cv from profile/i);
     expect(select).toBeDisabled();
     expect(select).toHaveAccessibleDescription(/temporary source file/i);
     expect(
@@ -84,7 +84,7 @@ describe("job application form", () => {
     expect(
       screen.getByRole("button", { name: /submit application/i }),
     ).toBeDisabled();
-    fireEvent.change(screen.getByLabelText(/select cv/i), {
+    fireEvent.change(screen.getByLabelText(/select a cv from profile/i), {
       target: { value: "cv-1" },
     });
     expect(
@@ -135,7 +135,7 @@ describe("job application form", () => {
         onSubmitted={() => undefined}
       />,
     );
-    fireEvent.change(screen.getByLabelText(/select cv/i), {
+    fireEvent.change(screen.getByLabelText(/select a cv from profile/i), {
       target: { value: "cv-1" },
     });
     fireEvent.change(screen.getByLabelText(/experience/i), {
@@ -191,7 +191,7 @@ describe("job application form", () => {
       />,
     );
 
-    fireEvent.change(screen.getByLabelText(/select cv/i), {
+    fireEvent.change(screen.getByLabelText(/select a cv from profile/i), {
       target: { value: "cv-1" },
     });
     fireEvent.change(screen.getByLabelText(/experience/i), {

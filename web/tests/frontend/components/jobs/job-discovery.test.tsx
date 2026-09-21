@@ -1,4 +1,11 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import { CsrfProofProvider } from "@/frontend/features/authentication/client/csrf-proof-context";
 import { describe, expect, it, vi } from "vitest";
 import {
   ApplyButton,
@@ -8,6 +15,7 @@ import {
 import { JobSearchForm } from "@/frontend/features/jobs/components/job-search-form";
 import { CompanyAvatar } from "@/frontend/features/jobs/components/company-avatar";
 import { WorkspaceLocaleProvider } from "@/frontend/features/dashboard/client/workspace-locale";
+import { JobInteractionProvider } from "@/frontend/features/jobs/components/job-interaction-provider";
 
 vi.mock("@/backend/auth/get-workspace-context", () => ({
   getWorkspaceContext: vi.fn(async () => null),
@@ -237,7 +245,7 @@ describe("job discovery presentation", () => {
     );
   });
 
-  it("shows removable active filters and opens the mobile drawer accessibly", () => {
+  it("shows removable active filters and opens the mobile drawer accessibly", async () => {
     render(
       <JobSearchForm
         criteria={{ q: "TypeScript", location: "Da Nang", sort: "NEWEST" }}
@@ -249,11 +257,58 @@ describe("job discovery presentation", () => {
 
     const trigger = screen.getByRole("button", { name: /filters3/i });
     fireEvent.click(trigger);
-    expect(screen.getByRole("dialog", { name: "Filters" })).toBeVisible();
+    const dialog = screen.getByRole("dialog", { name: "Filters" });
+    expect(dialog).toBeVisible();
+    const closeButton = within(dialog).getByRole("button", { name: /close/i });
+    await waitFor(() => expect(closeButton).toHaveFocus());
+    const focusable = Array.from(
+      dialog.querySelectorAll<HTMLElement>(
+        "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href]",
+      ),
+    );
+    expect(focusable.length).toBeGreaterThan(1);
+    focusable.at(-1)?.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(focusable[0]).toHaveFocus();
     fireEvent.keyDown(document, { key: "Escape" });
     expect(
       screen.queryByRole("dialog", { name: "Filters" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("keeps the saved-filter dialog focused and returns to its trigger", async () => {
+    render(
+      <CsrfProofProvider value="csrf-proof">
+        <JobInteractionProvider
+          initialUserJobState={{
+            savedJobIds: [],
+            hiddenJobIds: [],
+            appliedJobIds: [],
+            savedFilterPresets: [],
+          }}
+        >
+          <JobSearchForm criteria={{}} onCriteriaChange={vi.fn()} />
+        </JobInteractionProvider>
+      </CsrfProofProvider>,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Save filter" });
+    fireEvent.click(trigger);
+    const dialog = screen.getByRole("dialog", { name: "Name this search" });
+    const nameInput = screen.getByRole("textbox", { name: "Search name" });
+    await waitFor(() => expect(nameInput).toHaveFocus());
+    const focusable = Array.from(
+      dialog.querySelectorAll<HTMLElement>(
+        "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href]",
+      ),
+    );
+    expect(focusable.length).toBeGreaterThan(1);
+    focusable.at(-1)?.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(focusable[0]).toHaveFocus();
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => expect(dialog).not.toBeInTheDocument());
+    await waitFor(() => expect(trigger).toHaveFocus());
   });
 
   it("presents the loading state with the informational blue tone", async () => {

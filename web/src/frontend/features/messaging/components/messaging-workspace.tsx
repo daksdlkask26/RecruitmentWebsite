@@ -62,9 +62,10 @@ export function MessagingWorkspace({
   const connectionInput = useMemo(
     () => ({
       onAuthoritativeRefetch: refreshConversations,
+      onAuthoritativeHistoryRefetch: refreshHistory,
       onProtectedCachePurge: purge,
     }),
-    [purge, refreshConversations],
+    [purge, refreshConversations, refreshHistory],
   );
   const connectionState = useChatConnection(connectionInput);
   const onMessage = useCallback(
@@ -121,10 +122,9 @@ export function MessagingWorkspace({
     const normalized = query.trim().toLocaleLowerCase();
     if (!normalized) return conversations.items;
     return conversations.items.filter((item) =>
-      [
-        item.otherParticipant.name,
-        item.lastMessage?.content ?? "",
-      ].some((value) => value.toLocaleLowerCase().includes(normalized)),
+      [item.otherParticipant.name, item.lastMessage?.content ?? ""].some(
+        (value) => value.toLocaleLowerCase().includes(normalized),
+      ),
     );
   }, [conversations.items, query]);
   const selectConversation = useCallback(

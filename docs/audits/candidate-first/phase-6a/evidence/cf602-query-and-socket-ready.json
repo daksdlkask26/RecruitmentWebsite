@@ -1,0 +1,176 @@
+{
+  "schema": "candidate-first-phase6a-cf602-evidence-v1",
+  "source": {
+    "commit": "ac17ec1efb70c9b963b7c979c45d07d733295f8d",
+    "dirtyWorktree": true,
+    "selectedStrategy": "lazy direct active-socket invalidation plus explicit active-conversation join",
+    "preChangeStrategy": "historical eager compatibility probe captured before final source cleanup"
+  },
+  "environment": {
+    "cwd": "D:\\HCMUS\\PROJECT\\web",
+    "node": "v24.18.0",
+    "databaseName": "candidate_phase6a_20260919_final_e2e_test",
+    "databaseUrlDatabaseName": "candidate_phase6a_20260919_final_e2e_test",
+    "directUrlDatabaseName": "candidate_phase6a_20260919_final_e2e_test",
+    "databaseUrlCredentials": "redacted",
+    "directUrlCredentials": "redacted",
+    "databaseGuard": "isolated-test-database",
+    "transport": "websocket",
+    "socketPath": "/chat",
+    "repetitionsPerWidth": 3
+  },
+  "commands": [
+    {
+      "command": "node --conditions=react-server --import tsx scripts/measure-phase6a-db-realtime.mjs",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "env": "PHASE6A_DB_REPETITIONS=3, PHASE6A_REPORT_FILE=.../evidence/cf602-final-db.json",
+      "status": "PASS",
+      "report": "cf602-final-db.json"
+    },
+    {
+      "command": "npm.cmd run perf:candidate-first:realtime",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "env": "CF004_ENV_FILE=.env.local, CF004_REALTIME_REPETITIONS=3, CF004_REPORT_FILE=.../evidence/cf602-transport-final.json",
+      "status": "PASS",
+      "report": "cf602-transport-final.json"
+    }
+  ],
+  "fixedThresholds": {
+    "socketReadyP95MsAt100": 2000,
+    "initialQueryErrorRate": 0,
+    "initialConversationRoomsPerSocket": 0,
+    "thresholdsFixedBeforeFinalRun": true
+  },
+  "databaseComparison": {
+    "preChange": {
+      "report": "cf602-prechange-db.json",
+      "historicalStatus": "PASS",
+      "widths": [
+        {
+          "width": 1,
+          "queryCounts": [64, 52, 58],
+          "queryCountP95": 64,
+          "socketReadyP95Ms": 67.66,
+          "reconnectP95Ms": 57.18,
+          "roomsPerSocket": [1, 1, 1]
+        },
+        {
+          "width": 10,
+          "queryCounts": [274, 268, 268],
+          "queryCountP95": 274,
+          "socketReadyP95Ms": 183.04,
+          "reconnectP95Ms": 303.89,
+          "roomsPerSocket": [11, 10, 10]
+        },
+        {
+          "width": 40,
+          "queryCounts": [1006, 988, 1000],
+          "queryCountP95": 1006,
+          "socketReadyP95Ms": 535.45,
+          "reconnectP95Ms": 651.58,
+          "roomsPerSocket": [40, 40, 40]
+        },
+        {
+          "width": 100,
+          "queryCounts": [2404, 2404, 2404],
+          "queryCountP95": 2404,
+          "socketReadyP95Ms": 1506.12,
+          "reconnectP95Ms": 842.25,
+          "roomsPerSocket": [100, 100, 100]
+        }
+      ],
+      "limitations": [
+        "This is historical pre-change evidence, not a rerun of the final source.",
+        "The eager initialization compatibility path used only for this historical reproduction was removed before the final-source run."
+      ]
+    },
+    "final": {
+      "report": "cf602-final-db.json",
+      "status": "PASS",
+      "widths": [
+        {
+          "width": 1,
+          "queryCounts": [0, 0, 0],
+          "queryCountP95": 0,
+          "socketReadyP95Ms": 18.63,
+          "reconnectP95Ms": 14.87,
+          "roomsPerSocket": [0, 0, 0]
+        },
+        {
+          "width": 10,
+          "queryCounts": [0, 0, 0],
+          "queryCountP95": 0,
+          "socketReadyP95Ms": 8.31,
+          "reconnectP95Ms": 8.19,
+          "roomsPerSocket": [0, 0, 0]
+        },
+        {
+          "width": 40,
+          "queryCounts": [0, 0, 0],
+          "queryCountP95": 0,
+          "socketReadyP95Ms": 8.65,
+          "reconnectP95Ms": 7.68,
+          "roomsPerSocket": [0, 0, 0]
+        },
+        {
+          "width": 100,
+          "queryCounts": [0, 0, 0],
+          "queryCountP95": 0,
+          "socketReadyP95Ms": 8.5,
+          "reconnectP95Ms": 7.84,
+          "roomsPerSocket": [0, 0, 0]
+        }
+      ],
+      "allMeasurementsFailed": 0
+    }
+  },
+  "transportComparison": {
+    "report": "cf602-transport-final.json",
+    "status": "PASS",
+    "measurements": 12,
+    "failedMeasurements": 0,
+    "widths": [
+      {
+        "width": 1,
+        "messageDeliveryP95Ms": 1.47,
+        "reconnectP95Ms": 11.08,
+        "maxRoomsPerSocket": 0,
+        "maxRepositoryCalls": 7
+      },
+      {
+        "width": 10,
+        "messageDeliveryP95Ms": 2.28,
+        "reconnectP95Ms": 6.76,
+        "maxRoomsPerSocket": 0,
+        "maxRepositoryCalls": 7
+      },
+      {
+        "width": 40,
+        "messageDeliveryP95Ms": 1.17,
+        "reconnectP95Ms": 8.04,
+        "maxRoomsPerSocket": 0,
+        "maxRepositoryCalls": 7
+      },
+      {
+        "width": 100,
+        "messageDeliveryP95Ms": 0.91,
+        "reconnectP95Ms": 6.24,
+        "maxRoomsPerSocket": 0,
+        "maxRepositoryCalls": 7
+      }
+    ],
+    "listAuthorizedConversationCalls": 0,
+    "activeRoomDelivery": "explicit join and message:new PASS"
+  },
+  "acceptance": {
+    "boundedInitialAuthorization": "PASS",
+    "noSequentialPerConversationInitializationWaterfall": "PASS",
+    "failClosedConversationAuthorizationPreserved": "PASS via focused gateway and authorization tests",
+    "socketReadyThreshold": "PASS",
+    "queryBaselineBeforeOptimization": "PASS"
+  },
+  "cleanup": {
+    "fixtureNamespace": "task-owned-redacted",
+    "database": "dropped after final evidence; absence verified"
+  }
+}

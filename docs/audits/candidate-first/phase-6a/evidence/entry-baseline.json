@@ -1,0 +1,85 @@
+{
+  "schema": "candidate-first-phase6a-entry-v1",
+  "source": {
+    "commit": "ac17ec1efb70c9b963b7c979c45d07d733295f8d",
+    "branch": "audit_improvement",
+    "dirtyWorktree": true,
+    "preExistingChangesPreserved": [
+      "docs/audits/candidate-first/README.md",
+      "docs/audits/candidate-first/phase-6a/plan.md"
+    ]
+  },
+  "scope": "Candidate-first Phase 6A, CF-601 through CF-604",
+  "environment": {
+    "cwd": "D:\\HCMUS\\PROJECT\\web",
+    "node": "v24.18.0",
+    "databaseName": "candidate_phase6a_20260919_e2e_test",
+    "databaseUrlDatabaseName": "candidate_phase6a_20260919_e2e_test",
+    "directUrlDatabaseName": "candidate_phase6a_20260919_e2e_test",
+    "databaseUrlCredentials": "redacted",
+    "directUrlCredentials": "redacted",
+    "sharedDatabaseMutated": false,
+    "nextLock": "web/.local/next-output.lock preserved; pre-existing owner was not stopped",
+    "taskPort": 3001
+  },
+  "timestamps": {
+    "entryRecordedAt": "2026-09-19T10:10:00+07:00",
+    "baselineWindow": "2026-09-19"
+  },
+  "commands": [
+    {
+      "command": "codegraph status .",
+      "cwd": "D:\\HCMUS\\PROJECT",
+      "status": "PASS",
+      "result": "Index up to date"
+    },
+    {
+      "command": "npm.cmd run db:migrations:check",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "result": "97 migrations; 001_identity_foundation through 097_public_discovery_invalidation_watermark"
+    },
+    {
+      "command": "npm.cmd exec -- prisma migrate deploy",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "result": "All 97 migrations applied to isolated task database"
+    },
+    {
+      "command": "npm.cmd exec -- vitest run tests/backend/unit/messaging tests/backend/contract/messaging tests/frontend/components/messaging tests/frontend/accessibility/messaging tests/architecture/realtime-messaging-boundaries.test.ts tests/security/realtime-messaging tests/performance/messaging tests/backend/unit/notifications tests/backend/contract/notifications tests/frontend/components/notifications tests/frontend/accessibility/notifications tests/architecture/in-app-notification-boundaries.test.ts tests/security/notifications tests/performance/notifications --passWithNoTests",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "FAIL",
+      "result": "33 files / 95 passed; 5 files / 6 tests failed before Phase 6A changes"
+    },
+    {
+      "command": "npm.cmd run test:messaging -- --reporter=dot",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "FAIL",
+      "result": "Pre-change baseline: 28 files passed; message-composer had 2 pre-existing UI expectation failures"
+    },
+    {
+      "command": "npm.cmd run test:notifications -- --reporter=dot",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "FAIL",
+      "result": "Pre-change baseline: 21 files passed; 4 files / 4 tests failed, including the unchanged SpecKit OpenAPI enum parity"
+    }
+  ],
+  "baselineFailureClassification": [
+    "Pre-change message composer expected sent/retry UI that was not implemented yet; addressed in CF-603.",
+    "Pre-change notification interval/convergence expected 4 seconds while source used 30 seconds; addressed in CF-603.",
+    "Notification accessibility fixture lacked QueryClientProvider; addressed in test harness.",
+    "Notification OpenAPI parity still fails because SpecKit contract omits COMPANY_INVITATION; SpecKit was not modified."
+  ],
+  "passFailSkip": {
+    "pass": 3,
+    "fail": 3,
+    "skip": 0,
+    "note": "Entry baseline intentionally records pre-change failures; it is not promoted to the final gate."
+  },
+  "cleanup": {
+    "isolatedDatabase": "retained until final Phase 6A evidence and cleanup verification",
+    "taskServer": "not running at entry",
+    "taskFixtures": "none at entry",
+    "secretsOrPrivatePayloadsRecorded": false
+  }
+}

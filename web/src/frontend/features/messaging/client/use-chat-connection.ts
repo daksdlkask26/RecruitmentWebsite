@@ -6,17 +6,19 @@ import { NOTIFICATION_CHANGED_EVENT } from "@/frontend/features/notifications/cl
 
 export function useChatConnection(input: {
   onAuthoritativeRefetch: () => void | Promise<void>;
+  onAuthoritativeHistoryRefetch?: () => void | Promise<void>;
   onProtectedCachePurge: (conversationId?: string) => void;
 }) {
-  const [state, setState] = useState<"CONNECTING" | "CONNECTED" | "RECONNECTING" | "OFFLINE">(
-    "CONNECTING",
-  );
+  const [state, setState] = useState<
+    "CONNECTING" | "CONNECTED" | "RECONNECTING" | "OFFLINE"
+  >("CONNECTING");
   useEffect(() => {
     const socket = getChatSocket();
     const connected = () => {
       setState("CONNECTED");
       input.onProtectedCachePurge();
       void input.onAuthoritativeRefetch();
+      void input.onAuthoritativeHistoryRefetch?.();
     };
     const disconnected = () => setState("RECONNECTING");
     const failed = () => setState("OFFLINE");
@@ -24,20 +26,22 @@ export function useChatConnection(input: {
       input.onProtectedCachePurge(conversationId);
       void input.onAuthoritativeRefetch();
     };
-    const notificationChanged = () =>
+    const messagingChanged = () => {
+      void input.onAuthoritativeRefetch();
       window.dispatchEvent(new Event(NOTIFICATION_CHANGED_EVENT));
+    };
     socket.on("connect", connected);
     socket.on("disconnect", disconnected);
     socket.on("connect_error", failed);
     socket.on("conversation:access_revoked", revoked);
-    socket.on("message:new", notificationChanged);
+    socket.on("messaging:changed", messagingChanged);
     socket.connect();
     return () => {
       socket.off("connect", connected);
       socket.off("disconnect", disconnected);
       socket.off("connect_error", failed);
       socket.off("conversation:access_revoked", revoked);
-      socket.off("message:new", notificationChanged);
+      socket.off("messaging:changed", messagingChanged);
     };
   }, [input]);
   return state;

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import {
   BadgeCheck,
   BriefcaseBusiness,
@@ -24,6 +24,7 @@ import { SaveBookmarkIcon, SaveJobAction } from "./save-job-action";
 import { jobWhyHighlights } from "./job-detail-data";
 import { CompanyAvatar } from "./company-avatar";
 import { jobCopy, jobExperienceLabel } from "./job-copy";
+import { useModalA11y } from "@/frontend/components/ui/use-modal-a11y";
 
 export function QuickViewPanel({
   jobs,
@@ -36,8 +37,7 @@ export function QuickViewPanel({
   onClose: () => void;
   onJobChange: (jobId: string) => void;
 }) {
-  const panelRef = useRef<HTMLElement>(null);
-  const returnTarget = useRef<HTMLElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const locale = useWorkspaceLocale();
   const copy = jobCopy(locale);
   const shared = useOptionalJobInteraction();
@@ -55,38 +55,25 @@ export function QuickViewPanel({
   const index = job ? jobs.findIndex((item) => item.id === job.id) : -1;
   const highlights = job ? jobWhyHighlights(job, locale).slice(0, 3) : [];
 
-  useEffect(() => {
-    if (!job) return;
-    returnTarget.current = document.activeElement as HTMLElement | null;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const timer = window.setTimeout(() => panelRef.current?.focus(), 0);
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-      }
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
       if (event.key === "ArrowRight" && index < jobs.length - 1) {
+        event.preventDefault();
         onJobChange(jobs[index + 1]!.id);
       }
       if (event.key === "ArrowLeft" && index > 0) {
+        event.preventDefault();
         onJobChange(jobs[index - 1]!.id);
       }
-    }
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.clearTimeout(timer);
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [index, job, jobs, onClose, onJobChange]);
-
-  useEffect(() => {
-    if (job) return;
-    returnTarget.current?.focus();
-  }, [job]);
+    },
+    [index, jobs, onJobChange],
+  );
+  const dialogRef = useModalA11y<HTMLDivElement>({
+    open: Boolean(job),
+    onClose,
+    initialFocusRef: closeButtonRef,
+    onKeyDown: handleKeyDown,
+  });
 
   if (!job) return null;
 
@@ -98,8 +85,8 @@ export function QuickViewPanel({
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <aside
-        ref={panelRef}
+      <div
+        ref={dialogRef}
         className="job-quick-view-panel job-quick-view-panel--redesign"
         role="dialog"
         aria-modal="true"
@@ -114,6 +101,7 @@ export function QuickViewPanel({
             </p>
           </div>
           <button
+            ref={closeButtonRef}
             className="job-icon-button"
             type="button"
             aria-label={copy.closeQuickView}
@@ -294,7 +282,7 @@ export function QuickViewPanel({
             </button>
           </div>
         </footer>
-      </aside>
+      </div>
     </div>
   );
 }

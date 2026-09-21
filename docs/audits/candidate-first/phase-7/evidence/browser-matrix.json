@@ -1,0 +1,346 @@
+{
+  "schemaVersion": "candidate-first-phase7-browser-v1",
+  "generatedAt": "2026-09-21T13:04:04+07:00",
+  "sourceCommit": "ac17ec1e",
+  "sourceIdentity": {
+    "method": "SHA-256 over UTF-8 sha256sum-style lines sorted by path; see source-manifest.json",
+    "manifest": "source-manifest.json",
+    "phase7SourceSha256": "2d31ae6f97db66eeb5fc280a0bc669a1a21897b6bf21ce6a6d3c59f47b26eb8e",
+    "fileCount": 24
+  },
+  "server": {
+    "origins": [
+      "http://localhost:3141",
+      "http://localhost:3142",
+      "http://localhost:3143",
+      "http://localhost:3144",
+      "http://localhost:3145"
+    ],
+    "mode": "task-owned production-like Next.js servers",
+    "distDir": "web/.next-phase7-final",
+    "buildId": "lAfLL8pY3Wp8U0hQYjmf2",
+    "artifactStatus": "task-owned build measured and removed after evidence capture",
+    "browser": "Playwright Chromium",
+    "chromium": "153.0.8010.48",
+    "axeCore": "4.12.1"
+  },
+  "publicEvidenceProvenance": {
+    "origin": "http://localhost:3141",
+    "buildId": "lAfLL8pY3Wp8U0hQYjmf2",
+    "relationshipToFinalBuild": "The public overlay matrix and authenticated profiles ran against this same final build."
+  },
+  "supplementalScreenshots": {
+    "result": "PASS",
+    "sourceIdentity": "same 24-file Phase 7 source digest as the final browser matrix",
+    "productionBuildId": "KDHDxsyx0V5f0ftg5yctm",
+    "origin": "http://localhost:3146",
+    "isolatedDatabase": "candidate_phase7_screenshot_e2e",
+    "runnerResult": "1/1 PASS; five locale, theme, viewport, and page-scale assertions passed",
+    "totalBytes": 193197,
+    "files": [
+      {
+        "path": "screenshots/jobs-1280-en-light.jpg",
+        "viewport": "1280x900",
+        "locale": "EN",
+        "theme": "light",
+        "bytes": 69898,
+        "sha256": "2e86855eb852618b4b02aa1e9782fadecd256fca03b425ba6ad2a03bbf36949c"
+      },
+      {
+        "path": "screenshots/jobs-768-vi-light.jpg",
+        "viewport": "768x900",
+        "locale": "VI",
+        "theme": "light",
+        "bytes": 50762,
+        "sha256": "3d754e61fd6e52a8de028c74ffd67801f1b39d97ab6fae9a5943160c1c815ff3"
+      },
+      {
+        "path": "screenshots/jobs-375-en-dark.jpg",
+        "viewport": "375x812",
+        "locale": "EN",
+        "theme": "dark",
+        "reducedMotion": true,
+        "bytes": 27245,
+        "sha256": "2571340387e51d52c4694776b63cd00a3c2520d3d178028c70093aecc1b72cb9"
+      },
+      {
+        "path": "screenshots/jobs-320-vi-dark.jpg",
+        "viewport": "320x800",
+        "locale": "VI",
+        "theme": "dark",
+        "reducedMotion": true,
+        "bytes": 26323,
+        "sha256": "5f26afe105f041d21e07dda4129979c1bdc3cb43e042425c275eaadf74926a9d"
+      },
+      {
+        "path": "screenshots/jobs-zoom-200-en-light.jpg",
+        "layoutViewport": "640x450",
+        "visualViewportScale": 2,
+        "visualViewportWidth": 320,
+        "locale": "EN",
+        "theme": "light",
+        "bytes": 18969,
+        "sha256": "87c4d8d94a172edf84ea415fb1b2ac0e4a33f7daa27576d3e2049497cc005fde"
+      }
+    ],
+    "cleanup": "isolated database dropped; task-owned build, server, temporary capture code, and Playwright marker removed"
+  },
+  "publicCurrentEvidence": [
+    {
+      "id": "jobs-shell-1280",
+      "route": "/jobs",
+      "viewport": "1280x900",
+      "zoom": "100%",
+      "locale": "EN",
+      "theme": "light",
+      "motion": "normal",
+      "result": "PASS",
+      "axeScope": "document",
+      "axeViolations": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "id": "quick-view",
+      "route": "/jobs",
+      "viewport": "1280x900",
+      "overlay": ".job-quick-view-panel",
+      "result": "PASS",
+      "initialFocus": "Close quick view",
+      "focusableCount": 5,
+      "forwardTabWrap": true,
+      "backwardTabWrap": true,
+      "escapeCloses": true,
+      "focusReturnsToTrigger": true,
+      "bodyOverflow": "hidden",
+      "axeScope": "active overlay",
+      "axeViolations": 0
+    },
+    {
+      "id": "category-explorer",
+      "route": "/jobs",
+      "viewport": "1280x900",
+      "overlay": ".job-category-flyout",
+      "mounting": "portal under document.body",
+      "result": "PASS",
+      "initialFocus": "Filter skills or titles input",
+      "forwardTabWrap": true,
+      "backwardTabWrap": true,
+      "escapeCloses": true,
+      "focusReturnsToTrigger": true,
+      "horizontalOverflow": false,
+      "axeScope": "active overlay",
+      "axeViolations": 0
+    },
+    {
+      "id": "image-search",
+      "route": "/jobs",
+      "viewport": "1280x900",
+      "overlay": ".global-image-search-panel",
+      "result": "PASS",
+      "initialFocus": "Close image search",
+      "focusableCount": 2,
+      "forwardTabWrap": true,
+      "backwardTabWrap": true,
+      "escapeCloses": true,
+      "focusReturnsToTrigger": true,
+      "bodyOverflow": "hidden",
+      "axeScope": "active overlay",
+      "axeViolations": 0
+    },
+    {
+      "id": "save-filter",
+      "route": "/jobs",
+      "viewport": "1280x900",
+      "overlay": ".job-save-filter-dialog",
+      "result": "PASS",
+      "initialFocus": "Search name input",
+      "focusableCount": 2,
+      "forwardTabWrap": true,
+      "backwardTabWrap": true,
+      "escapeCloses": true,
+      "focusReturnsToTrigger": true,
+      "bodyOverflow": "hidden",
+      "axeScope": "active overlay",
+      "axeViolations": 0
+    },
+    {
+      "id": "mobile-filters-320",
+      "route": "/jobs",
+      "viewport": "320x800",
+      "zoom": "100%",
+      "locale": "EN",
+      "theme": "dark",
+      "motion": "reduced",
+      "overlay": ".job-filter-drawer",
+      "result": "PASS",
+      "initialFocus": "Close filters",
+      "forwardTabWrap": true,
+      "backwardTabWrap": true,
+      "escapeCloses": true,
+      "focusReturnsToTrigger": true,
+      "bodyOverflow": "hidden",
+      "axeScope": "active overlay",
+      "axeViolations": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "id": "responsive-375",
+      "route": "/jobs",
+      "viewport": "375x900",
+      "result": "PASS",
+      "axeScope": "document",
+      "axeViolations": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "id": "responsive-768",
+      "route": "/jobs",
+      "viewport": "768x900",
+      "result": "PASS",
+      "axeScope": "document",
+      "axeViolations": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "id": "zoom-200-dialog",
+      "route": "/jobs",
+      "layoutViewport": "640x450",
+      "visualViewportScale": 2,
+      "visualViewportWidth": 320,
+      "result": "PASS",
+      "axeScope": "active dialog while background is intentionally dimmed",
+      "axeViolations": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "id": "zoom-200-document-after-dialog-close",
+      "route": "/jobs",
+      "layoutViewport": "640x450",
+      "visualViewportScale": 2,
+      "visualViewportWidth": 320,
+      "result": "PASS",
+      "axeScope": "document",
+      "axeViolations": 0,
+      "horizontalOverflow": false
+    }
+  ],
+  "authenticatedJourneys": [
+    {
+      "id": "J1-jobs-discovery-detail",
+      "result": "PASS",
+      "evidence": "keyboard-only open, Back, and reopen on every final profile"
+    },
+    {
+      "id": "J2-company-discovery-detail",
+      "result": "PASS",
+      "evidence": "keyboard-only open and long-content inspection on every final profile"
+    },
+    {
+      "id": "J3-cv-import-review-receipt",
+      "result": "PASS",
+      "evidence": "task-owned REVIEW_READY draft exercised edit, replace, save, acknowledge, confirm, and receipt"
+    },
+    {
+      "id": "J4-application-review-submit",
+      "result": "PASS",
+      "evidence": "keyboard-only phone, CV selection, confirmation, submit, and receipt"
+    },
+    {
+      "id": "J5-application-history-detail",
+      "result": "PASS",
+      "evidence": "keyboard-only bounded pagination, detail, and unavailable state"
+    },
+    {
+      "id": "J6-private-cv-match",
+      "result": "PASS",
+      "evidence": "keyboard-only completed report open"
+    },
+    {
+      "id": "J7-notifications",
+      "result": "PASS",
+      "evidence": "keyboard-only filter switch, mark-read, and semantic state assertion"
+    },
+    {
+      "id": "J8-messaging-safety-recovery",
+      "result": "PASS",
+      "evidence": "keyboard-only report, block, unblock, send, and history reload"
+    },
+    {
+      "id": "J9-job-report-overlay",
+      "result": "PASS",
+      "evidence": "safe initial focus, Escape close, and return focus"
+    }
+  ],
+  "keyboardEvidence": {
+    "result": "PASS",
+    "spec": "web/tests/system/e2e/candidate-first/phase7-keyboard-journeys.spec.ts",
+    "runnerResult": "3/3 profiles passed; 27/27 final journey states passed",
+    "databases": [
+      "candidate_phase7_resolve_desktop_test",
+      "candidate_phase7_resolve_mobile_test",
+      "candidate_phase7_resolve_zoom_e2e"
+    ],
+    "migrations": "97/97 applied on each isolated target",
+    "profiles": [
+      {
+        "project": "desktop-chromium",
+        "viewport": "1280x720",
+        "visualViewportScale": 1,
+        "theme": "light",
+        "motion": "normal",
+        "result": "J1-J9 PASS"
+      },
+      {
+        "project": "mobile-375",
+        "viewport": "375x812",
+        "visualViewportScale": 1,
+        "theme": "dark",
+        "motion": "reduced",
+        "result": "J1-J9 PASS"
+      },
+      {
+        "project": "desktop-chromium",
+        "layoutViewport": "640x360",
+        "visualViewportScale": 2,
+        "visualViewportWidth": 320,
+        "theme": "light",
+        "motion": "normal",
+        "result": "J1-J9 PASS"
+      }
+    ],
+    "locale": "EN",
+    "input": "real Tab navigation plus Shift+Tab/Enter/Space/arrow/Escape; no .focus(), .click(), .fill(), .check(), or .selectOption() shortcuts",
+    "zoomMechanism": "CDP Emulation.setDeviceMetricsOverride plus Emulation.setPageScaleFactor(2), reapplied after navigation and before interactions/assertions",
+    "axeSeriousOrCriticalViolations": 0,
+    "horizontalOverflowFailures": 0,
+    "fixtureBoundary": "J3 uses a task-owned REVIEW_READY draft; the operating-system file chooser is not claimed as browser evidence"
+  },
+  "authenticatedEvidence": {
+    "focusOverlayBrowserRerun": "phase7-authenticated CV retention overlay 1/1 on the final build; initial focus Keep import, Escape, return focus, and no delete on cancel",
+    "databases": [
+      "candidate_phase7_resolve_desktop_test",
+      "candidate_phase7_resolve_mobile_test",
+      "candidate_phase7_resolve_zoom_e2e"
+    ],
+    "sharedDatabase": "smarthire was not mutated",
+    "fixtureCleanup": "all three exact task-owned databases were dropped after marker validation and then confirmed absent"
+  },
+  "coverageSummary": {
+    "publicCurrentPasses": 10,
+    "publicAxeSeriousOrCriticalViolations": 0,
+    "publicHorizontalOverflowFailures": 0,
+    "authenticatedJourneysUnverified": 0,
+    "authenticatedKeyboardProfilesPassed": 3,
+    "authenticatedJourneyStatesPassed": 27,
+    "authenticatedAxeSeriousOrCriticalViolations": 0,
+    "authenticatedHorizontalOverflowFailures": 0,
+    "affectedRegressionFilesPassed": 103,
+    "affectedRegressionTestsPassed": 399,
+    "noSpecKitChange": true,
+    "noPhase6BChange": true
+  },
+  "unverifiedNonGatingLegacyProbes": [
+    "registration/mail-capture CV consent setup",
+    "removed visitor Sign in to apply path"
+  ]
+}

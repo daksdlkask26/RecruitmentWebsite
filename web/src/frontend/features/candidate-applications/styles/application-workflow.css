@@ -5,8 +5,8 @@
   --app-ink: #17213a;
   --app-muted: #667085;
   --app-line: #e4e8f0;
-  --app-green: #079455;
-  --app-green-50: #ecfdf3;
+  --app-green: var(--sh-color-success);
+  --app-green-50: var(--sh-color-success-bg);
   --app-yellow: #b54708;
   --app-yellow-50: #fffaeb;
   width: 100%;
@@ -59,7 +59,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  color: #98a2b3;
+  color: var(--sh-color-text-secondary);
   font-size: 12px;
 }
 .application-ui__breadcrumb a {
@@ -631,7 +631,7 @@
   font-size: 12px;
 }
 .application-ui-processing-hero small {
-  color: var(--app-muted);
+  color: var(--sh-color-text-secondary);
   font-size: 12px;
 }
 .application-ui-intake-list {
@@ -917,7 +917,7 @@
 }
 .application-ui-withdraw-note {
   margin: 0;
-  color: #667085;
+  color: var(--app-muted-light);
   font-size: 12px;
   line-height: 1.45;
 }
@@ -5474,6 +5474,21 @@
     .application-ui-status-hero p
   ) {
   color: var(--sh-color-text-secondary);
+}
+
+:root[data-theme="dark"]
+  .application-ui
+  :is(.application-ui-processing-hero > div > span, .application-ui-eyebrow) {
+  color: var(--sh-color-info);
+}
+
+:root[data-theme="dark"]
+  .application-ui
+  :is(
+    .application-ui-processing-hero > div > strong,
+    .application-ui-private-note > div > small
+  ) {
+  color: var(--sh-color-text-primary);
 }
 
 :root[data-theme="dark"]

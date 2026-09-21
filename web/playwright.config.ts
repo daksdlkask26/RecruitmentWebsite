@@ -24,7 +24,7 @@ export default defineConfig({
           ? "npm run start"
           : "npm run dev"
         : "node ../scripts/run-local-development.mjs",
-    url: "http://localhost:3001",
+    url: appBaseUrl,
     reuseExistingServer,
     env: {
       EMAIL_ADAPTER: "capture",

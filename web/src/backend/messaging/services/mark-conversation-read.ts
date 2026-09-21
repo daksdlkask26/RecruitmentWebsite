@@ -1,13 +1,23 @@
 import "server-only";
 import { MessagingEligibilityService } from "@/backend/messaging/authorization/messaging-eligibility-service";
 import { PrismaMessagingConversationRepository } from "@/backend/repositories/messaging/prisma-messaging-conversation-repository";
-import { MessagingError, unavailableConversation } from "@/backend/messaging/messaging-errors";
+import {
+  MessagingError,
+  unavailableConversation,
+} from "@/backend/messaging/messaging-errors";
 import { publishCommittedRead } from "@/backend/messaging/realtime/messaging-realtime-hub";
+import type { MessagingEligibilityPort } from "@/backend/messaging/ports/eligibility-provider";
+import type { PrismaMessagingConversationRepository as PrismaMessagingConversationRepositoryType } from "@/backend/repositories/messaging/prisma-messaging-conversation-repository";
+
+type MarkReadRepository = Pick<
+  PrismaMessagingConversationRepositoryType,
+  "findAccess" | "markRead"
+>;
 
 export class MarkConversationReadService {
   constructor(
-    private readonly repository = new PrismaMessagingConversationRepository(),
-    private readonly eligibility = new MessagingEligibilityService(),
+    private readonly repository: MarkReadRepository = new PrismaMessagingConversationRepository(),
+    private readonly eligibility: MessagingEligibilityPort = new MessagingEligibilityService(),
   ) {}
 
   async execute(input: {
@@ -16,7 +26,10 @@ export class MarkConversationReadService {
     lastReadSequence: number;
     now?: Date;
   }) {
-    const access = await this.repository.findAccess(input.conversationId, input.userId);
+    const access = await this.repository.findAccess(
+      input.conversationId,
+      input.userId,
+    );
     if (!access) throw unavailableConversation();
     const otherUserId =
       access.participantLowId === input.userId
@@ -38,10 +51,18 @@ export class MarkConversationReadService {
         now: input.now ?? new Date(),
       });
       if (!boundary) throw unavailableConversation();
-      await publishCommittedRead(boundary);
+      try {
+        await publishCommittedRead(boundary);
+      } catch {
+        // The read boundary is durable; a later history/list refetch converges
+        // clients if realtime fan-out is unavailable.
+      }
       return boundary;
     } catch (error) {
-      if (error instanceof Error && error.message === "READ_SEQUENCE_CONFLICT") {
+      if (
+        error instanceof Error &&
+        error.message === "READ_SEQUENCE_CONFLICT"
+      ) {
         throw new MessagingError("CONFLICT", 409);
       }
       throw error;

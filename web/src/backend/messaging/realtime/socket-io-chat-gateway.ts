@@ -26,10 +26,7 @@ import {
   conversationRoom,
   MessagingRealtimePublisher,
 } from "./messaging-realtime-publisher";
-import {
-  authorizeSocketConversation,
-  registerChatEvents,
-} from "./register-chat-events";
+import { registerChatEvents } from "./register-chat-events";
 import { installMessagingRealtimePublisher } from "./messaging-realtime-hub";
 import { MessagingPresenceRegistry } from "./messaging-presence-registry";
 import { attachSupportNamespace } from "@/backend/support/realtime/socket-io-support-gateway";
@@ -54,6 +51,11 @@ export type ChatGatewayDependencies = {
   messages?: MessagingMessageRepositoryPort;
   registry?: MessagingSocketRegistry;
   presence?: MessagingPresenceRegistry;
+  joinAccountRoom?: (
+    socket: { join(room: string): void | Promise<void> },
+    room: string,
+  ) => Promise<void>;
+  joinConversationRoom?: (room: string) => void | Promise<void>;
 };
 
 export function attachSocketIoChatGateway(
@@ -97,36 +99,37 @@ export function attachSocketIoChatGateway(
     eligibility,
     blocks,
   );
+  const joinAccountRoom =
+    supplied.joinAccountRoom ??
+    (async (
+      socket: { join(room: string): void | Promise<void> },
+      room: string,
+    ) => {
+      await socket.join(room);
+    });
   installMessagingRealtimePublisher(publisher);
   const emitPresence = async (event: {
     userId: string;
     presence: "ONLINE" | "OFFLINE";
   }) => {
-    const conversationIds = await conversations.listAuthorizedConversationIds(
-      event.userId,
-    );
+    const conversationIds = registry.conversationIdsForUser(event.userId);
+    const affectedUsers = new Set<string>([event.userId]);
     for (const conversationId of conversationIds) {
-      const access = await conversations.findAccess(
+      for (const userId of registry.userIdsForConversation(conversationId)) {
+        affectedUsers.add(userId);
+      }
+      for (const socketId of registry.socketIdsForConversation(
         conversationId,
-        event.userId,
-      );
-      if (!access) continue;
-      const partnerId =
-        access.participantLowId === event.userId
-          ? access.participantHighId
-          : access.participantLowId;
-      const [context, blocked] = await Promise.all([
-        eligibility.authorizeContext({
-          userA: event.userId,
-          userB: partnerId,
-          type: access.contextType,
-          reference: access.contextReference,
-        }),
-        blocks.isEitherDirectionBlocked(event.userId, partnerId),
-      ]);
-      if (!context || blocked) continue;
-      for (const socketId of registry.socketIdsForUser(partnerId)) {
+      )) {
+        if (registry.userIdForSocket(socketId) === event.userId) continue;
         chat.sockets.get(socketId)?.emit("presence:changed", event);
+      }
+    }
+    for (const userId of affectedUsers) {
+      for (const socketId of registry.socketIdsForUser(userId)) {
+        chat.sockets.get(socketId)?.emit("messaging:changed", {
+          reason: "PRESENCE",
+        });
       }
     }
   };
@@ -145,9 +148,12 @@ export function attachSocketIoChatGateway(
   );
 
   chat.use(async (socket, next) => {
-    const actor = await authenticate(
-      handshakeHeaders(socket.handshake.headers),
-    );
+    let actor: Actor | null;
+    try {
+      actor = await authenticate(handshakeHeaders(socket.handshake.headers));
+    } catch {
+      return next(new Error("AUTH_REQUIRED"));
+    }
     if (!actor) return next(new Error("AUTH_REQUIRED"));
     socket.data.userId = actor.userId;
     socket.data.sessionId = actor.sessionId;
@@ -155,42 +161,76 @@ export function attachSocketIoChatGateway(
   });
 
   chat.on("connection", async (socket) => {
-    registry.register({ socketId: socket.id, ...socket.data });
-    presence.register(socket.id, socket.data.userId);
-    await socket.join(accountRoom(socket.data.userId));
-    const ids = await conversations.listAuthorizedConversationIds(
-      socket.data.userId,
-    );
-    for (const conversationId of ids) {
-      try {
-        await authorizeSocketConversation({
-          conversationId,
-          userId: socket.data.userId,
-          conversations,
-          eligibility,
-          blocks,
-        });
-        await socket.join(conversationRoom(conversationId));
-        registry.joinConversation(socket.id, conversationId);
-      } catch {
-        // Stale participant rows are not transport authority.
-      }
-    }
+    let disconnectRequested = false;
+    let presenceRegistered = false;
+    let cleanupPromise: Promise<void> | null = null;
+    const cleanup = () => {
+      if (cleanupPromise) return cleanupPromise;
+      cleanupPromise = (async () => {
+        const roomNames = [
+          accountRoom(socket.data.userId),
+          ...[...registry.conversationIdsForSocket(socket.id)].map(
+            conversationRoom,
+          ),
+        ];
+        await Promise.allSettled(
+          [...new Set(roomNames)].map(async (room) => {
+            try {
+              await socket.leave(room);
+            } catch {
+              // Socket.IO may already have removed the room during disconnect.
+            }
+          }),
+        );
+        registry.unregister(socket.id);
+        if (presenceRegistered) presence.unregister(socket.id);
+      })();
+      return cleanupPromise;
+    };
 
-    const currentHeaders = () => handshakeHeaders(socket.handshake.headers);
-    registerChatEvents(socket, {
-      registry,
-      conversations,
-      eligibility,
-      blocks,
-      send,
-      revalidateSession: async () =>
-        Boolean(await authenticate(currentHeaders())),
-    });
-    socket.on("disconnect", () => {
-      registry.unregister(socket.id);
-      presence.unregister(socket.id);
-    });
+    // Install cleanup before any await. A disconnect during room admission must
+    // not leave registry, room, session, or presence state behind.
+    const requestCleanup = () => {
+      disconnectRequested = true;
+      void cleanup();
+    };
+    socket.once("disconnecting", requestCleanup);
+    socket.once("disconnect", requestCleanup);
+
+    try {
+      registry.register({ socketId: socket.id, ...socket.data });
+      if (disconnectRequested || socket.disconnected) {
+        await cleanup();
+        return;
+      }
+      await joinAccountRoom(socket, accountRoom(socket.data.userId));
+      if (disconnectRequested || socket.disconnected) {
+        await cleanup();
+        return;
+      }
+
+      const currentHeaders = () => handshakeHeaders(socket.handshake.headers);
+      registerChatEvents(socket, {
+        registry,
+        conversations,
+        eligibility,
+        blocks,
+        send,
+        joinConversationRoom: supplied.joinConversationRoom,
+        revalidateSession: async () =>
+          Boolean(await authenticate(currentHeaders())),
+      });
+      if (disconnectRequested || socket.disconnected) {
+        await cleanup();
+        return;
+      }
+      presence.register(socket.id, socket.data.userId);
+      presenceRegistered = true;
+      if (socket.disconnected) await cleanup();
+    } catch {
+      await cleanup();
+      if (socket.connected) socket.disconnect(true);
+    }
   });
 
   return io;

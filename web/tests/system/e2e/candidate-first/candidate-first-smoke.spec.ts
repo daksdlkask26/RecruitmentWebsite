@@ -260,24 +260,24 @@ test("runs the Candidate journey from CV import through application and messagin
     });
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(
-      page.locator('[data-event-code="APPLICATION_SUBMITTED"]'),
+      page.locator('[data-event-code="APPLICATION_SUBMITTED"]:visible'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-event-code="APPLICATION_VIEWED"]'),
+      page.locator('[data-event-code="APPLICATION_VIEWED"]:visible'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-event-code="APPLICATION_SHORTLISTED"]'),
+      page.locator('[data-event-code="APPLICATION_SHORTLISTED"]:visible'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-event-code="INTERVIEW_STARTED"]'),
+      page.locator('[data-event-code="INTERVIEW_STARTED"]:visible'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-event-code="APPLICATION_REJECTED"]'),
+      page.locator('[data-event-code="APPLICATION_REJECTED"]:visible'),
     ).toBeVisible();
     await expect(
-      page.getByText("The hiring team completed its decision.", {
-        exact: true,
-      }),
+      page
+        .locator("p:visible")
+        .filter({ hasText: /^The hiring team completed its decision\.$/u }),
     ).toBeVisible();
     const submittedFiles = page.locator("#submitted-files").first();
     await expect(submittedFiles).toBeVisible();

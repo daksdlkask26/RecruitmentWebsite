@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
+import { useModalA11y } from "@/frontend/components/ui/use-modal-a11y";
 import type { WorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
 import { messagingCopy } from "../messaging-copy";
 
@@ -26,11 +27,20 @@ export function BlockParticipantDialog({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const cancelButton = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
   const action = blocked ? copy.unblock : copy.block;
   function close() {
     setOpen(false);
-    queueMicrotask(() => trigger.current?.focus());
   }
+  const dialogRef = useModalA11y({
+    open,
+    busy,
+    onClose: close,
+    initialFocusRef: cancelButton,
+    returnFocusRef: trigger,
+  });
   async function confirm() {
     setBusy(true);
     setError(null);
@@ -78,10 +88,12 @@ export function BlockParticipantDialog({
       {open ? (
         <div className="messaging-modal-layer">
           <section
+            ref={dialogRef}
             className="messaging-modal"
             role="dialog"
             aria-modal="true"
-            aria-label={`${action} ${targetName}`}
+            aria-labelledby={titleId}
+            aria-describedby={descriptionId}
           >
             <div
               className="messaging-modal-icon"
@@ -93,8 +105,10 @@ export function BlockParticipantDialog({
                 <path d="m6 6 12 12" />
               </svg>
             </div>
-            <h3>{blocked ? copy.continueMessaging : copy.stopContact}</h3>
-            <p>{copy.blockDescription}</p>
+            <h3 id={titleId}>
+              {blocked ? copy.continueMessaging : copy.stopContact}
+            </h3>
+            <p id={descriptionId}>{copy.blockDescription}</p>
             {error ? (
               <p className="messaging-inline-alert" role="alert">
                 {error}
@@ -116,6 +130,7 @@ export function BlockParticipantDialog({
                   : `${copy.confirm} ${action.toLocaleLowerCase()}`}
               </button>
               <button
+                ref={cancelButton}
                 className="messaging-secondary-button"
                 type="button"
                 disabled={busy}

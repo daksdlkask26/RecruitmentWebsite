@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "candidate-first-phase7-source-manifest-v1",
+  "generatedAt": "2026-09-21T10:14:21+07:00",
+  "sourceCommit": "ac17ec1e",
+  "algorithm": "SHA-256 over raw file bytes; aggregate SHA-256 over UTF-8 lines formatted as <file-sha256><two spaces><repository-relative-path><LF>, sorted by path",
+  "aggregateSha256": "2d31ae6f97db66eeb5fc280a0bc669a1a21897b6bf21ce6a6d3c59f47b26eb8e",
+  "fileCount": 24,
+  "files": [
+    {
+      "path": "web/playwright.config.ts",
+      "sha256": "bdb741438e1ec1d0fe4e466f133cd5e03a874c1e423998d6ca3950066b198708"
+    },
+    {
+      "path": "web/scripts/phase7-isolated-db.mjs",
+      "sha256": "53a6e8ac2000840155f03667a617e59d0cb594ba5f48107459a10a04aff98b44"
+    },
+    {
+      "path": "web/scripts/run-phase7-browser-e2e.mjs",
+      "sha256": "9114274f1ee655a5860324f3e831b56d9e3024e7c86c97fa836381e709363e73"
+    },
+    {
+      "path": "web/src/app/(workspace)/profile/cv-imports/[uploadId]/review/page.module.css",
+      "sha256": "ba3d820d3a5d93e8ec1806c7d34c9cba7f7254b3c70108b258b4d9388c634260"
+    },
+    {
+      "path": "web/src/frontend/components/ui/use-modal-a11y.ts",
+      "sha256": "21784cad10f9f832666e24247d25ab6ba588d80063f0ad39374298aea9e7ca83"
+    },
+    {
+      "path": "web/src/frontend/features/candidate-applications/styles/application-workflow.css",
+      "sha256": "bbb665c3eb7e50c4b3ebb1df0c54a58c5cade8136beed0f31e7c15d6d4f798a7"
+    },
+    {
+      "path": "web/src/frontend/features/candidate-company/team-application-status.tsx",
+      "sha256": "7a2ae364a1127140869a92b4a5d6cf4258c60414e8574c604545a1759eda50b8"
+    },
+    {
+      "path": "web/src/frontend/features/cv-import/components/cv-retention-actions.tsx",
+      "sha256": "b167aec5dcc67bb4e6c3f3c1703b1073f0c3d9361685f2b769c3f92c8e7978bd"
+    },
+    {
+      "path": "web/src/frontend/features/jobs/components/job-search-form.tsx",
+      "sha256": "b5fb74734633acee8c62e8357454101f76eba92c967f8aba29e987c5bc78ee49"
+    },
+    {
+      "path": "web/src/frontend/features/jobs/components/jobs-workspace.tsx",
+      "sha256": "9de0d9f35b57e3e9b1f14880946e6a5c04b6e9fd8b410b6aa7391f13463de702"
+    },
+    {
+      "path": "web/src/frontend/features/jobs/components/quick-view-panel.tsx",
+      "sha256": "751b77f833fa4c008ad068edde9da2e0d3d503d294576546c38ffadab43d4d49"
+    },
+    {
+      "path": "web/src/frontend/features/jobs/image-search/components/global-image-search.tsx",
+      "sha256": "c91cea5ed385fd8da649ee8b9587978b7c3962bacffcb50fc65231d8fd070410"
+    },
+    {
+      "path": "web/src/frontend/features/jobs/image-search/styles/image-search.css",
+      "sha256": "761a9d5be93376b71cd6dfe68567d060b736bdf3ba30e1de68cb9f625700b1d4"
+    },
+    {
+      "path": "web/src/frontend/features/jobs/styles/job-board.css",
+      "sha256": "f8d03080759b4eae318387fd7cd5bae4dd0d650e6795f6418f3c2593c34091f9"
+    },
+    {
+      "path": "web/src/frontend/features/messaging/components/block-participant-dialog.tsx",
+      "sha256": "a2f19d536b84aea69d3035919d0079924527eb7d830c3865bc6c5270e10215eb"
+    },
+    {
+      "path": "web/src/frontend/features/messaging/components/message-thread.tsx",
+      "sha256": "9b1e88314e620bc6783a391b3ce3eaae2082a1e170c4e8d2638558fe29ab40a5"
+    },
+    {
+      "path": "web/src/frontend/features/messaging/styles/messaging.css",
+      "sha256": "aa1fed492e721964c865821de4d9efdac0bcb85d69c89b9e0899aa6ddfc2c7c8"
+    },
+    {
+      "path": "web/src/frontend/features/notifications/styles/notifications.css",
+      "sha256": "9c0a75f62aee0fef4a4c0976b1e11c83b659053d310f4fd84e38b2adcc328cae"
+    },
+    {
+      "path": "web/src/frontend/styles/profile.css",
+      "sha256": "63f9dfb852d7e93bdd525902e4605773721ef5178769b079a8ebbf29f7567ea6"
+    },
+    {
+      "path": "web/tests/backend/unit/phase7-isolated-db.test.mjs",
+      "sha256": "1169944d3b0b30040444ce9b1a268e7e482667b825d1f5d2e175b5bc4a88e5da"
+    },
+    {
+      "path": "web/tests/frontend/components/jobs/job-preferences-localization.test.tsx",
+      "sha256": "858d9bae70a7613dd0e788caddd0e46aff30da80cf6946dff73903679e3bda31"
+    },
+    {
+      "path": "web/tests/system/e2e/candidate-first/phase7-authenticated.spec.ts",
+      "sha256": "052de447c09b70c0ca00f8c2bb8f9102ee95a713f605ec2980a1c14a678102b5"
+    },
+    {
+      "path": "web/tests/system/e2e/candidate-first/phase7-keyboard-journeys.spec.ts",
+      "sha256": "28977dcef1d81187a10591f2977c1178d73c657297420014ab9e8a86c374e4dc"
+    },
+    {
+      "path": "web/tests/system/e2e/candidate-first/phase7-public-overlays.spec.ts",
+      "sha256": "7f627488a1bc98f732f3bc016f3027289a5d4d03c9b2ee90230067d58ade91d7"
+    }
+  ]
+}

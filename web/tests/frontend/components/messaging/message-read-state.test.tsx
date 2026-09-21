@@ -79,4 +79,55 @@ describe("message read state", () => {
     );
     expect(result.current.page?.conversation.unreadCount).toBe(0);
   });
+
+  it("deduplicates and orders delayed realtime events by durable sequence", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({
+        conversation: {
+          ...conversation,
+          currentLastSequence: 0,
+          currentUserLastReadSequence: 0,
+        },
+        items: [],
+        nextCursor: null,
+      }),
+    );
+    const { result } = renderHook(() =>
+      useMessageHistory(conversation.id, "csrf"),
+    );
+    await waitFor(() => expect(result.current.page).not.toBeNull());
+    act(() => {
+      result.current.addMessage({
+        id: "message-2",
+        conversationId: conversation.id,
+        sequence: 2,
+        senderId: "user-b",
+        content: "second",
+        createdAt: new Date(2).toISOString(),
+        delivery: "SENT",
+      });
+      result.current.addMessage({
+        id: "message-1",
+        conversationId: conversation.id,
+        sequence: 1,
+        senderId: "user-b",
+        content: "first",
+        createdAt: new Date(1).toISOString(),
+        delivery: "SENT",
+      });
+      result.current.addMessage({
+        id: "duplicate-message-2",
+        conversationId: conversation.id,
+        sequence: 2,
+        senderId: "user-b",
+        content: "second duplicate",
+        createdAt: new Date(2).toISOString(),
+        delivery: "SENT",
+      });
+    });
+    expect(
+      result.current.page?.items.map((message) => message.sequence),
+    ).toEqual([1, 2]);
+    expect(result.current.page?.items).toHaveLength(2);
+  });
 });

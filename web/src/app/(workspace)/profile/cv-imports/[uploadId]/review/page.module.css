@@ -2,7 +2,7 @@
   --cv-card: var(--sh-color-surface-card);
   --cv-border: var(--sh-color-border-subtle);
   --cv-ink-soft: var(--sh-color-text-secondary);
-  --cv-accent: var(--sh-color-brand-primary);
+  --cv-accent: var(--sh-color-info);
 
   width: 100%;
   min-width: 0;

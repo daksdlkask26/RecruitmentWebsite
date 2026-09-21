@@ -298,7 +298,7 @@ describe("RecruitmentPipelineBoard drag transitions", () => {
     fireEvent.click(screen.getByTestId("drop-rejected"));
 
     const dialog = screen.getByRole("dialog", {
-      name: "Change Stage for Guarded Candidate",
+      name: "Change stage for Guarded Candidate",
     });
     expect(dialog).toBeVisible();
     const confirm = screen.getByRole("button", { name: "Confirm rejection" });

@@ -72,9 +72,7 @@ describe("CV consent and retention accessibility", () => {
     const dialog = screen.getByRole("dialog");
     expect(dialog).toHaveAttribute("aria-modal", "true");
     await waitFor(() =>
-      expect(
-        screen.getByRole("button", { name: /confirm cancel and delete/i }),
-      ).toHaveFocus(),
+      expect(screen.getByRole("button", { name: /keep/i })).toHaveFocus(),
     );
     fireEvent.keyDown(document, { key: "Escape" });
     await waitFor(() =>

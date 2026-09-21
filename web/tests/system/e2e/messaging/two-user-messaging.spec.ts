@@ -49,6 +49,16 @@ test("Candidate and Recruiter exchange a durable message across two real browser
         .getByRole("status")
         .filter({ hasText: "Đang kết nối trực tuyến" }),
     ).toBeVisible();
+    let recruiterConversationListRefetches = 0;
+    recruiter.on("request", (request) => {
+      if (
+        request.method() === "GET" &&
+        new URL(request.url()).pathname === "/api/messaging/conversations"
+      ) {
+        recruiterConversationListRefetches += 1;
+      }
+    });
+    const refetchesBeforeSend = recruiterConversationListRefetches;
     const openResponse = candidate.waitForResponse(
       (response) =>
         response.url().endsWith("/api/messaging/conversations") &&
@@ -72,8 +82,15 @@ test("Candidate and Recruiter exchange a durable message across two real browser
     await expect(
       candidate.getByText("Đã gửi", { exact: true }).first(),
     ).toBeVisible();
-    await expect(recruiter.getByText(content)).toBeVisible({ timeout: 10_000 });
-    await recruiter.getByRole("button", { name: new RegExp(content) }).click();
+    await expect
+      .poll(() => recruiterConversationListRefetches)
+      .toBeGreaterThan(refetchesBeforeSend);
+    const recruiterConversation = recruiter
+      .getByRole("button")
+      .filter({ hasText: "Messaging Candidate" })
+      .first();
+    await expect(recruiterConversation).toBeVisible({ timeout: 10_000 });
+    await recruiterConversation.click();
     await expect(recruiter.getByLabel("Soạn tin nhắn")).toBeVisible();
     await expect(
       candidate
@@ -99,7 +116,7 @@ test("Candidate and Recruiter exchange a durable message across two real browser
       timeout: 20_000,
     });
     await recruiter
-      .getByRole("navigation", { name: "Cuộc trò chuyện" })
+      .getByRole("navigation", { name: "Cuộc trò chuyện gần đây" })
       .getByRole("button")
       .first()
       .click();

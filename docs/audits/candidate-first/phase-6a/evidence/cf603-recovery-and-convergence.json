@@ -1,0 +1,137 @@
+{
+  "schema": "candidate-first-phase6a-cf603-evidence-v1",
+  "source": {
+    "commit": "ac17ec1efb70c9b963b7c979c45d07d733295f8d",
+    "dirtyWorktree": true,
+    "databaseName": "candidate_phase6a_20260919_final_e2e_test",
+    "databaseUrlCredentials": "redacted",
+    "directUrlCredentials": "redacted",
+    "sharedDatabaseMutated": false
+  },
+  "finalRerun": {
+    "date": "2026-09-19",
+    "database": "candidate_phase6a_20260919_final_e2e_test",
+    "messagingFiles": 30,
+    "messagingTests": 78,
+    "status": "PASS"
+  },
+  "durableStateContract": {
+    "ENQUEUED": "client-local pending state only",
+    "PERSISTED": "PostgreSQL message/notification row committed",
+    "SENT": "durable message accepted and authenticated service acknowledgement returned",
+    "DELIVERED": "not claimed by this implementation; no unauthenticated delivery claim",
+    "READ": "monotonic persisted participant read boundary"
+  },
+  "commands": [
+    {
+      "command": "npm.cmd run test:messaging -- --reporter=dot",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "testFiles": 30,
+      "tests": 78,
+      "result": "30/30 files and 78/78 tests passed"
+    },
+    {
+      "command": "npm.cmd exec -- vitest run tests/backend/integration/messaging/socket-message-gateway.test.ts tests/backend/integration/messaging/presence-registry.test.ts tests/backend/integration/messaging/phase6a-recovery.test.ts tests/backend/integration/messaging/message-send.test.ts --reporter=dot",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "testFiles": 4,
+      "tests": 12,
+      "result": "Lifecycle, publisher-failure, notification-failure, idempotency, and read-boundary tests passed"
+    },
+    {
+      "command": "npm.cmd exec -- vitest run tests/frontend/accessibility/messaging tests/frontend/accessibility/notifications tests/frontend/components/messaging/message-read-state.test.tsx --reporter=dot",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "testFiles": 3,
+      "tests": 4,
+      "result": "Messaging and notification accessibility/read-state checks passed"
+    },
+    {
+      "command": "npm.cmd run test:notifications -- --reporter=dot",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "FAIL",
+      "testFiles": 25,
+      "tests": 68,
+      "passedFiles": 24,
+      "passedTests": 67,
+      "failedFiles": 1,
+      "failedTests": 1,
+      "failure": "notification-openapi-parity.test.ts expects COMPANY_INVITATION in the SpecKit OpenAPI contract",
+      "classification": "outside Phase 6A source diff; SpecKit intentionally untouched"
+    }
+  ],
+  "recoveryMatrix": [
+    {
+      "scenario": "normal event",
+      "status": "PASS",
+      "evidence": "full messaging E2E and focused messaging suite"
+    },
+    {
+      "scenario": "event dropped after commit",
+      "status": "PASS",
+      "evidence": "recruiter offline send, reload, and authoritative history recovery"
+    },
+    {
+      "scenario": "duplicate client operation or event",
+      "status": "PASS",
+      "evidence": "durable repository replay and message history de-duplication"
+    },
+    {
+      "scenario": "delayed or reordered events",
+      "status": "PASS",
+      "evidence": "ID/sequence de-duplication and chronological history projection"
+    },
+    {
+      "scenario": "publisher unavailable after durable commit",
+      "status": "PASS",
+      "evidence": "message-send and Phase 6A recovery integration tests"
+    },
+    {
+      "scenario": "multi-tab read and reconnect convergence",
+      "status": "PASS",
+      "evidence": "read-state focused test plus two-tab browser scenario"
+    },
+    {
+      "scenario": "notification invalidation missed",
+      "status": "PASS",
+      "evidence": "4-second visible polling/refetch and notification convergence suite"
+    },
+    {
+      "scenario": "notification failure or read retry",
+      "status": "PASS",
+      "evidence": "notification failure-isolation and idempotent read tests"
+    },
+    {
+      "scenario": "block, membership, connection, and session revocation",
+      "status": "PASS",
+      "evidence": "messaging safety browser suite and focused gateway/publisher tests"
+    },
+    {
+      "scenario": "content-free operational evidence",
+      "status": "PASS",
+      "evidence": "logs/evidence contain statuses, timings, counts, and redacted identifiers only"
+    }
+  ],
+  "implementationChecks": {
+    "persistBeforeRealtimePublication": "PASS",
+    "idempotentClientOperation": "PASS",
+    "historyDedupByIdAndSequence": "PASS",
+    "monotonicReadBoundary": "PASS",
+    "authoritativeReconnectRefetch": "PASS",
+    "notificationPollingWithoutWindowEvent": "PASS",
+    "authenticatedDeliveredClaim": "PASS; DELIVERED is not asserted",
+    "ENVI": "PASS via final browser runs and focused accessibility tests"
+  },
+  "passFailSkip": {
+    "pass": 10,
+    "fail": 1,
+    "skip": 0,
+    "failuresAreExternalBaseline": true
+  },
+  "cleanup": {
+    "database": "dropped after final evidence; absence verified",
+    "taskServers": "closed after every browser run",
+    "privatePayloadsRecorded": false
+  }
+}

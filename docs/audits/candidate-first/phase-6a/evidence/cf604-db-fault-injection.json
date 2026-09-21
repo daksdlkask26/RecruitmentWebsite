@@ -1,0 +1,228 @@
+{
+  "schema": "candidate-first-phase6a-db-fault-injection-v1",
+  "startedAt": "2026-09-19T12:52:23.902Z",
+  "completedAt": "2026-09-19T12:52:24.163Z",
+  "source": {
+    "commit": "ac17ec1efb70c9b963b7c979c45d07d733295f8d",
+    "dirtyWorktree": true
+  },
+  "environment": {
+    "cwd": "D:\\HCMUS\\PROJECT\\web",
+    "node": "v24.18.0",
+    "database": "candidate_phase6a_20260919_final_e2e_test",
+    "databaseGuard": "isolated-test-database",
+    "transport": "websocket",
+    "socketPath": "/chat",
+    "repositoryPath": "real Prisma PostgreSQL repositories; deterministic post-read fault controls",
+    "fixtureNamespace": "task-owned-redacted"
+  },
+  "fixedAssertions": {
+    "failClosed": true,
+    "noStalePresenceOrRegistryResidue": true,
+    "cleanupIdempotent": true,
+    "safeRetryAfterRecovery": true,
+    "noUnhandledRejections": true,
+    "noUnauthorizedServerEvents": true,
+    "noPrivateClientErrorDetails": true
+  },
+  "summary": {
+    "status": "PASS",
+    "passed": 4,
+    "failed": 0,
+    "total": 4
+  },
+  "rows": [
+    {
+      "faultPoint": "initial-socket-authorization",
+      "operation": "socket connect handshake",
+      "status": "PASS",
+      "injected": true,
+      "realPostgresPathCompleted": true,
+      "initialConnect": {
+        "ok": false,
+        "error": "AUTH_REQUIRED"
+      },
+      "retryResult": {
+        "ok": true,
+        "error": null
+      },
+      "residueAfterFailure": {
+        "socketIdentityCount": 0,
+        "sessionMembershipCount": 0,
+        "conversationMembershipCount": 0,
+        "conversationRoomCount": 0,
+        "candidateOnline": false
+      },
+      "residueAfterCleanup": {
+        "socketIdentityCount": 0,
+        "sessionMembershipCount": 0,
+        "conversationMembershipCount": 0,
+        "conversationRoomCount": 0,
+        "candidateOnline": false
+      },
+      "presenceTransitions": [
+        {
+          "label": "ONLINE"
+        },
+        {
+          "label": "OFFLINE"
+        }
+      ],
+      "unexpectedServerEvents": 0,
+      "unhandledRejectionCount": 0,
+      "unhandledRejections": [],
+      "safeClientErrors": true
+    },
+    {
+      "faultPoint": "conversation-access-lookup",
+      "operation": "explicit conversation join",
+      "status": "PASS",
+      "injected": true,
+      "realPostgresPathCompleted": true,
+      "initialConnect": {
+        "ok": true,
+        "error": null
+      },
+      "failedJoin": {
+        "ok": false,
+        "error": {
+          "code": "PERSISTENCE_UNAVAILABLE",
+          "message": "Messaging is temporarily unavailable.",
+          "retryable": true,
+          "retryAfterSeconds": null
+        }
+      },
+      "retryResult": {
+        "ok": true
+      },
+      "residueAfterFailure": {
+        "socketIdentityCount": 1,
+        "sessionMembershipCount": 1,
+        "conversationMembershipCount": 0,
+        "conversationRoomCount": 0,
+        "candidateOnline": true
+      },
+      "residueAfterCleanup": {
+        "socketIdentityCount": 0,
+        "sessionMembershipCount": 0,
+        "conversationMembershipCount": 0,
+        "conversationRoomCount": 0,
+        "candidateOnline": false
+      },
+      "presenceTransitions": [
+        {
+          "label": "ONLINE"
+        },
+        {
+          "label": "OFFLINE"
+        }
+      ],
+      "unexpectedServerEvents": 0,
+      "unhandledRejectionCount": 0,
+      "unhandledRejections": [],
+      "safeClientErrors": true
+    },
+    {
+      "faultPoint": "context-authorization",
+      "operation": "explicit conversation join",
+      "status": "PASS",
+      "injected": true,
+      "realPostgresPathCompleted": true,
+      "initialConnect": {
+        "ok": true,
+        "error": null
+      },
+      "failedJoin": {
+        "ok": false,
+        "error": {
+          "code": "PERSISTENCE_UNAVAILABLE",
+          "message": "Messaging is temporarily unavailable.",
+          "retryable": true,
+          "retryAfterSeconds": null
+        }
+      },
+      "retryResult": {
+        "ok": true
+      },
+      "residueAfterFailure": {
+        "socketIdentityCount": 1,
+        "sessionMembershipCount": 1,
+        "conversationMembershipCount": 0,
+        "conversationRoomCount": 0,
+        "candidateOnline": true
+      },
+      "residueAfterCleanup": {
+        "socketIdentityCount": 0,
+        "sessionMembershipCount": 0,
+        "conversationMembershipCount": 0,
+        "conversationRoomCount": 0,
+        "candidateOnline": false
+      },
+      "presenceTransitions": [
+        {
+          "label": "ONLINE"
+        },
+        {
+          "label": "OFFLINE"
+        }
+      ],
+      "unexpectedServerEvents": 0,
+      "unhandledRejectionCount": 0,
+      "unhandledRejections": [],
+      "safeClientErrors": true
+    },
+    {
+      "faultPoint": "block-state-lookup",
+      "operation": "explicit conversation join",
+      "status": "PASS",
+      "injected": true,
+      "realPostgresPathCompleted": true,
+      "initialConnect": {
+        "ok": true,
+        "error": null
+      },
+      "failedJoin": {
+        "ok": false,
+        "error": {
+          "code": "PERSISTENCE_UNAVAILABLE",
+          "message": "Messaging is temporarily unavailable.",
+          "retryable": true,
+          "retryAfterSeconds": null
+        }
+      },
+      "retryResult": {
+        "ok": true
+      },
+      "residueAfterFailure": {
+        "socketIdentityCount": 1,
+        "sessionMembershipCount": 1,
+        "conversationMembershipCount": 0,
+        "conversationRoomCount": 0,
+        "candidateOnline": true
+      },
+      "residueAfterCleanup": {
+        "socketIdentityCount": 0,
+        "sessionMembershipCount": 0,
+        "conversationMembershipCount": 0,
+        "conversationRoomCount": 0,
+        "candidateOnline": false
+      },
+      "presenceTransitions": [
+        {
+          "label": "ONLINE"
+        },
+        {
+          "label": "OFFLINE"
+        }
+      ],
+      "unexpectedServerEvents": 0,
+      "unhandledRejectionCount": 0,
+      "unhandledRejections": [],
+      "safeClientErrors": true
+    }
+  ],
+  "limitations": [
+    "The deterministic fault is injected after the corresponding real PostgreSQL repository read (or real DB health query for handshake authentication); this preserves the production gateway and repository path while avoiding destructive database termination.",
+    "The harness is single-process and does not claim multi-instance behavior."
+  ]
+}

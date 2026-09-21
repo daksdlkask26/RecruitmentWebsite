@@ -614,7 +614,7 @@
       var(--sh-color-border-subtle)
     );
   border-radius: var(--sh-radius-full);
-  color: var(--sh-color-brand-primary);
+  color: var(--sh-color-info);
   background: var(--sh-color-brand-soft);
   font-size: 11px;
   font-weight: var(--sh-font-weight-semibold);
@@ -1490,7 +1490,10 @@
 /* Three-pane desktop conversation view: people, thread, and contextual details.
    It reuses the Support workspace hierarchy without changing chat data or policy. */
 .messaging-grid {
-  grid-template-columns: minmax(270px, 310px) minmax(0, 1fr) minmax(235px, 280px);
+  grid-template-columns: minmax(270px, 310px) minmax(0, 1fr) minmax(
+      235px,
+      280px
+    );
   gap: 16px;
   overflow: visible;
   border: 0;
@@ -1545,7 +1548,7 @@
   color: var(--sh-color-brand-primary);
   font-size: 10px;
   font-weight: var(--sh-font-weight-semibold);
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -1615,9 +1618,14 @@
   justify-content: center;
   margin-top: 8px;
   padding: 0 10px;
-  border: 1px solid color-mix(in srgb, var(--sh-color-brand-primary) 30%, var(--sh-color-border-subtle));
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--sh-color-brand-primary) 30%,
+      var(--sh-color-border-subtle)
+    );
   border-radius: var(--sh-radius-full);
-  color: var(--sh-color-brand-primary);
+  color: var(--sh-color-info);
   background: var(--sh-color-brand-soft);
   font: inherit;
   font-size: 11px;
@@ -1730,7 +1738,11 @@
 
 .messaging-details__recent-list button:hover,
 .messaging-details__recent-list button[data-selected="true"] {
-  border-color: color-mix(in srgb, var(--sh-color-brand-primary) 24%, var(--sh-color-border-subtle));
+  border-color: color-mix(
+    in srgb,
+    var(--sh-color-brand-primary) 24%,
+    var(--sh-color-border-subtle)
+  );
   background: color-mix(in srgb, var(--sh-color-brand-soft) 55%, transparent);
 }
 
@@ -1759,7 +1771,7 @@
 
 .messaging-details__recent-list span,
 .messaging-details__recent-list time {
-  color: var(--sh-color-text-muted);
+  color: var(--sh-color-text-secondary);
   font-size: 11px;
 }
 
@@ -1843,7 +1855,17 @@
   padding: 26px clamp(20px, 4vw, 52px) 54px;
   background: var(--sh-color-surface-tinted);
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--sh-color-text-muted) 42%, transparent) transparent;
+  scrollbar-color: color-mix(
+      in srgb,
+      var(--sh-color-text-muted) 42%,
+      transparent
+    )
+    transparent;
+}
+
+.messaging-history:focus-visible {
+  outline: 3px solid var(--sh-color-focus-ring);
+  outline-offset: -3px;
 }
 
 .messaging-history::-webkit-scrollbar {
@@ -1917,7 +1939,11 @@
 .messaging-history li[data-direction="outgoing"] .messaging-message-avatar {
   right: auto;
   left: calc(100% + 10px);
-  border-color: color-mix(in srgb, var(--sh-color-brand-primary) 24%, transparent);
+  border-color: color-mix(
+    in srgb,
+    var(--sh-color-brand-primary) 24%,
+    transparent
+  );
   color: var(--sh-color-brand-primary);
   background: var(--sh-color-brand-soft);
 }
@@ -1937,7 +1963,9 @@
   opacity: 0;
   pointer-events: none;
   transform: translateY(-2px);
-  transition: opacity 140ms ease, transform 140ms ease;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
 }
 
 .messaging-history li[data-direction="outgoing"] .messaging-message-meta {

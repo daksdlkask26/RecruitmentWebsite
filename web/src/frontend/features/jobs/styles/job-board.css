@@ -1792,7 +1792,7 @@
 .job-category-industry-count {
   margin: 0;
   padding: 18px 20px 12px;
-  color: var(--sh-color-text-muted);
+  color: var(--sh-color-text-secondary);
   font-size: 11px;
   font-weight: var(--sh-font-weight-bold);
   letter-spacing: 0.08em;
@@ -10421,7 +10421,7 @@
 
 .job-category-industry small {
   display: block;
-  color: var(--sh-color-text-muted);
+  color: var(--sh-color-text-secondary);
   font-size: 11px;
   line-height: 1.35;
 }
@@ -10603,7 +10603,7 @@
 }
 
 .job-category-subindustry h2 span {
-  color: var(--sh-color-text-muted);
+  color: var(--sh-color-text-secondary);
   font-weight: var(--sh-font-weight-medium);
 }
 

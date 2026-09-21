@@ -1,0 +1,87 @@
+{
+  "schema": "candidate-first-phase6a-cf601-evidence-v1",
+  "source": {
+    "commit": "ac17ec1efb70c9b963b7c979c45d07d733295f8d",
+    "dirtyWorktree": true
+  },
+  "finalRerun": {
+    "date": "2026-09-19",
+    "database": "candidate_phase6a_20260919_final_e2e_test",
+    "status": "PASS",
+    "testFiles": 4,
+    "tests": 12
+  },
+  "environment": {
+    "cwd": "D:\\HCMUS\\PROJECT\\web",
+    "node": "v24.18.0",
+    "databaseName": "candidate_phase6a_20260919_final_e2e_test",
+    "databaseUrlDatabaseName": "candidate_phase6a_20260919_final_e2e_test",
+    "directUrlDatabaseName": "candidate_phase6a_20260919_final_e2e_test",
+    "databaseUrlCredentials": "redacted",
+    "directUrlCredentials": "redacted",
+    "databaseGuard": "isolated-test-database"
+  },
+  "command": {
+    "command": "npm.cmd exec -- vitest run tests/backend/integration/messaging/socket-message-gateway.test.ts tests/backend/integration/messaging/presence-registry.test.ts tests/backend/integration/messaging/phase6a-recovery.test.ts tests/backend/integration/messaging/message-send.test.ts --reporter=dot",
+    "cwd": "D:\\HCMUS\\PROJECT\\web",
+    "status": "PASS",
+    "testFiles": 4,
+    "tests": 12
+  },
+  "faultMatrix": [
+    {
+      "case": "unauthenticated socket",
+      "expected": "no registry/presence state",
+      "status": "PASS"
+    },
+    {
+      "case": "conversation-room join or authorization fault",
+      "expected": "no unauthorized room join and fail-closed acknowledgement",
+      "status": "PASS"
+    },
+    {
+      "case": "account-room initialization fault",
+      "expected": "registry, room, session and presence residue zero",
+      "status": "PASS"
+    },
+    {
+      "case": "disconnect while first room is pending",
+      "expected": "idempotent cleanup and zero residue after await settles",
+      "status": "PASS"
+    },
+    {
+      "case": "list-only connected user",
+      "expected": "account invalidation without implicit conversation-room join",
+      "status": "PASS"
+    },
+    {
+      "case": "multiple tabs and grace-period reconnect",
+      "expected": "online remains until final tab closes; offline transition is delayed/cancelled correctly",
+      "status": "PASS"
+    },
+    {
+      "case": "rejected async presence transition",
+      "expected": "rejection contained with no unhandled promise",
+      "status": "PASS"
+    },
+    {
+      "case": "realtime publication failure after durable message/read",
+      "expected": "durable boundary remains committed",
+      "status": "PASS"
+    }
+  ],
+  "invariants": {
+    "cleanupInstalledBeforeFirstAwait": "PASS by source and fault tests",
+    "cleanupIdempotent": "PASS",
+    "onlineAfterReadyOnly": "PASS",
+    "noUnhandledRejection": "PASS",
+    "sessionScopedCleanup": "PASS via exact socket/session registry cleanup",
+    "multiTabPresence": "PASS"
+  },
+  "passFailSkip": { "pass": 12, "fail": 0, "skip": 0 },
+  "cleanup": {
+    "taskServer": "closed by focused test teardown",
+    "database": "dropped after final evidence; absence verified",
+    "privatePayloadsRecorded": false
+  }
+}

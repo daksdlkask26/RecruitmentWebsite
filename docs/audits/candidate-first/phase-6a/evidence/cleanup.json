@@ -1,0 +1,34 @@
+{
+  "schema": "candidate-first-phase6a-cleanup-v1",
+  "source": {
+    "commit": "ac17ec1efb70c9b963b7c979c45d07d733295f8d",
+    "branch": "audit_improvement",
+    "dirtyWorktree": true
+  },
+  "database": {
+    "targets": [
+      "candidate_phase6a_20260919_final_e2e_test",
+      "candidate_phase6a_20260919_resume_e2e_test"
+    ],
+    "dropCommand": "node --input-type=module -e <redacted inline pg drop against exact target>",
+    "ownership": "created for this Phase 6A run; exact allowlist names contain e2e_test",
+    "sharedSmarthireMutated": false,
+    "absenceVerificationCommand": "node --input-type=module -e <redacted inline pg SELECT against postgres>",
+    "absenceVerification": "PASS; both exact target databases do not exist"
+  },
+  "processesAndPorts": {
+    "taskServer": "PASS; task-owned production server stopped after each browser run",
+    "taskPort3001": "PASS; no listener",
+    "checkedPorts": [3000, 3001, 3002, 3003, 3004],
+    "recentTaskNodeProcesses": "PASS for task-owned harnesses; all harnesses exited 0 and no phase6a/Next task listener remained"
+  },
+  "fixturesAndArtifacts": {
+    "messagingFixtureNamespace": "PASS; cleanup ran in every harness finally block",
+    "temporaryDatabaseFixture": "PASS; both databases dropped and absence verified",
+    "privatePayloadsRecorded": false,
+    "oldNextOutputLock": "PRESERVED; web/.local/next-output.lock was pre-existing and not task-owned",
+    "generatedBuildOutput": "PASS; task-owned .next-phase6a-revocation removed; pre-existing .next retained",
+    "evidenceDirectory": "docs/audits/candidate-first/phase-6a/evidence"
+  },
+  "status": "PASS"
+}

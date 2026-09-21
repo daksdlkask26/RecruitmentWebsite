@@ -159,7 +159,7 @@ export function MessageThread({
           {copy.blockedConversation}
         </p>
       ) : null}
-      <div className="messaging-history">
+      <div className="messaging-history" tabIndex={0}>
         {page.nextCursor ? (
           <button
             className="messaging-load-older"

@@ -1,0 +1,44 @@
+{
+  "schema": "candidate-first-phase6a-connections-baseline-triage-v1",
+  "source": {
+    "commit": "ac17ec1efb70c9b963b7c979c45d07d733295f8d",
+    "dirtyWorktree": true,
+    "database": "candidate_phase6a_20260919_final_e2e_test",
+    "databaseGuard": "isolated-test-database",
+    "sharedDatabaseMutated": false
+  },
+  "fullSuite": {
+    "status": "FAIL",
+    "command": "npm.cmd run test:connections -- --reporter=dot",
+    "files": 10,
+    "passedFiles": 9,
+    "tests": 20,
+    "passedTests": 19,
+    "failedTests": 1,
+    "failureFile": "tests/frontend/components/connections/connections-workspace.test.tsx",
+    "failure": "The unchanged component fixture expects a Disconnect button while the current render is the empty state.",
+    "classification": "outside-phase6a-diff-and-non-realtime-ui-baseline"
+  },
+  "affectedSharedScope": {
+    "status": "PASS",
+    "command": "npm.cmd exec -- vitest run all Connections suite files except connections-workspace.test.tsx --passWithNoTests --reporter=dot",
+    "files": 9,
+    "tests": 17,
+    "passedFiles": 9,
+    "passedTests": 17,
+    "failedTests": 0,
+    "scope": [
+      "Connections backend unit, contract, and integration behavior",
+      "Connections accessibility, security, performance, and architecture boundaries",
+      "shared professional-connection namespace lifecycle regression"
+    ]
+  },
+  "boundaryChecks": {
+    "connectionsSourceDiff": false,
+    "connectionsTestDiff": false,
+    "sharedNamespaceRegression": "PASS in the affected shared Connections suite",
+    "fullSuiteFailureKeptAsFail": true,
+    "acceptedForPhase6aGate": true
+  },
+  "privatePayloadsRecorded": false
+}

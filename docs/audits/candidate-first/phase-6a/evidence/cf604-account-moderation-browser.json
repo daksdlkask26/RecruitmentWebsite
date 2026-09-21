@@ -1,0 +1,151 @@
+{
+  "schema": "candidate-first-phase6a-account-moderation-browser-v1",
+  "status": "PASS",
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "fixtureIdentities": {
+    "candidate": "candidate-account",
+    "candidateSessions": ["candidate-session-a", "candidate-session-b"],
+    "recruiter": "recruiter-account",
+    "outsider": "outsider-account",
+    "adminActor": "redacted-platform-admin"
+  },
+  "rows": [
+    {
+      "case": "session-revocation-control",
+      "status": "PASS",
+      "target": "candidate-session-b",
+      "control": "candidate-session-a",
+      "socketBefore": {
+        "target": "CONNECTED",
+        "control": "CONNECTED"
+      },
+      "socketAfter": {
+        "target": [
+          "Reconnecting",
+          "ConversationsSelect a conversation to read messages.Messages are private, durable, and protected by your SmartHire session."
+        ],
+        "control": "CONNECTED"
+      },
+      "rest": {
+        "target": 401,
+        "control": 200
+      },
+      "presence": {
+        "remainingPeer": "UNCHANGED_BY_CONTROL_CASE"
+      }
+    },
+    {
+      "case": "account-suspension",
+      "status": "PASS",
+      "target": "candidate-account",
+      "control": "recruiter-account",
+      "socketBefore": {
+        "targetSockets": 1,
+        "controlSocket": "CONNECTED"
+      },
+      "socketAfter": {
+        "targetSockets": [
+          "Reconnecting",
+          "ConversationsSelect a conversation to read messages.Messages are private, durable, and protected by your SmartHire session."
+        ],
+        "controlSocket": "CONNECTED"
+      },
+      "rest": {
+        "target": 401,
+        "control": 200
+      },
+      "presence": {
+        "remainingPeer": "OFFLINE"
+      },
+      "staleReconnect": "rejected_and_redirected_to_login"
+    },
+    {
+      "case": "moderation-account-restriction",
+      "status": "PASS",
+      "target": "recruiter-account",
+      "control": "outsider-account",
+      "socketBefore": {
+        "targetSockets": 2,
+        "controlSocket": "CONNECTED"
+      },
+      "socketAfter": {
+        "targetSockets": [
+          [
+            "Reconnecting",
+            "ConversationsSelect a conversation to read messages.Messages are private, durable, and protected by your SmartHire session."
+          ],
+          [
+            "Reconnecting",
+            "ConversationsSelect a conversation to read messages.Messages are private, durable, and protected by your SmartHire session."
+          ]
+        ],
+        "controlSocket": "CONNECTED"
+      },
+      "rest": {
+        "target": 401,
+        "control": 200
+      },
+      "presence": {
+        "remainingPeer": "OFFLINE"
+      },
+      "authoritativePath": "admin account suspension with POLICY_VIOLATION",
+      "revocationCause": "MODERATION"
+    }
+  ],
+  "serverRuntimeProbe": [
+    {
+      "schema": "candidate-first-phase6a-revocation-runtime-v1",
+      "cause": "SESSION",
+      "affectedUserCount": 0,
+      "affectedSessionCount": 1,
+      "affectedConversationCount": 1,
+      "before": {
+        "targetSocketIdentityCount": 1,
+        "targetSessionMembershipCount": 1,
+        "targetConversationMembershipCount": 1
+      },
+      "after": {
+        "targetSocketIdentityCount": 0,
+        "targetSessionMembershipCount": 0,
+        "targetConversationMembershipCount": 0
+      }
+    },
+    {
+      "schema": "candidate-first-phase6a-revocation-runtime-v1",
+      "cause": "ACCOUNT",
+      "affectedUserCount": 1,
+      "affectedSessionCount": 0,
+      "affectedConversationCount": 1,
+      "before": {
+        "targetSocketIdentityCount": 1,
+        "targetSessionMembershipCount": 0,
+        "targetConversationMembershipCount": 1
+      },
+      "after": {
+        "targetSocketIdentityCount": 0,
+        "targetSessionMembershipCount": 0,
+        "targetConversationMembershipCount": 0
+      }
+    },
+    {
+      "schema": "candidate-first-phase6a-revocation-runtime-v1",
+      "cause": "MODERATION",
+      "affectedUserCount": 1,
+      "affectedSessionCount": 0,
+      "affectedConversationCount": 2,
+      "before": {
+        "targetSocketIdentityCount": 2,
+        "targetSessionMembershipCount": 0,
+        "targetConversationMembershipCount": 2
+      },
+      "after": {
+        "targetSocketIdentityCount": 0,
+        "targetSessionMembershipCount": 0,
+        "targetConversationMembershipCount": 0
+      }
+    }
+  ],
+  "noPrivateData": true
+}

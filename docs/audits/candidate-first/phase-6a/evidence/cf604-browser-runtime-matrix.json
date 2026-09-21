@@ -1,0 +1,186 @@
+{
+  "schema": "candidate-first-phase6a-cf604-evidence-v1",
+  "source": {
+    "commit": "ac17ec1efb70c9b963b7c979c45d07d733295f8d",
+    "dirtyWorktree": true,
+    "databaseName": "candidate_phase6a_20260919_final_e2e_test",
+    "databaseUrlCredentials": "redacted",
+    "directUrlCredentials": "redacted",
+    "sharedDatabaseMutated": false
+  },
+  "browserCommands": [
+    {
+      "command": "PHASE6A_BROWSER_LOCALE=en node --conditions=react-server --import tsx scripts/run-phase6a-browser-e2e.mjs",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "tests": 1,
+      "durationSeconds": 7.9,
+      "locale": "en"
+    },
+    {
+      "command": "PHASE6A_BROWSER_LOCALE=vi node --conditions=react-server --import tsx scripts/run-phase6a-browser-e2e.mjs",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "tests": 1,
+      "durationSeconds": 7.2,
+      "locale": "vi"
+    },
+    {
+      "command": "npm.cmd run test:messaging:e2e",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "tests": 5,
+      "passedTests": 5,
+      "result": "Usability 1, safety 3, and two-user durable recovery 1"
+    },
+    {
+      "command": "npm.cmd exec -- vitest run tests/frontend/accessibility/messaging tests/frontend/accessibility/notifications tests/frontend/components/messaging/message-read-state.test.tsx --reporter=dot",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "testFiles": 4,
+      "tests": 7,
+      "seriousOrCriticalViolations": 0
+    }
+  ],
+  "runtimeCommands": [
+    {
+      "command": "node --conditions=react-server --import tsx scripts/measure-phase6a-db-fault-injection.mjs",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "cases": 4,
+      "report": "cf604-db-fault-injection.json"
+    },
+    {
+      "command": "node --conditions=react-server --import tsx scripts/run-phase6a-revocation-browser-e2e.mjs",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "cases": 3,
+      "report": "cf604-account-moderation-browser.json"
+    },
+    {
+      "command": "npm.cmd exec -- vitest run all notification suite files except notification-openapi-parity.test.ts --passWithNoTests --reporter=dot",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "files": 24,
+      "tests": 66,
+      "report": "notification-baseline-triage.json"
+    },
+    {
+      "command": "npm.cmd exec -- vitest run all Connections suite files except connections-workspace.test.tsx --passWithNoTests --reporter=dot",
+      "cwd": "D:\\HCMUS\\PROJECT\\web",
+      "status": "PASS",
+      "files": 9,
+      "tests": 17,
+      "report": "connections-baseline-triage.json"
+    }
+  ],
+  "runtimeCoverage": [
+    {
+      "row": "authentication success and failure",
+      "status": "PASS",
+      "evidence": "browser login plus unauthenticated socket focused test"
+    },
+    {
+      "row": "disconnect at initialization faults and cleanup",
+      "status": "PASS",
+      "evidence": "cf601-lifecycle-fault-matrix.json"
+    },
+    {
+      "row": "account-room and conversation-room join faults",
+      "status": "PASS",
+      "evidence": "focused Socket.IO gateway fault tests"
+    },
+    {
+      "row": "database timeout/failure during access/context/block lookup",
+      "status": "PASS",
+      "evidence": "cf604-db-fault-injection.json, 4/4 real PostgreSQL post-read fault cases"
+    },
+    {
+      "row": "disconnect/reconnect loops and zero initial conversation rooms",
+      "status": "PASS",
+      "evidence": "real PostgreSQL and Socket.IO width matrix"
+    },
+    {
+      "row": "multiple tabs and multiple sessions",
+      "status": "PASS",
+      "evidence": "Phase 6A browser scenario and messaging safety browser suite"
+    },
+    {
+      "row": "Candidate and authorized recruiter contexts",
+      "status": "PASS",
+      "evidence": "EN/VI production-like browser runs"
+    },
+    {
+      "row": "retry, duplicate, dropped and reordered realtime events",
+      "status": "PASS",
+      "evidence": "focused durable recovery/read tests and offline reload scenario"
+    },
+    {
+      "row": "read convergence across tabs and reconnect",
+      "status": "PASS",
+      "evidence": "message-read-state plus two-tab browser run"
+    },
+    {
+      "row": "block/unblock and conversation access revocation",
+      "status": "PASS",
+      "evidence": "messaging safety browser suite"
+    },
+    {
+      "row": "session revocation",
+      "status": "PASS",
+      "evidence": "messaging safety browser suite"
+    },
+    {
+      "row": "account/moderation revocation",
+      "status": "PASS",
+      "evidence": "cf604-account-moderation-browser.json and runtime probe, 3/3 cases"
+    },
+    {
+      "row": "notification creation, polling, retry, context-read, read-all and unread convergence",
+      "status": "PASS",
+      "evidence": "67/68 notification tests pass; remaining failure is SpecKit OpenAPI parity only"
+    },
+    {
+      "row": "1/10/40/100 database and transport measurements",
+      "status": "PASS",
+      "evidence": "cf602-query-and-socket-ready.json and raw reports"
+    },
+    {
+      "row": "Support namespace regression",
+      "status": "PASS",
+      "evidence": "12/12 files and 29/29 support tests"
+    },
+    {
+      "row": "Connections namespace regression",
+      "status": "PASS",
+      "evidence": "connections-baseline-triage.json; affected shared scope 9/9 files and 17/17 tests, full baseline FAIL remains separate"
+    },
+    {
+      "row": "EN/VI, dark mode, reduced motion, 320px responsive and keyboard path",
+      "status": "PASS",
+      "evidence": "final browser scenario plus messaging accessibility tests"
+    },
+    {
+      "row": "server shutdown, task ports and database cleanup",
+      "status": "PASS",
+      "evidence": "cleanup.json: exact database absence, ports 3000-3004 clear, and task process scan empty"
+    }
+  ],
+  "performance": {
+    "status": "PASS",
+    "socketReadyP95MsAt100": 8.5,
+    "fixedSocketReadyThresholdMsAt100": 2000,
+    "queryErrorRate": 0,
+    "initialConversationRoomsPerSocket": 0
+  },
+  "baselineLimitations": [
+    "The full notification suite remains FAIL at 24/25 files and 67/68 tests; the only failure is the unchanged SpecKit OpenAPI parity assertion for COMPANY_INVITATION. The affected 24/24 Phase 6A notification files pass.",
+    "The full Connections suite remains FAIL at 9/10 files and 19/20 tests; the only failure is the unchanged Connections UI fixture expecting Disconnect in an empty state. The affected shared 9/9 files pass."
+  ],
+  "cleanup": {
+    "database": "candidate_phase6a_20260919_final_e2e_test; dropped after final evidence; absence verification PASS",
+    "taskServer": "closed after both locale runs; final port/process scan PASS",
+    "oldNextLock": "preserved; it was pre-existing and not owned by this task",
+    "privatePayloadsRecorded": false
+  }
+}

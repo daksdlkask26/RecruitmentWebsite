@@ -1,0 +1,96 @@
+{
+  "schema": "candidate-first-phase6a-final-closure-v1",
+  "closedAt": "2026-09-19",
+  "source": {
+    "commit": "ac17ec1efb70c9b963b7c979c45d07d733295f8d",
+    "branch": "audit_improvement",
+    "dirtyWorktreePreserved": true,
+    "sharedDatabaseMutated": false,
+    "specKitChanged": false,
+    "delegationUsed": false
+  },
+  "isolatedEnvironment": {
+    "database": "candidate_phase6a_20260919_final_e2e_test",
+    "databaseGuard": "isolated-test-database",
+    "migrations": 97,
+    "taskPort": 3001,
+    "taskBuildOutput": "web/.next-phase6a-revocation"
+  },
+  "workItems": {
+    "CF-601": {
+      "status": "VERIFIED",
+      "evidence": "cf601-lifecycle-fault-matrix.json",
+      "focusedTests": "4 files, 12/12 tests"
+    },
+    "CF-602": {
+      "status": "VERIFIED",
+      "evidence": [
+        "cf602-final-db.json",
+        "cf602-transport-final.json",
+        "cf602-query-and-socket-ready.json"
+      ],
+      "databaseMatrix": "12/12 measurements; widths 1/10/40/100; query count 0; rooms per socket 0",
+      "transportMatrix": "12/12 measurements; max rooms 0; max repository calls 7",
+      "width100SocketReadyP95Ms": 8.5
+    },
+    "CF-603": {
+      "status": "VERIFIED",
+      "evidence": [
+        "cf603-recovery-and-convergence.json",
+        "notification-baseline-triage.json"
+      ],
+      "messaging": "30/30 files and 78/78 tests",
+      "focusedRecovery": "4/4 files and 12/12 tests",
+      "notificationAffectedScope": "24/24 files and 66/66 tests",
+      "notificationFullSuite": "FAIL: 24/25 files and 67/68 tests; unchanged SpecKit parity only"
+    },
+    "CF-604": {
+      "status": "VERIFIED",
+      "evidence": [
+        "cf604-browser-runtime-matrix.json",
+        "cf604-db-fault-injection.json",
+        "cf604-account-moderation-browser.json",
+        "connections-baseline-triage.json"
+      ],
+      "databaseFaultInjection": "4/4 cases",
+      "revocationBrowser": "3/3 cases",
+      "dedicatedBrowser": "EN 1/1; VI 1/1",
+      "messagingBrowserRegression": "5/5 tests",
+      "supportRegression": "12/12 files and 29/29 tests",
+      "connectionsAffectedScope": "9/9 files and 17/17 tests",
+      "connectionsFullSuite": "FAIL: 9/10 files and 19/20 tests; unchanged UI fixture only"
+    }
+  },
+  "staticAndDataGates": {
+    "typecheck": "PASS",
+    "targetedEslint": "PASS",
+    "targetedPrettier": "PASS",
+    "prismaValidate": "PASS",
+    "migrationSequence": "PASS: 97",
+    "migrationStatus": "PASS: up to date",
+    "productionBuild": "PASS with two pre-existing dynamic filesystem tracing warnings",
+    "gitDiffCheck": "PASS"
+  },
+  "baselineExceptions": [
+    {
+      "scope": "notifications",
+      "status": "FAIL",
+      "acceptedForPhase6A": true,
+      "reason": "Unchanged SpecKit OpenAPI contract omits COMPANY_INVITATION; affected Phase 6A notification scope passes."
+    },
+    {
+      "scope": "connections",
+      "status": "FAIL",
+      "acceptedForPhase6A": true,
+      "reason": "Unchanged Connections UI fixture expects Disconnect in an empty state; affected shared namespace scope passes."
+    }
+  ],
+  "integratedGate": "DONE / VERIFIED",
+  "limitations": [
+    "Phase 6A evidence is single-instance and does not claim Phase 6B multi-instance behavior.",
+    "The two baseline suite failures remain explicit FAIL and were not hidden or relabelled."
+  ],
+  "cleanupPending": false,
+  "cleanupEvidence": "cleanup.json",
+  "privatePayloadsRecorded": false
+}

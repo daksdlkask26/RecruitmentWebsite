@@ -23,6 +23,7 @@ import {
 import { ANALYTICS_PLATFORM_TIME_ZONE } from "@/shared/contracts/analytics";
 import styles from "./candidate-company-screen.module.css";
 import { getCompanyCopy } from "./i18n/company-copy";
+import { useModalA11y } from "@/frontend/components/ui/use-modal-a11y";
 
 function formatDate(value: string, locale: "vi" | "en") {
   return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-US", {
@@ -136,6 +137,16 @@ export function TeamApplicationStatus({
   const requestIdRef = useRef(0);
   const [pendingWithdrawal, setPendingWithdrawal] =
     useState<CandidateTeamApplication | null>(null);
+  const withdrawalCancel = useRef<HTMLButtonElement>(null);
+  const closeWithdrawal = useCallback(() => {
+    if (!busyId) setPendingWithdrawal(null);
+  }, [busyId]);
+  const withdrawalDialog = useModalA11y({
+    open: Boolean(pendingWithdrawal),
+    busy: Boolean(busyId),
+    onClose: closeWithdrawal,
+    initialFocusRef: withdrawalCancel,
+  });
 
   const updateUrl = useCallback(
     (
@@ -584,15 +595,17 @@ export function TeamApplicationStatus({
       {pendingWithdrawal ? (
         <div className={styles.dialogBackdrop}>
           <section
+            ref={withdrawalDialog}
             className={styles.dialog}
             role="dialog"
             aria-modal="true"
             aria-labelledby="withdraw-team-application-title"
+            aria-describedby="withdraw-team-application-description"
           >
             <h2 id="withdraw-team-application-title">
               {copy.withdrawDialogTitle}
             </h2>
-            <p>
+            <p id="withdraw-team-application-description">
               {copy.withdrawDialogDescription(
                 pendingWithdrawal.companyName,
                 copy.roleLabel(pendingWithdrawal.appliedRole),
@@ -600,6 +613,7 @@ export function TeamApplicationStatus({
             </p>
             <div className={styles.dialogActions}>
               <button
+                ref={withdrawalCancel}
                 className={`${styles.button} ${styles.secondary}`}
                 type="button"
                 disabled={busyId === pendingWithdrawal.applicationId}

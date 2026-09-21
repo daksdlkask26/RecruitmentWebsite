@@ -10,7 +10,10 @@ import { MessagingEligibilityService } from "@/backend/messaging/authorization/m
 import { PrismaMessagingBlockRepository } from "@/backend/repositories/messaging/prisma-messaging-block-repository";
 import { PrismaMessagingConversationRepository } from "@/backend/repositories/messaging/prisma-messaging-conversation-repository";
 import { PrismaMessagingMessageRepository } from "@/backend/repositories/messaging/prisma-messaging-message-repository";
-import { unavailableConversation, MessagingError } from "@/backend/messaging/messaging-errors";
+import {
+  unavailableConversation,
+  MessagingError,
+} from "@/backend/messaging/messaging-errors";
 import type { SendMessageInput } from "@/shared/contracts/messaging/messages";
 
 const noPublisher: MessagingRealtimePublisherPort = {
@@ -24,15 +27,16 @@ export class SendMessageService {
   constructor(
     private readonly eligibility: MessagingEligibilityPort = new MessagingEligibilityService(),
     private readonly blocks: MessagingBlockRepositoryPort = new PrismaMessagingBlockRepository(),
-    private readonly conversations: MessagingConversationRepositoryPort =
-      new PrismaMessagingConversationRepository(),
-    private readonly messages: MessagingMessageRepositoryPort =
-      new PrismaMessagingMessageRepository(),
+    private readonly conversations: MessagingConversationRepositoryPort = new PrismaMessagingConversationRepository(),
+    private readonly messages: MessagingMessageRepositoryPort = new PrismaMessagingMessageRepository(),
     private readonly publisher: MessagingRealtimePublisherPort = noPublisher,
   ) {}
 
   async execute(senderId: string, input: SendMessageInput, now = new Date()) {
-    const conversation = await this.conversations.findAccess(input.conversationId, senderId);
+    const conversation = await this.conversations.findAccess(
+      input.conversationId,
+      senderId,
+    );
     if (!conversation) throw unavailableConversation();
     const recipientId =
       conversation.participantLowId === senderId
@@ -58,7 +62,13 @@ export class SendMessageService {
       createdAt: accepted.message.createdAt.toISOString(),
       delivery: "SENT" as const,
     };
-    await this.publisher.publishMessage(message, senderId);
+    // Durable acceptance is authoritative. Realtime delivery is a best-effort
+    // projection and must not turn a committed send into a retryable failure.
+    try {
+      await this.publisher.publishMessage(message, senderId);
+    } catch {
+      // REST history and the next authoritative refetch recover the event.
+    }
     return { message, deduplicated: accepted.deduplicated };
   }
 }

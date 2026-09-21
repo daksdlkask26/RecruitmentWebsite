@@ -17,15 +17,15 @@ vi.mock(
           canConfirmHired: true,
         },
         stages: [
-          "Applied",
+           "New",
           "Viewed",
           "Shortlisted",
           "Interviewing",
-          "Offered",
+           "Offer",
           "Hired",
-          "Offer Declined",
+           "Offer declined",
           "Rejected",
-          "Waitlisted",
+           "Needs details",
         ].map((label, index) => ({
           stage: [
             "APPLIED",
@@ -61,15 +61,15 @@ describe("RecruitmentPipelineBoard", () => {
     expect(
       columns.map((column) => within(column).getByRole("heading").textContent),
     ).toEqual([
-      "Applied",
+      "New",
       "Viewed",
       "Shortlisted",
       "Interviewing",
-      "Offered",
+      "Offer",
       "Hired",
-      "Offer Declined",
+      "Offer declined",
       "Rejected",
-      "Waitlisted",
+      "Needs details",
       "Withdrawn",
     ]);
     expect(screen.getByText(/read.only/i)).toBeInTheDocument();
