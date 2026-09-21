@@ -45,9 +45,11 @@ vi.mock("@/backend/database/prisma", () => ({
       async (callback: (tx: typeof transactionMocks) => unknown) =>
         callback({
           ...transactionMocks,
-          companyDeletionManifestEntry: prismaMocks.companyDeletionManifestEntry,
+          companyDeletionManifestEntry:
+            prismaMocks.companyDeletionManifestEntry,
           applicationDocument: prismaMocks.applicationDocument,
-          applicationArtifactPromotion: prismaMocks.applicationArtifactPromotion,
+          applicationArtifactPromotion:
+            prismaMocks.applicationArtifactPromotion,
         }),
     ),
   },
@@ -95,9 +97,9 @@ describe("company deletion manifest purge", () => {
     prismaMocks.applicationDocument.findFirst.mockResolvedValue(null);
     prismaMocks.applicationArtifactPromotion.findFirst.mockResolvedValue(null);
     transactionMocks.$queryRaw.mockResolvedValue([]);
-    transactionMocks.companyDeletionManifestEntry.updateMany.mockResolvedValue(
-      { count: 1 },
-    );
+    transactionMocks.companyDeletionManifestEntry.updateMany.mockResolvedValue({
+      count: 1,
+    });
     transactionMocks.companyDeletionManifestEntry.update.mockResolvedValue({});
     transactionMocks.applicationDocument.findFirst.mockResolvedValue(null);
     transactionMocks.applicationArtifactPromotion.findFirst.mockResolvedValue(
@@ -209,7 +211,9 @@ describe("company deletion manifest purge", () => {
       }),
     ).resolves.toMatchObject({ status: "COMPLETED" });
     expect(transactionMocks.$queryRaw).toHaveBeenCalledOnce();
-    expect(prismaMocks.companyDeletionManifestEntry.updateMany).toHaveBeenCalledWith(
+    expect(
+      prismaMocks.companyDeletionManifestEntry.updateMany,
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ outcomeCode: "PURGE_CLAIMED" }),
       }),
@@ -246,6 +250,39 @@ describe("company deletion manifest purge", () => {
         data: expect.objectContaining({
           state: "RETRY_REQUIRED",
           purgeState: "RETRYABLE",
+        }),
+      }),
+    );
+  });
+
+  it("does not report completion while a legacy catalogue checkpoint is pending", async () => {
+    prismaMocks.companyDeletionRequest.findUnique.mockResolvedValue({
+      id: "deletion-request-1",
+      state: "PURGING",
+      purgeState: "PENDING",
+      retentionEligibleAt: new Date("2026-09-01T00:00:00.000Z"),
+      manifestEntries: [
+        {
+          resourceType: "LEGACY_CATALOGUE_APPLICATIONS",
+          recordId: "company-1",
+          state: "PENDING",
+        },
+      ],
+    });
+
+    await expect(
+      purgeCompanyDeletionRequest("deletion-request-1", { now: fixedNow }),
+    ).resolves.toMatchObject({
+      status: "RETRY_REQUIRED",
+      retryableObjects: 1,
+    });
+    expect(storageMock.delete).not.toHaveBeenCalled();
+    expect(prismaMocks.companyDeletionRequest.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          state: "RETRY_REQUIRED",
+          purgeState: "RETRYABLE",
+          lastFailureCode: "LEGACY_CATALOGUE_RECONCILIATION_PENDING",
         }),
       }),
     );
@@ -367,27 +404,30 @@ describe("company deletion manifest purge", () => {
     ["BLOCKED_BY_LEGAL_HOLD", "BLOCKED"],
     ["RETRY_REQUIRED", "RETRY_REQUIRED"],
     ["COMPLETED", "COMPLETED"],
-  ] as const)("maps %s to the safe receipt status %s", async (state, status) => {
-    prismaMocks.companyDeletionRequest.findFirst.mockResolvedValue({
-      id: "deletion-request-1",
-      state,
-      holdState: state === "BLOCKED_BY_LEGAL_HOLD" ? "ACTIVE" : "CLEAR",
-      purgeState:
-        state === "BLOCKED_BY_LEGAL_HOLD"
-          ? "BLOCKED"
-          : state === "RETRY_REQUIRED"
-            ? "RETRYABLE"
-            : state === "COMPLETED"
-              ? "COMPLETE"
-              : "PENDING",
-      requestedAt: fixedNow,
-      retentionEligibleAt: fixedNow,
-      completedAt: state === "COMPLETED" ? fixedNow : null,
-      manifestEntries: [],
-    });
+  ] as const)(
+    "maps %s to the safe receipt status %s",
+    async (state, status) => {
+      prismaMocks.companyDeletionRequest.findFirst.mockResolvedValue({
+        id: "deletion-request-1",
+        state,
+        holdState: state === "BLOCKED_BY_LEGAL_HOLD" ? "ACTIVE" : "CLEAR",
+        purgeState:
+          state === "BLOCKED_BY_LEGAL_HOLD"
+            ? "BLOCKED"
+            : state === "RETRY_REQUIRED"
+              ? "RETRYABLE"
+              : state === "COMPLETED"
+                ? "COMPLETE"
+                : "PENDING",
+        requestedAt: fixedNow,
+        retentionEligibleAt: fixedNow,
+        completedAt: state === "COMPLETED" ? fixedNow : null,
+        manifestEntries: [],
+      });
 
-    await expect(
-      getCompanyDeletionReceipt("deletion-request-1", "owner-1"),
-    ).resolves.toMatchObject({ status });
-  });
+      await expect(
+        getCompanyDeletionReceipt("deletion-request-1", "owner-1"),
+      ).resolves.toMatchObject({ status });
+    },
+  );
 });

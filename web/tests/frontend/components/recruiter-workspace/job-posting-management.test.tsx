@@ -722,14 +722,22 @@ describe("recruiter job posting management", () => {
   });
 
   it("preserves spaces and commas while editing skills", async () => {
+    const editableJob = {
+      ...initialData.jobs[0],
+      applyDeadline: new Date(Date.now() + 30 * 24 * 60 * 60_000).toISOString(),
+    };
     const fetchMock = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify(initialData.jobs[0]), {
+      new Response(JSON.stringify(editableJob), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       }),
     );
     vi.stubGlobal("fetch", fetchMock);
-    render(<RecruiterJobPostingManagement initialData={initialData} />);
+    render(
+      <RecruiterJobPostingManagement
+        initialData={{ ...initialData, jobs: [editableJob] }}
+      />,
+    );
 
     fireEvent.click(screen.getByRole("button", { name: /Edit job posting/ }));
     const skills = screen.getByPlaceholderText(
@@ -1115,6 +1123,7 @@ describe("recruiter job posting management", () => {
     const withdrawnJob = {
       ...initialData.jobs[0],
       status: "draft" as const,
+      applyDeadline: new Date(Date.now() + 30 * 24 * 60 * 60_000).toISOString(),
       updatedAt: "2026-08-07T00:00:00.000Z",
       review: {
         reviewId: "withdrawn-review-1",

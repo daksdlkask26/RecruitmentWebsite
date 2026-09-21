@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireSession } from "@/backend/auth/session/require-session";
+import {
+  AccountRequestError,
+  accountErrorResponse,
+  parseBoundedJson,
+  requireAccountRequest,
+} from "@/backend/security/account-request-boundary";
 import { ApplicationScoringService } from "@/backend/scoring/services/application-scoring-service";
 
 const noStore = {
@@ -21,25 +26,9 @@ export async function POST(
   request: Request,
   context: { params: Promise<{ applicationId: string }> },
 ) {
-  const current = await requireSession(request.headers);
-  if (!current) {
-    return NextResponse.json(
-      { code: "UNAUTHENTICATED", message: "Authentication required." },
-      { status: 401, headers: noStore },
-    );
-  }
-
-  let raw: unknown;
   try {
-    raw = await request.json();
-  } catch {
-    return NextResponse.json(
-      { code: "INVALID_REQUEST", message: "The scoring command is invalid." },
-      { status: 400, headers: noStore },
-    );
-  }
-
-  try {
+    const current = await requireAccountRequest(request, { mutation: true });
+    const raw = await parseBoundedJson(request, z.unknown(), 16 * 1024);
     const operation = await new ApplicationScoringService().request({
       userId: current.userId,
       sessionId: current.sessionId,
@@ -52,6 +41,8 @@ export async function POST(
       headers: noStore,
     });
   } catch (error) {
+    if (error instanceof AccountRequestError)
+      return accountErrorResponse(error);
     const message = error instanceof Error ? error.message : "";
     if (isSchemaMismatch(error)) {
       return NextResponse.json(
@@ -84,7 +75,10 @@ export async function POST(
         { status: 400, headers: noStore },
       );
     }
-    console.error("[application-scoring] failed to queue single application", error);
+    console.error(
+      "[application-scoring] failed to queue single application",
+      error,
+    );
     return NextResponse.json(
       {
         code: "SCORING_REQUEST_FAILED",

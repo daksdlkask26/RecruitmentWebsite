@@ -151,6 +151,25 @@ function visibleThread(
 export class RecruitmentMessagingService {
   constructor(private readonly db: typeof prisma = prisma) {}
 
+  async workspace(userId: string) {
+    const ownerMembership = await this.db.companyMembership.findFirst({
+      where: {
+        userId,
+        role: "OWNER",
+        status: "ACTIVE",
+        removedAt: null,
+      },
+      select: { id: true },
+    });
+    const ownerOversight = Boolean(ownerMembership);
+    return {
+      ownerOversight,
+      items: ownerOversight
+        ? await this.ownerOverview(userId, {})
+        : await this.list(userId, { assignment: "mine" }),
+    };
+  }
+
   private async ensureApplicationThreads(
     companyIds: string[],
     query: Pick<RecruitmentThreadQuery, "jobId" | "stage">,

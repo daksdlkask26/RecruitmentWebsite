@@ -1,5 +1,5 @@
 import { readFile, readdir } from "node:fs/promises";
-import { extname, join } from "node:path";
+import { basename, extname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 async function files(root: string): Promise<string[]> {
@@ -34,6 +34,9 @@ describe("application layers", () => {
   it("keeps client state and effects in frontend features", async () => {
     for (const path of await files("src/app")) {
       if (![".ts", ".tsx"].includes(extname(path))) continue;
+      // Next.js requires route error boundaries themselves to be Client
+      // Components. They remain thin wrappers; stateful UI lives in frontend.
+      if (basename(path) === "error.tsx") continue;
       expect(await readFile(path, "utf8")).not.toMatch(
         /["']use client["']|useState\(|useEffect\(/,
       );

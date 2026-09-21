@@ -8,6 +8,7 @@ import {
   readRecruiterCompanySettings,
   readRecruiterJobManagementData,
   resolveRecruiterJobIdForNavigation,
+  resumeBlockedRecruiterCompanyDeletion,
   syncRecruiterCompanyToCatalogue,
   updateRecruiterJob,
   updateRecruiterCompanySettings,
@@ -83,9 +84,19 @@ const prismaMocks = vi.hoisted(() => {
       findUnique: vi.fn(),
     },
     applicationDocument: { findFirst: vi.fn() },
+    applicationDocumentLegalHold: { findFirst: vi.fn() },
+    activityLegalHold: { findFirst: vi.fn() },
+    jobReport: { findFirst: vi.fn() },
+    messagingReport: { findFirst: vi.fn() },
+    moderationReport: { findFirst: vi.fn() },
     applicationArtifactPromotion: { findFirst: vi.fn() },
-    companyDeletionRequest: { findUnique: vi.fn(), update: vi.fn() },
+    companyDeletionRequest: {
+      create: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+    },
     companyDeletionManifestEntry: {
+      createMany: vi.fn(),
       findMany: vi.fn(),
       count: vi.fn(),
       updateMany: vi.fn(),
@@ -185,6 +196,16 @@ describe("recruiter JSON job persistence", () => {
     prismaMocks.jobPostReviewAggregate.findUnique.mockResolvedValue(null);
     prismaMocks.jobPosting.findUnique.mockReset();
     prismaMocks.jobPosting.findUnique.mockResolvedValue(null);
+    prismaMocks.applicationDocumentLegalHold.findFirst.mockReset();
+    prismaMocks.applicationDocumentLegalHold.findFirst.mockResolvedValue(null);
+    prismaMocks.activityLegalHold.findFirst.mockReset();
+    prismaMocks.activityLegalHold.findFirst.mockResolvedValue(null);
+    prismaMocks.jobReport.findFirst.mockReset();
+    prismaMocks.jobReport.findFirst.mockResolvedValue(null);
+    prismaMocks.messagingReport.findFirst.mockReset();
+    prismaMocks.messagingReport.findFirst.mockResolvedValue(null);
+    prismaMocks.moderationReport.findFirst.mockReset();
+    prismaMocks.moderationReport.findFirst.mockResolvedValue(null);
     for (const delegate of Object.values(prismaMocks.transaction)) {
       for (const method of Object.values(delegate)) {
         if (typeof method === "function" && "mockReset" in method) {
@@ -238,6 +259,12 @@ describe("recruiter JSON job persistence", () => {
       state: "PURGING",
       purgeState: "PENDING",
       retentionEligibleAt: new Date("2026-01-01T00:00:00.000Z"),
+    });
+    prismaMocks.companyDeletionRequest.create.mockResolvedValue({
+      id: "deletion-request-legacy-1",
+    });
+    prismaMocks.companyDeletionManifestEntry.createMany.mockResolvedValue({
+      count: 1,
     });
     prismaMocks.companyDeletionManifestEntry.findMany.mockResolvedValue([]);
     prismaMocks.companyDeletionManifestEntry.count.mockResolvedValue(0);
@@ -925,6 +952,133 @@ describe("recruiter JSON job persistence", () => {
     expect(prismaMocks.company.update).not.toHaveBeenCalled();
   });
 
+  it("keeps a committed database deletion retryable when the legacy write fails", async () => {
+    prismaMocks.company.findMany.mockResolvedValue([
+      {
+        id: "db-company-1",
+        slug: "northstar-labs",
+        legalName: "Northstar Labs",
+        displayName: "Northstar Labs",
+        logoUrl: null,
+        websiteUrl: null,
+        publicDescription: null,
+        publicLocation: null,
+        size: "51-200 employees",
+        industry: "Technology",
+        address: "Ho Chi Minh City",
+        entityType: null,
+        normalizedTaxIdentifier: "1234567890",
+        memberships: [{ userId: "recruiter-1", role: "OWNER" }],
+      },
+    ]);
+    const job = {
+      ...completeJob("legacy-job-committed"),
+      companyId: "db-company-1",
+    };
+    fsMocks.readFile.mockImplementation(async (path: string) => {
+      if (path.endsWith("jobs.json")) return JSON.stringify([job]);
+      if (path.endsWith("companies.json")) return "[]";
+      if (path.endsWith("applications.json")) return "[]";
+      throw new Error("Unexpected mock path: " + path);
+    });
+    fsMocks.writeFile.mockImplementation(async (path: string) => {
+      if (String(path).endsWith("jobs.json")) {
+        throw new Error("LEGACY_JOBS_WRITE_FAILED");
+      }
+    });
+
+    await expect(
+      deleteRecruiterCompany("recruiter-1", "db-company-1"),
+    ).resolves.toEqual({
+      companyId: "db-company-1",
+      deleted: false,
+      status: "PURGE_PENDING",
+      requestId: "deletion-request-1",
+    });
+    expect(prismaMocks.transaction.company.delete).toHaveBeenCalledWith({
+      where: { id: "db-company-1" },
+    });
+    expect(prismaMocks.companyDeletionRequest.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "deletion-request-1" },
+        data: expect.objectContaining({
+          state: "RETRY_REQUIRED",
+          purgeState: "RETRYABLE",
+          lastFailureCode: "LEGACY_CATALOGUE_RECONCILIATION_FAILED",
+        }),
+      }),
+    );
+  });
+
+  it("reconstructs manifest targets after the database row is gone", async () => {
+    const retryableEntries = [
+      {
+        resourceType: "LEGACY_CATALOGUE_JOBS",
+        recordId: "db-company-1",
+        state: "RETRYABLE",
+      },
+      {
+        resourceType: "LEGACY_CATALOGUE_APPLICATIONS",
+        recordId: "db-company-1",
+        state: "RETRYABLE",
+      },
+      {
+        resourceType: "LEGACY_CATALOGUE_COMPANIES",
+        recordId: "db-company-1",
+        state: "RETRYABLE",
+      },
+      {
+        resourceType: "LEGACY_CATALOGUE_JOB",
+        recordId: "legacy-job-committed",
+        state: "RETRYABLE",
+      },
+    ] as const;
+    prismaMocks.companyDeletionRequest.findUnique.mockResolvedValue({
+      id: "deletion-request-1",
+      companyId: "db-company-1",
+      requestedByUserId: "recruiter-1",
+      state: "RETRY_REQUIRED",
+      purgeState: "RETRYABLE",
+      retentionEligibleAt: new Date("2026-01-01T00:00:00.000Z"),
+      manifestEntries: retryableEntries.map((entry) => ({
+        resourceType: entry.resourceType,
+        recordId: entry.recordId,
+        state: "DELETED",
+      })),
+    });
+    prismaMocks.companyDeletionManifestEntry.findMany.mockImplementation(
+      async (args: { where?: { resourceKind?: string } }) => {
+        if (args.where?.resourceKind === "OBJECT") return [];
+        return retryableEntries;
+      },
+    );
+    fsMocks.readFile.mockImplementation(async (path: string) => {
+      if (path.endsWith("jobs.json")) return "[]";
+      if (path.endsWith("companies.json")) return "[]";
+      if (path.endsWith("applications.json")) return "[]";
+      throw new Error("Unexpected mock path: " + path);
+    });
+
+    await expect(
+      resumeBlockedRecruiterCompanyDeletion("deletion-request-1"),
+    ).resolves.toMatchObject({
+      requestId: "deletion-request-1",
+      status: "COMPLETED",
+    });
+    expect(
+      prismaMocks.companyDeletionManifestEntry.updateMany,
+    ).toHaveBeenCalled();
+    expect(prismaMocks.companyDeletionRequest.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "deletion-request-1" },
+        data: expect.objectContaining({
+          state: "COMPLETED",
+          purgeState: "COMPLETE",
+        }),
+      }),
+    );
+  });
+
   it("records a deletion request and blocks all physical deletion under an active legal hold", async () => {
     prismaMocks.company.findMany.mockResolvedValue([
       {
@@ -1052,7 +1206,9 @@ describe("recruiter JSON job persistence", () => {
         requestId: "deletion-request-1",
       });
       expect(prismaMocks.transaction.company.delete).not.toHaveBeenCalled();
-      expect(prismaMocks.transaction.companyDeletionRequest.update).toHaveBeenCalledWith(
+      expect(
+        prismaMocks.transaction.companyDeletionRequest.update,
+      ).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             holdState: "ACTIVE",

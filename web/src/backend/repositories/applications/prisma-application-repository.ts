@@ -2,7 +2,7 @@ import "server-only";
 
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { prisma } from "@/backend/database/prisma";
-import { safeFilename } from "@/backend/services/cv-import/cv-import-projection";
+import { safeCvFilename as safeFilename } from "@/backend/cv/safe-filename";
 import {
   applicationPageSchema,
   pipelineApplicationStages,

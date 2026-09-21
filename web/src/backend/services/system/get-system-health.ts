@@ -2,16 +2,47 @@ import "server-only";
 
 import { cvConfiguration, cvParserAvailability } from "@/backend/cv/config";
 import { prisma } from "@/backend/database/prisma";
+import { emitPlatformOperationalMetric } from "@/backend/observability/platform-operational-metrics";
 
-export async function getSystemHealth() {
+const dependencyTimeoutMs = 1_500;
+
+async function databaseReady(timeoutMs: number) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      prisma.$queryRaw`SELECT 1`.then(() => true).catch(() => false),
+      new Promise<boolean>((resolve) => {
+        timer = setTimeout(() => resolve(false), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+export async function getSystemHealth(
+  input: Readonly<{ dependencyTimeoutMs?: number }> = {},
+) {
   const parserAvailability = cvParserAvailability(cvConfiguration);
   const now = new Date();
-  const evidence = await prisma.imageSearchOperationalEvidence
-    .findMany({
-      where: { component: { in: ["CLEANUP", "RECONCILIATION"] } },
-      select: { component: true, validUntil: true },
-    })
-    .catch(() => []);
+  const database = await databaseReady(
+    input.dependencyTimeoutMs ?? dependencyTimeoutMs,
+  );
+  if (!database) {
+    emitPlatformOperationalMetric({
+      event: "health.not_ready",
+      value: 1,
+      dimensions: { dependency: "database" },
+    });
+  }
+  const evidence = database
+    ? await prisma.imageSearchOperationalEvidence
+        .findMany({
+          where: { component: { in: ["CLEANUP", "RECONCILIATION"] } },
+          select: { component: true, validUntil: true },
+        })
+        .catch(() => [])
+    : [];
   const ready = (component: string) =>
     Boolean(
       evidence.find(
@@ -20,7 +51,14 @@ export async function getSystemHealth() {
     );
 
   return {
-    status: "ok" as const,
+    status: database ? ("ok" as const) : ("not_ready" as const),
+    liveness: { status: "ok" as const },
+    readiness: {
+      status: database ? ("ok" as const) : ("not_ready" as const),
+      dependencies: {
+        database: database ? ("ok" as const) : ("unavailable" as const),
+      },
+    },
     cv: {
       cleanupEnabled: cvConfiguration.cleanupEnabled,
       processingEnabled: cvConfiguration.workerEnabled,

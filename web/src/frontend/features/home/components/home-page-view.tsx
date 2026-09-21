@@ -19,6 +19,7 @@ import { HomeCandidateTrust } from "./home-candidate-trust";
 import { HomeCompaniesHiring } from "./home-companies-hiring";
 import { HomeFinalCta } from "./home-final-cta";
 import { HomeFooter } from "./home-footer";
+import { AppProviders } from "@/frontend/providers/app-providers";
 
 function HomeContent({ model }: { model: HomePageModel }) {
   const { locale } = useHomeLocale();
@@ -57,10 +58,12 @@ function HomeContent({ model }: { model: HomePageModel }) {
 export function HomePageView({ model }: { model: HomePageModel }) {
   const csrfProof = model.viewer.kind === "guest" ? "" : model.viewer.csrfProof;
   return (
-    <CsrfProofProvider value={csrfProof}>
-      <HomeLocaleProvider initialLocale={model.initialLocale}>
-        <HomeContent model={model} />
-      </HomeLocaleProvider>
-    </CsrfProofProvider>
+    <AppProviders>
+      <CsrfProofProvider value={csrfProof}>
+        <HomeLocaleProvider initialLocale={model.initialLocale}>
+          <HomeContent model={model} />
+        </HomeLocaleProvider>
+      </CsrfProofProvider>
+    </AppProviders>
   );
 }

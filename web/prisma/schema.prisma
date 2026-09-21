@@ -99,6 +99,13 @@ enum ExportRequestStatus {
   DELETED
 }
 
+enum ExportAuditObligationState {
+  PENDING
+  LEASED
+  COMPLETED
+  DEAD_LETTER
+}
+
 enum BackupRunTrigger {
   MANUAL
   SCHEDULED
@@ -5022,6 +5029,7 @@ model ExportRequest {
   requester           UserAccount         @relation("ExportRequester", fields: [requesterUserId], references: [id], onDelete: Restrict)
   company             Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
   jobPosting          JobPosting          @relation(fields: [jobPostingId], references: [id], onDelete: Restrict)
+  auditObligation     ExportAuditObligation?
 
   @@unique([requesterUserId, idempotencyKey], map: "ExportRequest_requesterUserId_idempotencyKey_key")
   @@index([status, leaseExpiresAt, requestedAt], map: "ExportRequest_claim_idx")
@@ -5029,6 +5037,30 @@ model ExportRequest {
   @@index([requesterUserId, jobPostingId, requestedAt(sort: Desc)])
 }
 
+/// Completion is recorded before the audit write is attempted.  A pending
+/// obligation keeps a successful export truthful and gives a later worker an
+/// idempotent audit retry without deleting a claimed artifact.
+model ExportAuditObligation {
+  id              String                     @id @default(cuid())
+  exportRequestId String                     @unique
+  requesterUserId String
+  format          ExportFormat
+  rowCount        Int
+  occurredAt      DateTime
+  state           ExportAuditObligationState @default(PENDING)
+  attemptCount    Int                        @default(0)
+  nextAttemptAt   DateTime                   @default(now())
+  leaseOwner      String?
+  leaseExpiresAt  DateTime?
+  lastFailureCode String?
+  completedAt     DateTime?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  exportRequest   ExportRequest              @relation(fields: [exportRequestId], references: [id], onDelete: Cascade)
+
+  @@index([state, nextAttemptAt, occurredAt])
+  @@index([state, leaseExpiresAt])
+}
 model BackupConfiguration {
   id                String   @id
   enabled           Boolean  @default(false)
@@ -5048,6 +5080,8 @@ model BackupRun {
   idempotencyKey  String?
   leaseOwner      String?
   leaseExpiresAt  DateTime?
+  leaseEpoch      Int               @default(0)
+  attemptCount    Int               @default(0)
   driveFileId     String?
   driveFolderId   String?
   fileName        String?

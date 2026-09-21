@@ -1,18 +1,3 @@
 @import "tailwindcss";
 @import "../frontend/styles/tokens.css";
 @import "../frontend/styles/base.css";
-
-@theme {
-  --color-brand-50: #eef4ff;
-  --color-brand-100: #dbe6fe;
-  --color-brand-200: #bfd5fe;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #1d4ed8;
-  --color-brand-700: #1a56db;
-  --color-brand-800: #1e40af;
-  --color-brand-900: #1e3a8a;
-  --shadow-glow-blue: 0 8px 24px -4px rgba(26, 86, 219, 0.35);
-  --shadow-subtle-card:
-    0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.03);
-  --shadow-card-hover: 0 12px 30px -6px rgba(15, 23, 42, 0.08);
-}

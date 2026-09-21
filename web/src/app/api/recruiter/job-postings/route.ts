@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
-import { ZodError } from "zod";
+import { z, ZodError } from "zod";
 import { requireSession } from "@/backend/auth/session/require-session";
+import { AccountRequestError } from "@/backend/security/account-request-boundary";
 import {
   jobErrorResponse,
+  parseBoundedJson,
   requireJobActor,
 } from "@/backend/security/job-request-boundary";
 import {
@@ -14,6 +16,8 @@ import {
 } from "@/backend/services/jobs/recruiter-job-posting-data";
 
 const noStore = { "Cache-Control": "no-store" };
+const recruiterJobPostingMutationBodySchema = z.record(z.string(), z.unknown());
+const recruiterJobPostingMutationBodyLimit = 256 * 1024;
 
 function errorResponse(
   message: string,
@@ -92,10 +96,18 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const current = await actor(request);
-  if (!current) return errorResponse("Authentication required.", 401);
+  let current: Awaited<ReturnType<typeof requireJobActor>>;
   try {
-    const body = (await request.json()) as { status?: unknown; job?: unknown };
+    current = await requireJobActor(request, { mutation: true });
+  } catch (error) {
+    return jobErrorResponse(error);
+  }
+  try {
+    const body = await parseBoundedJson(
+      request,
+      recruiterJobPostingMutationBodySchema,
+      recruiterJobPostingMutationBodyLimit,
+    );
     if (body.status !== "draft") {
       return errorResponse("Only draft content can be saved here.", 422, {
         status: "Use the review submission action after saving the draft.",
@@ -104,15 +116,24 @@ export async function POST(request: Request) {
     const job = await createRecruiterJob(current.userId, body.job, body.status);
     return NextResponse.json(job, { status: 201, headers: noStore });
   } catch (error) {
+    if (error instanceof AccountRequestError) return jobErrorResponse(error);
     return mutationErrorResponse(error, "Unable to create job posting.");
   }
 }
 
 export async function PATCH(request: Request) {
-  const current = await actor(request);
-  if (!current) return errorResponse("Authentication required.", 401);
+  let current: Awaited<ReturnType<typeof requireJobActor>>;
   try {
-    const body = (await request.json()) as Record<string, unknown>;
+    current = await requireJobActor(request, { mutation: true });
+  } catch (error) {
+    return jobErrorResponse(error);
+  }
+  try {
+    const body = await parseBoundedJson(
+      request,
+      recruiterJobPostingMutationBodySchema,
+      recruiterJobPostingMutationBodyLimit,
+    );
     if (body.status !== "draft" && body.status !== "rejected")
       return errorResponse("Only draft content can be saved here.", 422);
     const job = await updateRecruiterJob(current.userId, {
@@ -121,6 +142,7 @@ export async function PATCH(request: Request) {
     });
     return NextResponse.json(job, { headers: noStore });
   } catch (error) {
+    if (error instanceof AccountRequestError) return jobErrorResponse(error);
     return mutationErrorResponse(error, "Unable to update job posting.");
   }
 }

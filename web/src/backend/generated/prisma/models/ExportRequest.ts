@@ -427,6 +427,7 @@ export type ExportRequestWhereInput = {
   requester?: Prisma.XOR<Prisma.UserAccountScalarRelationFilter, Prisma.UserAccountWhereInput>
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   jobPosting?: Prisma.XOR<Prisma.JobPostingScalarRelationFilter, Prisma.JobPostingWhereInput>
+  auditObligation?: Prisma.XOR<Prisma.ExportAuditObligationNullableScalarRelationFilter, Prisma.ExportAuditObligationWhereInput> | null
 }
 
 export type ExportRequestOrderByWithRelationInput = {
@@ -463,6 +464,7 @@ export type ExportRequestOrderByWithRelationInput = {
   requester?: Prisma.UserAccountOrderByWithRelationInput
   company?: Prisma.CompanyOrderByWithRelationInput
   jobPosting?: Prisma.JobPostingOrderByWithRelationInput
+  auditObligation?: Prisma.ExportAuditObligationOrderByWithRelationInput
 }
 
 export type ExportRequestWhereUniqueInput = Prisma.AtLeast<{
@@ -503,6 +505,7 @@ export type ExportRequestWhereUniqueInput = Prisma.AtLeast<{
   requester?: Prisma.XOR<Prisma.UserAccountScalarRelationFilter, Prisma.UserAccountWhereInput>
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   jobPosting?: Prisma.XOR<Prisma.JobPostingScalarRelationFilter, Prisma.JobPostingWhereInput>
+  auditObligation?: Prisma.XOR<Prisma.ExportAuditObligationNullableScalarRelationFilter, Prisma.ExportAuditObligationWhereInput> | null
 }, "id" | "requesterUserId_idempotencyKey">
 
 export type ExportRequestOrderByWithAggregationInput = {
@@ -610,6 +613,7 @@ export type ExportRequestCreateInput = {
   requester: Prisma.UserAccountCreateNestedOneWithoutAnalyticsExportsRequestedInput
   company: Prisma.CompanyCreateNestedOneWithoutAnalyticsExportsInput
   jobPosting: Prisma.JobPostingCreateNestedOneWithoutAnalyticsExportsInput
+  auditObligation?: Prisma.ExportAuditObligationCreateNestedOneWithoutExportRequestInput
 }
 
 export type ExportRequestUncheckedCreateInput = {
@@ -643,6 +647,7 @@ export type ExportRequestUncheckedCreateInput = {
   inaccessibleAt?: Date | string | null
   deletedAt?: Date | string | null
   version?: number
+  auditObligation?: Prisma.ExportAuditObligationUncheckedCreateNestedOneWithoutExportRequestInput
 }
 
 export type ExportRequestUpdateInput = {
@@ -676,6 +681,7 @@ export type ExportRequestUpdateInput = {
   requester?: Prisma.UserAccountUpdateOneRequiredWithoutAnalyticsExportsRequestedNestedInput
   company?: Prisma.CompanyUpdateOneRequiredWithoutAnalyticsExportsNestedInput
   jobPosting?: Prisma.JobPostingUpdateOneRequiredWithoutAnalyticsExportsNestedInput
+  auditObligation?: Prisma.ExportAuditObligationUpdateOneWithoutExportRequestNestedInput
 }
 
 export type ExportRequestUncheckedUpdateInput = {
@@ -709,6 +715,7 @@ export type ExportRequestUncheckedUpdateInput = {
   inaccessibleAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  auditObligation?: Prisma.ExportAuditObligationUncheckedUpdateOneWithoutExportRequestNestedInput
 }
 
 export type ExportRequestCreateManyInput = {
@@ -933,6 +940,11 @@ export type ExportRequestSumOrderByAggregateInput = {
   version?: Prisma.SortOrder
 }
 
+export type ExportRequestScalarRelationFilter = {
+  is?: Prisma.ExportRequestWhereInput
+  isNot?: Prisma.ExportRequestWhereInput
+}
+
 export type ExportRequestCreateNestedManyWithoutRequesterInput = {
   create?: Prisma.XOR<Prisma.ExportRequestCreateWithoutRequesterInput, Prisma.ExportRequestUncheckedCreateWithoutRequesterInput> | Prisma.ExportRequestCreateWithoutRequesterInput[] | Prisma.ExportRequestUncheckedCreateWithoutRequesterInput[]
   connectOrCreate?: Prisma.ExportRequestCreateOrConnectWithoutRequesterInput | Prisma.ExportRequestCreateOrConnectWithoutRequesterInput[]
@@ -1067,6 +1079,20 @@ export type EnumExportRequestStatusFieldUpdateOperationsInput = {
   set?: $Enums.ExportRequestStatus
 }
 
+export type ExportRequestCreateNestedOneWithoutAuditObligationInput = {
+  create?: Prisma.XOR<Prisma.ExportRequestCreateWithoutAuditObligationInput, Prisma.ExportRequestUncheckedCreateWithoutAuditObligationInput>
+  connectOrCreate?: Prisma.ExportRequestCreateOrConnectWithoutAuditObligationInput
+  connect?: Prisma.ExportRequestWhereUniqueInput
+}
+
+export type ExportRequestUpdateOneRequiredWithoutAuditObligationNestedInput = {
+  create?: Prisma.XOR<Prisma.ExportRequestCreateWithoutAuditObligationInput, Prisma.ExportRequestUncheckedCreateWithoutAuditObligationInput>
+  connectOrCreate?: Prisma.ExportRequestCreateOrConnectWithoutAuditObligationInput
+  upsert?: Prisma.ExportRequestUpsertWithoutAuditObligationInput
+  connect?: Prisma.ExportRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ExportRequestUpdateToOneWithWhereWithoutAuditObligationInput, Prisma.ExportRequestUpdateWithoutAuditObligationInput>, Prisma.ExportRequestUncheckedUpdateWithoutAuditObligationInput>
+}
+
 export type ExportRequestCreateWithoutRequesterInput = {
   id?: string
   format: $Enums.ExportFormat
@@ -1097,6 +1123,7 @@ export type ExportRequestCreateWithoutRequesterInput = {
   version?: number
   company: Prisma.CompanyCreateNestedOneWithoutAnalyticsExportsInput
   jobPosting: Prisma.JobPostingCreateNestedOneWithoutAnalyticsExportsInput
+  auditObligation?: Prisma.ExportAuditObligationCreateNestedOneWithoutExportRequestInput
 }
 
 export type ExportRequestUncheckedCreateWithoutRequesterInput = {
@@ -1129,6 +1156,7 @@ export type ExportRequestUncheckedCreateWithoutRequesterInput = {
   inaccessibleAt?: Date | string | null
   deletedAt?: Date | string | null
   version?: number
+  auditObligation?: Prisma.ExportAuditObligationUncheckedCreateNestedOneWithoutExportRequestInput
 }
 
 export type ExportRequestCreateOrConnectWithoutRequesterInput = {
@@ -1223,6 +1251,7 @@ export type ExportRequestCreateWithoutCompanyInput = {
   version?: number
   requester: Prisma.UserAccountCreateNestedOneWithoutAnalyticsExportsRequestedInput
   jobPosting: Prisma.JobPostingCreateNestedOneWithoutAnalyticsExportsInput
+  auditObligation?: Prisma.ExportAuditObligationCreateNestedOneWithoutExportRequestInput
 }
 
 export type ExportRequestUncheckedCreateWithoutCompanyInput = {
@@ -1255,6 +1284,7 @@ export type ExportRequestUncheckedCreateWithoutCompanyInput = {
   inaccessibleAt?: Date | string | null
   deletedAt?: Date | string | null
   version?: number
+  auditObligation?: Prisma.ExportAuditObligationUncheckedCreateNestedOneWithoutExportRequestInput
 }
 
 export type ExportRequestCreateOrConnectWithoutCompanyInput = {
@@ -1313,6 +1343,7 @@ export type ExportRequestCreateWithoutJobPostingInput = {
   version?: number
   requester: Prisma.UserAccountCreateNestedOneWithoutAnalyticsExportsRequestedInput
   company: Prisma.CompanyCreateNestedOneWithoutAnalyticsExportsInput
+  auditObligation?: Prisma.ExportAuditObligationCreateNestedOneWithoutExportRequestInput
 }
 
 export type ExportRequestUncheckedCreateWithoutJobPostingInput = {
@@ -1345,6 +1376,7 @@ export type ExportRequestUncheckedCreateWithoutJobPostingInput = {
   inaccessibleAt?: Date | string | null
   deletedAt?: Date | string | null
   version?: number
+  auditObligation?: Prisma.ExportAuditObligationUncheckedCreateNestedOneWithoutExportRequestInput
 }
 
 export type ExportRequestCreateOrConnectWithoutJobPostingInput = {
@@ -1371,6 +1403,154 @@ export type ExportRequestUpdateWithWhereUniqueWithoutJobPostingInput = {
 export type ExportRequestUpdateManyWithWhereWithoutJobPostingInput = {
   where: Prisma.ExportRequestScalarWhereInput
   data: Prisma.XOR<Prisma.ExportRequestUpdateManyMutationInput, Prisma.ExportRequestUncheckedUpdateManyWithoutJobPostingInput>
+}
+
+export type ExportRequestCreateWithoutAuditObligationInput = {
+  id?: string
+  format: $Enums.ExportFormat
+  filters: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  rangeStart?: Date | string | null
+  rangeEnd?: Date | string | null
+  timeZone: string
+  dataCutoff: Date | string
+  definitionVersion: string
+  status?: $Enums.ExportRequestStatus
+  idempotencyKey: string
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  attemptCount?: number
+  storageLocator?: string | null
+  fileName?: string | null
+  mediaType?: string | null
+  byteCount?: number | null
+  checksum?: string | null
+  rowCount?: number | null
+  failureCode?: string | null
+  requestedAt?: Date | string
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  expiresAt?: Date | string | null
+  inaccessibleAt?: Date | string | null
+  deletedAt?: Date | string | null
+  version?: number
+  requester: Prisma.UserAccountCreateNestedOneWithoutAnalyticsExportsRequestedInput
+  company: Prisma.CompanyCreateNestedOneWithoutAnalyticsExportsInput
+  jobPosting: Prisma.JobPostingCreateNestedOneWithoutAnalyticsExportsInput
+}
+
+export type ExportRequestUncheckedCreateWithoutAuditObligationInput = {
+  id?: string
+  requesterUserId: string
+  companyId: string
+  jobPostingId: string
+  format: $Enums.ExportFormat
+  filters: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  rangeStart?: Date | string | null
+  rangeEnd?: Date | string | null
+  timeZone: string
+  dataCutoff: Date | string
+  definitionVersion: string
+  status?: $Enums.ExportRequestStatus
+  idempotencyKey: string
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  attemptCount?: number
+  storageLocator?: string | null
+  fileName?: string | null
+  mediaType?: string | null
+  byteCount?: number | null
+  checksum?: string | null
+  rowCount?: number | null
+  failureCode?: string | null
+  requestedAt?: Date | string
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  expiresAt?: Date | string | null
+  inaccessibleAt?: Date | string | null
+  deletedAt?: Date | string | null
+  version?: number
+}
+
+export type ExportRequestCreateOrConnectWithoutAuditObligationInput = {
+  where: Prisma.ExportRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.ExportRequestCreateWithoutAuditObligationInput, Prisma.ExportRequestUncheckedCreateWithoutAuditObligationInput>
+}
+
+export type ExportRequestUpsertWithoutAuditObligationInput = {
+  update: Prisma.XOR<Prisma.ExportRequestUpdateWithoutAuditObligationInput, Prisma.ExportRequestUncheckedUpdateWithoutAuditObligationInput>
+  create: Prisma.XOR<Prisma.ExportRequestCreateWithoutAuditObligationInput, Prisma.ExportRequestUncheckedCreateWithoutAuditObligationInput>
+  where?: Prisma.ExportRequestWhereInput
+}
+
+export type ExportRequestUpdateToOneWithWhereWithoutAuditObligationInput = {
+  where?: Prisma.ExportRequestWhereInput
+  data: Prisma.XOR<Prisma.ExportRequestUpdateWithoutAuditObligationInput, Prisma.ExportRequestUncheckedUpdateWithoutAuditObligationInput>
+}
+
+export type ExportRequestUpdateWithoutAuditObligationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  format?: Prisma.EnumExportFormatFieldUpdateOperationsInput | $Enums.ExportFormat
+  filters?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  rangeStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rangeEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeZone?: Prisma.StringFieldUpdateOperationsInput | string
+  dataCutoff?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  definitionVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumExportRequestStatusFieldUpdateOperationsInput | $Enums.ExportRequestStatus
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  storageLocator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mediaType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  byteCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rowCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inaccessibleAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  requester?: Prisma.UserAccountUpdateOneRequiredWithoutAnalyticsExportsRequestedNestedInput
+  company?: Prisma.CompanyUpdateOneRequiredWithoutAnalyticsExportsNestedInput
+  jobPosting?: Prisma.JobPostingUpdateOneRequiredWithoutAnalyticsExportsNestedInput
+}
+
+export type ExportRequestUncheckedUpdateWithoutAuditObligationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  requesterUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  jobPostingId?: Prisma.StringFieldUpdateOperationsInput | string
+  format?: Prisma.EnumExportFormatFieldUpdateOperationsInput | $Enums.ExportFormat
+  filters?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  rangeStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rangeEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeZone?: Prisma.StringFieldUpdateOperationsInput | string
+  dataCutoff?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  definitionVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumExportRequestStatusFieldUpdateOperationsInput | $Enums.ExportRequestStatus
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  storageLocator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mediaType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  byteCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rowCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inaccessibleAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ExportRequestCreateManyRequesterInput = {
@@ -1435,6 +1615,7 @@ export type ExportRequestUpdateWithoutRequesterInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   company?: Prisma.CompanyUpdateOneRequiredWithoutAnalyticsExportsNestedInput
   jobPosting?: Prisma.JobPostingUpdateOneRequiredWithoutAnalyticsExportsNestedInput
+  auditObligation?: Prisma.ExportAuditObligationUpdateOneWithoutExportRequestNestedInput
 }
 
 export type ExportRequestUncheckedUpdateWithoutRequesterInput = {
@@ -1467,6 +1648,7 @@ export type ExportRequestUncheckedUpdateWithoutRequesterInput = {
   inaccessibleAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  auditObligation?: Prisma.ExportAuditObligationUncheckedUpdateOneWithoutExportRequestNestedInput
 }
 
 export type ExportRequestUncheckedUpdateManyWithoutRequesterInput = {
@@ -1563,6 +1745,7 @@ export type ExportRequestUpdateWithoutCompanyInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   requester?: Prisma.UserAccountUpdateOneRequiredWithoutAnalyticsExportsRequestedNestedInput
   jobPosting?: Prisma.JobPostingUpdateOneRequiredWithoutAnalyticsExportsNestedInput
+  auditObligation?: Prisma.ExportAuditObligationUpdateOneWithoutExportRequestNestedInput
 }
 
 export type ExportRequestUncheckedUpdateWithoutCompanyInput = {
@@ -1595,6 +1778,7 @@ export type ExportRequestUncheckedUpdateWithoutCompanyInput = {
   inaccessibleAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  auditObligation?: Prisma.ExportAuditObligationUncheckedUpdateOneWithoutExportRequestNestedInput
 }
 
 export type ExportRequestUncheckedUpdateManyWithoutCompanyInput = {
@@ -1691,6 +1875,7 @@ export type ExportRequestUpdateWithoutJobPostingInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   requester?: Prisma.UserAccountUpdateOneRequiredWithoutAnalyticsExportsRequestedNestedInput
   company?: Prisma.CompanyUpdateOneRequiredWithoutAnalyticsExportsNestedInput
+  auditObligation?: Prisma.ExportAuditObligationUpdateOneWithoutExportRequestNestedInput
 }
 
 export type ExportRequestUncheckedUpdateWithoutJobPostingInput = {
@@ -1723,6 +1908,7 @@ export type ExportRequestUncheckedUpdateWithoutJobPostingInput = {
   inaccessibleAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  auditObligation?: Prisma.ExportAuditObligationUncheckedUpdateOneWithoutExportRequestNestedInput
 }
 
 export type ExportRequestUncheckedUpdateManyWithoutJobPostingInput = {
@@ -1793,6 +1979,7 @@ export type ExportRequestSelect<ExtArgs extends runtime.Types.Extensions.Interna
   requester?: boolean | Prisma.UserAccountDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   jobPosting?: boolean | Prisma.JobPostingDefaultArgs<ExtArgs>
+  auditObligation?: boolean | Prisma.ExportRequest$auditObligationArgs<ExtArgs>
 }, ExtArgs["result"]["exportRequest"]>
 
 export type ExportRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1905,6 +2092,7 @@ export type ExportRequestInclude<ExtArgs extends runtime.Types.Extensions.Intern
   requester?: boolean | Prisma.UserAccountDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   jobPosting?: boolean | Prisma.JobPostingDefaultArgs<ExtArgs>
+  auditObligation?: boolean | Prisma.ExportRequest$auditObligationArgs<ExtArgs>
 }
 export type ExportRequestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   requester?: boolean | Prisma.UserAccountDefaultArgs<ExtArgs>
@@ -1923,6 +2111,7 @@ export type $ExportRequestPayload<ExtArgs extends runtime.Types.Extensions.Inter
     requester: Prisma.$UserAccountPayload<ExtArgs>
     company: Prisma.$CompanyPayload<ExtArgs>
     jobPosting: Prisma.$JobPostingPayload<ExtArgs>
+    auditObligation: Prisma.$ExportAuditObligationPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2352,6 +2541,7 @@ export interface Prisma__ExportRequestClient<T, Null = never, ExtArgs extends ru
   requester<T extends Prisma.UserAccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserAccountDefaultArgs<ExtArgs>>): Prisma.Prisma__UserAccountClient<runtime.Types.Result.GetResult<Prisma.$UserAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   jobPosting<T extends Prisma.JobPostingDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.JobPostingDefaultArgs<ExtArgs>>): Prisma.Prisma__JobPostingClient<runtime.Types.Result.GetResult<Prisma.$JobPostingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  auditObligation<T extends Prisma.ExportRequest$auditObligationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExportRequest$auditObligationArgs<ExtArgs>>): Prisma.Prisma__ExportAuditObligationClient<runtime.Types.Result.GetResult<Prisma.$ExportAuditObligationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2809,6 +2999,25 @@ export type ExportRequestDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many ExportRequests to delete.
    */
   limit?: number
+}
+
+/**
+ * ExportRequest.auditObligation
+ */
+export type ExportRequest$auditObligationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExportAuditObligation
+   */
+  select?: Prisma.ExportAuditObligationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ExportAuditObligation
+   */
+  omit?: Prisma.ExportAuditObligationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExportAuditObligationInclude<ExtArgs> | null
+  where?: Prisma.ExportAuditObligationWhereInput
 }
 
 /**

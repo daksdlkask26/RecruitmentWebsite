@@ -17,6 +17,7 @@ export type AdminWorkerLoop = {
     | "job-review-retention"
     | "team-application-retention"
     | "candidate-cv-artifact-reconciliation"
+    | "company-deletion-reconciliation"
     | "backup";
   intervalMs: number;
   run(now: Date): Promise<unknown>;
@@ -24,6 +25,8 @@ export type AdminWorkerLoop = {
 
 export class AdminWorkerRuntime {
   private timers: ReturnType<typeof setInterval>[] = [];
+  private active = new Set<Promise<unknown>>();
+  private stopping = false;
   constructor(private readonly loops: readonly AdminWorkerLoop[]) {}
 
   async probe(now = new Date()) {
@@ -40,17 +43,32 @@ export class AdminWorkerRuntime {
   }
 
   start() {
+    this.stopping = false;
     for (const loop of this.loops) {
-      const timer = setInterval(
-        () => void loop.run(new Date()).catch(() => undefined),
-        loop.intervalMs,
-      );
+      const timer = setInterval(() => {
+        if (this.stopping) return;
+        const run = loop.run(new Date()).catch(() => undefined);
+        this.active.add(run);
+        void run.finally(() => this.active.delete(run));
+      }, loop.intervalMs);
       this.timers.push(timer);
     }
   }
 
-  stop() {
+  async stop(timeoutMs = 15_000) {
+    this.stopping = true;
     for (const timer of this.timers) clearInterval(timer);
     this.timers = [];
+    if (!this.active.size) return { drained: true };
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<false>((resolve) => {
+      timer = setTimeout(() => resolve(false), timeoutMs);
+    });
+    const drained = await Promise.race([
+      Promise.allSettled([...this.active]).then(() => true),
+      timeout,
+    ]);
+    if (timer) clearTimeout(timer);
+    return { drained };
   }
 }

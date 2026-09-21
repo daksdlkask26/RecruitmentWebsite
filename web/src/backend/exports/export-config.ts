@@ -8,6 +8,8 @@ export const exportConfiguration = () => {
     leaseSeconds: config.exportLeaseSeconds,
     maxAttempts: config.exportMaxAttempts,
     batchSize: config.exportBatchSize,
+    maxRows: config.exportMaxRows,
+    maxBytes: config.exportMaxBytes,
     expiresAfterHours: 24,
   };
 };

@@ -9,6 +9,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useWorkspaceLocale } from "@/frontend/features/dashboard/client/workspace-locale";
+import { mutateWithCurrentCsrf } from "@/frontend/features/authentication/client/current-csrf-proof";
+import { useCsrfProof } from "@/frontend/features/authentication/client/csrf-proof-context";
 import { RankingModalFrame } from "./ranking-modal-frame";
 import { applicationDetailCopy } from "./application-detail-copy";
 
@@ -35,6 +37,7 @@ export function RescoreConfirmModal({
   onCompleted: () => void;
 }) {
   const locale = useWorkspaceLocale();
+  const csrfProof = useCsrfProof();
   const copy = applicationDetailCopy(locale).rescore;
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -42,7 +45,7 @@ export function RescoreConfirmModal({
     setSaving(true);
     setError(null);
     try {
-      const response = await fetch(
+      const response = await mutateWithCurrentCsrf(
         "/api/recruiter/jobs/" + encodeURIComponent(jobId) + "/scoring/rescore",
         {
           method: "POST",
@@ -56,6 +59,7 @@ export function RescoreConfirmModal({
             scoringConfigVersion: "HS-40/60-v1",
           }),
         },
+        csrfProof,
       );
       if (!response.ok) throw new Error(copy.error);
       onCompleted();

@@ -207,6 +207,7 @@ export const ModelName = {
   JobPostingViewFact: 'JobPostingViewFact',
   JobPostingLifecycleFact: 'JobPostingLifecycleFact',
   ExportRequest: 'ExportRequest',
+  ExportAuditObligation: 'ExportAuditObligation',
   BackupConfiguration: 'BackupConfiguration',
   BackupRun: 'BackupRun',
   ActivityLegalHold: 'ActivityLegalHold',
@@ -3301,6 +3302,27 @@ export const ExportRequestScalarFieldEnum = {
 export type ExportRequestScalarFieldEnum = (typeof ExportRequestScalarFieldEnum)[keyof typeof ExportRequestScalarFieldEnum]
 
 
+export const ExportAuditObligationScalarFieldEnum = {
+  id: 'id',
+  exportRequestId: 'exportRequestId',
+  requesterUserId: 'requesterUserId',
+  format: 'format',
+  rowCount: 'rowCount',
+  occurredAt: 'occurredAt',
+  state: 'state',
+  attemptCount: 'attemptCount',
+  nextAttemptAt: 'nextAttemptAt',
+  leaseOwner: 'leaseOwner',
+  leaseExpiresAt: 'leaseExpiresAt',
+  lastFailureCode: 'lastFailureCode',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExportAuditObligationScalarFieldEnum = (typeof ExportAuditObligationScalarFieldEnum)[keyof typeof ExportAuditObligationScalarFieldEnum]
+
+
 export const BackupConfigurationScalarFieldEnum = {
   id: 'id',
   enabled: 'enabled',
@@ -3323,6 +3345,8 @@ export const BackupRunScalarFieldEnum = {
   idempotencyKey: 'idempotencyKey',
   leaseOwner: 'leaseOwner',
   leaseExpiresAt: 'leaseExpiresAt',
+  leaseEpoch: 'leaseEpoch',
+  attemptCount: 'attemptCount',
   driveFileId: 'driveFileId',
   driveFolderId: 'driveFolderId',
   fileName: 'fileName',

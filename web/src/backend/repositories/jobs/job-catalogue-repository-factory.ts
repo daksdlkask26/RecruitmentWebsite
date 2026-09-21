@@ -24,7 +24,7 @@ export function configuredJsonJobCatalogueRepository<T = unknown>(
   const configuredJobsPath = process.env.JOB_CATALOGUE_PATH?.trim();
   const defaultJobsPath = resolve(process.cwd(), "data", "jobs", "jobs.json");
   const configuredJobsFilePath = configuredJobsPath
-    ? resolve(process.cwd(), configuredJobsPath)
+    ? resolve(/* turbopackIgnore: true */ process.cwd(), configuredJobsPath)
     : defaultJobsPath;
   const useSplitJobFallback =
     name === "jobs.json" && configuredJobsFilePath === defaultJobsPath;
